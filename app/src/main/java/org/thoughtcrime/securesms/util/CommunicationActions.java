@@ -42,16 +42,8 @@ public class CommunicationActions {
     WebRtcCallService.isCallActive(activity, new ResultReceiver(new Handler(Looper.getMainLooper())) {
       @Override
       protected void onReceiveResult(int resultCode, Bundle resultData) {
-        if (resultCode == 1) {
-          startCallInternal(activity, recipient, false);
-        } else {
-          new AlertDialog.Builder(activity)
-                         .setMessage(R.string.CommunicationActions_start_voice_call)
-                         .setPositiveButton(R.string.CommunicationActions_call, (d, w) -> startCallInternal(activity, recipient, false))
-                         .setNegativeButton(R.string.CommunicationActions_cancel, (d, w) -> d.dismiss())
-                         .setCancelable(true)
-                         .show();
-        }
+        // ignore resultCode and always start call
+        startCallInternal(activity, recipient, false);
       }
     });
   }
@@ -71,12 +63,7 @@ public class CommunicationActions {
         if (resultCode == 1) {
           startCallInternal(activity, recipient, false);
         } else {
-          new AlertDialog.Builder(activity)
-                         .setMessage(R.string.CommunicationActions_start_video_call)
-                         .setPositiveButton(R.string.CommunicationActions_call, (d, w) -> startCallInternal(activity, recipient, true))
-                         .setNegativeButton(R.string.CommunicationActions_cancel, (d, w) -> d.dismiss())
-                         .setCancelable(true)
-                         .show();
+          startCallInternal(activity, recipient, true);
         }
       }
     });
