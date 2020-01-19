@@ -219,6 +219,11 @@ public class WebRtcCallScreen extends FrameLayout implements RecipientForeverObs
   }
 
   public void setRemoteVideoEnabled(boolean enabled) {
+    if(enabled){
+      ViewCompat.animate(callHeader).alpha(0.33f);
+    }else {
+      ViewCompat.animate(callHeader).alpha(1.0f);
+    }
     if (enabled && this.remoteRenderLayout.isHidden()) {
       this.photo.setVisibility(View.INVISIBLE);
       setMinimized(true);
@@ -405,6 +410,8 @@ public class WebRtcCallScreen extends FrameLayout implements RecipientForeverObs
 
   private void setMinimized(boolean minimized) {
     if (minimized) {
+//      ViewCompat.animate(controls).alpha(0.33f);
+
       ViewCompat.animate(callHeader).translationY(-1 * expandedInfo.getHeight());
       ViewCompat.animate(status).alpha(0);
       ViewCompat.animate(endCallButton).translationY(endCallButton.getHeight() + ViewUtil.dpToPx(getContext(), 40));
@@ -413,6 +420,7 @@ public class WebRtcCallScreen extends FrameLayout implements RecipientForeverObs
       this.minimized = true;
     } else {
       ViewCompat.animate(callHeader).translationY(0);
+ //     ViewCompat.animate(controls).alpha(0.75f);
       ViewCompat.animate(status).alpha(1);
       ViewCompat.animate(endCallButton).translationY(0);
       ViewCompat.animate(endCallButton).alpha(1).withEndAction(() -> {
