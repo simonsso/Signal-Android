@@ -21,6 +21,7 @@ import org.thoughtcrime.securesms.crypto.MasterSecretUtil;
 import org.thoughtcrime.securesms.dependencies.ApplicationDependencies;
 import org.thoughtcrime.securesms.jobs.MultiDeviceConfigurationUpdateJob;
 import org.thoughtcrime.securesms.jobs.RefreshAttributesJob;
+import org.thoughtcrime.securesms.keyvalue.SignalStore;
 import org.thoughtcrime.securesms.lock.RegistrationLockDialog;
 import org.thoughtcrime.securesms.service.KeyCachingService;
 import org.thoughtcrime.securesms.util.CommunicationActions;
@@ -44,7 +45,12 @@ public class AppProtectionPreferenceFragment extends CorrectedPreferenceFragment
 
     disablePassphrase = (CheckBoxPreference) this.findPreference("pref_enable_passphrase_temporary");
 
-    this.findPreference(TextSecurePreferences.REGISTRATION_LOCK_PREF).setOnPreferenceClickListener(new AccountLockClickListener());
+    SwitchPreferenceCompat regLock = (SwitchPreferenceCompat) this.findPreference(TextSecurePreferences.REGISTRATION_LOCK_PREF_V1);
+    regLock.setChecked(
+      TextSecurePreferences.isV1RegistrationLockEnabled(requireContext()) || SignalStore.kbsValues().isV2RegistrationLockEnabled()
+    );
+    regLock.setOnPreferenceClickListener(new AccountLockClickListener());
+
     this.findPreference(TextSecurePreferences.SCREEN_LOCK).setOnPreferenceChangeListener(new ScreenLockListener());
     this.findPreference(TextSecurePreferences.SCREEN_LOCK_TIMEOUT).setOnPreferenceClickListener(new ScreenLockTimeoutListener());
 
@@ -148,10 +154,12 @@ public class AppProtectionPreferenceFragment extends CorrectedPreferenceFragment
   private class AccountLockClickListener implements Preference.OnPreferenceClickListener {
     @Override
     public boolean onPreferenceClick(Preference preference) {
-      if (((SwitchPreferenceCompat)preference).isChecked()) {
-        RegistrationLockDialog.showRegistrationUnlockPrompt(requireContext(), (SwitchPreferenceCompat)preference);
+      Context context = requireContext();
+
+      if (TextSecurePreferences.isV1RegistrationLockEnabled(context) || SignalStore.kbsValues().isV2RegistrationLockEnabled()) {
+        RegistrationLockDialog.showRegistrationUnlockPrompt(context, (SwitchPreferenceCompat)preference);
       } else {
-        RegistrationLockDialog.showRegistrationLockPrompt(requireContext(), (SwitchPreferenceCompat)preference);
+        RegistrationLockDialog.showRegistrationLockPrompt(context, (SwitchPreferenceCompat)preference);
       }
 
       return true;
@@ -211,18 +219,19 @@ public class AppProtectionPreferenceFragment extends CorrectedPreferenceFragment
   }
 
   public static CharSequence getSummary(Context context) {
-    final int    privacySummaryResId = R.string.ApplicationPreferencesActivity_privacy_summary;
-    final String onRes               = context.getString(R.string.ApplicationPreferencesActivity_on);
-    final String offRes              = context.getString(R.string.ApplicationPreferencesActivity_off);
+    final   int    privacySummaryResId = R.string.ApplicationPreferencesActivity_privacy_summary;
+    final   String onRes               = context.getString(R.string.ApplicationPreferencesActivity_on);
+    final   String offRes              = context.getString(R.string.ApplicationPreferencesActivity_off);
+    boolean registrationLockEnabled    = TextSecurePreferences.isV1RegistrationLockEnabled(context) || SignalStore.kbsValues().isV2RegistrationLockEnabled();
 
     if (TextSecurePreferences.isPasswordDisabled(context) && !TextSecurePreferences.isScreenLockEnabled(context)) {
-      if (TextSecurePreferences.isRegistrationLockEnabled(context)) {
+      if (registrationLockEnabled) {
         return context.getString(privacySummaryResId, offRes, onRes);
       } else {
         return context.getString(privacySummaryResId, offRes, offRes);
       }
     } else {
-      if (TextSecurePreferences.isRegistrationLockEnabled(context)) {
+      if (registrationLockEnabled) {
         return context.getString(privacySummaryResId, onRes, onRes);
       } else {
         return context.getString(privacySummaryResId, onRes, offRes);

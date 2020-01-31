@@ -37,6 +37,7 @@ import org.signal.aesgcmprovider.AesGcmProvider;
 import org.signal.ringrtc.CallConnectionFactory;
 import org.thoughtcrime.securesms.components.TypingStatusRepository;
 import org.thoughtcrime.securesms.components.TypingStatusSender;
+import org.thoughtcrime.securesms.database.DatabaseFactory;
 import org.thoughtcrime.securesms.database.helpers.SQLCipherOpenHelper;
 import org.thoughtcrime.securesms.dependencies.ApplicationDependencies;
 import org.thoughtcrime.securesms.dependencies.ApplicationDependencyProvider;
@@ -48,11 +49,12 @@ import org.thoughtcrime.securesms.jobs.FcmRefreshJob;
 import org.thoughtcrime.securesms.jobs.MultiDeviceContactUpdateJob;
 import org.thoughtcrime.securesms.jobs.PushNotificationReceiveJob;
 import org.thoughtcrime.securesms.jobs.StickerPackDownloadJob;
+import org.thoughtcrime.securesms.keyvalue.SignalStore;
 import org.thoughtcrime.securesms.logging.AndroidLogger;
 import org.thoughtcrime.securesms.logging.CustomSignalProtocolLogger;
 import org.thoughtcrime.securesms.logging.Log;
 import org.thoughtcrime.securesms.logging.PersistentLogger;
-import org.thoughtcrime.securesms.logging.UncaughtExceptionLogger;
+import org.thoughtcrime.securesms.logging.SignalUncaughtExceptionHandler;
 import org.thoughtcrime.securesms.mediasend.camerax.CameraXUtil;
 import org.thoughtcrime.securesms.migrations.ApplicationMigrations;
 import org.thoughtcrime.securesms.notifications.MessageNotifier;
@@ -70,9 +72,10 @@ import org.thoughtcrime.securesms.service.RotateSenderCertificateListener;
 import org.thoughtcrime.securesms.service.RotateSignedPreKeyListener;
 import org.thoughtcrime.securesms.service.UpdateApkRefreshListener;
 import org.thoughtcrime.securesms.stickers.BlessedPacks;
-import org.thoughtcrime.securesms.util.FrameRateTracker;
+import org.thoughtcrime.securesms.util.FeatureFlags;
 import org.thoughtcrime.securesms.util.TextSecurePreferences;
 import org.thoughtcrime.securesms.util.Util;
+import org.thoughtcrime.securesms.util.concurrent.SignalExecutors;
 import org.thoughtcrime.securesms.util.dynamiclanguage.DynamicLanguageContextWrapper;
 import org.webrtc.voiceengine.WebRtcAudioManager;
 import org.webrtc.voiceengine.WebRtcAudioUtils;
@@ -130,7 +133,9 @@ public class ApplicationContext extends MultiDexApplication implements DefaultLi
     initializeRingRtc();
     initializePendingMessages();
     initializeBlobProvider();
+    initializeCleanup();
     initializeCameraX();
+    FeatureFlags.init();
     NotificationChannels.create(this);
     ProcessLifecycleOwner.get().getLifecycle().addObserver(this);
 
@@ -145,6 +150,7 @@ public class ApplicationContext extends MultiDexApplication implements DefaultLi
   public void onStart(@NonNull LifecycleOwner owner) {
     isAppVisible = true;
     Log.i(TAG, "App is now visible.");
+    FeatureFlags.refresh();
     ApplicationDependencies.getRecipientCache().warmUp();
     executePendingContactSync();
     KeyCachingService.onAppForegrounded(this);
@@ -217,7 +223,7 @@ public class ApplicationContext extends MultiDexApplication implements DefaultLi
 
   private void initializeCrashHandling() {
     final Thread.UncaughtExceptionHandler originalHandler = Thread.getDefaultUncaughtExceptionHandler();
-    Thread.setDefaultUncaughtExceptionHandler(new UncaughtExceptionLogger(originalHandler));
+    Thread.setDefaultUncaughtExceptionHandler(new SignalUncaughtExceptionHandler(originalHandler));
   }
 
   private void initializeApplicationMigrations() {
@@ -368,8 +374,15 @@ public class ApplicationContext extends MultiDexApplication implements DefaultLi
   }
 
   private void initializeBlobProvider() {
-    AsyncTask.THREAD_POOL_EXECUTOR.execute(() -> {
+    SignalExecutors.BOUNDED.execute(() -> {
       BlobProvider.getInstance().onSessionStart(this);
+    });
+  }
+
+  private void initializeCleanup() {
+    SignalExecutors.BOUNDED.execute(() -> {
+      int deleted = DatabaseFactory.getAttachmentDatabase(this).deleteAbandonedPreuploadedAttachments();
+      Log.i(TAG, "Deleted " + deleted + " abandoned attachments.");
     });
   }
 

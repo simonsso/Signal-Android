@@ -7,21 +7,22 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.view.View;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
 import androidx.core.app.NotificationCompat;
 import androidx.viewpager.widget.ViewPager;
-import android.view.View;
 
 import com.melnykov.fab.FloatingActionButton;
-import com.nineoldandroids.animation.ArgbEvaluator;
 
 import org.thoughtcrime.securesms.IntroPagerAdapter.IntroPage;
-import org.thoughtcrime.securesms.database.model.Sticker;
 import org.thoughtcrime.securesms.experienceupgrades.StickersIntroFragment;
 import org.thoughtcrime.securesms.logging.Log;
 import org.thoughtcrime.securesms.notifications.NotificationChannels;
+import org.thoughtcrime.securesms.notifications.NotificationIds;
+import org.thoughtcrime.securesms.profiles.edit.EditProfileActivity;
 import org.thoughtcrime.securesms.util.DynamicNoActionBarTheme;
 import org.thoughtcrime.securesms.util.DynamicTheme;
 import org.thoughtcrime.securesms.util.ServiceUtil;
@@ -40,7 +41,6 @@ public class ExperienceUpgradeActivity extends BaseActionBarActivity
 {
   private static final String TAG             = ExperienceUpgradeActivity.class.getSimpleName();
   private static final String DISMISS_ACTION  = "org.thoughtcrime.securesms.ExperienceUpgradeActivity.DISMISS_ACTION";
-  private static final int    NOTIFICATION_ID = 1339;
 
   private final DynamicTheme dynamicTheme = new DynamicNoActionBarTheme();
 
@@ -73,7 +73,7 @@ public class ExperienceUpgradeActivity extends BaseActionBarActivity
              R.string.ExperienceUpgradeActivity_signal_profiles_are_here,
              R.string.ExperienceUpgradeActivity_now_you_can_share_a_profile_photo_and_name_with_friends_on_signal,
              R.string.ExperienceUpgradeActivity_now_you_can_share_a_profile_photo_and_name_with_friends_on_signal,
-             CreateProfileActivity.class,
+             EditProfileActivity.class,
              false),
     READ_RECEIPTS(299,
                   new IntroPage(0xFF2090EA,
@@ -196,7 +196,7 @@ public class ExperienceUpgradeActivity extends BaseActionBarActivity
     }
 
     getWindow().setBackgroundDrawable(new ColorDrawable(upgrade.get().getPage(0).backgroundColor));
-    ServiceUtil.getNotificationManager(this).cancel(NOTIFICATION_ID);
+    ServiceUtil.getNotificationManager(this).cancel(NotificationIds.EXPERIENCE_UPGRADE);
   }
 
   @Override
@@ -206,7 +206,7 @@ public class ExperienceUpgradeActivity extends BaseActionBarActivity
   }
 
   private void onContinue(Optional<ExperienceUpgrade> seenUpgrade) {
-    ServiceUtil.getNotificationManager(this).cancel(NOTIFICATION_ID);
+    ServiceUtil.getNotificationManager(this).cancel(NotificationIds.EXPERIENCE_UPGRADE);
     int latestVersion = seenUpgrade.isPresent() ? seenUpgrade.get().getVersion()
                                                 : Util.getCanonicalVersionCode();
     TextSecurePreferences.setLastExperienceVersionCode(this, latestVersion);
@@ -281,7 +281,7 @@ public class ExperienceUpgradeActivity extends BaseActionBarActivity
                                                           PendingIntent.FLAG_UPDATE_CURRENT))
               .build();
 
-          ServiceUtil.getNotificationManager(context).notify(NOTIFICATION_ID, notification);
+          ServiceUtil.getNotificationManager(context).notify(NotificationIds.EXPERIENCE_UPGRADE, notification);
         }
 
         Optional<ExperienceUpgrade> experienceUpgrade = getExperienceUpgrade(context);
@@ -313,7 +313,7 @@ public class ExperienceUpgradeActivity extends BaseActionBarActivity
                                                                                     dismissIntent,
                                                                                     PendingIntent.FLAG_UPDATE_CURRENT))
                                         .build();
-        ServiceUtil.getNotificationManager(context).notify(NOTIFICATION_ID, notification);
+        ServiceUtil.getNotificationManager(context).notify(NotificationIds.EXPERIENCE_UPGRADE, notification);
       } else if (DISMISS_ACTION.equals(intent.getAction())) {
         TextSecurePreferences.setExperienceDismissedVersionCode(context, Util.getCanonicalVersionCode());
       }
