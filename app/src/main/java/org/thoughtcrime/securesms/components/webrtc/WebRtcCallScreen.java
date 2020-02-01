@@ -348,7 +348,7 @@ public class WebRtcCallScreen extends FrameLayout implements RecipientForeverObs
         ((ViewGroup)remoteRenderer.getParent()).removeView(remoteRenderer);
       }
 
-      localRenderLayout.setPosition(7, 70, 25, 25);
+      localRenderLayout.setPosition(6, 84, 10, 10);
       remoteRenderLayout.setPosition(0, 0, 100, 100);
 
       localRenderer.setLayoutParams(new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
