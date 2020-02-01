@@ -1,4 +1,4 @@
-# Signal with private patches
+# [Signal](https://signal.org/) with private patches
 
 ## Background
 In signal for Android 4.51 changes to how UI works initiates calls were made. Since I am not a fan of unmotivated confirm requesters I
