@@ -602,6 +602,7 @@ public class ConversationFragment extends Fragment
                                       attachment.getWidth(),
                                       attachment.getHeight(),
                                       attachment.getSize(),
+                                      0,
                                       Optional.absent(),
                                       Optional.fromNullable(attachment.getCaption())));
             }
@@ -994,8 +995,7 @@ public class ConversationFragment extends Fragment
 
       if (actionMode != null) return;
 
-      if (FeatureFlags.reactionSending() &&
-          messageRecord.isSecure()       &&
+      if (messageRecord.isSecure()       &&
           !messageRecord.isUpdate()      &&
           ((ConversationAdapter) list.getAdapter()).getSelectedItems().isEmpty())
       {

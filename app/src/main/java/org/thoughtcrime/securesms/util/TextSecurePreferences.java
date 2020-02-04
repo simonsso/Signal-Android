@@ -150,6 +150,7 @@ public class TextSecurePreferences {
   private static final String ENCRYPTED_BACKUP_PASSPHRASE = "pref_encrypted_backup_passphrase";
   private static final String BACKUP_TIME                 = "pref_backup_next_time";
   public  static final String BACKUP_NOW                  = "pref_backup_create";
+  public  static final String BACKUP_PASSPHRASE_VERIFY    = "pref_backup_passphrase_verify";
 
   public static final String SCREEN_LOCK         = "pref_android_screen_lock";
   public static final String SCREEN_LOCK_TIMEOUT = "pref_android_screen_lock_timeout";
@@ -159,9 +160,10 @@ public class TextSecurePreferences {
   @Deprecated
   private static final String REGISTRATION_LOCK_PIN_PREF_V1            = "pref_registration_lock_pin";
 
-  private static final String REGISTRATION_LOCK_LAST_REMINDER_TIME          = "pref_registration_lock_last_reminder_time";
   private static final String REGISTRATION_LOCK_LAST_REMINDER_TIME_POST_KBS = "pref_registration_lock_last_reminder_time_post_kbs";
   private static final String REGISTRATION_LOCK_NEXT_REMINDER_INTERVAL      = "pref_registration_lock_next_reminder_interval";
+
+  public  static final String KBS_PIN_CHANGE = "pref_kbs_change";
 
   private static final String SERVICE_OUTAGE         = "pref_service_outage";
   private static final String LAST_OUTAGE_CHECK_TIME = "pref_last_outage_check_time";
@@ -269,16 +271,11 @@ public class TextSecurePreferences {
   }
 
   public static long getRegistrationLockLastReminderTime(@NonNull Context context) {
-    return getLongPreference(context, getAppropriateReminderKey(), 0);
+    return getLongPreference(context, REGISTRATION_LOCK_LAST_REMINDER_TIME_POST_KBS, 0);
   }
 
   public static void setRegistrationLockLastReminderTime(@NonNull Context context, long time) {
-    setLongPreference(context, getAppropriateReminderKey(), time);
-  }
-
-  private static String getAppropriateReminderKey() {
-    return FeatureFlags.kbs() ? REGISTRATION_LOCK_LAST_REMINDER_TIME_POST_KBS
-                              : REGISTRATION_LOCK_LAST_REMINDER_TIME;
+    setLongPreference(context, REGISTRATION_LOCK_LAST_REMINDER_TIME_POST_KBS, time);
   }
 
   public static long getRegistrationLockNextReminderInterval(@NonNull Context context) {

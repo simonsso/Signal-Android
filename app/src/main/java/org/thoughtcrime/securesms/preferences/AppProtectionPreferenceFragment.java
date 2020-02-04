@@ -11,6 +11,8 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.preference.CheckBoxPreference;
 import androidx.preference.Preference;
 
+import com.google.android.material.snackbar.Snackbar;
+
 import org.thoughtcrime.securesms.ApplicationContext;
 import org.thoughtcrime.securesms.ApplicationPreferencesActivity;
 import org.thoughtcrime.securesms.BlockedContactsActivity;
@@ -21,10 +23,12 @@ import org.thoughtcrime.securesms.crypto.MasterSecretUtil;
 import org.thoughtcrime.securesms.dependencies.ApplicationDependencies;
 import org.thoughtcrime.securesms.jobs.MultiDeviceConfigurationUpdateJob;
 import org.thoughtcrime.securesms.jobs.RefreshAttributesJob;
-import org.thoughtcrime.securesms.keyvalue.SignalStore;
 import org.thoughtcrime.securesms.lock.RegistrationLockDialog;
+import org.thoughtcrime.securesms.lock.v2.CreateKbsPinActivity;
+import org.thoughtcrime.securesms.lock.v2.PinUtil;
 import org.thoughtcrime.securesms.service.KeyCachingService;
 import org.thoughtcrime.securesms.util.CommunicationActions;
+import org.thoughtcrime.securesms.util.FeatureFlags;
 import org.thoughtcrime.securesms.util.TextSecurePreferences;
 
 import java.util.Locale;
@@ -45,11 +49,27 @@ public class AppProtectionPreferenceFragment extends CorrectedPreferenceFragment
 
     disablePassphrase = (CheckBoxPreference) this.findPreference("pref_enable_passphrase_temporary");
 
-    SwitchPreferenceCompat regLock = (SwitchPreferenceCompat) this.findPreference(TextSecurePreferences.REGISTRATION_LOCK_PREF_V1);
-    regLock.setChecked(
-      TextSecurePreferences.isV1RegistrationLockEnabled(requireContext()) || SignalStore.kbsValues().isV2RegistrationLockEnabled()
-    );
-    regLock.setOnPreferenceClickListener(new AccountLockClickListener());
+    SwitchPreferenceCompat regLock      = (SwitchPreferenceCompat) this.findPreference(TextSecurePreferences.REGISTRATION_LOCK_PREF_V1);
+    Preference             kbsPinChange = this.findPreference(TextSecurePreferences.KBS_PIN_CHANGE);
+    Preference             regGroup     = this.findPreference("prefs_lock_v1");
+    Preference             kbsGroup     = this.findPreference("prefs_lock_v2");
+
+    if (FeatureFlags.pinsForAll()) {
+      Preference preference = this.findPreference("pref_kbs_change");
+      regGroup.setVisible(false);
+
+      if (PinUtil.userHasPin(ApplicationDependencies.getApplication())) {
+        kbsPinChange.setOnPreferenceClickListener(new KbsPinUpdateListener());
+        preference.setWidgetLayoutResource(R.layout.kbs_pin_change_preference);
+      } else {
+        kbsPinChange.setOnPreferenceClickListener(new KbsPinCreateListener());
+        preference.setWidgetLayoutResource(R.layout.kbs_pin_create_preference);
+      }
+    } else {
+      kbsGroup.setVisible(false);
+      regLock.setChecked(PinUtil.userHasPin(requireContext()));
+      regLock.setOnPreferenceClickListener(new AccountLockClickListener());
+    }
 
     this.findPreference(TextSecurePreferences.SCREEN_LOCK).setOnPreferenceChangeListener(new ScreenLockListener());
     this.findPreference(TextSecurePreferences.SCREEN_LOCK_TIMEOUT).setOnPreferenceClickListener(new ScreenLockTimeoutListener());
@@ -82,6 +102,13 @@ public class AppProtectionPreferenceFragment extends CorrectedPreferenceFragment
     else                                                         initializeScreenLockTimeoutSummary();
 
     disablePassphrase.setChecked(!TextSecurePreferences.isPasswordDisabled(getActivity()));
+  }
+
+  @Override
+  public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+    if (requestCode == CreateKbsPinActivity.REQUEST_NEW_PIN && resultCode == CreateKbsPinActivity.RESULT_OK) {
+      Snackbar.make(requireView(), R.string.ConfirmKbsPinFragment__pin_created, Snackbar.LENGTH_LONG).show();
+    }
   }
 
   private void initializePassphraseTimeoutSummary() {
@@ -151,12 +178,28 @@ public class AppProtectionPreferenceFragment extends CorrectedPreferenceFragment
     }
   }
 
+  private class KbsPinUpdateListener implements Preference.OnPreferenceClickListener {
+    @Override
+    public boolean onPreferenceClick(Preference preference) {
+      startActivityForResult(CreateKbsPinActivity.getIntentForPinChangeFromSettings(requireContext()), CreateKbsPinActivity.REQUEST_NEW_PIN);
+      return true;
+    }
+  }
+
+  private class KbsPinCreateListener implements Preference.OnPreferenceClickListener {
+    @Override
+    public boolean onPreferenceClick(Preference preference) {
+      startActivityForResult(CreateKbsPinActivity.getIntentForPinCreate(requireContext()), CreateKbsPinActivity.REQUEST_NEW_PIN);
+      return true;
+    }
+  }
+
   private class AccountLockClickListener implements Preference.OnPreferenceClickListener {
     @Override
     public boolean onPreferenceClick(Preference preference) {
       Context context = requireContext();
 
-      if (TextSecurePreferences.isV1RegistrationLockEnabled(context) || SignalStore.kbsValues().isV2RegistrationLockEnabled()) {
+      if (PinUtil.userHasPin(context)) {
         RegistrationLockDialog.showRegistrationUnlockPrompt(context, (SwitchPreferenceCompat)preference);
       } else {
         RegistrationLockDialog.showRegistrationLockPrompt(context, (SwitchPreferenceCompat)preference);
@@ -219,10 +262,11 @@ public class AppProtectionPreferenceFragment extends CorrectedPreferenceFragment
   }
 
   public static CharSequence getSummary(Context context) {
-    final   int    privacySummaryResId = R.string.ApplicationPreferencesActivity_privacy_summary;
+    final   int    privacySummaryResId = FeatureFlags.pinsForAll() ? R.string.ApplicationPreferencesActivity_privacy_summary_screen_lock
+                                                                   : R.string.ApplicationPreferencesActivity_privacy_summary;
     final   String onRes               = context.getString(R.string.ApplicationPreferencesActivity_on);
     final   String offRes              = context.getString(R.string.ApplicationPreferencesActivity_off);
-    boolean registrationLockEnabled    = TextSecurePreferences.isV1RegistrationLockEnabled(context) || SignalStore.kbsValues().isV2RegistrationLockEnabled();
+    boolean registrationLockEnabled    = PinUtil.userHasPin(context);
 
     if (TextSecurePreferences.isPasswordDisabled(context) && !TextSecurePreferences.isScreenLockEnabled(context)) {
       if (registrationLockEnabled) {
