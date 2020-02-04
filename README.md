@@ -1,3 +1,5 @@
+![Android CI](https://github.com/simonsso/Signal-Android/workflows/Android%20CI/badge.svg?branch=cust_remove_antifeature_callconfirm)
+
 # [Signal](https://signal.org/) with private patches
 
 ## Background
