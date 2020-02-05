@@ -7,14 +7,11 @@ import android.content.Context;
 import android.graphics.PointF;
 import android.graphics.Rect;
 import android.os.Build;
-import android.os.VibrationEffect;
-import android.os.Vibrator;
 import android.util.AttributeSet;
 import android.view.HapticFeedbackConstants;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.animation.AccelerateInterpolator;
 import android.view.animation.DecelerateInterpolator;
 import android.view.animation.Interpolator;
 import android.widget.RelativeLayout;
@@ -34,13 +31,10 @@ import com.annimon.stream.Stream;
 import org.thoughtcrime.securesms.R;
 import org.thoughtcrime.securesms.animation.AnimationCompleteListener;
 import org.thoughtcrime.securesms.components.MaskView;
-import org.thoughtcrime.securesms.components.emoji.EmojiTextView;
 import org.thoughtcrime.securesms.database.model.MessageRecord;
 import org.thoughtcrime.securesms.database.model.ReactionRecord;
 import org.thoughtcrime.securesms.recipients.Recipient;
 import org.thoughtcrime.securesms.util.MessageRecordUtil;
-import org.thoughtcrime.securesms.util.ServiceUtil;
-import org.thoughtcrime.securesms.util.TextSecurePreferences;
 import org.thoughtcrime.securesms.util.ThemeUtil;
 import org.thoughtcrime.securesms.util.Util;
 import org.thoughtcrime.securesms.util.ViewUtil;
@@ -365,7 +359,7 @@ public final class ConversationReactionOverlay extends RelativeLayout {
         .scaleY(1.5f)
         .scaleX(1.5f)
         .translationY(-selectedVerticalTranslation)
-        .setDuration(400)
+        .setDuration(200)
         .setInterpolator(INTERPOLATOR)
         .start();
   }
@@ -375,7 +369,7 @@ public final class ConversationReactionOverlay extends RelativeLayout {
         .scaleX(1.0f)
         .scaleY(1.0f)
         .translationY(0)
-        .setDuration(400)
+        .setDuration(200)
         .setInterpolator(INTERPOLATOR)
         .start();
   }
@@ -472,6 +466,11 @@ public final class ConversationReactionOverlay extends RelativeLayout {
     selectedRevealAnim.setDuration(duration);
     reveals.add(selectedRevealAnim);
 
+    Animator toolbarRevealAnim = AnimatorInflaterCompat.loadAnimator(getContext(), android.R.animator.fade_in);
+    toolbarRevealAnim.setTarget(toolbar);
+    toolbarRevealAnim.setDuration(duration);
+    reveals.add(toolbarRevealAnim);
+
     revealAnimatorSet.setInterpolator(INTERPOLATOR);
     revealAnimatorSet.playTogether(reveals);
 
@@ -498,6 +497,11 @@ public final class ConversationReactionOverlay extends RelativeLayout {
     selectedHideAnim.setTarget(selectedView);
     selectedHideAnim.setDuration(duration);
     hides.add(selectedHideAnim);
+
+    Animator toolbarHideAnim = AnimatorInflaterCompat.loadAnimator(getContext(), android.R.animator.fade_out);
+    toolbarHideAnim.setTarget(toolbar);
+    toolbarHideAnim.setDuration(duration);
+    hides.add(toolbarHideAnim);
 
     hideAnimatorSet.addListener(new AnimationCompleteListener() {
       @Override
@@ -529,7 +533,7 @@ public final class ConversationReactionOverlay extends RelativeLayout {
     }
 
     private void update(float min, float max) {
-      Preconditions.checkArgument(min < max, "Min must be less than max");
+      Preconditions.checkArgument(min <= max, "Min must be less than max");
       this.min = min;
       this.max = max;
     }
