@@ -1,0 +1,117 @@
+name: Android Release
+
+on:
+  push:
+    tags:
+      - 'CUST*'
+jobs:
+  create:
+    name: Create Release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@master
+  apk:
+    name: Generate APK
+    runs-on: ubuntu-18.04
+
+    steps:
+      - uses: actions/checkout@v1
+      - name: set up JDK 1.8
+        uses: actions/setup-java@v1
+        with:
+          java-version: 1.8
+      - name: Build debug APK
+        run: bash ./gradlew assembleDebug --stacktrace
+      - name: PackRelease
+        run: |
+           zip CustSignalDebug_universal.zip --junk-paths  app/build/outputs/apk/play/debug/*universal*.apk
+           zip CustSignalDebug_arm64_v8a.zip --junk-paths  app/build/outputs/apk/play/debug/*arm64-v8a*.apk
+           zip CustSignalDebug_armeabi_v7a.zip --junk-paths  app/build/outputs/apk/play/debug/*armeabi-v7a*.apk
+           zip CustSignalDebug_x86.zip --junk-paths  app/build/outputs/apk/play/debug/*x86*.apk
+           zip CustSignalDebugAll_APK.zip --junk-paths  app/build/outputs/apk/play/debug/*.apk
+      - name: Upload APK univeral
+        uses: actions/upload-artifact@v1
+        with:
+          name: CustSignalDebug_universal.zip
+          path: CustSignalDebug_universal.zip
+      - name: Upload APK arm64
+        uses: actions/upload-artifact@v1
+        with:
+          name: CustSignalDebug_arm64_v8a.zip
+          path: CustSignalDebug_arm64_v8a.zip
+      - name: Upload APK arm64 v8a
+        uses: actions/upload-artifact@v1
+        with:
+          name: CustSignalDebug_armeabi_v7a.zip
+          path: CustSignalDebug_armeabi_v7a.zip
+      - name: Upload APK x86
+        uses: actions/upload-artifact@v1
+        with:
+          name: CustSignalDebug_x86.zip
+          path: CustSignalDebug_x86.zip
+      - name: Upload APK
+        uses: actions/upload-artifact@v1
+        with:
+          name: CustSignalDebugAll_APK.zip
+          path: CustSignalDebugAll_APK.zip
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1.0.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }}
+          draft: false
+          prerelease: true
+      - name: Upload Release Asset All
+        id: upload-release-asset0 
+        uses: actions/upload-release-asset@v1.0.1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
+          asset_path: CustSignalDebugAll_APK.zip
+          asset_name: CustSignalDebugAll_APK.zip
+          asset_content_type: application/zip      
+      - name: Upload Release Asset universal
+        id: upload-release-asset1 
+        uses: actions/upload-release-asset@v1.0.1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
+          asset_path: CustSignalDebug_universal.zip
+          asset_name: CustSignalDebug_universal.zip
+          asset_content_type: application/zip
+      - name: Upload Release Asset arm7
+        id: upload-release-asset2 
+        uses: actions/upload-release-asset@v1.0.1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
+          asset_path: CustSignalDebug_armeabi_v7a.zip
+          asset_name: CustSignalDebug_armeabi_v7a.zip
+          asset_content_type: application/zip
+      - name: Upload Release Asset Arm64
+        id: upload-release-asset3
+        uses: actions/upload-release-asset@v1.0.1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
+          asset_path: CustSignalDebug_arm64_v8a.zip
+          asset_name: CustSignalDebug_arm64_v8a.zip
+          asset_content_type: application/zip 
+      - name: Upload Release Asset x86
+        id: upload-release-asset4
+        uses: actions/upload-release-asset@v1.0.1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
+          asset_path: CustSignalDebug_x86.zip
+          asset_name: CustSignalDebug_x86.zip
+          asset_content_type: application/zip
