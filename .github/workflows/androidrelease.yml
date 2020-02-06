@@ -35,12 +35,12 @@ jobs:
         with:
           name: CustSignalDebug_universal.zip
           path: CustSignalDebug_universal.zip
-      - name: Upload APK arm64
+      - name: Upload APK arm64_v8a
         uses: actions/upload-artifact@v1
         with:
           name: CustSignalDebug_arm64_v8a.zip
           path: CustSignalDebug_arm64_v8a.zip
-      - name: Upload APK arm64 v8a
+      - name: Upload APK armeabi_v7a
         uses: actions/upload-artifact@v1
         with:
           name: CustSignalDebug_armeabi_v7a.zip
@@ -85,7 +85,7 @@ jobs:
           asset_path: CustSignalDebug_universal.zip
           asset_name: CustSignalDebug_universal.zip
           asset_content_type: application/zip
-      - name: Upload Release Asset arm7
+      - name: Upload Release Asset armeabi v7a
         id: upload-release-asset2 
         uses: actions/upload-release-asset@v1.0.1
         env:
@@ -95,7 +95,7 @@ jobs:
           asset_path: CustSignalDebug_armeabi_v7a.zip
           asset_name: CustSignalDebug_armeabi_v7a.zip
           asset_content_type: application/zip
-      - name: Upload Release Asset Arm64
+      - name: Upload Release Asset Arm64 v8a
         id: upload-release-asset3
         uses: actions/upload-release-asset@v1.0.1
         env:
