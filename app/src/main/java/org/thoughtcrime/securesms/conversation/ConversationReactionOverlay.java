@@ -570,7 +570,7 @@ public final class ConversationReactionOverlay extends RelativeLayout {
     LAUGH(R.id.reaction_4, "\ud83d\ude02"),
     SURPRISE(R.id.reaction_5, "\ud83d\ude2e"),
     SAD(R.id.reaction_6, "\ud83d\ude22"),
-    ANGRY(R.id.reaction_7, "\ud83d\ude21");
+    ANGRY(R.id.reaction_7, "💩");  //Try replace angry with Poo U+1F4A9
 
     final @IdRes int    viewId;
     final        String emoji;
