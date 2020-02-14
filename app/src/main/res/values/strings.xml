@@ -371,6 +371,7 @@
 
     <!-- ShareActivity -->
     <string name="ShareActivity_share_with">Share with</string>
+    <string name="ShareActivity_multiple_attachments_are_only_supported">Multiple attachments are only supported for images and videos</string>
 
     <!-- ExperienceUpgradeActivity -->
     <string name="ExperienceUpgradeActivity_welcome_to_signal_dgaf">Welcome to Signal.</string>
@@ -1471,7 +1472,7 @@
     <string name="preferences__linked_devices">Linked devices</string>
     <string name="preferences__light_theme">Light</string>
     <string name="preferences__dark_theme">Dark</string>
-    <string name="preferences__system_theme">System</string>
+    <string name="preferences__system_theme">System default</string>
     <string name="preferences__appearance">Appearance</string>
     <string name="preferences__theme">Theme</string>
     <string name="preferences__default">Default</string>
@@ -1797,6 +1798,14 @@
     <string name="KbsMegaphone__well_remind_you_later_creating_a_pin">We\'ll remind you later. Creating a PIN will become mandatory in %1$d days.</string>
     <string name="KbsMegaphone__well_remind_you_later_confirming_your_pin">We\'ll remind you later. Confirming your PIN will become mandatory in %1$d days.</string>
 
+    <!-- Profile Names Megaphone -->
+    <string name="ProfileNamesMegaphone__add_a_profile_name">Add a profile name</string>
+    <string name="ProfileNamesMegaphone__this_will_be_displayed_when_you_start">This will be displayed when you start a new conversation or share it.</string>
+    <string name="ProfileNamesMegaphone__add_profile_name">Add Profile Name</string>
+    <string name="ProfileNamesMegaphone__confirm_your_profile_name">Confirm your Profile Name</string>
+    <string name="ProfileNamesMegaphone__your_profile_can_now_include">Your profile can now include an optional last name.</string>
+    <string name="ProfileNamesMegaphone__confirm_name">Confirm Name</string>
+
     <!-- transport_selection_list_item -->
     <string name="transport_selection_list_item__transport_icon">Transport icon</string>
     <string name="ConversationListFragment_loading">Loading…</string>
@@ -1865,7 +1874,7 @@
     <string name="preferences_app_protection__pin">PIN</string>
     <string name="preferences_app_protection__change">Change</string>
     <string name="preferences_app_protection__create">Create</string>
-    <string name="preferences_app_protection__your_pin_adds_an_extra_layer_of_security_and_backs">Your PIN adds an extra layer of security and backs up your account. You\'ll be asked for it when you register your phone number with Signal. If you forget your PIN, you\'ll be locked out of your account for 7 days.</string>
+    <string name="preferences_app_protection__your_pin_adds_an_extra_layer_of_security_to_your_account">Your PIN adds an extra layer of security to your account. You\'ll be asked for it when you register your phone number with Signal. If you forget your PIN, you\'ll be locked out of your account for 7 days.</string>
     <string name="AppProtectionPreferenceFragment_none">None</string>
     <string name="registration_activity__the_registration_lock_pin_is_not_the_same_as_the_sms_verification_code_you_just_received_please_enter_the_pin_you_previously_configured_in_the_application">The Registration Lock PIN is not the same as the SMS verification code you just received. Please enter the PIN you previously configured in the application.</string>
     <string name="registration_activity__registration_lock_pin">Registration Lock PIN</string>
