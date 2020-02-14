@@ -12,6 +12,7 @@ import androidx.annotation.Nullable;
 import com.annimon.stream.Collectors;
 import com.annimon.stream.Stream;
 
+import org.signal.zkgroup.profiles.ProfileKey;
 import org.thoughtcrime.securesms.ApplicationContext;
 import org.thoughtcrime.securesms.attachments.Attachment;
 import org.thoughtcrime.securesms.attachments.DatabaseAttachment;
@@ -20,6 +21,7 @@ import org.thoughtcrime.securesms.attachments.TombstoneAttachment;
 import org.thoughtcrime.securesms.attachments.UriAttachment;
 import org.thoughtcrime.securesms.contactshare.Contact;
 import org.thoughtcrime.securesms.contactshare.ContactModelMapper;
+import org.thoughtcrime.securesms.crypto.ProfileKeyUtil;
 import org.thoughtcrime.securesms.crypto.SecurityEvent;
 import org.thoughtcrime.securesms.crypto.storage.TextSecureSessionStore;
 import org.thoughtcrime.securesms.database.AttachmentDatabase;
@@ -61,6 +63,8 @@ import org.thoughtcrime.securesms.notifications.MessageNotifier;
 import org.thoughtcrime.securesms.recipients.Recipient;
 import org.thoughtcrime.securesms.recipients.RecipientId;
 import org.thoughtcrime.securesms.service.WebRtcCallService;
+import org.thoughtcrime.securesms.ringrtc.IceCandidateParcel;
+import org.thoughtcrime.securesms.ringrtc.RemotePeer;
 import org.thoughtcrime.securesms.sms.IncomingEncryptedMessage;
 import org.thoughtcrime.securesms.sms.IncomingEndSessionMessage;
 import org.thoughtcrime.securesms.sms.IncomingTextMessage;
@@ -102,7 +106,6 @@ import org.whispersystems.signalservice.api.messages.shared.SharedContact;
 import org.whispersystems.signalservice.api.push.SignalServiceAddress;
 
 import java.io.IOException;
-import java.security.MessageDigest;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -271,8 +274,8 @@ public final class PushProcessMessageJob extends BaseJob {
           handleUnknownGroupMessage(content, message.getGroupInfo().get());
         }
 
-        if (message.getProfileKey().isPresent() && message.getProfileKey().get().length == 32) {
-          handleProfileKey(content, message);
+        if (message.getProfileKey().isPresent()) {
+          handleProfileKey(content, message.getProfileKey().get());
         }
 
         if (content.isNeedsReceipt()) {
@@ -367,18 +370,21 @@ public final class PushProcessMessageJob extends BaseJob {
                                       @NonNull OfferMessage message,
                                       @NonNull Optional<Long> smsMessageId)
   {
-    Log.w(TAG, "handleCallOfferMessage...");
+    Log.i(TAG, "handleCallOfferMessage...");
 
     if (smsMessageId.isPresent()) {
       SmsDatabase database = DatabaseFactory.getSmsDatabase(context);
       database.markAsMissedCall(smsMessageId.get());
     } else {
-      Intent intent = new Intent(context, WebRtcCallService.class);
-      intent.setAction(WebRtcCallService.ACTION_INCOMING_CALL);
-      intent.putExtra(WebRtcCallService.EXTRA_CALL_ID, message.getId());
-      intent.putExtra(WebRtcCallService.EXTRA_REMOTE_RECIPIENT, Recipient.externalPush(context, content.getSender()).getId());
-      intent.putExtra(WebRtcCallService.EXTRA_REMOTE_DESCRIPTION, message.getDescription());
-      intent.putExtra(WebRtcCallService.EXTRA_TIMESTAMP, content.getTimestamp());
+      Intent     intent     = new Intent(context, WebRtcCallService.class);
+      RemotePeer remotePeer = new RemotePeer(Recipient.externalPush(context, content.getSender()).getId());
+
+      intent.setAction(WebRtcCallService.ACTION_RECEIVE_OFFER)
+            .putExtra(WebRtcCallService.EXTRA_CALL_ID,           message.getId())
+            .putExtra(WebRtcCallService.EXTRA_REMOTE_PEER,       remotePeer)
+            .putExtra(WebRtcCallService.EXTRA_REMOTE_DEVICE,     content.getSenderDevice())
+            .putExtra(WebRtcCallService.EXTRA_OFFER_DESCRIPTION, message.getDescription())
+            .putExtra(WebRtcCallService.EXTRA_TIMESTAMP,         content.getTimestamp());
 
       if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) context.startForegroundService(intent);
       else                                                context.startService(intent);
@@ -389,11 +395,14 @@ public final class PushProcessMessageJob extends BaseJob {
                                        @NonNull AnswerMessage message)
   {
     Log.i(TAG, "handleCallAnswerMessage...");
-    Intent intent = new Intent(context, WebRtcCallService.class);
-    intent.setAction(WebRtcCallService.ACTION_RESPONSE_MESSAGE);
-    intent.putExtra(WebRtcCallService.EXTRA_CALL_ID, message.getId());
-    intent.putExtra(WebRtcCallService.EXTRA_REMOTE_RECIPIENT, Recipient.externalPush(context, content.getSender()).getId());
-    intent.putExtra(WebRtcCallService.EXTRA_REMOTE_DESCRIPTION, message.getDescription());
+    Intent     intent     = new Intent(context, WebRtcCallService.class);
+    RemotePeer remotePeer = new RemotePeer(Recipient.externalPush(context, content.getSender()).getId());
+
+    intent.setAction(WebRtcCallService.ACTION_RECEIVE_ANSWER)
+          .putExtra(WebRtcCallService.EXTRA_CALL_ID,            message.getId())
+          .putExtra(WebRtcCallService.EXTRA_REMOTE_PEER,        remotePeer)
+          .putExtra(WebRtcCallService.EXTRA_REMOTE_DEVICE,      content.getSenderDevice())
+          .putExtra(WebRtcCallService.EXTRA_ANSWER_DESCRIPTION, message.getDescription());
 
     context.startService(intent);
   }
@@ -401,18 +410,25 @@ public final class PushProcessMessageJob extends BaseJob {
   private void handleCallIceUpdateMessage(@NonNull SignalServiceContent content,
                                           @NonNull List<IceUpdateMessage> messages)
   {
-    Log.w(TAG, "handleCallIceUpdateMessage... " + messages.size());
-    for (IceUpdateMessage message : messages) {
-      Intent intent = new Intent(context, WebRtcCallService.class);
-      intent.setAction(WebRtcCallService.ACTION_ICE_MESSAGE);
-      intent.putExtra(WebRtcCallService.EXTRA_CALL_ID, message.getId());
-      intent.putExtra(WebRtcCallService.EXTRA_REMOTE_RECIPIENT, Recipient.externalPush(context, content.getSender()).getId());
-      intent.putExtra(WebRtcCallService.EXTRA_ICE_SDP, message.getSdp());
-      intent.putExtra(WebRtcCallService.EXTRA_ICE_SDP_MID, message.getSdpMid());
-      intent.putExtra(WebRtcCallService.EXTRA_ICE_SDP_LINE_INDEX, message.getSdpMLineIndex());
+    Log.i(TAG, "handleCallIceUpdateMessage... " + messages.size());
 
-      context.startService(intent);
+    ArrayList<IceCandidateParcel> iceCandidates = new ArrayList(messages.size());
+    long callId = -1;
+    for (IceUpdateMessage iceMessage : messages) {
+      iceCandidates.add(new IceCandidateParcel(iceMessage));
+      callId = iceMessage.getId();
     }
+
+    Intent     intent     = new Intent(context, WebRtcCallService.class);
+    RemotePeer remotePeer = new RemotePeer(Recipient.externalPush(context, content.getSender()).getId());
+
+    intent.setAction(WebRtcCallService.ACTION_RECEIVE_ICE_CANDIDATES)
+          .putExtra(WebRtcCallService.EXTRA_CALL_ID,       callId)
+          .putExtra(WebRtcCallService.EXTRA_REMOTE_PEER,   remotePeer)
+          .putExtra(WebRtcCallService.EXTRA_REMOTE_DEVICE, content.getSenderDevice())
+          .putParcelableArrayListExtra(WebRtcCallService.EXTRA_ICE_CANDIDATES, iceCandidates);
+
+    context.startService(intent);
   }
 
   private void handleCallHangupMessage(@NonNull SignalServiceContent content,
@@ -423,10 +439,13 @@ public final class PushProcessMessageJob extends BaseJob {
     if (smsMessageId.isPresent()) {
       DatabaseFactory.getSmsDatabase(context).markAsMissedCall(smsMessageId.get());
     } else {
-      Intent intent = new Intent(context, WebRtcCallService.class);
-      intent.setAction(WebRtcCallService.ACTION_REMOTE_HANGUP);
-      intent.putExtra(WebRtcCallService.EXTRA_CALL_ID, message.getId());
-      intent.putExtra(WebRtcCallService.EXTRA_REMOTE_RECIPIENT, Recipient.externalPush(context, content.getSender()).getId());
+      Intent     intent     = new Intent(context, WebRtcCallService.class);
+      RemotePeer remotePeer = new RemotePeer(Recipient.externalPush(context, content.getSender()).getId());
+
+      intent.setAction(WebRtcCallService.ACTION_RECEIVE_HANGUP)
+            .putExtra(WebRtcCallService.EXTRA_CALL_ID,       message.getId())
+            .putExtra(WebRtcCallService.EXTRA_REMOTE_PEER,   remotePeer)
+            .putExtra(WebRtcCallService.EXTRA_REMOTE_DEVICE, content.getSenderDevice());
 
       context.startService(intent);
     }
@@ -435,10 +454,15 @@ public final class PushProcessMessageJob extends BaseJob {
   private void handleCallBusyMessage(@NonNull SignalServiceContent content,
                                      @NonNull BusyMessage message)
   {
-    Intent intent = new Intent(context, WebRtcCallService.class);
-    intent.setAction(WebRtcCallService.ACTION_REMOTE_BUSY);
-    intent.putExtra(WebRtcCallService.EXTRA_CALL_ID, message.getId());
-    intent.putExtra(WebRtcCallService.EXTRA_REMOTE_RECIPIENT, Recipient.externalPush(context, content.getSender()).getId());
+    Log.i(TAG, "handleCallBusyMessage");
+
+    Intent     intent     = new Intent(context, WebRtcCallService.class);
+    RemotePeer remotePeer = new RemotePeer(Recipient.externalPush(context, content.getSender()).getId());
+
+    intent.setAction(WebRtcCallService.ACTION_RECEIVE_BUSY)
+          .putExtra(WebRtcCallService.EXTRA_CALL_ID,       message.getId())
+          .putExtra(WebRtcCallService.EXTRA_REMOTE_PEER,   remotePeer)
+          .putExtra(WebRtcCallService.EXTRA_REMOTE_DEVICE, content.getSenderDevice());
 
     context.startService(intent);
   }
@@ -1175,15 +1199,18 @@ public final class PushProcessMessageJob extends BaseJob {
   }
 
   private void handleProfileKey(@NonNull SignalServiceContent content,
-                                @NonNull SignalServiceDataMessage message)
+                                @NonNull byte[] messageProfileKeyBytes)
   {
-    RecipientDatabase database  = DatabaseFactory.getRecipientDatabase(context);
-    Recipient         recipient = Recipient.externalPush(context, content.getSender());
+    RecipientDatabase database          = DatabaseFactory.getRecipientDatabase(context);
+    Recipient         recipient         = Recipient.externalPush(context, content.getSender());
+    ProfileKey        messageProfileKey = ProfileKeyUtil.profileKeyOrNull(messageProfileKeyBytes);
 
-    if (recipient.getProfileKey() == null || !MessageDigest.isEqual(recipient.getProfileKey(), message.getProfileKey().get())) {
-      database.setProfileKey(recipient.getId(), message.getProfileKey().get());
-      database.setUnidentifiedAccessMode(recipient.getId(), RecipientDatabase.UnidentifiedAccessMode.UNKNOWN);
-      ApplicationDependencies.getJobManager().add(new RetrieveProfileJob(recipient));
+    if (messageProfileKey != null) {
+      if (database.setProfileKey(recipient.getId(), messageProfileKey)) {
+        ApplicationDependencies.getJobManager().add(new RetrieveProfileJob(recipient));
+      }
+    } else {
+      Log.w(TAG, "Ignored invalid profile key seen in message");
     }
   }
 
