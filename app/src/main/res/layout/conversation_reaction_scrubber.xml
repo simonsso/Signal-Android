@@ -141,11 +141,54 @@
             android:src="@drawable/reaction_scrubber_angry_48"
             android:translationY="@dimen/reaction_scrubber_anim_start_translation_y"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/reaction_10"
             app:layout_constraintStart_toEndOf="@id/reaction_6"
             app:layout_constraintTop_toTopOf="parent"
             tools:alpha="1"
             tools:translationY="0dp" />
+
+        <Button
+            android:id="@+id/reaction_10"
+            android:layout_width="32dp"
+            android:layout_height="wrap_content"
+            android:layout_margin="0dp"
+            android:text=" 💩"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/reaction_11"
+            app:layout_constraintStart_toEndOf="@id/reaction_7"
+            app:layout_constraintTop_toTopOf="parent" />
+        <Button
+            android:id="@+id/reaction_11"
+            android:layout_width="32dp"
+            android:layout_margin="0dp"
+
+            android:layout_height="wrap_content"
+            android:text="🤦‍️"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/reaction_12"
+            app:layout_constraintStart_toEndOf="@id/reaction_10"
+            app:layout_constraintTop_toTopOf="parent"/>
+        <Button
+            android:id="@+id/reaction_12"
+            android:layout_width="32dp"
+            android:layout_margin="0dp"
+            android:layout_height="wrap_content"
+            android:text="💨"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/reaction_13"
+            app:layout_constraintStart_toEndOf="@id/reaction_11"
+            app:layout_constraintTop_toTopOf="parent"/>
+        <Button
+            android:id="@+id/reaction_13"
+            android:layout_width="32dp"
+            android:layout_margin="0dp"
+            android:layout_height="wrap_content"
+            android:text="⛩️"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/reaction_12"
+            app:layout_constraintTop_toTopOf="parent"/>
+
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </org.thoughtcrime.securesms.conversation.ConversationReactionOverlay>
