@@ -147,47 +147,54 @@
             tools:alpha="1"
             tools:translationY="0dp" />
 
-        <Button
+        <TextView
             android:id="@+id/reaction_10"
             android:layout_width="32dp"
             android:layout_height="wrap_content"
             android:layout_margin="0dp"
-            android:text=" 💩"
+            android:text="💩"
+            android:textSize="24dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@id/reaction_11"
             app:layout_constraintStart_toEndOf="@id/reaction_7"
             app:layout_constraintTop_toTopOf="parent" />
-        <Button
+
+        <TextView
             android:id="@+id/reaction_11"
             android:layout_width="32dp"
-            android:layout_margin="0dp"
-
             android:layout_height="wrap_content"
+
+            android:layout_margin="0dp"
             android:text="🤦‍️"
+            android:textSize="24dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@id/reaction_12"
             app:layout_constraintStart_toEndOf="@id/reaction_10"
-            app:layout_constraintTop_toTopOf="parent"/>
-        <Button
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
             android:id="@+id/reaction_12"
             android:layout_width="32dp"
-            android:layout_margin="0dp"
             android:layout_height="wrap_content"
+            android:layout_margin="0dp"
             android:text="💨"
+            android:textSize="24dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@id/reaction_13"
             app:layout_constraintStart_toEndOf="@id/reaction_11"
-            app:layout_constraintTop_toTopOf="parent"/>
-        <Button
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
             android:id="@+id/reaction_13"
             android:layout_width="32dp"
-            android:layout_margin="0dp"
             android:layout_height="wrap_content"
-            android:text="⛩️"
+            android:layout_margin="0dp"
+            android:text="️🗻"
+            android:textSize="24dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@id/reaction_12"
-            app:layout_constraintTop_toTopOf="parent"/>
+            app:layout_constraintTop_toTopOf="parent" />
 
 
     </androidx.constraintlayout.widget.ConstraintLayout>
