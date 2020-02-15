@@ -189,7 +189,7 @@
             android:layout_width="32dp"
             android:layout_height="wrap_content"
             android:layout_margin="0dp"
-            android:text="️🗻"
+            android:text="🗻"
             android:textSize="24dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
