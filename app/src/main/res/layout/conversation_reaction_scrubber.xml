@@ -176,9 +176,19 @@
             app:layout_constraintEnd_toStartOf="@id/reaction_11"
             app:layout_constraintStart_toEndOf="@id/reaction_9"
             app:layout_constraintTop_toTopOf="parent" />
-
         <TextView
             android:id="@+id/reaction_11"
+            android:layout_width="32dp"
+            android:layout_height="wrap_content"
+            android:layout_margin="0dp"
+            android:text=""
+            android:textSize="24dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/reaction_12"
+            app:layout_constraintStart_toEndOf="@id/reaction_10"
+            app:layout_constraintTop_toTopOf="parent" />
+        <TextView
+            android:id="@+id/reaction_12"
             android:layout_width="32dp"
             android:layout_height="wrap_content"
             android:layout_margin="0dp"

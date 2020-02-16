@@ -579,8 +579,8 @@ public final class ConversationReactionOverlay extends RelativeLayout {
     THUMBS_DOWN(R.id.reaction_8, "\ud83d\udc4e"),
     LAUGH(R.id.reaction_9, "\ud83d\ude02"),
     SURPRISE(R.id.reaction_10, "\ud83d\ude2e"),
-    SAD(R.id.reaction_11, "\ud83d\ude22");
-
+    SAD(R.id.reaction_11, "\ud83d\ude22"),
+    EMOJI5(R.id.reaction_12,"💮");
 
 
     final @IdRes int    viewId;
