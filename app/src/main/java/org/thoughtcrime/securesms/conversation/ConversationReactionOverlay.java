@@ -571,15 +571,16 @@ public final class ConversationReactionOverlay extends RelativeLayout {
   private enum ReactionEmoji {
     HEART(R.id.reaction_1, "\u2764\ufe0f"),
     THUMBS_UP(R.id.reaction_2, "\ud83d\udc4d"),
-    THUMBS_DOWN(R.id.reaction_3, "\ud83d\udc4e"),
-    LAUGH(R.id.reaction_4, "\ud83d\ude02"),
-    SURPRISE(R.id.reaction_5, "\ud83d\ude2e"),
-    SAD(R.id.reaction_6, "\ud83d\ude22"),
+    EMOJI1(R.id.reaction_3,"💩"),
+    EMOJI2(R.id.reaction_4,"🤦‍️️"),
+    EMOJI3(R.id.reaction_5,"🔥"),
+    EMOJI4(R.id.reaction_6,"😸"),
     ANGRY(R.id.reaction_7, "\ud83d\ude21"),
-    EMOJI1(R.id.reaction_10,"💩"),
-    EMOJI2(R.id.reaction_11,"🤦‍️️"),
-    EMOJI3(R.id.reaction_12,"💨"),
-    EMOJI4(R.id.reaction_13,"🗻");
+    THUMBS_DOWN(R.id.reaction_8, "\ud83d\udc4e"),
+    LAUGH(R.id.reaction_9, "\ud83d\ude02"),
+    SURPRISE(R.id.reaction_10, "\ud83d\ude2e"),
+    SAD(R.id.reaction_11, "\ud83d\ude22");
+
 
 
     final @IdRes int    viewId;
