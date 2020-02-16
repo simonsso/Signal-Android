@@ -15,6 +15,7 @@ import android.view.View;
 import android.view.animation.DecelerateInterpolator;
 import android.view.animation.Interpolator;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 
 import androidx.annotation.IdRes;
 import androidx.annotation.NonNull;
@@ -324,6 +325,10 @@ public final class ConversationReactionOverlay extends RelativeLayout {
       view.setScaleX(1.0f);
       view.setScaleY(1.0f);
       view.setTranslationY(0);
+
+      if(view instanceof TextView){
+        ((TextView) view).setText(ReactionEmoji.values()[i].emoji);
+      }
 
       if (ReactionEmoji.values()[i].emoji.equals(oldEmoji)) {
         selectedView.setVisibility(View.VISIBLE);
