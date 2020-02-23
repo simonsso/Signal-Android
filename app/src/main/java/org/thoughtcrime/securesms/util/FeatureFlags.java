@@ -173,8 +173,9 @@ public final class FeatureFlags {
 
   /** Safety switch for disabling profile names megaphone */
   public static boolean profileNamesMegaphoneEnabled() {
-    return getValue(PROFILE_NAMES_MEGAPHONE, false) &&
-           TextSecurePreferences.getFirstInstallVersion(ApplicationDependencies.getApplication()) < 600;
+    return false;
+//    return getValue(PROFILE_NAMES_MEGAPHONE, false) &&
+//           TextSecurePreferences.getFirstInstallVersion(ApplicationDependencies.getApplication()) < 600;
   }
 
   /** Allow trimming videos. */
