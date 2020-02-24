@@ -1775,6 +1775,7 @@ public class ConversationActivity extends PassphraseRequiredActionBarActivity
       MediaKeyboardMode keyboardMode           = TextSecurePreferences.getMediaKeyboardMode(this);
       boolean           stickerIntro           = !TextSecurePreferences.hasSeenStickerIntroTooltip(this);
 
+      stickersAvailable = false;
       if (stickersAvailable) {
         inputPanel.showMediaKeyboardToggle(true);
         inputPanel.setMediaKeyboardToggleMode(isSystemEmojiPreferred || keyboardMode == MediaKeyboardMode.STICKER);
