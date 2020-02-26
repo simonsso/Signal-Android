@@ -105,6 +105,23 @@
   </PreferenceCategory>
 
   <PreferenceCategory android:layout="@layout/preference_divider" />
+  <PreferenceCategory
+      android:key="prefs_signal_pin"
+      android:title="@string/preferences_app_protection__signal_pin">
+
+    <Preference
+        android:key="pref_kbs_change"
+        android:summary="@string/preferences_app_protection__pins_keep_information_stored_with_signal_encrypted"
+        android:title="@string/preferences_app_protection__change_your_pin" />
+
+    <org.thoughtcrime.securesms.components.SwitchPreferenceCompat
+        android:defaultValue="false"
+        android:enabled="false"
+        android:key="kbs.v2_lock_enabled"
+        android:summary="@string/preferences_app_protection__add_extra_security_by_requiring_your_signal_pin_to_register"
+        android:title="@string/preferences_app_protection__registration_lock" />
+
+  </PreferenceCategory>
 
   <PreferenceCategory
       android:key="prefs_signal_pin"
@@ -132,7 +149,12 @@
         android:key="pref_registration_lock"
         android:summary="@string/preferences_app_protection__enable_a_registration_lock_pin_that_will_be_required"
         android:title="@string/preferences_app_protection__registration_lock_pin" />
-  </PreferenceCategory>
+<org.thoughtcrime.securesms.components.SwitchPreferenceCompat
+            android:key="pref_signal_disable_pinv2_reminders"
+            android:defaultValue="false"
+            android:title="@string/preferences_app_protection__disable_pinv2_reminders"
+            android:summary="@string/preferences_app_protection__disable_pinv2_reminders_summary"/>
+    </PreferenceCategory>
 
 
 </PreferenceScreen>
