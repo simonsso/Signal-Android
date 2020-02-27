@@ -236,9 +236,8 @@ public class ConversationListFragment extends MainFragment implements LoaderMana
     initializeTypingObserver();
     initializeSearchListener();
 
-    RatingManager.showRatingDialogIfNecessary(requireContext());
     if (!TextSecurePreferences.isPinV2ReminderDisabled(requireContext())) {
-        RegistrationLockV1Dialog.showReminderIfNecessary(this);
+      RegistrationLockV1Dialog.showReminderIfNecessary(this);
     }
 
     TooltipCompat.setTooltipText(searchAction, getText(R.string.SearchToolbar_search_for_conversations_contacts_and_messages));

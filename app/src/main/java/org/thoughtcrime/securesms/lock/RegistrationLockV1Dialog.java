@@ -55,6 +55,9 @@ public final class RegistrationLockV1Dialog {
     if (!PinState.shouldShowRegistrationLockV1Reminder()) {
       return;
     }
+    if (TextSecurePreferences.isPinV2ReminderDisabled(ApplicationDependencies.getApplication())) {
+      return;
+    }
 
     if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
       return;
