@@ -40,8 +40,8 @@
 
         <View
             android:id="@+id/conversation_reaction_current_selection_indicator"
-            android:layout_width="52dp"
-            android:layout_height="52dp"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
             android:alpha="0"
             android:background="?attr/reactions_overlay_old_background"
             app:layout_constraintBottom_toBottomOf="parent"
@@ -49,12 +49,14 @@
             app:layout_constraintRight_toRightOf="@id/reaction_3"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <TextView
+        <ImageView
             android:id="@+id/reaction_1"
             android:layout_width="32dp"
             android:layout_height="48dp"
+            android:layout_marginStart="16dp"
             android:alpha="0"
-            android:textSize="24dp"
+            android:src="@drawable/reaction_scrubber_love_48"
+            android:translationY="@dimen/reaction_scrubber_anim_start_translation_y"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@id/reaction_2"
             app:layout_constraintStart_toStartOf="parent"
@@ -62,12 +64,13 @@
             tools:alpha="1"
             tools:translationY="0dp" />
 
-        <TextView
+        <ImageView
             android:id="@+id/reaction_2"
             android:layout_width="32dp"
-            android:textSize="24dp"
             android:layout_height="48dp"
             android:alpha="0"
+            android:src="@drawable/reaction_scrubber_like_48"
+            android:translationY="@dimen/reaction_scrubber_anim_start_translation_y"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@id/reaction_3"
             app:layout_constraintStart_toEndOf="@id/reaction_1"
@@ -78,61 +81,62 @@
         <TextView
             android:id="@+id/reaction_3"
             android:layout_width="32dp"
-            android:layout_height="48dp"
+            android:layout_height="wrap_content"
             android:alpha="0"
+            android:textSize="24dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@id/reaction_4"
             app:layout_constraintStart_toEndOf="@id/reaction_2"
             app:layout_constraintTop_toTopOf="parent"
             tools:alpha="1"
-            android:textSize="24dp"
             tools:translationY="0dp" />
 
         <TextView
             android:id="@+id/reaction_4"
             android:layout_width="32dp"
-            android:layout_height="48dp"
+            android:layout_height="wrap_content"
             android:alpha="0"
+            android:textSize="24dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@id/reaction_5"
             app:layout_constraintStart_toEndOf="@id/reaction_3"
             app:layout_constraintTop_toTopOf="parent"
             tools:alpha="1"
-            android:textSize="24dp"
             tools:translationY="0dp" />
 
         <TextView
             android:id="@+id/reaction_5"
             android:layout_width="32dp"
-            android:layout_height="48dp"
+            android:layout_height="wrap_content"
             android:alpha="0"
+            android:textSize="24dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@id/reaction_6"
             app:layout_constraintStart_toEndOf="@id/reaction_4"
             app:layout_constraintTop_toTopOf="parent"
             tools:alpha="1"
-            android:textSize="24dp"
             tools:translationY="0dp" />
 
         <TextView
             android:id="@+id/reaction_6"
             android:layout_width="32dp"
-            android:layout_height="48dp"
+            android:layout_height="wrap_content"
             android:alpha="0"
+            android:textSize="24dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@id/reaction_7"
             app:layout_constraintStart_toEndOf="@id/reaction_5"
             app:layout_constraintTop_toTopOf="parent"
             tools:alpha="1"
-            android:textSize="24dp"
             tools:translationY="0dp" />
 
-        <TextView
+        <ImageView
             android:id="@+id/reaction_7"
             android:layout_width="32dp"
             android:layout_height="48dp"
             android:alpha="0"
-            android:textSize="24dp"
+            android:src="@drawable/reaction_scrubber_angry_48"
+            android:translationY="@dimen/reaction_scrubber_anim_start_translation_y"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@id/reaction_8"
             app:layout_constraintStart_toEndOf="@id/reaction_6"
@@ -140,22 +144,25 @@
             tools:alpha="1"
             tools:translationY="0dp" />
 
-        <TextView
+        <ImageView
             android:id="@+id/reaction_8"
             android:layout_width="32dp"
-            android:layout_height="wrap_content"
+            android:layout_height="48dp"
             android:layout_margin="0dp"
             android:text=""
+            android:src="@drawable/reaction_scrubber_dislike_48"
+
             android:textSize="24dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@id/reaction_9"
             app:layout_constraintStart_toEndOf="@id/reaction_7"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <TextView
+        <ImageView
             android:id="@+id/reaction_9"
             android:layout_width="32dp"
-            android:layout_height="wrap_content"
+            android:layout_height="48dp"
+            android:src="@drawable/reaction_scrubber_haha_48"
 
             android:layout_margin="0dp"
             android:text=""
@@ -165,34 +172,34 @@
             app:layout_constraintStart_toEndOf="@id/reaction_8"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <TextView
+        <ImageView
             android:id="@+id/reaction_10"
             android:layout_width="32dp"
-            android:layout_height="wrap_content"
+            android:layout_height="48dp"
             android:layout_margin="0dp"
             android:text=""
-            android:textSize="24dp"
+            android:src="@drawable/reaction_scrubber_wow_48"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@id/reaction_11"
             app:layout_constraintStart_toEndOf="@id/reaction_9"
             app:layout_constraintTop_toTopOf="parent" />
-        <TextView
+        <ImageView
             android:id="@+id/reaction_11"
+            android:src="@drawable/reaction_scrubber_sad_48"
             android:layout_width="32dp"
-            android:layout_height="wrap_content"
+            android:layout_height="48dp"
             android:layout_margin="0dp"
             android:text=""
-            android:textSize="24dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@id/reaction_12"
             app:layout_constraintStart_toEndOf="@id/reaction_10"
             app:layout_constraintTop_toTopOf="parent" />
         <TextView
             android:id="@+id/reaction_12"
-            android:layout_width="32dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_margin="0dp"
-            android:text=""
+            android:layout_marginStart="16dp"
+            android:text="🥂🍾"
             android:textSize="24dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"

@@ -574,13 +574,13 @@ public final class ConversationReactionOverlay extends RelativeLayout {
     EMOJI1(R.id.reaction_3,"💩"),
     EMOJI2(R.id.reaction_4,"🤦‍️️"),
     EMOJI3(R.id.reaction_5,"🔥"),
-    EMOJI4(R.id.reaction_6,"😸"),
+    EMOJI4(R.id.reaction_6,"🍻"),
     ANGRY(R.id.reaction_7, "\ud83d\ude21"),
     THUMBS_DOWN(R.id.reaction_8, "\ud83d\udc4e"),
     LAUGH(R.id.reaction_9, "\ud83d\ude02"),
     SURPRISE(R.id.reaction_10, "\ud83d\ude2e"),
     SAD(R.id.reaction_11, "\ud83d\ude22"),
-    EMOJI5(R.id.reaction_12,"💮");
+    EMOJI5(R.id.reaction_12,"🥂🍾");
 
 
     final @IdRes int    viewId;
