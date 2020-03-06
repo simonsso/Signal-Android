@@ -53,7 +53,7 @@ public final class FeatureFlags {
   private static final String PINS_MEGAPHONE_KILL_SWITCH = "android.pinsMegaphoneKillSwitch";
   private static final String PROFILE_NAMES_MEGAPHONE    = "android.profileNamesMegaphone";
   private static final String VIDEO_TRIMMING             = "android.videoTrimming";
-  private static final String STORAGE_SERVICE            = "android.storageService";
+  private static final String STORAGE_SERVICE            = "android.storageService.2";
 
   /**
    * We will only store remote values for flags in this set. If you want a flag to be controllable
@@ -149,7 +149,7 @@ public final class FeatureFlags {
     SignalStore.remoteConfigValues().setPendingConfig(mapToJson(result.getDisk()));
     REMOTE_VALUES.clear();
     REMOTE_VALUES.putAll(result.getMemory());
-    triggerFlagChangeListeners(result.getChanges());
+    triggerFlagChangeListeners(result.getMemoryChanges());
 
     SignalStore.remoteConfigValues().setLastFetchTime(System.currentTimeMillis());
 
@@ -272,6 +272,17 @@ public final class FeatureFlags {
             }
           });
 
+    Stream.of(allKeys)
+          .filterNot(remoteCapable::contains)
+          .filterNot(key -> sticky.contains(key) && localDisk.get(key) == Boolean.TRUE)
+          .forEach(key -> {
+            newDisk.remove(key);
+
+            if (hotSwap.contains(key)) {
+              newMemory.remove(key);
+            }
+          });
+
     return new UpdateResult(newMemory, newDisk, computeChanges(localMemory, newMemory));
   }
 
@@ -368,12 +379,12 @@ public final class FeatureFlags {
   static final class UpdateResult {
     private final Map<String, Boolean> memory;
     private final Map<String, Boolean> disk;
-    private final Map<String, Change>  changes;
+    private final Map<String, Change> memoryChanges;
 
-    UpdateResult(@NonNull Map<String, Boolean> memory, @NonNull Map<String, Boolean> disk, @NonNull Map<String, Change> changes) {
-      this.memory  = memory;
-      this.disk    = disk;
-      this.changes = changes;
+    UpdateResult(@NonNull Map<String, Boolean> memory, @NonNull Map<String, Boolean> disk, @NonNull Map<String, Change> memoryChanges) {
+      this.memory        = memory;
+      this.disk          = disk;
+      this.memoryChanges = memoryChanges;
     }
 
     public @NonNull Map<String, Boolean> getMemory() {
@@ -384,8 +395,8 @@ public final class FeatureFlags {
       return disk;
     }
 
-    public @NonNull Map<String, Change> getChanges() {
-      return changes;
+    public @NonNull Map<String, Change> getMemoryChanges() {
+      return memoryChanges;
     }
   }
 
