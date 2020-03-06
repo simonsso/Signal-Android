@@ -15,6 +15,7 @@ import android.view.View;
 import android.view.animation.DecelerateInterpolator;
 import android.view.animation.Interpolator;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 
 import androidx.annotation.IdRes;
 import androidx.annotation.NonNull;
@@ -329,6 +330,10 @@ public final class ConversationReactionOverlay extends RelativeLayout {
       view.setScaleY(1.0f);
       view.setTranslationY(0);
 
+      if(view instanceof TextView){
+        ((TextView) view).setText(ReactionEmoji.values()[i].emoji);
+      }
+
       if (ReactionEmoji.values()[i].emoji.equals(oldEmoji)) {
         selectedView.setVisibility(View.VISIBLE);
 
@@ -570,11 +575,17 @@ public final class ConversationReactionOverlay extends RelativeLayout {
   private enum ReactionEmoji {
     HEART(R.id.reaction_1, "\u2764\ufe0f"),
     THUMBS_UP(R.id.reaction_2, "\ud83d\udc4d"),
-    THUMBS_DOWN(R.id.reaction_3, "\ud83d\udc4e"),
-    LAUGH(R.id.reaction_4, "\ud83d\ude02"),
-    SURPRISE(R.id.reaction_5, "\ud83d\ude2e"),
-    SAD(R.id.reaction_6, "\ud83d\ude22"),
-    ANGRY(R.id.reaction_7, "\ud83d\ude21");
+    EMOJI1(R.id.reaction_3,"💩"),
+    EMOJI2(R.id.reaction_4,"🤦‍️️"),
+    EMOJI3(R.id.reaction_5,"🔥"),
+    EMOJI4(R.id.reaction_6,"🍻"),
+    ANGRY(R.id.reaction_7, "\ud83d\ude21"),
+    THUMBS_DOWN(R.id.reaction_8, "\ud83d\udc4e"),
+    LAUGH(R.id.reaction_9, "\ud83d\ude02"),
+    SURPRISE(R.id.reaction_10, "\ud83d\ude2e"),
+    SAD(R.id.reaction_11, "\ud83d\ude22"),
+    EMOJI5(R.id.reaction_12,"🥂🍾");
+
 
     final @IdRes int    viewId;
     final        String emoji;
