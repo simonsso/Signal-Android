@@ -7,6 +7,8 @@ In signal for Android 4.51 changes to how UI works initiates calls were made. Si
 decided to use the source and remove this feature. When I had opened the box of Pandora and begun maintaining my own fork other improvements could also be done.
 
 Check version history to judge if I'm still maintaining this fork or not.
+
+## Emoji resposnse which sparks joy (or a pile of poo)
 ![screenshot of emoji reaction](img/emoji_reaction.png)
 
 ## List of changes
