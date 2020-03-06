@@ -42,15 +42,12 @@ import org.thoughtcrime.securesms.database.helpers.SQLCipherOpenHelper;
 import org.thoughtcrime.securesms.dependencies.ApplicationDependencies;
 import org.thoughtcrime.securesms.dependencies.ApplicationDependencyProvider;
 import org.thoughtcrime.securesms.gcm.FcmJobService;
-import org.thoughtcrime.securesms.insights.InsightsOptOut;
-import org.thoughtcrime.securesms.jobmanager.JobManager;
 import org.thoughtcrime.securesms.jobs.CreateSignedPreKeyJob;
 import org.thoughtcrime.securesms.jobs.FcmRefreshJob;
 import org.thoughtcrime.securesms.jobs.MultiDeviceContactUpdateJob;
 import org.thoughtcrime.securesms.jobs.PushNotificationReceiveJob;
-import org.thoughtcrime.securesms.jobs.StickerPackDownloadJob;
-import org.thoughtcrime.securesms.keyvalue.SignalStore;
-import org.thoughtcrime.securesms.megaphone.MegaphoneRepository;
+import org.thoughtcrime.securesms.jobs.RefreshPreKeysJob;
+import org.thoughtcrime.securesms.jobs.StorageSyncJob;
 import org.thoughtcrime.securesms.logging.AndroidLogger;
 import org.thoughtcrime.securesms.logging.CustomSignalProtocolLogger;
 import org.thoughtcrime.securesms.logging.Log;
@@ -58,10 +55,12 @@ import org.thoughtcrime.securesms.logging.PersistentLogger;
 import org.thoughtcrime.securesms.logging.SignalUncaughtExceptionHandler;
 import org.thoughtcrime.securesms.mediasend.camerax.CameraXUtil;
 import org.thoughtcrime.securesms.migrations.ApplicationMigrations;
+import org.thoughtcrime.securesms.migrations.StorageServiceMigrationJob;
 import org.thoughtcrime.securesms.notifications.MessageNotifier;
 import org.thoughtcrime.securesms.notifications.NotificationChannels;
 import org.thoughtcrime.securesms.providers.BlobProvider;
 import org.thoughtcrime.securesms.push.SignalServiceNetworkAccess;
+import org.thoughtcrime.securesms.recipients.Recipient;
 import org.thoughtcrime.securesms.ringrtc.RingRtcLogger;
 import org.thoughtcrime.securesms.service.DirectoryRefreshListener;
 import org.thoughtcrime.securesms.service.ExpiringMessageManager;
@@ -72,10 +71,8 @@ import org.thoughtcrime.securesms.revealable.ViewOnceMessageManager;
 import org.thoughtcrime.securesms.service.RotateSenderCertificateListener;
 import org.thoughtcrime.securesms.service.RotateSignedPreKeyListener;
 import org.thoughtcrime.securesms.service.UpdateApkRefreshListener;
-import org.thoughtcrime.securesms.stickers.BlessedPacks;
 import org.thoughtcrime.securesms.util.FeatureFlags;
 import org.thoughtcrime.securesms.util.TextSecurePreferences;
-import org.thoughtcrime.securesms.util.Util;
 import org.thoughtcrime.securesms.util.concurrent.SignalExecutors;
 import org.thoughtcrime.securesms.util.dynamiclanguage.DynamicLanguageContextWrapper;
 import org.webrtc.voiceengine.WebRtcAudioManager;
@@ -138,6 +135,8 @@ public class ApplicationContext extends MultiDexApplication implements DefaultLi
     initializeCameraX();
     FeatureFlags.init();
     NotificationChannels.create(this);
+    RefreshPreKeysJob.scheduleIfNecessary();
+    StorageSyncJob.scheduleIfNecessary();
     ProcessLifecycleOwner.get().getLifecycle().addObserver(this);
 
     if (Build.VERSION.SDK_INT < 21) {
@@ -151,7 +150,7 @@ public class ApplicationContext extends MultiDexApplication implements DefaultLi
   public void onStart(@NonNull LifecycleOwner owner) {
     isAppVisible = true;
     Log.i(TAG, "App is now visible.");
-    FeatureFlags.refresh();
+    FeatureFlags.refreshIfNecessary();
     ApplicationDependencies.getRecipientCache().warmUp();
     executePendingContactSync();
     KeyCachingService.onAppForegrounded(this);
@@ -244,18 +243,7 @@ public class ApplicationContext extends MultiDexApplication implements DefaultLi
     if (TextSecurePreferences.getFirstInstallVersion(this) == -1) {
       if (!SQLCipherOpenHelper.databaseFileExists(this)) {
         Log.i(TAG, "First ever app launch!");
-
-        InsightsOptOut.userRequestedOptOut(this);
-        TextSecurePreferences.setAppMigrationVersion(this, ApplicationMigrations.CURRENT_VERSION);
-        TextSecurePreferences.setJobManagerVersion(this, JobManager.CURRENT_VERSION);
-        TextSecurePreferences.setLastExperienceVersionCode(this, Util.getCanonicalVersionCode());
-        TextSecurePreferences.setHasSeenStickerIntroTooltip(this, true);
-        ApplicationDependencies.getMegaphoneRepository().onFirstEverAppLaunch();
-        SignalStore.registrationValues().onNewInstall();
-        ApplicationDependencies.getJobManager().add(StickerPackDownloadJob.forInstall(BlessedPacks.ZOZO.getPackId(), BlessedPacks.ZOZO.getPackKey(), false));
-        ApplicationDependencies.getJobManager().add(StickerPackDownloadJob.forInstall(BlessedPacks.BANDIT.getPackId(), BlessedPacks.BANDIT.getPackKey(), false));
-        ApplicationDependencies.getJobManager().add(StickerPackDownloadJob.forReference(BlessedPacks.SWOON_HANDS.getPackId(), BlessedPacks.SWOON_HANDS.getPackKey()));
-        ApplicationDependencies.getJobManager().add(StickerPackDownloadJob.forReference(BlessedPacks.SWOON_FACES.getPackId(), BlessedPacks.SWOON_FACES.getPackKey()));
+        AppInitialization.onFirstEverAppLaunch(this);
       }
 
       Log.i(TAG, "Setting first install version to " + BuildConfig.CANONICAL_VERSION_CODE);
