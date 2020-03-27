@@ -28,6 +28,7 @@ import org.thoughtcrime.securesms.database.RecipientDatabase.RegisteredState;
 import org.thoughtcrime.securesms.database.RecipientDatabase.UnidentifiedAccessMode;
 import org.thoughtcrime.securesms.database.RecipientDatabase.VibrateState;
 import org.thoughtcrime.securesms.dependencies.ApplicationDependencies;
+import org.thoughtcrime.securesms.groups.GroupId;
 import org.thoughtcrime.securesms.jobs.DirectoryRefreshJob;
 import org.thoughtcrime.securesms.logging.Log;
 import org.thoughtcrime.securesms.notifications.NotificationChannels;
@@ -35,7 +36,6 @@ import org.thoughtcrime.securesms.phonenumbers.NumberUtil;
 import org.thoughtcrime.securesms.phonenumbers.PhoneNumberFormatter;
 import org.thoughtcrime.securesms.profiles.ProfileName;
 import org.thoughtcrime.securesms.util.FeatureFlags;
-import org.thoughtcrime.securesms.util.GroupUtil;
 import org.thoughtcrime.securesms.util.Util;
 import org.whispersystems.libsignal.util.guava.Optional;
 import org.whispersystems.libsignal.util.guava.Preconditions;
@@ -64,7 +64,7 @@ public class Recipient {
   private final String                 username;
   private final String                 e164;
   private final String                 email;
-  private final String                 groupId;
+  private final GroupId                groupId;
   private final List<Recipient>        participants;
   private final Optional<Long>         groupAvatarId;
   private final boolean                localNumber;
@@ -93,7 +93,7 @@ public class Recipient {
   private final Capability             uuidCapability;
   private final Capability             groupsV2Capability;
   private final InsightsBannerTier     insightsBannerTier;
-  private final byte[]                 storageKey;
+  private final byte[]                 storageId;
   private final byte[]                 identityKey;
   private final VerifiedStatus         identityStatus;
 
@@ -236,11 +236,7 @@ public class Recipient {
    * identifier is a groupId.
    */
   @WorkerThread
-  public static @NonNull Recipient externalGroup(@NonNull Context context, @NonNull String groupId) {
-    if (!GroupUtil.isEncodedGroup(groupId)) {
-      throw new IllegalArgumentException("Invalid groupId!");
-    }
-
+  public static @NonNull Recipient externalGroup(@NonNull Context context, @NonNull GroupId groupId) {
     return Recipient.resolved(DatabaseFactory.getRecipientDatabase(context).getOrInsertFromGroupId(groupId));
   }
 
@@ -274,8 +270,8 @@ public class Recipient {
           throw new UuidRecipientError();
         }
       }
-    } else if (GroupUtil.isEncodedGroup(identifier)) {
-      id = db.getOrInsertFromGroupId(identifier);
+    } else if (GroupId.isEncodedGroup(identifier)) {
+      id = db.getOrInsertFromGroupId(GroupId.parse(identifier));
     } else if (NumberUtil.isValidEmail(identifier)) {
       id = db.getOrInsertFromEmail(identifier);
     } else {
@@ -326,7 +322,7 @@ public class Recipient {
     this.forceSmsSelection      = false;
     this.uuidCapability         = Capability.UNKNOWN;
     this.groupsV2Capability     = Capability.UNKNOWN;
-    this.storageKey             = null;
+    this.storageId              = null;
     this.identityKey            = null;
     this.identityStatus         = VerifiedStatus.DEFAULT;
   }
@@ -367,7 +363,7 @@ public class Recipient {
     this.forceSmsSelection      = details.forceSmsSelection;
     this.uuidCapability         = details.uuidCapability;
     this.groupsV2Capability     = details.groupsV2Capability;
-    this.storageKey             = details.storageKey;
+    this.storageId              = details.storageId;
     this.identityKey            = details.identityKey;
     this.identityStatus         = details.identityStatus;
   }
@@ -385,7 +381,7 @@ public class Recipient {
   }
 
   public @Nullable String getName(@NonNull Context context) {
-    if (this.name == null && groupId != null && GroupUtil.isMmsGroup(groupId)) {
+    if (this.name == null && groupId != null && groupId.isMmsGroup()) {
       List<String> names = new LinkedList<>();
 
       for (Recipient recipient : participants) {
@@ -443,7 +439,7 @@ public class Recipient {
     return Optional.fromNullable(email);
   }
 
-  public @NonNull Optional<String> getGroupId() {
+  public @NonNull Optional<GroupId> getGroupId() {
     return Optional.fromNullable(groupId);
   }
 
@@ -495,8 +491,8 @@ public class Recipient {
     return getUuid().isPresent();
   }
 
-  public @NonNull String requireGroupId() {
-    String resolved = resolving ? resolve().groupId : groupId;
+  public @NonNull GroupId requireGroupId() {
+    GroupId resolved = resolving ? resolve().groupId : groupId;
 
     if (resolved == null) {
       throw new MissingAddressError();
@@ -532,7 +528,7 @@ public class Recipient {
     Recipient resolved = resolving ? resolve() : this;
 
     if (resolved.isGroup()) {
-      return resolved.requireGroupId();
+      return resolved.requireGroupId().toString();
     } else if (resolved.getUuid().isPresent()) {
       return resolved.getUuid().get().toString();
     }
@@ -570,13 +566,13 @@ public class Recipient {
   }
 
   public boolean isMmsGroup() {
-    String groupId = resolve().groupId;
-    return groupId != null && GroupUtil.isMmsGroup(groupId);
+    GroupId groupId = resolve().groupId;
+    return groupId != null && groupId.isMmsGroup();
   }
 
   public boolean isPushGroup() {
-    String groupId = resolve().groupId;
-    return groupId != null && !GroupUtil.isMmsGroup(groupId);
+    GroupId groupId = resolve().groupId;
+    return groupId != null && !groupId.isMmsGroup();
   }
 
   public @NonNull List<Recipient> getParticipants() {
@@ -612,7 +608,7 @@ public class Recipient {
     if      (localNumber)                                    return null;
     else if (isGroupInternal() && groupAvatarId.isPresent()) return new GroupRecordContactPhoto(groupId, groupAvatarId.get());
     else if (systemContactPhoto != null)                     return new SystemContactPhoto(id, systemContactPhoto, 0);
-    else if (profileAvatar != null)                          return new ProfileContactPhoto(id, profileAvatar);
+    else if (profileAvatar != null)                          return new ProfileContactPhoto(this, profileAvatar);
     else                                                     return null;
   }
 
@@ -706,8 +702,8 @@ public class Recipient {
     return profileKeyCredential != null;
   }
 
-  public @Nullable byte[] getStorageServiceKey() {
-    return storageKey;
+  public @Nullable byte[] getStorageServiceId() {
+    return storageId;
   }
 
   public @NonNull VerifiedStatus getIdentityVerifiedStatus() {

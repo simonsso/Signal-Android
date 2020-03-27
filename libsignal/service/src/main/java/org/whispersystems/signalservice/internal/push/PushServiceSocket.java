@@ -567,7 +567,7 @@ public class PushServiceSocket {
     }
 
     try {
-      ProfileKeyVersion                  profileKeyIdentifier = profileKey.getProfileKeyVersion();
+      ProfileKeyVersion                  profileKeyIdentifier = profileKey.getProfileKeyVersion(target);
       ProfileKeyCredentialRequestContext requestContext       = clientZkOperations.getProfileOperations().createProfileKeyCredentialRequestContext(random, target, profileKey);
       ProfileKeyCredentialRequest        request              = requestContext.getRequest();
 
@@ -604,7 +604,7 @@ public class PushServiceSocket {
     makeServiceRequest(String.format(PROFILE_PATH, "name/" + (name == null ? "" : URLEncoder.encode(name))), "PUT", "");
   }
 
-  public void setProfileAvatar(ProfileAvatarData profileAvatar)
+  public Optional<String> setProfileAvatar(ProfileAvatarData profileAvatar)
       throws NonSuccessfulResponseCodeException, PushNetworkException
   {
     if (FeatureFlags.VERSIONED_PROFILES) {
@@ -628,10 +628,17 @@ public class PushServiceSocket {
                   formAttributes.getSignature(), profileAvatar.getData(),
                   profileAvatar.getContentType(), profileAvatar.getDataLength(),
                   profileAvatar.getOutputStreamFactory(), null, null);
+
+      return Optional.of(formAttributes.getKey());
     }
+
+    return Optional.absent();
   }
 
-  public void writeProfile(SignalServiceProfileWrite signalServiceProfileWrite, ProfileAvatarData profileAvatar)
+  /**
+   * @return The avatar URL path, if one was written.
+   */
+  public Optional<String> writeProfile(SignalServiceProfileWrite signalServiceProfileWrite, ProfileAvatarData profileAvatar)
     throws NonSuccessfulResponseCodeException, PushNetworkException
   {
     if (!FeatureFlags.VERSIONED_PROFILES) {
@@ -657,7 +664,11 @@ public class PushServiceSocket {
                   formAttributes.getSignature(), profileAvatar.getData(),
                   profileAvatar.getContentType(), profileAvatar.getDataLength(),
                   profileAvatar.getOutputStreamFactory(), null, null);
+
+       return Optional.of(formAttributes.getKey());
     }
+
+    return Optional.absent();
   }
 
   public void setUsername(String username) throws IOException {

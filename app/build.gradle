@@ -80,8 +80,8 @@ protobuf {
     }
 }
 
-def canonicalVersionCode = 612
-def canonicalVersionName = "4.57.1"
+def canonicalVersionCode = 614
+def canonicalVersionName = "4.58.0"
 
 def postFixSize = 10
 def abiPostFix = ['universal'   : 0,
@@ -160,6 +160,7 @@ android {
         exclude 'META-INF/LICENSE'
         exclude 'META-INF/NOTICE'
         exclude 'META-INF/proguard/androidx-annotations.pro'
+        exclude 'lib/*/libzkgroup.so' // TODO: GV2 Remove line to include .so when used
     }
 
     buildTypes {
@@ -268,8 +269,10 @@ dependencies {
     implementation 'androidx.lifecycle:lifecycle-extensions:2.1.0'
     implementation 'androidx.lifecycle:lifecycle-viewmodel-savedstate:1.0.0-alpha05'
     implementation 'androidx.lifecycle:lifecycle-common-java8:2.1.0'
-    implementation "androidx.camera:camera-core:1.0.0-alpha06"
-    implementation "androidx.camera:camera-camera2:1.0.0-alpha06"
+    implementation "androidx.camera:camera-core:1.0.0-beta01"
+    implementation "androidx.camera:camera-camera2:1.0.0-beta01"
+    implementation "androidx.camera:camera-lifecycle:1.0.0-beta01"
+    implementation "androidx.concurrent:concurrent-futures:1.0.0"
 
     implementation('com.google.firebase:firebase-messaging:17.3.4') {
         exclude group: 'com.google.firebase', module: 'firebase-core'
@@ -287,10 +290,11 @@ dependencies {
     implementation 'org.signal:aesgcmprovider:0.0.3'
 
     implementation project(':libsignal-service')
+    implementation 'org.signal:zkgroup-android:0.4.1'
 
     implementation 'org.signal:argon2:13.1@aar'
 
-    implementation 'org.signal:ringrtc-android:1.0.2'
+    implementation 'org.signal:ringrtc-android:1.1.0'
 
     implementation "me.leolin:ShortcutBadger:1.1.16"
     implementation 'se.emilsjolander:stickylistheaders:2.7.0'
@@ -350,7 +354,9 @@ dependencies {
     testImplementation 'org.powermock:powermock-classloading-xstream:1.6.1'
 
     testImplementation 'androidx.test:core:1.2.0'
-    testImplementation 'org.robolectric:robolectric:4.2'
+    testImplementation ('org.robolectric:robolectric:4.2') {
+        exclude group: 'com.google.protobuf', module: 'protobuf-java'
+    }
     testImplementation 'org.robolectric:shadows-multidex:4.2'
 
     androidTestImplementation 'androidx.test.ext:junit:1.1.1'

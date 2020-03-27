@@ -48,7 +48,6 @@ public class RetrieveProfileAvatarJob extends BaseJob {
                            .setQueue("RetrieveProfileAvatarJob::" + recipient.getId().toQueueKey())
                            .addConstraint(NetworkConstraint.KEY)
                            .setLifespan(TimeUnit.HOURS.toMillis(1))
-                           .setMaxInstances(1)
                            .build(),
         recipient,
         profileAvatar);
@@ -121,10 +120,6 @@ public class RetrieveProfileAvatarJob extends BaseJob {
     }
 
     database.setProfileAvatar(recipient.getId(), profileAvatar);
-
-    if (recipient.isLocalNumber()) {
-      TextSecurePreferences.setProfileAvatarId(context, Util.getSecureRandom().nextInt());
-    }
   }
 
   @Override
