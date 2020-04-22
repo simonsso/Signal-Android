@@ -92,9 +92,9 @@ public final class Megaphones {
   private static Map<Event, MegaphoneSchedule> buildDisplayOrder() {
     return new LinkedHashMap<Event, MegaphoneSchedule>() {{
       put(Event.REACTIONS, ALWAYS);
-      put(Event.PINS_FOR_ALL, new PinsForAllSchedule());
-      put(Event.PROFILE_NAMES_FOR_ALL, FeatureFlags.profileNamesMegaphone() ? EVERY_TWO_DAYS : NEVER);
-      put(Event.PIN_REMINDER, new SignalPinReminderSchedule());
+//      put(Event.PINS_FOR_ALL, new PinsForAllSchedule());
+//      put(Event.PROFILE_NAMES_FOR_ALL, FeatureFlags.profileNamesMegaphone() ? EVERY_TWO_DAYS : NEVER);
+//      put(Event.PIN_REMINDER, new SignalPinReminderSchedule());
       put(Event.MESSAGE_REQUESTS, shouldShowMessageRequestsMegaphone() ? ALWAYS : NEVER);
     }};
   }
