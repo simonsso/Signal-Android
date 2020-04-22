@@ -13,6 +13,8 @@ import org.thoughtcrime.securesms.megaphone.MegaphoneRepository;
 import org.thoughtcrime.securesms.push.SignalServiceNetworkAccess;
 import org.thoughtcrime.securesms.recipients.LiveRecipientCache;
 import org.thoughtcrime.securesms.service.IncomingMessageObserver;
+import org.thoughtcrime.securesms.util.EarlyMessageCache;
+import org.thoughtcrime.securesms.util.FeatureFlags;
 import org.thoughtcrime.securesms.util.FrameRateTracker;
 import org.thoughtcrime.securesms.util.IasKeyStore;
 import org.thoughtcrime.securesms.util.TextSecurePreferences;
@@ -20,6 +22,7 @@ import org.whispersystems.signalservice.api.KeyBackupService;
 import org.whispersystems.signalservice.api.SignalServiceAccountManager;
 import org.whispersystems.signalservice.api.SignalServiceMessageReceiver;
 import org.whispersystems.signalservice.api.SignalServiceMessageSender;
+import org.whispersystems.signalservice.api.groupsv2.GroupsV2Operations;
 
 /**
  * Location for storing and retrieving application-scoped singletons. Users must call
@@ -34,16 +37,18 @@ public class ApplicationDependencies {
   private static Application application;
   private static Provider    provider;
 
-  private static SignalServiceAccountManager  accountManager;
-  private static SignalServiceMessageSender   messageSender;
-  private static SignalServiceMessageReceiver messageReceiver;
-  private static IncomingMessageProcessor     incomingMessageProcessor;
-  private static MessageRetriever             messageRetriever;
-  private static LiveRecipientCache           recipientCache;
-  private static JobManager                   jobManager;
-  private static FrameRateTracker             frameRateTracker;
-  private static KeyValueStore                keyValueStore;
-  private static MegaphoneRepository          megaphoneRepository;
+  private static SignalServiceAccountManager       accountManager;
+  private static SignalServiceMessageSender        messageSender;
+  private static SignalServiceMessageReceiver      messageReceiver;
+  private static IncomingMessageProcessor          incomingMessageProcessor;
+  private static MessageRetriever                  messageRetriever;
+  private static LiveRecipientCache                recipientCache;
+  private static JobManager                        jobManager;
+  private static FrameRateTracker                  frameRateTracker;
+  private static KeyValueStore                     keyValueStore;
+  private static MegaphoneRepository               megaphoneRepository;
+  private static GroupsV2Operations                groupsV2Operations;
+  private static EarlyMessageCache                 earlyMessageCache;
 
   public static synchronized void init(@NonNull Application application, @NonNull Provider provider) {
     if (ApplicationDependencies.application != null || ApplicationDependencies.provider != null) {
@@ -69,10 +74,20 @@ public class ApplicationDependencies {
     return accountManager;
   }
 
+  public static synchronized @NonNull GroupsV2Operations getGroupsV2Operations() {
+    assertInitialization();
+
+    if (groupsV2Operations == null) {
+      groupsV2Operations = provider.provideGroupsV2Operations();
+    }
+
+    return groupsV2Operations;
+  }
+
   public static synchronized @NonNull KeyBackupService getKeyBackupService() {
     return getSignalServiceAccountManager().getKeyBackupService(IasKeyStore.getIasKeyStore(application),
-                                                                BuildConfig.KEY_BACKUP_ENCLAVE_NAME,
-                                                                BuildConfig.KEY_BACKUP_MRENCLAVE,
+                                                                BuildConfig.KBS_ENCLAVE_NAME,
+                                                                BuildConfig.KBS_MRENCLAVE,
                                                                 10);
   }
 
@@ -82,8 +97,11 @@ public class ApplicationDependencies {
     if (messageSender == null) {
       messageSender = provider.provideSignalServiceMessageSender();
     } else {
-      messageSender.setMessagePipe(IncomingMessageObserver.getPipe(), IncomingMessageObserver.getUnidentifiedPipe());
-      messageSender.setIsMultiDevice(TextSecurePreferences.isMultiDevice(application));
+      messageSender.update(
+              IncomingMessageObserver.getPipe(),
+              IncomingMessageObserver.getUnidentifiedPipe(),
+              TextSecurePreferences.isMultiDevice(application),
+              FeatureFlags.attachmentsV3());
     }
 
     return messageSender;
@@ -179,6 +197,16 @@ public class ApplicationDependencies {
     return megaphoneRepository;
   }
 
+  public static synchronized @NonNull EarlyMessageCache getEarlyMessageCache() {
+    assertInitialization();
+
+    if (earlyMessageCache == null) {
+      earlyMessageCache = provider.provideEarlyMessageCache();
+    }
+
+    return earlyMessageCache;
+  }
+
   private static void assertInitialization() {
     if (application == null || provider == null) {
       throw new UninitializedException();
@@ -186,6 +214,7 @@ public class ApplicationDependencies {
   }
 
   public interface Provider {
+    @NonNull GroupsV2Operations provideGroupsV2Operations();
     @NonNull SignalServiceAccountManager provideSignalServiceAccountManager();
     @NonNull SignalServiceMessageSender provideSignalServiceMessageSender();
     @NonNull SignalServiceMessageReceiver provideSignalServiceMessageReceiver();
@@ -197,6 +226,7 @@ public class ApplicationDependencies {
     @NonNull FrameRateTracker provideFrameRateTracker();
     @NonNull KeyValueStore provideKeyValueStore();
     @NonNull MegaphoneRepository provideMegaphoneRepository();
+    @NonNull EarlyMessageCache provideEarlyMessageCache();
   }
 
   private static class UninitializedException extends IllegalStateException {

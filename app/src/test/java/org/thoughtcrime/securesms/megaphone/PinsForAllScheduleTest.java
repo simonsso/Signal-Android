@@ -99,78 +99,10 @@ public class PinsForAllScheduleTest {
   }
 
   @Test
-  public void givenFirstVisibleIsZero_whenIGetDaysRemaining_thenIExpectMax() {
-    // GIVEN
-    long firstVisible = 0;
-    long expected     = PinsForAllSchedule.DAYS_REMAINING_MAX;
-
-    // WHEN
-    long result = PinsForAllSchedule.getDaysRemaining(firstVisible, 0);
-
-    // THEN
-    assertEquals(expected, result);
-  }
-
-  @Test
-  public void givenFirstVisibleIsNow_whenIGetDaysRemaining_thenIExpectMax() {
-    // GIVEN
-    long now      = System.currentTimeMillis();
-    long expected = PinsForAllSchedule.DAYS_REMAINING_MAX;
-
-    // WHEN
-    long result = PinsForAllSchedule.getDaysRemaining(now, now);
-
-    // THEN
-    assertEquals(expected, result);
-  }
-
-  @Test
-  public void givenFirstVisibleIsFiveSecondsAgo_whenIGetDaysRemaining_thenIExpectMax() {
-    // GIVEN
-    long now          = System.currentTimeMillis();
-    long firstVisible = now - TimeUnit.SECONDS.toMillis(5);
-    long expected     = PinsForAllSchedule.DAYS_REMAINING_MAX;
-
-    // WHEN
-    long result = PinsForAllSchedule.getDaysRemaining(firstVisible, now);
-
-    // THEN
-    assertEquals(expected, result);
-  }
-
-  @Test
-  public void givenFirstVisibleIsADayAgo_whenIGetDaysRemaining_thenIExpectMaxLessOne() {
-    // GIVEN
-    long now          = System.currentTimeMillis();
-    long firstVisible = now - TimeUnit.DAYS.toMillis(1);
-    long expected     = PinsForAllSchedule.DAYS_REMAINING_MAX - 1;
-
-    // WHEN
-    long result = PinsForAllSchedule.getDaysRemaining(firstVisible, now);
-
-    // THEN
-    assertEquals(expected, result);
-  }
-
-  @Test
-  public void givenFirstVisibleIsAMonthAgo_whenIGetDaysRemaining_thenIExpectZero() {
-    // GIVEN
-    long now          = System.currentTimeMillis();
-    long firstVisible = now - TimeUnit.DAYS.toMillis(31);
-    long expected     = 0;
-
-    // WHEN
-    long result = PinsForAllSchedule.getDaysRemaining(firstVisible, now);
-
-    // THEN
-    assertEquals(expected, result);
-  }
-
-  @Test
   public void whenUserIsANewInstallAndFlagIsDisabled_whenIShouldDisplay_thenIExpectFalse() {
     // GIVEN
     when(registrationValues.pinWasRequiredAtRegistration()).thenReturn(true);
-    when(kbsValues.isV2RegistrationLockEnabled()).thenReturn(true);
+    when(kbsValues.hasPin()).thenReturn(true);
     when(FeatureFlags.pinsForAll()).thenReturn(false);
 
     // WHEN
@@ -184,7 +116,7 @@ public class PinsForAllScheduleTest {
   public void whenUserIsANewInstallAndFlagIsEnabled_whenIShouldDisplay_thenIExpectFalse() {
     // GIVEN
     when(registrationValues.pinWasRequiredAtRegistration()).thenReturn(true);
-    when(kbsValues.isV2RegistrationLockEnabled()).thenReturn(true);
+    when(kbsValues.hasPin()).thenReturn(true);
     when(FeatureFlags.pinsForAll()).thenReturn(true);
 
     // WHEN

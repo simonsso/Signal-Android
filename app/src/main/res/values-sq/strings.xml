@@ -1320,6 +1320,7 @@
   <string name="preferences__submit_debug_log">Parashtro regjistër diagnostikimi</string>
   <string name="preferences__support_wifi_calling">Mënyrë përputhshmëri me \'Thirrje Wifi\'</string>
   <string name="preferences__enable_if_your_device_supports_sms_mms_delivery_over_wifi">Aktivizojeni nëse pajisja juaj përdor dërgim SMS/MMS-sh përmes WiFi (aktivizojeni vetëm kur \'Thirrje Wifi\' janë të aktivizuara në pajisjen tuaj).</string>
+  <string name="preferences__incognito_keyboard">Tastiera inkonjito</string>
   <string name="preferences__read_receipts">Dëftesa leximi</string>
   <string name="preferences__if_read_receipts_are_disabled_you_wont_be_able_to_see_read_receipts">Nëse dëftesat e leximit janë të çaktivizuara, s\’do të jeni në gjendje të shihni dëftesa leximi nga të tjerët</string>
   <string name="preferences__typing_indicators">Tregues shtypjeje</string>
@@ -1510,10 +1511,6 @@
     <item quantity="other">PIN-i duhet të jetë të paktën %1$d shifra</item>
   </plurals>
   <string name="CreateKbsPinFragment__create_a_new_pin">Krijoni një PIN të ri</string>
-  <plurals name="CreateKbsPinFragment__you_can_choose_a_new_pin_because_this_device_is_registered">
-    <item quantity="one">Mund të zgjidhni një PIN të ri, ngaqë kjo pajisje është e regjistruar. Nëse e harroni PIN-in tuaj, mund të duhet të prisni %1$d ditë për ta riregjistruar.</item>
-    <item quantity="other">Mund të zgjidhni një PIN të ri, ngaqë kjo pajisje është e regjistruar. Nëse e harroni PIN-in tuaj, mund të duhet të prisni %1$d ditë për ta riregjistruar.</item>
-  </plurals>
   <string name="CreateKbsPinFragment__create_your_pin">Krijoni PIN-in tuaj</string>
   <string name="CreateKbsPinFragment__pins_add_extra_security_to_your_account">PIN-et shtojnë siguri ekstra te llogaria juaj dhe s’mund të rimerren. Që të riregjistroheni me Signal, do t’ju duhet PIN-i juaj.</string>
   <!--ConfirmKbsPinFragment-->

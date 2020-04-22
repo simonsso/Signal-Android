@@ -354,7 +354,7 @@
   <string name="GroupCreateActivity_contacts_invalid_number">Một người trong nhóm có số điện thoại không hợp lệ. Vui lòng điều chỉnh liên lạc đó hoặc xóa đi và thử lại.</string>
   <string name="GroupCreateActivity_avatar_content_description">Biểu tượng nhóm</string>
   <string name="GroupCreateActivity_menu_apply_button">Áp dụng</string>
-  <string name="GroupCreateActivity_creating_group">Đang tạo %1$s…</string>
+  <string name="GroupCreateActivity_creating_group">Đang tạo %1$s...</string>
   <string name="GroupCreateActivity_updating_group">Đang cập nhật %1$s…</string>
   <string name="GroupCreateActivity_cannot_add_non_push_to_existing_group">Không thể thêm %1$s vì họ không phải người dùng Signal.</string>
   <string name="GroupCreateActivity_loading_group_details">Đang tải chi tiết nhóm…</string>
@@ -376,7 +376,7 @@
   <string name="InviteActivity_share_with_contacts">Chia sẻ với liên hệ</string>
   <string name="InviteActivity_choose_how_to_share">Chọn cách chia sẻ</string>
   <string name="InviteActivity_cancel">Hủy bỏ</string>
-  <string name="InviteActivity_sending">Đang gửi…</string>
+  <string name="InviteActivity_sending">Đang gửi...</string>
   <string name="InviteActivity_heart_content_description">Thích</string>
   <string name="InviteActivity_invitations_sent">Đã gửi lời mời!</string>
   <string name="InviteActivity_invite_to_signal">Mời dùng Signal</string>
@@ -465,7 +465,7 @@
   <!--MediaPickerItemFragment-->
   <string name="MediaPickerItemFragment_tap_to_select">Nhấn để chọn</string>
   <!--MediaSendActivity-->
-  <string name="MediaSendActivity_add_a_caption">Thêm chú thích…</string>
+  <string name="MediaSendActivity_add_a_caption">Thêm chú thích...</string>
   <string name="MediaSendActivity_an_item_was_removed_because_it_exceeded_the_size_limit">Một mục đã bị loại bỏ vì quá kích cỡ giới hạn</string>
   <string name="MediaSendActivity_camera_unavailable">Máy ảnh không khả dụng</string>
   <string name="MediaSendActivity_message_to_s">Tin nhắn đến %s</string>
@@ -789,7 +789,7 @@ Nhận thông tin trao đổi mã khóa về phiên bản giao thức không h�
   <!--OutdatedBuildReminder-->
   <string name="OutdatedBuildReminder_no_web_browser_installed">Không tìm thấy trình duyệt!</string>
   <!--ApplicationMigrationService-->
-  <string name="ApplicationMigrationService_import_in_progress">Đang nhập…</string>
+  <string name="ApplicationMigrationService_import_in_progress">Đang nhập...</string>
   <string name="ApplicationMigrationService_importing_text_messages">Đang nhập tin nhắn văn bản</string>
   <string name="ApplicationMigrationService_import_complete">Nhập thành công</string>
   <string name="ApplicationMigrationService_system_database_import_is_complete">Hoàn tất nhập cơ sở dữ liệu hệ thống.</string>
@@ -924,7 +924,7 @@ Nhận thông tin trao đổi mã khóa về phiên bản giao thức không h�
   <string name="contact_filter_toolbar__show_dial_pad_description">HIện bàn phím quay số</string>
   <!--contact_selection_group_activity-->
   <string name="contact_selection_group_activity__no_contacts">Không có liên hệ.</string>
-  <string name="contact_selection_group_activity__finding_contacts">Đang tải danh bạ…</string>
+  <string name="contact_selection_group_activity__finding_contacts">Đang tải danh bạ...</string>
   <!--single_contact_selection_activity-->
   <string name="SingleContactSelectionActivity_contact_photo">Ảnh liên hệ</string>
   <!--ContactSelectionListFragment-->
@@ -1043,8 +1043,8 @@ Nhận thông tin trao đổi mã khóa về phiên bản giao thức không h�
   <string name="log_submit_activity__button_got_it">Đã rõ</string>
   <string name="log_submit_activity__button_compose_email">Soạn email</string>
   <string name="log_submit_activity__this_log_will_be_posted_online">Nhật kí này sẽ được đăng trực tuyến công khai cho những người đóng góp theo dõi, bạn có thể kiểm tra và sửa đổi nó trước khi gửi đi.</string>
-  <string name="log_submit_activity__loading_logs">Đang tải nhật kí…</string>
-  <string name="log_submit_activity__uploading_logs">Đang tải lên nhật kí…</string>
+  <string name="log_submit_activity__loading_logs">Đang tải nhật kí...</string>
+  <string name="log_submit_activity__uploading_logs">Đang tải lên nhật kí...</string>
   <string name="log_submit_activity__choose_email_app">Chọn ứng dụng email</string>
   <string name="log_submit_activity__please_review_this_log_from_my_app">Vui lòng xem nhật kí dò lỗi từ ứng dụng của tôi: %1$s</string>
   <string name="log_submit_activity__network_failure">Không thể kết nối mạng. Hãy thử lại.</string>
@@ -1061,7 +1061,7 @@ Nhận thông tin trao đổi mã khóa về phiên bản giao thức không h�
   <string name="import_fragment__import_a_plaintext_backup_file">Nhập tập tin sao lưu văn bản không mã hoá. Tương thích với \'Sao lưu &amp; Phục hồi SMS.\'</string>
   <!--load_more_header-->
   <string name="load_more_header__see_full_conversation">Xem toàn bộ cuộc trò chuyện</string>
-  <string name="load_more_header__loading">Đang tải…</string>
+  <string name="load_more_header__loading">Đang tải...</string>
   <!--media_overview_activity-->
   <string name="media_overview_activity__no_media">Không có đa phương tiện</string>
   <!--message_recipients_list_item-->
@@ -1119,7 +1119,7 @@ Nhận thông tin trao đổi mã khóa về phiên bản giao thức không h�
   <!--verify_display_fragment-->
   <string name="verify_display_fragment__if_you_wish_to_verify_the_security_of_your_end_to_end_encryption_with_s"><![CDATA[Nếu bạn muốn xác minh độ bảo mật của mã hoá với %s, so sánh dãy số trên với dãy số trên thiết bị của họ. Hoặc bạn có thể quét mã QR trên thiết bị của họ, hoặc yêu cầu họ quét mã của bạn. <a href="https://signal.org/redirect/safety-numbers">Tìm hiểu thêm.</a>]]></string>
   <string name="verify_display_fragment__tap_to_scan">Nhấn để quét</string>
-  <string name="verify_display_fragment__loading">Đang tải…</string>
+  <string name="verify_display_fragment__loading">Đang tải...</string>
   <string name="verify_display_fragment__verified">Đã xác minh</string>
   <!--verify_identity-->
   <string name="verify_identity__share_safety_number">Chia sẻ mã số an toàn</string>
@@ -1473,9 +1473,6 @@ Nhận thông tin trao đổi mã khóa về phiên bản giao thức không h�
     <item quantity="other">PIN phải có tối thiểu %1$d chữ số</item>
   </plurals>
   <string name="CreateKbsPinFragment__create_a_new_pin">Tạo mã PIN mới</string>
-  <plurals name="CreateKbsPinFragment__you_can_choose_a_new_pin_because_this_device_is_registered">
-    <item quantity="other">Bạn có thể chọn mã PIN mới vì thiết bị này đã được đăng kí. Nếu bạn quên mã PIN, bạn có thể phải chờ %1$d ngày để được đăng kí lại.</item>
-  </plurals>
   <string name="CreateKbsPinFragment__create_your_pin">Tạo mã PIN của bạn</string>
   <string name="CreateKbsPinFragment__pins_add_extra_security_to_your_account">Mã PIN thêm một lớp bảo mật cho tài khoản của bạn. Mã PIN không thể được khôi phục. Bạn sẽ cần mã PIN để đăng kí lại với Signal.</string>
   <!--ConfirmKbsPinFragment-->
@@ -1485,7 +1482,7 @@ Nhận thông tin trao đổi mã khóa về phiên bản giao thức không h�
   <string name="ConfirmKbsPinFragment__your_pin_was_not_saved">Mã PIN của bạn chưa được lưu. Chúng tôi sẽ nhắc bạn tạo mã PIN sau.</string>
   <string name="ConfirmKbsPinFragment__pin_created">Mã PIN đã được tạo.</string>
   <string name="ConfirmKbsPinFragment__re_enter_pin">Nhập lại mã PIN</string>
-  <string name="ConfirmKbsPinFragment__creating_pin">Đang tạo mã PIN…</string>
+  <string name="ConfirmKbsPinFragment__creating_pin">Đang tạo mã PIN...</string>
   <!--KbsSplashFragment-->
   <string name="KbsSplashFragment__introducing_pins">Giới thiệu mã PIN</string>
   <string name="KbsSplashFragment__pins_add_another_level_of_security_to_your_account">Mã PIN thêm một lớp bảo mật cho tài khoản của bạn. Tạo mã PIN ngay.</string>
@@ -1553,8 +1550,8 @@ Nhận thông tin trao đổi mã khóa về phiên bản giao thức không h�
   <string name="ProfileNamesMegaphone__confirm_name">Xác nhận tên</string>
   <!--transport_selection_list_item-->
   <string name="transport_selection_list_item__transport_icon">Biểu tượng chuyển tải</string>
-  <string name="ConversationListFragment_loading">Đang tải…</string>
-  <string name="CallNotificationBuilder_connecting">Đang kết nối…</string>
+  <string name="ConversationListFragment_loading">Đang tải...</string>
+  <string name="CallNotificationBuilder_connecting">Đang kết nối...</string>
   <string name="Permissions_permission_required">Cần quyền</string>
   <string name="ConversationActivity_signal_needs_sms_permission_in_order_to_send_an_sms">Signal cần quyền SMS để gửi SMS, nhưng đã bị từ chối vĩnh viễn. Vui lòng mở cài đặt ứng dụng, chọn \"Qiuyền\" và bật \"SMS\".</string>
   <string name="Permissions_continue">Tiếp tục</string>
