@@ -467,7 +467,7 @@
 
     <string name="PendingMembersActivity_cancel_invite">Cancel invite</string>
     <string name="PendingMembersActivity_cancel_invites">Cancel invites</string>
-    <plurals name="PendingMembersActivity_cancel_invites">
+    <plurals name="PendingMembersActivity_cancel_d_invites">
         <item quantity="one">Cancel invite</item>
         <item quantity="other">Cancel %1$d invites</item>
     </plurals>
@@ -811,8 +811,8 @@
     <string name="PinRestoreEntryFragment_cancel">Cancel</string>
     <string name="PinRestoreEntryFragment_skip">Skip</string>
     <plurals name="PinRestoreEntryFragment_you_have_d_attempt_remaining">
-        <item quantity="one">You have %1$d attempt remaining. If you run out of attempts, you can create a new PIN. You can register and use your account but you’ll lose some saved settings like your profile information.</item>
-        <item quantity="many">You have %1$d attempts remaining. If you run out of attempts, you can create a new PIN. You can register and use your account but you’ll lose some saved settings like your profile information.</item>
+        <item quantity="one">You have %1$d attempt remaining. If you run out of attempts, you can create a new PIN. You can register and use your account but you\'ll lose some saved settings like your profile information.</item>
+        <item quantity="other">You have %1$d attempts remaining. If you run out of attempts, you can create a new PIN. You can register and use your account but you\'ll lose some saved settings like your profile information.</item>
     </plurals>
     <string name="PinRestoreEntryFragment_support_email" translatable="false">support@signal.org</string>
     <string name="PinRestoreEntryFragment_signal_registration_need_help_with_pin">Signal Registration - Need Help with PIN for Android</string>
@@ -2085,8 +2085,8 @@
     <string name="preferences_app_protection__signal_pin">Signal PIN</string>
     <string name="preferences_app_protection__create_a_pin">Create a PIN</string>
     <string name="preferences_app_protection__change_your_pin">Change your PIN</string>
-    <string name="preferences_app_protection__your_pin_backs_up_profile_settings_and_preferences">Your PIN backs up profile settings and preferences to save you time when re-registering your account.</string>
-    <string name="preferences_app_protection__registration_lock_adds_and_extra_layer_of_security">Registration Lock adds an extra layer of security to your account. You\'ll be asked for your Signal PIN when you register your phone number with Signal. If you forget your PIN, you\'ll be locked out of your account for 7 days.</string>
+    <string name="preferences_app_protection__pins_keep_information_stored_with_signal_encrypted">PINs keep information stored with Signal encrypted so only you can access it. Your profile, settings, and contacts will restore when you reinstall Signal.</string>
+    <string name="preferences_app_protection__add_extra_security_by_requiring_your_signal_pin_to_register">Add extra security by requiring your Signal PIN to register your phone number with Signal again.</string>
     <string name="preferences_app_protection__failed_to_enable_registration_lock">Failed to enable registration lock.</string>
     <string name="preferences_app_protection__failed_to_disable_registration_lock">Failed to disable registration lock.</string>
     <string name="AppProtectionPreferenceFragment_none">None</string>
