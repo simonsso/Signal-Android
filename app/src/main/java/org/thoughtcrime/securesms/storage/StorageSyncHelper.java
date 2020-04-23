@@ -31,6 +31,7 @@ import org.whispersystems.signalservice.api.storage.SignalStorageManifest;
 import org.whispersystems.signalservice.api.storage.SignalStorageRecord;
 import org.whispersystems.signalservice.api.storage.StorageId;
 import org.whispersystems.signalservice.api.util.OptionalUtil;
+import org.whispersystems.signalservice.internal.storage.protos.ManifestRecord;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
@@ -83,8 +84,31 @@ public final class StorageSyncHelper {
                                                                                 @NonNull Optional<SignalAccountRecord> accountInsert,
                                                                                 @NonNull Set<RecipientId> archivedRecipients)
   {
+    int accountCount = Stream.of(currentLocalKeys)
+                             .filter(id -> id.getType() == ManifestRecord.Identifier.Type.ACCOUNT_VALUE)
+                             .toList()
+                             .size();
+
+    if (accountCount > 1) {
+      throw new MultipleExistingAccountsException();
+    }
+
+    Optional<StorageId> accountId = Optional.fromNullable(Stream.of(currentLocalKeys)
+                                            .filter(id -> id.getType() == ManifestRecord.Identifier.Type.ACCOUNT_VALUE)
+                                            .findFirst()
+                                            .orElse(null));
+
+
+    if (accountId.isPresent() && accountInsert.isPresent() && !accountInsert.get().getId().equals(accountId.get())) {
+      throw new InvalidAccountInsertException();
+    }
+
+    if (accountId.isPresent() && accountUpdate.isPresent() && !accountUpdate.get().getId().equals(accountId.get())) {
+      throw new InvalidAccountUpdateException();
+    }
+
     if (accountUpdate.isPresent() && accountInsert.isPresent()) {
-      throw new AssertionError("Cannot update and insert an account at  the same time!");
+      throw new InvalidAccountDualInsertUpdateException();
     }
 
     Set<StorageId>           completeIds       = new LinkedHashSet<>(currentLocalKeys);
@@ -109,25 +133,38 @@ public final class StorageSyncHelper {
     }
 
     for (RecipientSettings update : updates) {
-      byte[] oldKey = update.getStorageId();
-      byte[] newKey = generateKey();
+      StorageId oldId;
+      StorageId newId;
 
-      storageInserts.add(StorageSyncModels.localToRemoteRecord(update, newKey, archivedRecipients));
-      storageDeletes.add(ByteBuffer.wrap(oldKey));
-      completeIds.remove(StorageId.forContact(oldKey));
-      completeIds.add(StorageId.forContact(newKey));
-      storageKeyUpdates.put(update.getId(), newKey);
+      switch (update.getGroupType()) {
+        case NONE:
+          oldId = StorageId.forContact(update.getStorageId());
+          newId = StorageId.forContact(generateKey());
+          break;
+        case SIGNAL_V1:
+          oldId = StorageId.forGroupV1(update.getStorageId());
+          newId = StorageId.forGroupV1(generateKey());
+          break;
+        default:
+          throw new AssertionError("Unsupported type!");
+      }
+
+      storageInserts.add(StorageSyncModels.localToRemoteRecord(update, newId.getRaw(), archivedRecipients));
+      storageDeletes.add(ByteBuffer.wrap(oldId.getRaw()));
+      completeIds.remove(oldId);
+      completeIds.add(newId);
+      storageKeyUpdates.put(update.getId(), newId.getRaw());
     }
 
     if (accountUpdate.isPresent()) {
-      byte[] oldKey = accountUpdate.get().getId().getRaw();
-      byte[] newKey = generateKey();
+      StorageId oldId = accountUpdate.get().getId();
+      StorageId newId = StorageId.forAccount(generateKey());
 
-      storageInserts.add(SignalStorageRecord.forAccount(StorageId.forAccount(newKey), accountUpdate.get()));
-      storageDeletes.add(ByteBuffer.wrap(oldKey));
-      completeIds.remove(StorageId.forAccount(oldKey));
-      completeIds.add(StorageId.forAccount(newKey));
-      storageKeyUpdates.put(Recipient.self().getId(), newKey);
+      storageInserts.add(SignalStorageRecord.forAccount(newId, accountUpdate.get()));
+      storageDeletes.add(ByteBuffer.wrap(oldId.getRaw()));
+      completeIds.remove(oldId);
+      completeIds.add(newId);
+      storageKeyUpdates.put(Recipient.self().getId(), newId.getRaw());
     }
 
     if (storageInserts.isEmpty() && storageDeletes.isEmpty()) {
@@ -631,4 +668,9 @@ public final class StorageSyncHelper {
   interface KeyGenerator {
     @NonNull byte[] generate();
   }
+
+  private static final class MultipleExistingAccountsException extends IllegalArgumentException {}
+  private static final class InvalidAccountInsertException extends IllegalArgumentException {}
+  private static final class InvalidAccountUpdateException extends IllegalArgumentException {}
+  private static final class InvalidAccountDualInsertUpdateException extends IllegalArgumentException {}
 }
