@@ -15,11 +15,11 @@ import android.view.View;
 import android.view.animation.DecelerateInterpolator;
 import android.view.animation.Interpolator;
 import android.widget.RelativeLayout;
-import android.widget.TextView;
 
 import androidx.annotation.IdRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.content.res.AppCompatResources;
 import androidx.appcompat.widget.Toolbar;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.constraintlayout.widget.ConstraintSet;
@@ -31,14 +31,17 @@ import com.annimon.stream.Stream;
 import org.thoughtcrime.securesms.R;
 import org.thoughtcrime.securesms.animation.AnimationCompleteListener;
 import org.thoughtcrime.securesms.components.MaskView;
+import org.thoughtcrime.securesms.components.emoji.EmojiImageView;
 import org.thoughtcrime.securesms.database.model.MessageRecord;
 import org.thoughtcrime.securesms.database.model.ReactionRecord;
 import org.thoughtcrime.securesms.recipients.Recipient;
+import org.thoughtcrime.securesms.util.FeatureFlags;
 import org.thoughtcrime.securesms.util.ThemeUtil;
 import org.thoughtcrime.securesms.util.Util;
 import org.thoughtcrime.securesms.util.ViewUtil;
 
 import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 
 public final class ConversationReactionOverlay extends RelativeLayout {
@@ -61,12 +64,13 @@ public final class ConversationReactionOverlay extends RelativeLayout {
   private boolean downIsOurs;
   private boolean isToolbarTouch;
   private int     selected = -1;
+  private int     customEmojiIndex;
   private int     originalStatusBarColor;
 
   private View             backgroundView;
   private ConstraintLayout foregroundView;
   private View             selectedView;
-  private View[]           emojiViews;
+  private EmojiImageView[] emojiViews;
   private MaskView         maskView;
   private Toolbar          toolbar;
 
@@ -86,8 +90,10 @@ public final class ConversationReactionOverlay extends RelativeLayout {
   private Toolbar.OnMenuItemClickListener  onToolbarItemClickedListener;
   private OnHideListener                   onHideListener;
 
-  private AnimatorSet revealAnimatorSet = new AnimatorSet();
-  private AnimatorSet hideAnimatorSet   = new AnimatorSet();
+  private AnimatorSet revealAnimatorSet         = new AnimatorSet();
+  private AnimatorSet hideAnimatorSet           = new AnimatorSet();
+  private AnimatorSet hideAllButMaskAnimatorSet = new AnimatorSet();
+  private AnimatorSet hideMaskAnimatorSet       = new AnimatorSet();
 
   public ConversationReactionOverlay(@NonNull Context context) {
     super(context);
@@ -112,7 +118,10 @@ public final class ConversationReactionOverlay extends RelativeLayout {
 
     emojiViews = Stream.of(ReactionEmoji.values())
                        .map(e -> findViewById(e.viewId))
-                       .toArray(View[]::new);
+                       .toArray(EmojiImageView[]::new);
+
+    customEmojiIndex = FeatureFlags.reactWithAnyEmoji() ? ReactionEmoji.values().length - 1
+                                                        : ReactionEmoji.values().length;
 
     distanceFromTouchDownPointToTopOfScrubberDeadZone    = getResources().getDimensionPixelSize(R.dimen.conversation_reaction_scrub_deadzone_distance_from_touch_top);
     distanceFromTouchDownPointToBottomOfScrubberDeadZone = getResources().getDimensionPixelSize(R.dimen.conversation_reaction_scrub_deadzone_distance_from_touch_bottom);
@@ -145,7 +154,7 @@ public final class ConversationReactionOverlay extends RelativeLayout {
     selected           = -1;
 
     setupToolbarMenuItems();
-    setupSelectedEmojiBackground();
+    setupSelectedEmoji();
 
     if (Build.VERSION.SDK_INT >= 21) {
       View statusBarBackground = activity.findViewById(android.R.id.statusBarBackground);
@@ -189,6 +198,22 @@ public final class ConversationReactionOverlay extends RelativeLayout {
 
   public void hide() {
     maskView.setTarget(null);
+    hideInternal(hideAnimatorSet, onHideListener);
+  }
+
+  public void hideAllButMask() {
+    hideInternal(hideAllButMaskAnimatorSet, null);
+  }
+
+  public void hideMask() {
+    hideMaskAnimatorSet.start();
+
+    if (onHideListener != null) {
+      onHideListener.onHide();
+    }
+  }
+
+  private void hideInternal(@NonNull AnimatorSet hideAnimatorSet, @Nullable OnHideListener onHideListener) {
     overlayState = OverlayState.HIDDEN;
 
     revealAnimatorSet.end();
@@ -317,24 +342,30 @@ public final class ConversationReactionOverlay extends RelativeLayout {
     }
   }
 
-  private void setupSelectedEmojiBackground() {
+  private void setupSelectedEmoji() {
     final String oldEmoji = getOldEmoji(messageRecord);
 
     if (oldEmoji == null) {
       selectedView.setVisibility(View.GONE);
     }
 
+    boolean foundSelected = false;
+
     for (int i = 0; i < emojiViews.length; i++) {
-      final View view = emojiViews[i];
+      final EmojiImageView view = emojiViews[i];
+
       view.setScaleX(1.0f);
       view.setScaleY(1.0f);
       view.setTranslationY(0);
 
-      if(view instanceof TextView){
-        ((TextView) view).setText(ReactionEmoji.values()[i].emoji);
-      }
+      boolean isAtCustomIndex                      = i == customEmojiIndex;
+      boolean isNotAtCustomIndexAndOldEmojiMatches = !isAtCustomIndex && ReactionEmoji.values()[i].emoji.equals(oldEmoji);
+      boolean isAtCustomIndexAndOldEmojiExists     = isAtCustomIndex && oldEmoji != null;
 
-      if (ReactionEmoji.values()[i].emoji.equals(oldEmoji)) {
+      if (!foundSelected &&
+          (isNotAtCustomIndexAndOldEmojiMatches || isAtCustomIndexAndOldEmojiExists))
+      {
+        foundSelected = true;
         selectedView.setVisibility(View.VISIBLE);
 
         ConstraintSet constraintSet = new ConstraintSet();
@@ -344,6 +375,18 @@ public final class ConversationReactionOverlay extends RelativeLayout {
         constraintSet.connect(selectedView.getId(), ConstraintSet.LEFT, view.getId(), ConstraintSet.LEFT);
         constraintSet.connect(selectedView.getId(), ConstraintSet.RIGHT, view.getId(), ConstraintSet.RIGHT);
         constraintSet.applyTo(foregroundView);
+
+        if (isAtCustomIndex) {
+          view.setImageEmoji(oldEmoji);
+          view.setTag(oldEmoji);
+        } else {
+          view.setImageEmoji(ReactionEmoji.values()[i].emoji);
+        }
+      } else if (isAtCustomIndex) {
+        view.setImageDrawable(AppCompatResources.getDrawable(getContext(), R.drawable.ic_any_emoji_32));
+        view.setTag(null);
+      } else {
+        view.setImageEmoji(ReactionEmoji.values()[i].emoji);
       }
     }
   }
@@ -401,9 +444,14 @@ public final class ConversationReactionOverlay extends RelativeLayout {
   }
 
   private void handleUpEvent() {
-    hide();
     if (selected != -1 && onReactionSelectedListener != null) {
-      onReactionSelectedListener.onReactionSelected(messageRecord, ReactionEmoji.values()[selected].emoji);
+      if (selected == customEmojiIndex) {
+        onReactionSelectedListener.onCustomReactionSelected(messageRecord, emojiViews[selected].getTag() != null);
+      } else {
+        onReactionSelectedListener.onReactionSelected(messageRecord, ReactionEmoji.values()[selected].emoji);
+      }
+    } else {
+      hide();
     }
   }
 
@@ -499,7 +547,6 @@ public final class ConversationReactionOverlay extends RelativeLayout {
     Animator overlayHideAnim = AnimatorInflaterCompat.loadAnimator(getContext(), android.R.animator.fade_out);
     overlayHideAnim.setTarget(maskView);
     overlayHideAnim.setDuration(duration);
-    hides.add(overlayHideAnim);
 
     Animator backgroundHideAnim = AnimatorInflaterCompat.loadAnimator(getContext(), android.R.animator.fade_out);
     backgroundHideAnim.setTarget(backgroundView);
@@ -516,15 +563,26 @@ public final class ConversationReactionOverlay extends RelativeLayout {
     toolbarHideAnim.setDuration(duration);
     hides.add(toolbarHideAnim);
 
-    hideAnimatorSet.addListener(new AnimationCompleteListener() {
+    AnimationCompleteListener hideListener = new AnimationCompleteListener() {
       @Override
       public void onAnimationEnd(Animator animation) {
         setVisibility(View.GONE);
       }
-    });
+    };
 
+    List<Animator> hideAllAnimators = new LinkedList<>(hides);
+    hideAllAnimators.add(overlayHideAnim);
+
+    hideAnimatorSet.addListener(hideListener);
     hideAnimatorSet.setInterpolator(INTERPOLATOR);
-    hideAnimatorSet.playTogether(hides);
+    hideAnimatorSet.playTogether(hideAllAnimators);
+
+    hideAllButMaskAnimatorSet.setInterpolator(INTERPOLATOR);
+    hideAllButMaskAnimatorSet.playTogether(hides);
+
+    hideMaskAnimatorSet.addListener(hideListener);
+    hideMaskAnimatorSet.setInterpolator(INTERPOLATOR);
+    hideMaskAnimatorSet.playTogether(overlayHideAnim);
   }
 
   public interface OnHideListener {
@@ -533,6 +591,7 @@ public final class ConversationReactionOverlay extends RelativeLayout {
 
   public interface OnReactionSelectedListener {
     void onReactionSelected(@NonNull MessageRecord messageRecord, String emoji);
+    void onCustomReactionSelected(@NonNull MessageRecord messageRecord, boolean hasAddedCustomEmoji);
   }
 
   private static class Boundary {
@@ -562,16 +621,12 @@ public final class ConversationReactionOverlay extends RelativeLayout {
   private enum ReactionEmoji {
     HEART(R.id.reaction_1, "\u2764\ufe0f"),
     THUMBS_UP(R.id.reaction_2, "\ud83d\udc4d"),
-    EMOJI1(R.id.reaction_3,"💩"),
-    EMOJI2(R.id.reaction_4,"🤦‍️️"),
-    EMOJI3(R.id.reaction_5,"😷"),
-    EMOJI4(R.id.reaction_6,"🍻"),
-    ANGRY(R.id.reaction_7, "\ud83d\ude21"),
-    THUMBS_DOWN(R.id.reaction_8, "\ud83d\udc4e"),
-    LAUGH(R.id.reaction_9, "\ud83d\ude02"),
-    SURPRISE(R.id.reaction_10, "\ud83d\ude2e"),
-    SAD(R.id.reaction_11, "\ud83d\ude22"),
-    EMOJI5(R.id.reaction_12,"☣️");
+    THUMBS_DOWN(R.id.reaction_3, "\ud83d\udc4e"),
+    LAUGH(R.id.reaction_4, "\ud83d\ude02"),
+    SURPRISE(R.id.reaction_5, "\ud83d\ude2e"),
+    SAD(R.id.reaction_6, "\ud83d\ude22"),
+    ANGRY(R.id.reaction_7, "\ud83d\ude21");
+
     final @IdRes int    viewId;
     final        String emoji;
 
