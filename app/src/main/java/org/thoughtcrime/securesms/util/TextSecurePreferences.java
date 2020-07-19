@@ -214,6 +214,16 @@ public class TextSecurePreferences {
 
   private static final String ARGON2_TESTED = "argon2_tested";
 
+  public static final String DISABLE_PINV2_REMINDERS = "pref_signal_disable_pinv2_reminders";
+
+  public static boolean isPinV2ReminderDisabled(@NonNull Context context) {
+    return getBooleanPreference(context, DISABLE_PINV2_REMINDERS, false);
+  }
+
+  public static void setPinV2ReminderDisabled(@NonNull Context context, boolean value) {
+    setBooleanPreference(context, DISABLE_PINV2_REMINDERS, value);
+  }
+
   public static boolean isScreenLockEnabled(@NonNull Context context) {
     return getBooleanPreference(context, SCREEN_LOCK, false);
   }

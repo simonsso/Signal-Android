@@ -12,6 +12,9 @@ final class SignalPinReminderSchedule implements MegaphoneSchedule {
     if (!SignalStore.kbsValues().hasPin()) {
       return false;
     }
+    if (TextSecurePreferences.isPinV2ReminderDisabled(ApplicationDependencies.getApplication())) {
+      return false;
+    }
 
     if (!FeatureFlags.pinsForAll()) {
       return false;
