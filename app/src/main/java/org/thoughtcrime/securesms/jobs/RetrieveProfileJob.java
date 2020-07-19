@@ -374,7 +374,7 @@ public class RetrieveProfileJob extends BaseJob {
       ProfileKey profileKey = ProfileKeyUtil.profileKeyOrNull(recipient.getProfileKey());
       if (profileKey == null) return;
 
-      String plaintextProfileName = ProfileUtil.decryptName(profileKey, profileName);
+      String plaintextProfileName = Util.emptyIfNull(ProfileUtil.decryptName(profileKey, profileName));
 
       if (!Objects.equals(plaintextProfileName, recipient.getProfileName().serialize())) {
         String newProfileName      = TextUtils.isEmpty(plaintextProfileName) ? ProfileName.EMPTY.serialize() : plaintextProfileName;
@@ -383,9 +383,12 @@ public class RetrieveProfileJob extends BaseJob {
         Log.i(TAG, "Profile name updated. Writing new value.");
         DatabaseFactory.getRecipientDatabase(context).setProfileName(recipient.getId(), ProfileName.fromSerialized(plaintextProfileName));
 
-        if (!recipient.isGroup() && !recipient.isLocalNumber()) {
-          //noinspection ConstantConditions
+        if (!recipient.isBlocked() && !recipient.isGroup() && !recipient.isLocalNumber() && !TextUtils.isEmpty(previousProfileName)) {
+          Log.i(TAG, "Writing a profile name change event.");
           DatabaseFactory.getSmsDatabase(context).insertProfileNameChangeMessages(recipient, newProfileName, previousProfileName);
+        } else {
+          Log.i(TAG, String.format(Locale.US, "Name changed, but wasn't relevant to write an event. blocked: %b, group: %b, self: %b, firstSet: %b",
+                                               recipient.isBlocked(), recipient.isGroup(), recipient.isLocalNumber(), TextUtils.isEmpty(previousProfileName)));
         }
       }
 
