@@ -32,6 +32,7 @@ import org.thoughtcrime.securesms.storage.StorageSyncHelper;
 import org.thoughtcrime.securesms.storage.StorageSyncHelper.RecordUpdate;
 import org.thoughtcrime.securesms.storage.StorageSyncModels;
 import org.thoughtcrime.securesms.util.Base64;
+import org.thoughtcrime.securesms.util.FeatureFlags;
 import org.thoughtcrime.securesms.util.IdentityUtil;
 import org.thoughtcrime.securesms.util.SqlUtil;
 import org.thoughtcrime.securesms.util.Util;
@@ -491,7 +492,7 @@ public class RecipientDatabase extends Database {
     try {
 
       for (SignalContactRecord insert : contactInserts) {
-        ContentValues values = getValuesForStorageContact(insert);
+        ContentValues values = validateContactValuesForInsert(getValuesForStorageContact(insert));
         long          id     = db.insertWithOnConflict(TABLE_NAME, null, values, SQLiteDatabase.CONFLICT_IGNORE);
 
         if (id < 0) {
@@ -512,7 +513,6 @@ public class RecipientDatabase extends Database {
               IdentityKey identityKey = new IdentityKey(insert.getIdentityKey().get(), 0);
 
               DatabaseFactory.getIdentityDatabase(context).updateIdentityAfterSync(recipientId, identityKey, StorageSyncModels.remoteToLocalIdentityStatus(insert.getIdentityState()));
-              IdentityUtil.markIdentityVerified(context, Recipient.resolved(recipientId), true, true);
             } catch (InvalidKeyException e) {
               Log.w(TAG, "Failed to process identity key during insert! Skipping.", e);
             }
@@ -1644,6 +1644,17 @@ public class RecipientDatabase extends Database {
     }
   }
 
+  private static ContentValues validateContactValuesForInsert(ContentValues values) {
+    if (!FeatureFlags.uuids()            &&
+        values.getAsString(UUID) != null &&
+        values.getAsString(PHONE) == null)
+    {
+      throw new UuidRecipientError();
+    } else {
+      return values;
+    }
+  }
+
   public class BulkOperationsHandle {
 
     private final SQLiteDatabase database;
@@ -2040,5 +2051,8 @@ public class RecipientDatabase extends Database {
       this.recipientId  = recipientId;
       this.neededInsert = neededInsert;
     }
+  }
+
+  private static class UuidRecipientError extends AssertionError {
   }
 }

@@ -701,7 +701,7 @@
   <string name="DeviceProvisioningActivity_content_intro">Het kan dan</string>
   <string name="DeviceProvisioningActivity_content_bullets">
         • Al je berichten lezen
-        \n• Berichten onder jouw naam verzenden
+        \n• Berichten uit jouw naam verzenden
     </string>
   <string name="DeviceProvisioningActivity_content_progress_title">Apparaat wordt gekoppeld</string>
   <string name="DeviceProvisioningActivity_content_progress_content">Nieuw apparaat wordt gekoppeld …</string>
@@ -1023,7 +1023,7 @@ Tot slot moet Signal de telefoonstatus kunnen lezen om te voorkomen dat Signal-o
   <!--MessageNotifier-->
   <string name="MessageNotifier_d_new_messages_in_d_conversations">%1$d nieuwe berichten in %2$d gesprekken</string>
   <string name="MessageNotifier_most_recent_from_s">Meest recente van: %1$s</string>
-  <string name="MessageNotifier_locked_message">Versleuteld bericht</string>
+  <string name="MessageNotifier_locked_message">Nieuw bericht, ontgrendel Signal om het weer te geven</string>
   <string name="MessageNotifier_media_message_with_text">Mediabericht: %s</string>
   <string name="MessageNotifier_message_delivery_failed">Berichtaflevering mislukt.</string>
   <string name="MessageNotifier_failed_to_deliver_message">Het bericht afleveren is mislukt.</string>
@@ -1107,7 +1107,8 @@ Tot slot moet Signal de telefoonstatus kunnen lezen om te voorkomen dat Signal-o
   <string name="WebRtcCallScreen__answer">Beantwoorden</string>
   <string name="WebRtcCallScreen__answer_without_video">Beantwoorden zonder video</string>
   <!--WebRtcAudioOutputToggle-->
-  <string name="WebRtcAudioOutputToggle__phone">Telefoon</string>
+  <string name="WebRtcAudioOutputToggle__audio_output">Audio-uitvoer</string>
+  <string name="WebRtcAudioOutputToggle__phone_earpiece">Telefoonoortje</string>
   <string name="WebRtcAudioOutputToggle__speaker">Luidspreker</string>
   <string name="WebRtcAudioOutputToggle__bluetooth">Bluetooth</string>
   <!--WebRtcCallControls-->
@@ -1307,7 +1308,7 @@ Tot slot moet Signal de telefoonstatus kunnen lezen om te voorkomen dat Signal-o
     <item quantity="one">%1$s is toegevoegd aan de groep.</item>
     <item quantity="other">%1$s zijn toegevoegd aan de groep.</item>
   </plurals>
-  <string name="GroupUtil_group_name_is_now">De groepsnaam is vanaf nu ‘%1$s’.</string>
+  <string name="GroupUtil_group_name_is_now">De groepsnaam is vanaf nu “%1$s”.</string>
   <!--profile_group_share_view-->
   <string name="profile_group_share_view__make_your_profile_name_and_photo_visible_to_this_group">Tik hier om je profielnaam en -foto voor deze groep zichtbaar te maken</string>
   <!--prompt_passphrase_activity-->
@@ -1434,9 +1435,9 @@ Signal zal nu toestemming vragen om je contactenlijst te lezen, om na te gaan wi
   <string name="arrays__settings_default">Gebruik systeemstandaard</string>
   <string name="arrays__enabled">Ingeschakeld</string>
   <string name="arrays__disabled">Uitgeschakeld</string>
-  <string name="arrays__name_and_message">Naam en bericht</string>
-  <string name="arrays__name_only">Alleen naam</string>
-  <string name="arrays__no_name_or_message">Geen naam en geen bericht</string>
+  <string name="arrays__name_and_message">Zowel naam als berichtinhoud</string>
+  <string name="arrays__name_only">Alleen de naam van de afzender</string>
+  <string name="arrays__no_name_or_message">Geen naam en geen berichtinhoud</string>
   <string name="arrays__images">Afbeeldingen</string>
   <string name="arrays__audio">Geluid</string>
   <string name="arrays__video">Video</string>
@@ -1748,7 +1749,7 @@ Signal zal nu toestemming vragen om je contactenlijst te lezen, om na te gaan wi
   <string name="KbsSplashFragment__create_your_pin">Pincode aanmaken</string>
   <!--KBS Reminder Dialog-->
   <string name="KbsReminderDialog__enter_your_signal_pin">Voer je Signal-pincode in</string>
-  <string name="KbsReminderDialog__to_help_you_memorize_your_pin">Om je te helpen je pincode te onthouden zal Signal je periodiek vragen om je pincode in te voeren. Na verloop van tijd zal Signal dit minder vaak vragen.</string>
+  <string name="KbsReminderDialog__to_help_you_memorize_your_pin">Om je te helpen je pincode te onthouden vraagt Signal je periodiek om je pincode opnieuw in te voeren. Als je die een aantal keer juist invoert, dan zal Signal dit na verloop van tijd minder vaak vragen.</string>
   <string name="KbsReminderDialog__skip">Overslaan</string>
   <string name="KbsReminderDialog__submit">Bevestigen</string>
   <string name="KbsReminderDialog__forgot_pin">Pincode vergeten?</string>
@@ -1870,8 +1871,15 @@ Signal zal nu toestemming vragen om je contactenlijst te lezen, om na te gaan wi
   <string name="preferences_app_protection__signal_pin">Signal-pincode</string>
   <string name="preferences_app_protection__create_a_pin">Pincode aanmaken</string>
   <string name="preferences_app_protection__change_your_pin">Pincode wijzigen</string>
+  <string name="preferences_app_protection__pin_reminders">Pincode-herinneringen</string>
   <string name="preferences_app_protection__pins_keep_information_stored_with_signal_encrypted">Met een pincode wordt informatie versleuteld opgeslagen op Signal\'s servers zodat alleen jij er toegang toe hebt. Je kunt hierdoor je profielnaam en -foto, instellingen en (geblokkeerde) contacten herstellen wanneer je Signal opnieuw installeert. Zelfs Signal\'s ontwikkelaars kunnen je informatie niet inzien.</string>
-  <string name="preferences_app_protection__add_extra_security_by_requiring_your_signal_pin_to_register">Door dit in te schakelen voeg je extra beveiliging toe. Je zult dan wanneer je je huidige telefoonnummer opnieuw probeert te registreren pas na 7 dagen het invoeren van je pincode kunnen overslaan. Hierdoor kan niemand behalve jij Signal registreren met je huidige telefoonnummer.</string>
+  <string name="preferences_app_protection__add_extra_security_by_requiring_your_signal_pin_to_register">Gebruik je pincode voor twee-factor-authenticatie. Ieder wie je telefoonnummer opnieuw probeert te registreren bij Signal moet verplicht je Signal-pincode invoeren. Hierdoor kan niemand behalve jij Signal-berichten verzenden of ontvangen met jouw telefoonnummer.</string>
+  <string name="preferences_app_protection__reminders_help_you_remember_your_pin">Herinneringen helpen je om je Signal-pincode te onthouden. Dit is belangrijk, omdat je je pincode later niet opnieuw in kunt stellen. Zonder je pincode verlies je misschien Signal-gegevens wanneer je je telefoonnummer opnieuw registreert. Naarmate tijd verstrijkt krijg je minder vaak herinneringen te zien.</string>
+  <string name="preferences_app_protection__turn_off">Uitschakelen</string>
+  <string name="preferences_app_protection__confirm_pin">Bevestig pincode</string>
+  <string name="preferences_app_protection__confirm_your_signal_pin">Je Signal-pincode bevestigen</string>
+  <string name="preferences_app_protection__make_sure_you_memorize_or_securely_store_your_pin">Zorg er voor dat je je Signal-pincode onthoud of op een goed beveiligd manier opslaat, want je kunt de pincode later niet opnieuw instellen. Als je je pincode toch vergeet, dan verlies je mogelijk je Signal-gegevens wanneer je in de toekomst je telefoonnummer opnieuw registreert.</string>
+  <string name="preferences_app_protection__incorrect_pin_try_again">Foutieve pincode, probeer het opnieuw.</string>
   <string name="preferences_app_protection__failed_to_enable_registration_lock">Het is niet gelukt on registratievergrendeling in te schakelen.</string>
   <string name="preferences_app_protection__failed_to_disable_registration_lock">Het is niet gelukt om registratievergrendeling uit te schakelen.</string>
   <string name="AppProtectionPreferenceFragment_none">Geen</string>
@@ -1891,6 +1899,7 @@ Signal zal nu toestemming vragen om je contactenlijst te lezen, om na te gaan wi
   <string name="RegistrationActivity_incorrect_registration_lock_pin">Ongeldige pincode voor registratievergrendeling</string>
   <string name="RegistrationActivity_too_many_attempts">Te veel pogingen</string>
   <string name="RegistrationActivity_you_have_made_too_many_incorrect_registration_lock_pin_attempts_please_try_again_in_a_day">Je hebt te veel ongeldige pogingen ondernomen om een pincode voor registratievergrendeling in te voeren, probeer het morgen opnieuw.</string>
+  <string name="RegistrationActivity_you_have_made_too_many_attempts_please_try_again_later">Je hebt te veel pogingen ondernomen. Probeer het later opnieuw.</string>
   <string name="RegistrationActivity_error_connecting_to_service">Fout bij het verbinden met Signal\'s servers</string>
   <string name="RegistrationActivity_oh_no">Oh nee!</string>
   <string name="RegistrationActivity_registration_of_this_phone_number_will_be_possible_without_your_registration_lock_pin_after_seven_days_have_passed">Registratie van dit telefoonnummer zal zonder de pincode voor registratievergrendeling pas mogelijk zijn 7 dagen nadat dit telefoonnummer voor het laatst actief was op Signal. Je hebt nog %d dagen te gaan.</string>
