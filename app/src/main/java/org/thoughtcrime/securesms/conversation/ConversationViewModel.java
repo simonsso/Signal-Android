@@ -3,11 +3,8 @@ package org.thoughtcrime.securesms.conversation;
 import android.app.Application;
 
 import androidx.annotation.NonNull;
-import androidx.arch.core.util.Function;
 import androidx.lifecycle.LiveData;
-import androidx.lifecycle.MediatorLiveData;
 import androidx.lifecycle.MutableLiveData;
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.Transformations;
 import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
@@ -15,19 +12,17 @@ import androidx.paging.DataSource;
 import androidx.paging.LivePagedListBuilder;
 import androidx.paging.PagedList;
 
-import org.thoughtcrime.securesms.conversation.ConversationDataSource.Invalidator;
 import org.thoughtcrime.securesms.database.model.MessageRecord;
 import org.thoughtcrime.securesms.dependencies.ApplicationDependencies;
 import org.thoughtcrime.securesms.logging.Log;
 import org.thoughtcrime.securesms.mediasend.Media;
 import org.thoughtcrime.securesms.mediasend.MediaRepository;
-import org.thoughtcrime.securesms.util.Util;
-import org.thoughtcrime.securesms.util.concurrent.SignalExecutors;
+import org.thoughtcrime.securesms.util.livedata.LiveDataUtil;
+import org.thoughtcrime.securesms.util.paging.Invalidator;
 import org.whispersystems.libsignal.util.Pair;
 
-import java.util.LinkedList;
 import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.Objects;
 
 class ConversationViewModel extends ViewModel {
 
@@ -70,11 +65,15 @@ class ConversationViewModel extends ViewModel {
       final int startPosition;
       if (data.shouldJumpToMessage()) {
         startPosition = data.getJumpToPosition();
-      } else {
+      } else if (data.isMessageRequestAccepted() && data.shouldScrollToLastSeen()) {
         startPosition = data.getLastSeenPosition();
+      } else if (data.isMessageRequestAccepted()) {
+        startPosition = data.getLastScrolledPosition();
+      } else {
+        startPosition = data.getThreadSize();
       }
 
-      Log.d(TAG, "Starting at position " + startPosition + " :: " + data.getJumpToPosition() + " :: " + data.getLastSeenPosition());
+      Log.d(TAG, "Starting at position startPosition: " + startPosition + " jumpToPosition: " + jumpToPosition + " lastSeenPosition: " + data.getLastSeenPosition() + " lastScrolledPosition: " + data.getLastScrolledPosition());
 
       return Transformations.map(new LivePagedListBuilder<>(factory, config).setFetchExecutor(ConversationDataSource.EXECUTOR)
                                                                             .setInitialLoadKey(Math.max(startPosition, 0))
@@ -84,9 +83,11 @@ class ConversationViewModel extends ViewModel {
 
     this.messages = Transformations.map(messagesForThreadId, Pair::second);
 
-    LiveData<Long> distinctThread = Transformations.distinctUntilChanged(threadId);
+    LiveData<DistinctConversationDataByThreadId> distinctData = LiveDataUtil.combineLatest(messagesForThreadId,
+                                                                                           metadata,
+                                                                                           (m, data) -> new DistinctConversationDataByThreadId(data));
 
-    conversationMetadata = Transformations.switchMap(distinctThread, thread -> metadata);
+    conversationMetadata = Transformations.map(Transformations.distinctUntilChanged(distinctData), DistinctConversationDataByThreadId::getConversationData);
   }
 
   void onAttachmentKeyboardOpen() {
@@ -131,6 +132,31 @@ class ConversationViewModel extends ViewModel {
     public @NonNull<T extends ViewModel> T create(@NonNull Class<T> modelClass) {
       //noinspection ConstantConditions
       return modelClass.cast(new ConversationViewModel());
+    }
+  }
+
+  private static class DistinctConversationDataByThreadId {
+    private final ConversationData conversationData;
+
+    private DistinctConversationDataByThreadId(@NonNull ConversationData conversationData) {
+      this.conversationData = conversationData;
+    }
+
+    public @NonNull ConversationData getConversationData() {
+      return conversationData;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+      if (this == o) return true;
+      if (o == null || getClass() != o.getClass()) return false;
+      DistinctConversationDataByThreadId that = (DistinctConversationDataByThreadId) o;
+      return Objects.equals(conversationData.getThreadId(), that.conversationData.getThreadId());
+    }
+
+    @Override
+    public int hashCode() {
+      return Objects.hash(conversationData.getThreadId());
     }
   }
 }

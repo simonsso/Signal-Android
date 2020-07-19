@@ -134,8 +134,11 @@ public class SQLCipherOpenHelper extends SQLiteOpenHelper {
   private static final int SERVER_TIMESTAMP                 = 59;
   private static final int REMOTE_DELETE                    = 60;
   private static final int COLOR_MIGRATION                  = 61;
+  private static final int LAST_SCROLLED                    = 62;
+  private static final int LAST_PROFILE_FETCH               = 63;
+  private static final int SERVER_DELIVERED_TIMESTAMP       = 64;
 
-  private static final int    DATABASE_VERSION = 61;
+  private static final int    DATABASE_VERSION = 64;
   private static final String DATABASE_NAME    = "signal.db";
 
   private final Context        context;
@@ -904,6 +907,18 @@ public class SQLCipherOpenHelper extends SQLiteOpenHelper {
             db.update("recipient", values, "_id = ?", new String[] { String.valueOf(id) });
           }
         }
+      }
+
+      if (oldVersion < LAST_SCROLLED) {
+        db.execSQL("ALTER TABLE thread ADD COLUMN last_scrolled INTEGER DEFAULT 0");
+      }
+
+      if (oldVersion < LAST_PROFILE_FETCH) {
+        db.execSQL("ALTER TABLE recipient ADD COLUMN last_profile_fetch INTEGER DEFAULT 0");
+      }
+
+      if (oldVersion < SERVER_DELIVERED_TIMESTAMP) {
+        db.execSQL("ALTER TABLE push ADD COLUMN server_delivered_timestamp INTEGER DEFAULT 0");
       }
 
       db.setTransactionSuccessful();
