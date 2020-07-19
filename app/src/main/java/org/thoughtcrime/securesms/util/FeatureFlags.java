@@ -80,8 +80,7 @@ public final class FeatureFlags {
       REMOTE_DELETE,
       PROFILE_FOR_CALLING,
       CALLING_PIP,
-      NEW_GROUP_UI,
-      REACT_WITH_ANY_EMOJI
+      NEW_GROUP_UI
   );
 
   /**
@@ -258,7 +257,7 @@ public final class FeatureFlags {
 
   /** React with Any Emoji */
   public static boolean reactWithAnyEmoji() {
-    return getBoolean(REACT_WITH_ANY_EMOJI, false);
+    return true;
   }
 
   /** Groups v2 send and receive. */
