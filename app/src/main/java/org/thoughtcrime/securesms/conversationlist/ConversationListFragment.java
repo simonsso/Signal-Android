@@ -88,6 +88,7 @@ import org.thoughtcrime.securesms.components.reminder.ServiceOutageReminder;
 import org.thoughtcrime.securesms.components.reminder.ShareReminder;
 import org.thoughtcrime.securesms.components.reminder.SystemSmsImportReminder;
 import org.thoughtcrime.securesms.components.reminder.UnauthorizedReminder;
+import org.thoughtcrime.securesms.conversation.ConversationFragment;
 import org.thoughtcrime.securesms.conversationlist.model.Conversation;
 import org.thoughtcrime.securesms.conversationlist.model.MessageResult;
 import org.thoughtcrime.securesms.conversationlist.model.SearchResult;
@@ -99,6 +100,7 @@ import org.thoughtcrime.securesms.dependencies.ApplicationDependencies;
 import org.thoughtcrime.securesms.events.ReminderUpdateEvent;
 import org.thoughtcrime.securesms.insights.InsightsLauncher;
 import org.thoughtcrime.securesms.jobs.ServiceOutageDetectionJob;
+import org.thoughtcrime.securesms.keyvalue.SignalStore;
 import org.thoughtcrime.securesms.lock.v2.CreateKbsPinActivity;
 import org.thoughtcrime.securesms.logging.Log;
 import org.thoughtcrime.securesms.mediasend.MediaSendActivity;
@@ -266,8 +268,7 @@ public class ConversationListFragment extends MainFragment implements ActionMode
   @Override
   public void onStart() {
     super.onStart();
-    // TODO [greyson] Re-enable when we figure out how to invalidate the cache after a system theme change
-//    ConversationFragment.prepare(requireContext());
+    ConversationFragment.prepare(requireContext());
   }
 
   @Override
@@ -330,7 +331,7 @@ public class ConversationListFragment extends MainFragment implements ActionMode
     }
 
     if (requestCode == CreateKbsPinActivity.REQUEST_NEW_PIN) {
-      Snackbar.make(fab, R.string.ConfirmKbsPinFragment__pin_created, Snackbar.LENGTH_LONG).show();
+      Snackbar.make(fab, R.string.ConfirmKbsPinFragment__pin_created, Snackbar.LENGTH_LONG).setTextColor(Color.WHITE).show();
       viewModel.onMegaphoneCompleted(Megaphones.Event.PINS_FOR_ALL);
     }
   }
@@ -388,7 +389,9 @@ public class ConversationListFragment extends MainFragment implements ActionMode
 
   @Override
   public void onMegaphoneToastRequested(@NonNull String string) {
-    Snackbar.make(fab, string, Snackbar.LENGTH_LONG).show();
+    Snackbar.make(fab, string, Snackbar.LENGTH_LONG)
+            .setTextColor(Color.WHITE)
+            .show();
   }
 
   @Override
