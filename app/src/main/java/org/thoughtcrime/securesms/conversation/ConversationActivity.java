@@ -207,7 +207,6 @@ import org.thoughtcrime.securesms.recipients.RecipientExporter;
 import org.thoughtcrime.securesms.recipients.RecipientFormattingException;
 import org.thoughtcrime.securesms.recipients.RecipientId;
 import org.thoughtcrime.securesms.recipients.RecipientUtil;
-import org.thoughtcrime.securesms.recipients.ui.bottomsheet.RecipientBottomSheetDialogFragment;
 import org.thoughtcrime.securesms.registration.RegistrationNavigationActivity;
 import org.thoughtcrime.securesms.service.KeyCachingService;
 import org.thoughtcrime.securesms.sms.MessageSender;
@@ -804,7 +803,7 @@ public class ConversationActivity extends PassphraseRequiredActionBarActivity
       hideMenuItem(menu, R.id.menu_mute_notifications);
     }
 
-    if (FeatureFlags.newGroupUI()) {
+    if (FeatureFlags.newGroupUI() && isPushGroupConversation()) {
       hideMenuItem(menu, R.id.menu_group_recipients);
     }
 
@@ -894,7 +893,7 @@ public class ConversationActivity extends PassphraseRequiredActionBarActivity
     case R.id.menu_conversation_settings:     handleConversationSettings();                      return true;
     case R.id.menu_expiring_messages_off:
     case R.id.menu_expiring_messages:         handleSelectMessageExpiration();                   return true;
-    case android.R.id.home:                   onBackPressed();                                   return true;
+    case android.R.id.home:                   onNavigateUp();                                    return true;
     }
 
     return false;
@@ -1958,7 +1957,7 @@ public class ConversationActivity extends PassphraseRequiredActionBarActivity
       return;
     }
 
-    ApplicationDependencies.getJobManager().add(RetrieveProfileJob.forRecipient(recipient.get()));
+    RetrieveProfileJob.enqueueAsync(recipient.getId());
   }
 
   private void onRecipientChanged(@NonNull Recipient recipient) {

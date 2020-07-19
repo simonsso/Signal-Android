@@ -82,7 +82,7 @@
   <string name="BlockUnblockDialog_you_will_no_longer_receive_messages_or_updates">Többé nem kapsz üzeneteket és frissítéseket ebből a csoportból, valamint a tagok nem fognak tudni újra hozzáadni a csoporthoz.</string>
   <string name="BlockUnblockDialog_group_members_wont_be_able_to_add_you">A csoport tagjai nem fognak tudni újra hozzáadni ehhez a csoporthoz.</string>
   <string name="BlockUnblockDialog_group_members_will_be_able_to_add_you">A tagok ezután újra hozzáadhatnak majd a csoporthoz.</string>
-  <string name="BlockUnblockDialog_you_will_be_able_to_call_and_message_each_other">Újra fogadhatsz üzeneteket és hívásokat ettől a kontakttól.</string>
+  <string name="BlockUnblockDialog_you_will_be_able_to_call_and_message_each_other">Lehetőségetek lesz üzenetet küldeni egymásnak és felhívni egymást, valamint a neved és a fotód is megosztásra kerül velük.</string>
   <string name="BlockUnblockDialog_blocked_people_wont_be_able_to_call_you_or_send_you_messages">A letiltott személyek nem fognak tudni sem felhívni, sem pedig üzenetet küldeni neked.</string>
   <string name="BlockUnblockDialog_unblock_s">Feloldod %1$s tiltását?</string>
   <string name="BlockUnblockDialog_unblock">Tiltás feloldása</string>
@@ -318,7 +318,7 @@
   <string name="CreateProfileActivity_problem_setting_profile">Probléma profil beállításakor</string>
   <string name="CreateProfileActivity_profile_photo">Profilkép</string>
   <string name="CreateProfileActivity_set_up_your_profile">Profilod beállítása</string>
-  <string name="CreateProfileActivity_signal_profiles_are_end_to_end_encrypted">A Signal profilok végponttól végpontig titkosítva vannak, így a Signal szolgáltatás sosem férhet hozzá ezekhez az adatokhoz.</string>
+  <string name="CreateProfileActivity_signal_profiles_are_end_to_end_encrypted">Signal profilod végpontok közt titkosítva kerül továbbításra. Kontaktjaid számára akkor lesz látható, mikor új beszélgetést kezdeményezel vagy elfogadsz rá egy felkérést, illetve ha csatlakozol egy csoporthoz.</string>
   <string name="CreateProfileActivity_set_avatar_description">Profilkép beállítása</string>
   <!--CustomDefaultPreference-->
   <string name="CustomDefaultPreference_using_custom">Egyéni használata: %s</string>
@@ -388,6 +388,12 @@
   <string name="GroupCreateActivity_loading_group_details">A csoport részletes adatainak betöltése…</string>
   <string name="GroupCreateActivity_youre_already_in_the_group">Már a csoportban vagy.</string>
   <string name="GroupCreateActivity_remove_member_description">Tag eltávolítása</string>
+  <!--AddToGroupActivity-->
+  <string name="AddToGroupActivity_add_member">Hozzáadod a tagot?</string>
+  <string name="AddToGroupActivity_add_s_to_s">Hozzáadod \"%1$s\"-t a \"%2$s\" csoporthoz?</string>
+  <string name="AddToGroupActivity_s_added_to_s">\"%1$s\" hozzáadva a \"%2$s\" csoporthoz.</string>
+  <string name="AddToGroupActivity_add_to_group">Hozzáadás a csoporthoz</string>
+  <string name="AddToGroupActivity_add_to_groups">Hozzáadás csoportokhoz</string>
   <!--GroupShareProfileView-->
   <string name="GroupShareProfileView_share_your_profile_name_and_photo_with_this_group">Megosztod a profilneved- és képed ezzel a csoporttal?</string>
   <string name="GroupShareProfileView_do_you_want_to_make_your_profile_name_and_photo_visible_to_all_current_and_future_members_of_this_group">Szeretnéd láthatóvá tenni profilneved- és képed a csoport összes jelenlegi és jövőbeli tagja számára?</string>
@@ -415,8 +421,15 @@
     <item quantity="one">Nem sikerült törölni a meghívót</item>
     <item quantity="other">Nem sikerült törölni a meghívókat</item>
   </plurals>
+  <!--AddMembersActivity-->
+  <string name="AddMembersActivity__done">Befejezés</string>
+  <plurals name="AddMembersActivity__add_d_members_to_s">
+    <item quantity="one">Hozzáadod \"%1$s\"-t a \"%2$s\" csoporthoz?</item>
+    <item quantity="other">Hozzáadsz %3$d tagot a \"%2$s\" csoporthoz?</item>
+  </plurals>
   <!--AddGroupDetailsFragment-->
   <string name="AddGroupDetailsFragment__name_this_group">Csoport elnevezése</string>
+  <string name="AddGroupDetailsFragment__create_group">Csoport létrehozása</string>
   <string name="AddGroupDetailsFragment__create">Létrehozás</string>
   <string name="AddGroupDetailsFragment__members">Tagok</string>
   <string name="AddGroupDetailsFragment__group_name_required">Csoport neve (kötelező)</string>
@@ -434,6 +447,7 @@
   <string name="ManageGroupActivity_who_can_edit_group_membership">Ki szerkesztheti a csoporttagságot</string>
   <string name="ManageGroupActivity_who_can_edit_group_info">Ki szerkesztheti a csoport adatait</string>
   <string name="ManageGroupActivity_block_group">Csoport letiltása</string>
+  <string name="ManageGroupActivity_unblock_group">Csoport blokkolásának feloldása</string>
   <string name="ManageGroupActivity_leave_group">Kilépés a csoportból</string>
   <string name="ManageGroupActivity_mute_notifications">Értesítések némítása</string>
   <string name="ManageGroupActivity_custom_notifications">Egyedi értesítések</string>
@@ -447,6 +461,10 @@
   <plurals name="ManageGroupActivity_invited">
     <item quantity="one">%d meghívott</item>
     <item quantity="other">%d meghívott</item>
+  </plurals>
+  <plurals name="ManageGroupActivity_added">
+    <item quantity="one">%d tag hozzáadva</item>
+    <item quantity="other">%d tag hozzáadva</item>
   </plurals>
   <string name="ManageGroupActivity_you_dont_have_the_rights_to_do_this">Ehhez nincs elegendő jogosultságod</string>
   <string name="ManageGroupActivity_not_capable">Egy általad hozzáadott csoporttag nem támogatja az új csoportokat, ezért frissítenie kell a Signalt</string>
@@ -474,8 +492,6 @@
   <!--CropImageActivity-->
   <string name="CropImageActivity_group_avatar">Csoport avatar</string>
   <string name="CropImageActivity_profile_avatar">Avatar</string>
-  <!--ImageEditorFragment-->
-  <!-- Removed by excludeNonTranslatables <string name="ImageEditorFragment_no_faces_detected">Arcok azonosítása sikertelen</string> -->
   <!--ImageEditorHud-->
   <string name="ImageEditorHud_blur_faces">Arcok elhomályosítása</string>
   <string name="ImageEditorHud_new_blur_faces_or_draw_anywhere_to_blur">Új: arcok vagy kézzel kijelölt területek elhomályosítása</string>
@@ -687,11 +703,11 @@
   <string name="MessageRequestBottomView_delete">Törlés</string>
   <string name="MessageRequestBottomView_block">Letiltás</string>
   <string name="MessageRequestBottomView_unblock">Tiltás feloldása</string>
-  <string name="MessageRequestBottomView_do_you_want_to_let_s_message_you_they_wont_know_youve_seen_their_messages_until_you_accept">Engedélyezed, hogy %1$s üzenetet küldjön számodra? Amíg ebbe bele nem egyezel, addig nem értesül arról sem, hogy elolvastad-e az üzeneteit.</string>
-  <string name="MessageRequestBottomView_do_you_want_to_join_the_group_s_they_wont_know_youve_seen_their_messages_until_you_accept">Szeretnél csatlakozni a(z) %1$s csoporthoz? Amíg ebbe bele nem egyezel, addig nem értesülnek arról sem, hogy elolvastad-e üzeneteiket.</string>
+  <string name="MessageRequestBottomView_do_you_want_to_let_s_message_you_they_wont_know_youve_seen_their_messages_until_you_accept">Engedélyezed, hogy %1$s üzenetet küldjön számodra, és lássa nevedet, valamint profilképedet? Amíg ebbe bele nem egyezel, addig nem értesül arról sem, hogy elolvastad-e az üzeneteit.</string>
+  <string name="MessageRequestBottomView_do_you_want_to_let_s_message_you_wont_receive_any_messages_until_you_unblock_them">Engedélyezed, hogy %1$s üzenetet küldjön számodra, és lássa nevedet, valamint profilképedet? Nem fogsz üzenetet kapni tőle, amíg fel nem oldod a tiltást.</string>
+  <string name="MessageRequestBottomView_do_you_want_to_join_this_group_they_wont_know_youve_seen_their_messages_until_you_accept">Belépsz a csoportba, és megosztod velük neved és profilképedet? Amíg ebbe bele nem egyezel, addig nem értesülnek arról sem, hogy elolvastad-e üzeneteiket.</string>
   <string name="MessageRequestBottomView_you_were_invited_to_join_the_group_s">Meghívtak a %1$s csoportba. Engedélyezed, hogy a csoport tagjai üzenetet küldhessenek neked?</string>
-  <string name="MessageRequestBottomView_unblock_s_to_message_and_call_each_other">Oldd fel %1$s tiltását, hogy üzenhessetek egymásnak és hívhassátok egymást.</string>
-  <string name="MessageRequestBottomView_unblock_to_allow_group_members_to_add_you_to_this_group_again">Oldd fel a tiltást, hogy a csoport tagjai újra hozzáadhassanak a csoporthoz.</string>
+  <string name="MessageRequestBottomView_unblock_this_group_and_share_your_name_and_photo_with_its_members">Feloldod a csoport tiltását és megosztod profilodat a tagokkal? Amíg nem oldod fel a tiltást, nem kapsz üzeneteket a csoportból.</string>
   <string name="MessageRequestProfileView_member_of_one_group">%1$s tagja</string>
   <string name="MessageRequestProfileView_member_of_two_groups">%1$s és %2$s tagja</string>
   <string name="MessageRequestProfileView_member_of_many_groups">%1$s, %2$s és %3$s tagja</string>
@@ -967,6 +983,12 @@ Kulcs-csere üzenet érkezett érvénytelen protokoll verzióhoz.
   <string name="ThreadRecord_message_request">Kezdeményezett beszélgetés</string>
   <string name="ThreadRecord_s_added_you_to_the_group">%1$s hozzáadott a csoporthoz</string>
   <string name="ThreadRecord_s_invited_you_to_the_group">%1$s meghívott a csoportba.</string>
+  <string name="ThreadRecord_photo">Kép</string>
+  <string name="ThreadRecord_gif">GIF</string>
+  <string name="ThreadRecord_voice_message">Hangüzenet</string>
+  <string name="ThreadRecord_contact">Névjegy</string>
+  <string name="ThreadRecord_file">Fájl</string>
+  <string name="ThreadRecord_video">Videó</string>
   <!--UpdateApkReadyListener-->
   <string name="UpdateApkReadyListener_Signal_update">Signal frissítés</string>
   <string name="UpdateApkReadyListener_a_new_version_of_signal_is_available_tap_to_update">A Signal egy új verziója érhető el, koppints a frissítéshez</string>
@@ -1187,6 +1209,11 @@ Kulcs-csere üzenet érkezett érvénytelen protokoll verzióhoz.
   <!--contact_selection_list_fragment-->
   <string name="contact_selection_list_fragment__signal_needs_access_to_your_contacts_in_order_to_display_them">A Signal-nak szüksége van a névjegyeidhez való hozzáférésre annak érdekében, hogy megjelenítse őket.</string>
   <string name="contact_selection_list_fragment__show_contacts">Kontaktok mutatása</string>
+  <!--contact_selection_list_item-->
+  <plurals name="contact_selection_list_item__number_of_members">
+    <item quantity="one">%1$d tag</item>
+    <item quantity="other">%1$d tag</item>
+  </plurals>
   <!--conversation_activity-->
   <string name="conversation_activity__type_message_push">Signal üzenet</string>
   <string name="conversation_activity__type_message_sms_insecure">Titkosítatlan SMS</string>
@@ -1599,6 +1626,7 @@ Kulcs-csere üzenet érkezett érvénytelen protokoll verzióhoz.
   <!--****************************************-->
   <!--contact_selection_list-->
   <string name="contact_selection_list__unknown_contact">Új üzenet…</string>
+  <string name="contact_selection_list__unknown_contact_add_to_group">Hozzáadás a csoporthoz</string>
   <!--conversation_callable_insecure-->
   <string name="conversation_callable_insecure__menu_call">Hívás</string>
   <!--conversation_callable_secure-->
@@ -1951,6 +1979,9 @@ Kulcs-csere üzenet érkezett érvénytelen protokoll verzióhoz.
   <string name="RecipientBottomSheet_call">Hívás</string>
   <string name="RecipientBottomSheet_block">Letiltás</string>
   <string name="RecipientBottomSheet_unblock">Tiltás feloldása</string>
+  <string name="RecipientBottomSheet_add_to_contacts">Hozzáadás a névjegyzékhez</string>
+  <string name="RecipientBottomSheet_add_to_a_group">Hozzáadás egy csoporthoz</string>
+  <string name="RecipientBottomSheet_add_to_another_group">Hozzadás egy másik csoporthoz</string>
   <string name="RecipientBottomSheet_view_safety_number">Biztonsági szám megjelenítése</string>
   <string name="RecipientBottomSheet_make_group_admin">Csoportadmin jogosultság megadása</string>
   <string name="RecipientBottomSheet_remove_as_admin">Admin jogosultság elvétele</string>
@@ -1959,6 +1990,7 @@ Kulcs-csere üzenet érkezett érvénytelen protokoll verzióhoz.
   <string name="RecipientBottomSheet_s_will_be_able_to_edit_group">%1$s szerkesztheti a csoportot és annak tagjait</string>
   <string name="RecipientBottomSheet_remove_s_from_s">Eltávolítod %1$s-t innen: \"%2$s\"?</string>
   <string name="RecipientBottomSheet_remove">Eltávolítás</string>
+  <string name="RecipientBottomSheet_copied_to_clipboard">Vágólapra másolva</string>
   <string name="GroupRecipientListItem_admin">Admin</string>
   <!--EOF-->
 </resources>

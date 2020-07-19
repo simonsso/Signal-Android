@@ -82,7 +82,7 @@
   <string name="BlockUnblockDialog_you_will_no_longer_receive_messages_or_updates">Ez duzu talde honetatik mezu edo egunerapen gehiago jasoko, eta partaideek ezingo zaituzte talde honetan berriro sartu.</string>
   <string name="BlockUnblockDialog_group_members_wont_be_able_to_add_you">Taldeko kideak ez dira gai izango zu talde honetan berriro sartzeko.</string>
   <string name="BlockUnblockDialog_group_members_will_be_able_to_add_you">Taldeko kideak gai izango dira zu talde honetan berriro sartzeko.</string>
-  <string name="BlockUnblockDialog_you_will_be_able_to_call_and_message_each_other">Elkarri deitzeko eta mezuak bidaltzeko gai izango zarete.</string>
+  <string name="BlockUnblockDialog_you_will_be_able_to_call_and_message_each_other">Elkarri deitzeko eta mezuak bidaltzeko gai izango zarete; horrez gain, zure izena eta argazkia beraiekin partekatuko dira.</string>
   <string name="BlockUnblockDialog_blocked_people_wont_be_able_to_call_you_or_send_you_messages">Blokeatutako pertsonek ezingo dizute deitu edo mezuak bidali. </string>
   <string name="BlockUnblockDialog_unblock_s">Desblokeatu %1$s?</string>
   <string name="BlockUnblockDialog_unblock">Desblokeatu</string>
@@ -285,7 +285,7 @@
   <string name="ConversationListFragment_no_results_found_for_s_">Ez dago emaitzarik \'%s\' bilatuta</string>
   <plurals name="ConversationListFragment_delete_selected_conversations">
     <item quantity="one">Aukeratutako solasaldia ezabatu?</item>
-    <item quantity="other">Aukeratutako solasaldiak ezabatu?</item>
+    <item quantity="other">Ezabatu aukeratutako solasaldiak?</item>
   </plurals>
   <plurals name="ConversationListFragment_this_will_permanently_delete_all_n_selected_conversations">
     <item quantity="one">Honek aukeratutako solasaldia behin betiko ezabatuko du.</item>
@@ -317,7 +317,7 @@
   <string name="CreateProfileActivity_problem_setting_profile">Profila gordetzean errorea</string>
   <string name="CreateProfileActivity_profile_photo">Profileko argazkia</string>
   <string name="CreateProfileActivity_set_up_your_profile">Ezarri zure profila</string>
-  <string name="CreateProfileActivity_signal_profiles_are_end_to_end_encrypted">Signal profilak muturretik muturrera enkriptatuta daude, eta Signal zerbitzuak ez dauka informazio hau eskuratzerik.</string>
+  <string name="CreateProfileActivity_signal_profiles_are_end_to_end_encrypted">Zure profila muturretik-muturrera enkriptatuta dago. Ikusgarri egongo da bakarri zure kontaktuentzat, solasaldi berria sortu edo onartzen duzunean eta talde berrietan sartzen zarenean.</string>
   <string name="CreateProfileActivity_set_avatar_description">Ezarri abatarra</string>
   <!--CustomDefaultPreference-->
   <string name="CustomDefaultPreference_using_custom">Pertsonalizatua: %s</string>
@@ -387,6 +387,12 @@
   <string name="GroupCreateActivity_loading_group_details">Taldearen detaileak kargatzen…</string>
   <string name="GroupCreateActivity_youre_already_in_the_group">Dagoeneko zaude taldean.</string>
   <string name="GroupCreateActivity_remove_member_description">Ezabatu kidea</string>
+  <!--AddToGroupActivity-->
+  <string name="AddToGroupActivity_add_member">Gehitu kidea?</string>
+  <string name="AddToGroupActivity_add_s_to_s">\"%1$s\" gehitu \"%2$s\" taldera?</string>
+  <string name="AddToGroupActivity_s_added_to_s">\"%1$s\" erabiltzailea \"%2$s\" taldera gehitua.</string>
+  <string name="AddToGroupActivity_add_to_group">Gehitu taldera</string>
+  <string name="AddToGroupActivity_add_to_groups">Gehitu taldeetara</string>
   <!--GroupShareProfileView-->
   <string name="GroupShareProfileView_share_your_profile_name_and_photo_with_this_group">Partekatu zure profileko izena eta argazkia talde honekin?</string>
   <string name="GroupShareProfileView_do_you_want_to_make_your_profile_name_and_photo_visible_to_all_current_and_future_members_of_this_group">Zure profileko izena eta argazkia talde honetako egungo eta etorkizuneko kide guztiekin partekatu nahi duzu?</string>
@@ -414,8 +420,15 @@
     <item quantity="one">Errorea gonbidapena kantzelatzen</item>
     <item quantity="other">Errorea gonbidapenak bertan behera uzten</item>
   </plurals>
+  <!--AddMembersActivity-->
+  <string name="AddMembersActivity__done">Eginda</string>
+  <plurals name="AddMembersActivity__add_d_members_to_s">
+    <item quantity="one">\"%1$s\" kidea gehitu \"%2$s\" taldera</item>
+    <item quantity="other">%3$d kideak gehitu \"%2$s\"  taldera?</item>
+  </plurals>
   <!--AddGroupDetailsFragment-->
   <string name="AddGroupDetailsFragment__name_this_group">Eman izena talde honi</string>
+  <string name="AddGroupDetailsFragment__create_group">Taldea sortu</string>
   <string name="AddGroupDetailsFragment__create">Sortu</string>
   <string name="AddGroupDetailsFragment__members">Kideak</string>
   <string name="AddGroupDetailsFragment__group_name_required">Taldearen izena (beharrezkoa)</string>
@@ -433,6 +446,7 @@
   <string name="ManageGroupActivity_who_can_edit_group_membership">Taldearen kide zeintzuk diren edita dezakeena</string>
   <string name="ManageGroupActivity_who_can_edit_group_info">Taldearen informazioa edita dezakeena</string>
   <string name="ManageGroupActivity_block_group">Blokeatu taldea</string>
+  <string name="ManageGroupActivity_unblock_group">Desblokeatu taldea</string>
   <string name="ManageGroupActivity_leave_group">Utzi taldea</string>
   <string name="ManageGroupActivity_mute_notifications">Desaktibatu jakinarazpenak</string>
   <string name="ManageGroupActivity_custom_notifications">Jakinarazpen pertsonalizatuak</string>
@@ -446,6 +460,10 @@
   <plurals name="ManageGroupActivity_invited">
     <item quantity="one">%d gonbidatuta</item>
     <item quantity="other">%d  gonbidatuta</item>
+  </plurals>
+  <plurals name="ManageGroupActivity_added">
+    <item quantity="one">%d kidea gehituta</item>
+    <item quantity="other">%d kideak gehituta</item>
   </plurals>
   <string name="ManageGroupActivity_you_dont_have_the_rights_to_do_this">Ez duzu hau egiteko baimenik</string>
   <string name="ManageGroupActivity_not_capable">Gehitu duzun partaide batek ez dauka taldeak erabiltzeko gaitasunik eta Signal eguneratu egin behar du</string>
@@ -473,8 +491,6 @@
   <!--CropImageActivity-->
   <string name="CropImageActivity_group_avatar">Taldearen abatarra</string>
   <string name="CropImageActivity_profile_avatar">Abatarra</string>
-  <!--ImageEditorFragment-->
-  <!-- Removed by excludeNonTranslatables <string name="ImageEditorFragment_no_faces_detected">Ez dira aurpegiak detektatu</string> -->
   <!--ImageEditorHud-->
   <string name="ImageEditorHud_blur_faces">Zirriborrotu aurpegiak</string>
   <string name="ImageEditorHud_new_blur_faces_or_draw_anywhere_to_blur">Berria: zirriborratu aurpegiak eta marraztu edonon zirriborratzeko</string>
@@ -686,11 +702,11 @@
   <string name="MessageRequestBottomView_delete">Ezabatu</string>
   <string name="MessageRequestBottomView_block">Blokeatu</string>
   <string name="MessageRequestBottomView_unblock">Desblokeatu</string>
-  <string name="MessageRequestBottomView_do_you_want_to_let_s_message_you_they_wont_know_youve_seen_their_messages_until_you_accept">%1$s erabiltzaileari baimena eman nahi diozu mezuak bidaltzeko? Ez dute jakingo beraien mezuak ikusi dituzula onartu arte.  </string>
-  <string name="MessageRequestBottomView_do_you_want_to_join_the_group_s_they_wont_know_youve_seen_their_messages_until_you_accept">%1$s taldera sartu nahi duzu? Ez dute jakingo beraien mezuak ikusi dituzula onartu arte.</string>
+  <string name="MessageRequestBottomView_do_you_want_to_let_s_message_you_they_wont_know_youve_seen_their_messages_until_you_accept">%1$s erabiltzaileari baimena eman nahi diozu zuri mezuak bidaltzeko eta zure izena eta argazkia beraiekin partekatzeko. Zuk onartu arte ez dute jakingo beraien mezua ikusi duzunik.</string>
+  <string name="MessageRequestBottomView_do_you_want_to_let_s_message_you_wont_receive_any_messages_until_you_unblock_them">%1$s erabiltzaileari baimena eman nahi diozu zuri mezuak bidaltzeko eta zure izena eta argazkia beraiekin partzekatzeko. Ez duzu mezurik jasoko zuk desblokeatu arte.</string>
+  <string name="MessageRequestBottomView_do_you_want_to_join_this_group_they_wont_know_youve_seen_their_messages_until_you_accept">Talde honetan sartu eta zure izena eta argazkia kideekin partekatu nahi duzu? Zuk onartu arte, ez dute jakingo beraien mezuak ikusi duzunik.</string>
   <string name="MessageRequestBottomView_you_were_invited_to_join_the_group_s">%1$s taldean sartzeko gonbidatua izan zara. Talde honetako kideei zuri mezuak bidaltzen utzi nahi diezu?</string>
-  <string name="MessageRequestBottomView_unblock_s_to_message_and_call_each_other">%1$s desblokeatu elkarri mezuak bidaltzeko eta deitzeko.</string>
-  <string name="MessageRequestBottomView_unblock_to_allow_group_members_to_add_you_to_this_group_again">Desblokeatu taldeko kideak zu berriko talde honetan sartzeko gai izan daitezen.</string>
+  <string name="MessageRequestBottomView_unblock_this_group_and_share_your_name_and_photo_with_its_members">Desblokeatu talde hau eta zure izena eta argazkia beraiekin partekatu? Ez duzu mezurik jasoko zuk desblokeatu arte.</string>
   <string name="MessageRequestProfileView_member_of_one_group">%1$s taldeko kidea</string>
   <string name="MessageRequestProfileView_member_of_two_groups">%1$s eta %2$s taldeetako kidea</string>
   <string name="MessageRequestProfileView_member_of_many_groups">%1$s, %2$s, eta %3$s taldeetako kidea</string>
@@ -734,7 +750,7 @@
   <!--ExpirationDialog-->
   <string name="ExpirationDialog_disappearing_messages">Mezuen desagerpena</string>
   <string name="ExpirationDialog_your_messages_will_not_expire">Zure mezuak ez dira iraungiko.</string>
-  <string name="ExpirationDialog_your_messages_will_disappear_s_after_they_have_been_seen">Solasaldi honetan jaso eta bidalitako mezuak ikusi eta %s gero desagertuko dira.</string>
+  <string name="ExpirationDialog_your_messages_will_disappear_s_after_they_have_been_seen">Solasaldi honetan jaso eta bidalitako mezuak ikusi eta %s igaroz gero desagertuko dira.</string>
   <!--PassphrasePromptActivity-->
   <string name="PassphrasePromptActivity_enter_passphrase">Pasahitza sartu</string>
   <string name="PassphrasePromptActivity_watermark_content_description">Signal ikonoa</string>
@@ -965,6 +981,12 @@ Gakoaren elkar-trukeraro mezua jaso da protokoloaren bertsio baliogabe baterako.
   <string name="ThreadRecord_message_request">Mezuaren Eskaera</string>
   <string name="ThreadRecord_s_added_you_to_the_group">%1$s erabiltzaileak taldean sartu zaitu</string>
   <string name="ThreadRecord_s_invited_you_to_the_group">%1$s erabiltzaileak taldean sartzera gonbidatu zaitu</string>
+  <string name="ThreadRecord_photo">Argazkia</string>
+  <string name="ThreadRecord_gif">GIF</string>
+  <string name="ThreadRecord_voice_message">Ahots-mezua</string>
+  <string name="ThreadRecord_contact">Kontaktua</string>
+  <string name="ThreadRecord_file">Artxiboa</string>
+  <string name="ThreadRecord_video">Bideoa</string>
   <!--UpdateApkReadyListener-->
   <string name="UpdateApkReadyListener_Signal_update">Signal eguneratu</string>
   <string name="UpdateApkReadyListener_a_new_version_of_signal_is_available_tap_to_update">Signalaren bertsio berria dago, sakatu eguneratzeko</string>
@@ -1184,6 +1206,11 @@ Gakoaren elkar-trukeraro mezua jaso da protokoloaren bertsio baliogabe baterako.
   <!--contact_selection_list_fragment-->
   <string name="contact_selection_list_fragment__signal_needs_access_to_your_contacts_in_order_to_display_them">Singalek zure kontaktuak lortzeko baimena behar du erakutsi ahal izateko.</string>
   <string name="contact_selection_list_fragment__show_contacts">Kontaktuak erakutsi</string>
+  <!--contact_selection_list_item-->
+  <plurals name="contact_selection_list_item__number_of_members">
+    <item quantity="one">kide %1$d</item>
+    <item quantity="other">%1$d kide</item>
+  </plurals>
   <!--conversation_activity-->
   <string name="conversation_activity__type_message_push">Signal mezua</string>
   <string name="conversation_activity__type_message_sms_insecure">SMS ez segurua</string>
@@ -1245,7 +1272,7 @@ Gakoaren elkar-trukeraro mezua jaso da protokoloaren bertsio baliogabe baterako.
   <string name="expiration_off">Desaktibatuta</string>
   <plurals name="expiration_seconds">
     <item quantity="one">segundo %d</item>
-    <item quantity="other">%d segundo</item>
+    <item quantity="other">%d segundu</item>
   </plurals>
   <string name="expiration_seconds_abbreviated">%ds</string>
   <plurals name="expiration_minutes">
@@ -1597,6 +1624,7 @@ Inportatu \'SMSBackup and Restorekin\' bateragarria den enkriptatu gabeko babesk
   <!--****************************************-->
   <!--contact_selection_list-->
   <string name="contact_selection_list__unknown_contact">Mezu berria honi…</string>
+  <string name="contact_selection_list__unknown_contact_add_to_group">Gehitu taldera</string>
   <!--conversation_callable_insecure-->
   <string name="conversation_callable_insecure__menu_call">Deitu</string>
   <!--conversation_callable_secure-->
@@ -1743,7 +1771,7 @@ Inportatu \'SMSBackup and Restorekin\' bateragarria den enkriptatu gabeko babesk
   </plurals>
   <plurals name="CreateKbsPinFragment__pin_must_be_at_least_digits">
     <item quantity="one">PINa behintzat zenbaki %1$d izan behar du</item>
-    <item quantity="other">PINa behintzat %1$d zenbakiz osatua izan behar da</item>
+    <item quantity="other">PINa gutxienez%1$d zenbakiz osatua izan behar da</item>
   </plurals>
   <string name="CreateKbsPinFragment__create_a_new_pin">Sortu PIN berria</string>
   <string name="CreateKbsPinFragment__you_can_choose_a_new_pin_as_long_as_this_device_is_registered">Zure PIN-a alda dezakezu gailua erregistratuta dagoen bitartean.</string>
@@ -1949,6 +1977,9 @@ Inportatu \'SMSBackup and Restorekin\' bateragarria den enkriptatu gabeko babesk
   <string name="RecipientBottomSheet_call">Deitu</string>
   <string name="RecipientBottomSheet_block">Blokeatu</string>
   <string name="RecipientBottomSheet_unblock">Desblokeatu</string>
+  <string name="RecipientBottomSheet_add_to_contacts">Kontaktuetara gehitu</string>
+  <string name="RecipientBottomSheet_add_to_a_group">Gehitu taldera</string>
+  <string name="RecipientBottomSheet_add_to_another_group">Gehitu beste talde batera</string>
   <string name="RecipientBottomSheet_view_safety_number">Erakutsi segurtasun zenbakia </string>
   <string name="RecipientBottomSheet_make_group_admin">Bilakatu talde administratzailea</string>
   <string name="RecipientBottomSheet_remove_as_admin">Administratzaile gisa ezabatu</string>
@@ -1957,6 +1988,7 @@ Inportatu \'SMSBackup and Restorekin\' bateragarria den enkriptatu gabeko babesk
   <string name="RecipientBottomSheet_s_will_be_able_to_edit_group">%1$s erabiltzailea talde hau eta bere kideak editatzeko gai izango da</string>
   <string name="RecipientBottomSheet_remove_s_from_s">%1$s erabiltzailea \"%2$s\"-tik ezabatu?</string>
   <string name="RecipientBottomSheet_remove">Ezabatu</string>
+  <string name="RecipientBottomSheet_copied_to_clipboard">Arbelera kopiatuta</string>
   <string name="GroupRecipientListItem_admin">Administratzailea</string>
   <!--EOF-->
 </resources>
