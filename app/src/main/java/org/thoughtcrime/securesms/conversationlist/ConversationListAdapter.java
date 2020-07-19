@@ -141,7 +141,7 @@ class ConversationListAdapter extends PagedListAdapter<Conversation, RecyclerVie
 
       casted.getConversationListItem().bind(conversation.getThreadRecord(),
                                             glideRequests,
-                                            conversation.getLocale(),
+                                            Locale.getDefault(),
                                             typingSet,
                                             getBatchSelectionIds(),
                                             batchMode);
@@ -213,7 +213,7 @@ class ConversationListAdapter extends PagedListAdapter<Conversation, RecyclerVie
   }
 
   void selectAllThreads() {
-    for (int i = 0; i < getItemCount(); i++) {
+    for (int i = 0; i < super.getItemCount(); i++) {
       Conversation conversation = getItem(i);
       if (conversation != null && conversation.getThreadRecord().getThreadId() != -1) {
         batchSet.put(conversation.getThreadRecord().getThreadId(), conversation);

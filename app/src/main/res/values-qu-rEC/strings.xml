@@ -106,7 +106,7 @@
   <string name="ContactShareEditActivity_type_missing">Shuk yupaykuna</string>
   <string name="ContactShareEditActivity_invalid_contact">Yupaymashi kushka mana allichu</string>
   <!--ConversationItem-->
-  <string name="ConversationItem_error_not_delivered">Mana rirkachu, ashtawan yachankapak munashpaka kaypi llapipay</string>
+  <!-- Removed by excludeNonTranslatables <string name="ConversationItem_error_not_delivered">Mana rirkachu, ashtawan yachankapak munashpaka kaypi llapipay</string> -->
   <string name="ConversationItem_received_key_exchange_message_tap_to_process">Paskachik killkashkata ranti chaskirkanki, katinkapakka kaypi llapipay.</string>
   <string name="ConversationItem_group_action_left">%1$s tantanakuy mashikunamanta llukshirkami.</string>
   <string name="ConversationItem_click_to_approve_unencrypted">Mana rirkachu, ashtawan yachankapak munashpaka kaypi llapipay</string>
@@ -399,7 +399,7 @@
   <string name="PassphraseChangeActivity_enter_new_passphrase_exclamation">¡Mushuk paskachik-shimita churapay!</string>
   <!--DeviceProvisioningActivity-->
   <string name="DeviceProvisioningActivity_link_this_device">Kay antahillayta kimichinkapak munankichu</string>
-  <string name="DeviceProvisioningActivity_cancel">SHAYACHINA</string>
+  <!-- Removed by excludeNonTranslatables <string name="DeviceProvisioningActivity_cancel">SHAYACHINA</string> -->
   <string name="DeviceProvisioningActivity_continue">KATIPAY</string>
   <string name="DeviceProvisioningActivity_content_intro">Ushankimi</string>
   <string name="DeviceProvisioningActivity_content_bullets">

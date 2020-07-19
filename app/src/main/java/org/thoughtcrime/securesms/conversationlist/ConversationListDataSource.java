@@ -14,18 +14,20 @@ import org.thoughtcrime.securesms.database.DatabaseFactory;
 import org.thoughtcrime.securesms.database.ThreadDatabase;
 import org.thoughtcrime.securesms.database.model.ThreadRecord;
 import org.thoughtcrime.securesms.logging.Log;
+import org.thoughtcrime.securesms.util.ThrottledDebouncer;
 import org.thoughtcrime.securesms.util.concurrent.SignalExecutors;
 import org.thoughtcrime.securesms.util.paging.Invalidator;
 import org.thoughtcrime.securesms.util.paging.SizeFixResult;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 import java.util.concurrent.Executor;
 
 abstract class ConversationListDataSource extends PositionalDataSource<Conversation> {
 
   public static final Executor EXECUTOR = SignalExecutors.newFixedLifoThreadExecutor("signal-conversation-list", 1, 1);
+
+  private static final ThrottledDebouncer THROTTLER = new ThrottledDebouncer(500);
 
   private static final String TAG = Log.tag(ConversationListDataSource.class);
 
@@ -37,8 +39,10 @@ abstract class ConversationListDataSource extends PositionalDataSource<Conversat
     ContentObserver contentObserver = new ContentObserver(null) {
       @Override
       public void onChange(boolean selfChange) {
-        invalidate();
-        context.getContentResolver().unregisterContentObserver(this);
+        THROTTLER.publish(() -> {
+          invalidate();
+          context.getContentResolver().unregisterContentObserver(this);
+        });
       }
     };
 
@@ -60,14 +64,13 @@ abstract class ConversationListDataSource extends PositionalDataSource<Conversat
     long start = System.currentTimeMillis();
 
     List<Conversation> conversations  = new ArrayList<>(params.requestedLoadSize);
-    Locale             locale         = Locale.getDefault();
     int                totalCount     = getTotalCount();
     int                effectiveCount = params.requestedStartPosition;
 
     try (ThreadDatabase.Reader reader = threadDatabase.readerFor(getCursor(params.requestedStartPosition, params.requestedLoadSize))) {
       ThreadRecord record;
       while ((record = reader.getNext()) != null && effectiveCount < totalCount && !isInvalid()) {
-        conversations.add(new Conversation(record, locale));
+        conversations.add(new Conversation(record));
         effectiveCount++;
       }
     }
@@ -86,12 +89,11 @@ abstract class ConversationListDataSource extends PositionalDataSource<Conversat
     long start = System.currentTimeMillis();
 
     List<Conversation> conversations = new ArrayList<>(params.loadSize);
-    Locale             locale        = Locale.getDefault();
 
     try (ThreadDatabase.Reader reader = threadDatabase.readerFor(getCursor(params.startPosition, params.loadSize))) {
       ThreadRecord record;
       while ((record = reader.getNext()) != null && !isInvalid()) {
-        conversations.add(new Conversation(record, locale));
+        conversations.add(new Conversation(record));
       }
     }
 
