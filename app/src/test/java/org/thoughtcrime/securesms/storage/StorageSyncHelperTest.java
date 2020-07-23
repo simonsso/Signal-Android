@@ -244,8 +244,6 @@ public final class StorageSyncHelperTest {
 
   @Test
   public void resolveConflict_complex() {
-    when(FeatureFlags.uuidOnlyContacts()).thenReturn(true);
-
     SignalContactRecord remote1 = contact(1, UUID_A, null, "a");
     SignalContactRecord local1  = contact(2, UUID_A, E164_A, "a");
 
@@ -419,7 +417,7 @@ public final class StorageSyncHelperTest {
                                              boolean blocked,
                                              boolean profileSharing)
   {
-    return new SignalGroupV1Record.Builder(byteArray(key), byteArray(groupId)).setBlocked(blocked).setProfileSharingEnabled(profileSharing).build();
+    return new SignalGroupV1Record.Builder(byteArray(key), byteArray(groupId, 16)).setBlocked(blocked).setProfileSharingEnabled(profileSharing).build();
   }
 
   private static SignalGroupV2Record groupV2(int key,
