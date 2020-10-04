@@ -55,16 +55,7 @@ public class CommunicationActions {
     WebRtcCallService.isCallActive(activity, new ResultReceiver(new Handler(Looper.getMainLooper())) {
       @Override
       protected void onReceiveResult(int resultCode, Bundle resultData) {
-        if (resultCode == 1) {
-          startCallInternal(activity, recipient, false);
-        } else {
-          new AlertDialog.Builder(activity)
-                         .setMessage(R.string.CommunicationActions_start_voice_call)
-                         .setPositiveButton(R.string.CommunicationActions_call, (d, w) -> startCallInternal(activity, recipient, false))
-                         .setNegativeButton(R.string.CommunicationActions_cancel, (d, w) -> d.dismiss())
-                         .setCancelable(true)
-                         .show();
-        }
+        startCallInternal(activity, recipient, false);
       }
     });
   }
@@ -259,7 +250,7 @@ public class CommunicationActions {
                .withPermanentDenialDialog(activity.getString(R.string.ConversationActivity_signal_needs_the_microphone_and_camera_permissions_in_order_to_call_s, recipient.getDisplayName(activity)))
                .onAllGranted(() -> {
                  Intent intent = new Intent(activity, WebRtcCallService.class);
-                 intent.setAction(WebRtcCallService.ACTION_PRE_JOIN_CALL)
+                 intent.setAction(WebRtcCallService.ACTION_OUTGOING_CALL)
                        .putExtra(WebRtcCallService.EXTRA_REMOTE_PEER, new RemotePeer(recipient.getId()))
                        .putExtra(WebRtcCallService.EXTRA_OFFER_TYPE, OfferMessage.Type.VIDEO_CALL.getCode());
                  activity.startService(intent);
