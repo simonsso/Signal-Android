@@ -173,6 +173,7 @@
     <!-- CommunicationActions -->
     <string name="CommunicationActions_no_browser_found">No web browser found.</string>
     <string name="CommunicationActions_no_email_app_found">No email app found.</string>
+    <string name="CommunicationActions_send_email">Send email</string>
     <string name="CommunicationActions_a_cellular_call_is_already_in_progress">A cellular call is already in progress.</string>
     <string name="CommunicationActions_start_video_call">Start video call?</string>
     <string name="CommunicationActions_start_voice_call">Start voice call?</string>
@@ -1720,8 +1721,7 @@
     <string name="MessageNotifier_reacted_s_to_your_image">Reacted %1$s to your image.</string>
     <string name="MessageNotifier_reacted_s_to_your_file">Reacted %1$s to your file.</string>
     <string name="MessageNotifier_reacted_s_to_your_audio">Reacted %1$s to your audio.</string>
-    <string name="MessageNotifier_reacted_s_to_your_view_once_photo">Reacted %1$s to your view-once photo.</string>
-    <string name="MessageNotifier_reacted_s_to_your_view_once_video">Reacted %1$s to your view-once video.</string>
+    <string name="MessageNotifier_reacted_s_to_your_view_once_media">Reacted %1$s to your view-once media.</string>
     <string name="MessageNotifier_reacted_s_to_your_sticker">Reacted %1$s to your sticker.</string>
     <string name="MessageNotifier_this_message_was_deleted">This message was deleted.</string>
 
