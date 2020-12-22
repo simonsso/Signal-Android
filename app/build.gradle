@@ -80,8 +80,8 @@ protobuf {
     }
 }
 
-def canonicalVersionCode = 724
-def canonicalVersionName = "4.74.3"
+def canonicalVersionCode = 725
+def canonicalVersionName = "4.75.0"
 
 def postFixSize = 10
 def abiPostFix = ['universal'   : 0,
@@ -325,7 +325,7 @@ dependencies {
 
     implementation 'org.signal:argon2:13.1@aar'
 
-    implementation 'org.signal:ringrtc-android:2.7.0'
+    implementation 'org.signal:ringrtc-android:2.7.3'
 
     implementation "me.leolin:ShortcutBadger:1.1.16"
     implementation 'se.emilsjolander:stickylistheaders:2.7.0'
