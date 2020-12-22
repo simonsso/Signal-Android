@@ -7,6 +7,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import org.signal.ringrtc.CallException;
+import org.signal.ringrtc.CallId;
 import org.thoughtcrime.securesms.crypto.IdentityKeyUtil;
 import org.thoughtcrime.securesms.database.DatabaseFactory;
 import org.thoughtcrime.securesms.events.CallParticipant;
@@ -66,6 +67,7 @@ public class OutgoingCallActionProcessor extends DeviceAwareActionProcessor {
 
     AudioManager androidAudioManager = ServiceUtil.getAudioManager(context);
     androidAudioManager.setSpeakerphoneOn(false);
+    WebRtcUtil.enableSpeakerPhoneIfNeeded(context, currentState.getCallSetupState().isEnableVideoOnCreate());
 
     webRtcInteractor.updatePhoneState(WebRtcUtil.getInCallPhoneState(context));
     webRtcInteractor.initializeAudioForCall();
@@ -201,6 +203,11 @@ public class OutgoingCallActionProcessor extends DeviceAwareActionProcessor {
   @Override
   protected @NonNull WebRtcServiceState handleEnded(@NonNull WebRtcServiceState currentState, @NonNull String action, @NonNull RemotePeer remotePeer) {
     return activeCallDelegate.handleEnded(currentState, action, remotePeer);
+  }
+
+  @Override
+  protected  @NonNull WebRtcServiceState handleSetupFailure(@NonNull WebRtcServiceState currentState, @NonNull CallId callId) {
+    return activeCallDelegate.handleSetupFailure(currentState, callId);
   }
 
   @Override
