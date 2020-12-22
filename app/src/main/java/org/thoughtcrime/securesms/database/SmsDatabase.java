@@ -28,9 +28,9 @@ import androidx.annotation.Nullable;
 import com.annimon.stream.Stream;
 import com.google.android.mms.pdu_alt.NotificationInd;
 
-import net.sqlcipher.database.SQLiteDatabase;
 import net.sqlcipher.database.SQLiteStatement;
 
+import org.signal.core.util.logging.Log;
 import org.thoughtcrime.securesms.database.documents.IdentityKeyMismatch;
 import org.thoughtcrime.securesms.database.documents.IdentityKeyMismatchList;
 import org.thoughtcrime.securesms.database.documents.NetworkFailure;
@@ -44,7 +44,6 @@ import org.thoughtcrime.securesms.database.model.databaseprotos.ProfileChangeDet
 import org.thoughtcrime.securesms.dependencies.ApplicationDependencies;
 import org.thoughtcrime.securesms.groups.GroupMigrationMembershipChange;
 import org.thoughtcrime.securesms.jobs.TrimThreadJob;
-import org.thoughtcrime.securesms.logging.Log;
 import org.thoughtcrime.securesms.mms.IncomingMediaMessage;
 import org.thoughtcrime.securesms.mms.MmsException;
 import org.thoughtcrime.securesms.mms.OutgoingMediaMessage;
@@ -691,17 +690,21 @@ public class SmsDatabase extends MessageDatabase {
                                       long timestamp,
                                       @Nullable String messageGroupCallEraId,
                                       @Nullable String peekGroupCallEraId,
-                                      @NonNull Collection<UUID> peekJoinedUuids)
+                                      @NonNull Collection<UUID> peekJoinedUuids,
+                                      boolean isCallFull)
   {
-    SQLiteDatabase db        = databaseHelper.getWritableDatabase();
+    SQLiteDatabase db = databaseHelper.getWritableDatabase();
+
+    long threadId;
 
     try {
       db.beginTransaction();
 
       Recipient recipient = Recipient.resolved(groupRecipientId);
-      long      threadId  = DatabaseFactory.getThreadDatabase(context).getThreadIdFor(recipient);
 
-      boolean peerEraIdSameAsPrevious = updatePreviousGroupCall(threadId, peekGroupCallEraId, peekJoinedUuids);
+      threadId = DatabaseFactory.getThreadDatabase(context).getThreadIdFor(recipient);
+
+      boolean peerEraIdSameAsPrevious = updatePreviousGroupCall(threadId, peekGroupCallEraId, peekJoinedUuids, isCallFull);
 
       if (!peerEraIdSameAsPrevious && !Util.isEmpty(peekGroupCallEraId)) {
         Recipient self     = Recipient.self();
@@ -712,6 +715,7 @@ public class SmsDatabase extends MessageDatabase {
                                                      .setStartedCallUuid(Recipient.resolved(sender).requireUuid().toString())
                                                      .setStartedCallTimestamp(timestamp)
                                                      .addAllInCallUuids(Stream.of(peekJoinedUuids).map(UUID::toString).toList())
+                                                     .setIsCallFull(isCallFull)
                                                      .build()
                                                      .toByteArray();
 
@@ -734,16 +738,17 @@ public class SmsDatabase extends MessageDatabase {
 
       DatabaseFactory.getThreadDatabase(context).update(threadId, true);
 
-      notifyConversationListeners(threadId);
-      ApplicationDependencies.getJobManager().add(new TrimThreadJob(threadId));
-
       db.setTransactionSuccessful();
     } finally {
       db.endTransaction();
     }
+
+    notifyConversationListeners(threadId);
+    ApplicationDependencies.getJobManager().add(new TrimThreadJob(threadId));
   }
 
-  private boolean updatePreviousGroupCall(long threadId, @Nullable String peekGroupCallEraId, @NonNull Collection<UUID> peekJoinedUuids) {
+  @Override
+  public boolean updatePreviousGroupCall(long threadId, @Nullable String peekGroupCallEraId, @NonNull Collection<UUID> peekJoinedUuids, boolean isCallFull) {
     SQLiteDatabase db    = databaseHelper.getWritableDatabase();
     String         where = TYPE + " = ? AND " + THREAD_ID + " = ?";
     String[]       args  = SqlUtil.buildArgs(Types.GROUP_CALL_TYPE, threadId);
@@ -761,7 +766,7 @@ public class SmsDatabase extends MessageDatabase {
       List<String> inCallUuids = sameEraId ? Stream.of(peekJoinedUuids).map(UUID::toString).toList()
                                            : Collections.emptyList();
 
-      String body = GroupCallUpdateDetailsUtil.createUpdatedBody(groupCallUpdateDetails, inCallUuids);
+      String body = GroupCallUpdateDetailsUtil.createUpdatedBody(groupCallUpdateDetails, inCallUuids, isCallFull);
 
       ContentValues contentValues = new ContentValues();
       contentValues.put(BODY, body);
@@ -860,13 +865,16 @@ public class SmsDatabase extends MessageDatabase {
               db.insert(TABLE_NAME, null, values);
 
               notifyConversationListeners(threadId);
-              ApplicationDependencies.getJobManager().add(new TrimThreadJob(threadId));
             });
 
       db.setTransactionSuccessful();
     } finally {
       db.endTransaction();
     }
+
+    Stream.of(threadIdsToUpdate)
+          .withoutNulls()
+          .forEach(threadId -> ApplicationDependencies.getJobManager().add(new TrimThreadJob(threadId)));
   }
 
   @Override

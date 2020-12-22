@@ -14,8 +14,8 @@ import net.sqlcipher.DatabaseUtils;
 import net.sqlcipher.database.SQLiteDatabase;
 import net.sqlcipher.database.SQLiteStatement;
 
+import org.signal.core.util.logging.Log;
 import org.thoughtcrime.securesms.database.helpers.SQLCipherOpenHelper;
-import org.thoughtcrime.securesms.logging.Log;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -247,11 +247,11 @@ public class FlipperSqlCipherAdapter extends DatabaseDriver<FlipperSqlCipherAdap
     }
 
     public @NonNull SQLiteDatabase getReadable() {
-      return sqlCipherOpenHelper.getReadableDatabase();
+      return sqlCipherOpenHelper.getReadableDatabase().getSqlCipherDatabase();
     }
 
     public @NonNull SQLiteDatabase getWritable() {
-      return sqlCipherOpenHelper.getWritableDatabase();
+      return sqlCipherOpenHelper.getWritableDatabase().getSqlCipherDatabase();
     }
   }
 }

@@ -116,7 +116,7 @@
     <meta-data android:name="firebase_messaging_auto_init_enabled" android:value="false" />
 
     <activity android:name=".WebRtcCallActivity"
-              android:theme="@style/TextSecure.LightTheme.WebRTCCall"
+              android:theme="@style/TextSecure.DarkTheme.WebRTCCall"
               android:excludeFromRecents="true"
               android:screenOrientation="portrait"
               android:supportsPictureInPicture="true"
@@ -275,7 +275,6 @@
               android:configChanges="touchscreen|keyboard|keyboardHidden|orientation|screenLayout|screenSize" />
 
     <activity android:name=".messagedetails.MessageDetailsActivity"
-              android:label="@string/AndroidManifest__message_details"
               android:windowSoftInputMode="stateHidden"
               android:launchMode="singleTask"
               android:configChanges="touchscreen|keyboard|keyboardHidden|orientation|screenLayout|screenSize"/>
@@ -374,7 +373,6 @@
                android:configChanges="touchscreen|keyboard|keyboardHidden|orientation|screenLayout|screenSize"/>
 
     <activity android:name=".logsubmit.SubmitDebugLogActivity"
-              android:label="@string/AndroidManifest__log_submit"
               android:windowSoftInputMode="stateHidden"
               android:configChanges="touchscreen|keyboard|keyboardHidden|orientation|screenLayout|screenSize"/>
 

@@ -298,6 +298,9 @@
 
     <string name="ConversationActivity__more_options_now_in_group_settings">More options now in \"Group settings\"</string>
 
+    <string name="ConversationActivity_join">Join</string>
+    <string name="ConversationActivity_full">Full</string>
+
     <!-- ConversationAdapter -->
     <plurals name="ConversationAdapter_n_unread_messages">
         <item quantity="one">%d unread message</item>
@@ -774,7 +777,7 @@
     <string name="ManageGroupActivity_legacy_group_upgrade">This is a Legacy Group. To access new features like @mentions and admins,</string>
     <string name="ManageGroupActivity_legacy_group_too_large">This Legacy Group can’t be upgraded to a New Group because it is too large. The maximum group size is %1$d.</string>
     <string name="ManageGroupActivity_upgrade_this_group">upgrade this group.</string>
-    <string name="ManageGroupActivity_this_is_an_insecure_mms_group">This is an insecure MMS Group. To chat privately and access features like group names, invite your contacts to Signal.</string>
+    <string name="ManageGroupActivity_this_is_an_insecure_mms_group">This is an insecure MMS Group. To chat privately, invite your contacts to Signal.</string>
     <string name="ManageGroupActivity_invite_now">Invite now</string>
 
     <!-- GroupMentionSettingDialog -->
@@ -1433,6 +1436,14 @@
         <item quantity="other">In this call · %1$d people</item>
     </plurals>
 
+    <!-- CallParticipantView -->
+    <string name="CallParticipantView__s_is_blocked">%1$s is blocked</string>
+    <string name="CallParticipantView__more_info">More Info</string>
+    <string name="CallParticipantView__you_wont_receive_their_audio_or_video">You won\'t receive their audio or video and they won\'t receive yours.</string>
+    <string name="CallParticipantView__cant_receive_audio_video_from_s">Can\'t receive audio &amp; video from %1$s</string>
+    <string name="CallParticipantView__cant_receive_audio_and_video_from_s">Can\'t receive audio and video from %1$s</string>
+    <string name="CallParticipantView__this_may_be_Because_they_have_not_verified_your_safety_number_change">This may be because they have not verified your safety number change, there\'s a problem with their device, or they have blocked you.</string>
+
     <!-- RegistrationActivity -->
     <string name="RegistrationActivity_select_your_country">Select your country</string>
     <string name="RegistrationActivity_you_must_specify_your_country_code">You must specify your
@@ -1786,6 +1797,8 @@
     <string name="WebRtcCallActivity__declined_on_a_linked_device">Declined on a linked device.</string>
     <string name="WebRtcCallActivity__busy_on_a_linked_device">Busy on a linked device.</string>
 
+    <string name="GroupCallSafetyNumberChangeNotification__someone_has_joined_this_call_with_a_safety_number_that_has_changed">Someone has joined this call with a safety number that has changed.</string>
+
     <!-- WebRtcCallScreen -->
     <string name="WebRtcCallScreen_new_safety_numbers">The safety number for your conversation with %1$s has changed. This could either mean that someone is trying to intercept your communication, or that %2$s simply re-installed Signal.</string>
     <string name="WebRtcCallScreen_you_may_wish_to_verify_this_contact">You may wish to verify your safety number with this contact.</string>
@@ -1924,6 +1937,7 @@
     <string name="ConversationUpdateItem_learn_more">Learn more</string>
     <string name="ConversationUpdateItem_join_call">Join call</string>
     <string name="ConversationUpdateItem_return_to_call">Return to call</string>
+    <string name="ConversationUpdateItem_call_is_full">Call is full</string>
 
     <!-- audio_view -->
     <string name="audio_view__play_pause_accessibility_description">Play … Pause</string>
@@ -1946,6 +1960,9 @@
     <string name="safety_number_change_dialog__safety_number_changes">Safety Number Changes</string>
     <string name="safety_number_change_dialog__send_anyway">Send anyway</string>
     <string name="safety_number_change_dialog__call_anyway">Call anyway</string>
+    <string name="safety_number_change_dialog__join_call">Join call</string>
+    <string name="safety_number_change_dialog__continue_call">Continue call</string>
+    <string name="safety_number_change_dialog__leave_call">Leave call</string>
     <string name="safety_number_change_dialog__the_following_people_may_have_reinstalled_or_changed_devices">The following people may have reinstalled or changed devices. Verify your safety number with them to ensure privacy.</string>
     <string name="safety_number_change_dialog__view">View</string>
     <string name="safety_number_change_dialog__previous_verified">Previous verified</string>
@@ -2954,6 +2971,18 @@
     <string name="ReviewCard__block">Block</string>
     <string name="ReviewCard__delete">Delete</string>
     <string name="ReviewCard__recently_changed">Recently changed their profile name from %1$s to %2$s</string>
+
+    <!-- CallParticipantsListUpdatePopupWindow -->
+    <string name="CallParticipantsListUpdatePopupWindow__s_joined">%1$s joined</string>
+    <string name="CallParticipantsListUpdatePopupWindow__s_and_s_joined">%1$s and %2$s joined</string>
+    <string name="CallParticipantsListUpdatePopupWindow__s_s_and_s_joined">%1$s, %2$s and %3$s joined</string>
+    <string name="CallParticipantsListUpdatePopupWindow__s_s_and_d_others_joined">%1$s, %2$s and %3$d others joined</string>
+    <string name="CallParticipantsListUpdatePopupWindow__s_left">%1$s left</string>
+    <string name="CallParticipantsListUpdatePopupWindow__s_and_s_left">%1$s and %2$s left</string>
+    <string name="CallParticipantsListUpdatePopupWindow__s_s_and_s_left">%1$s, %2$s and %3$s left</string>
+    <string name="CallParticipantsListUpdatePopupWindow__s_s_and_d_others_left">%1$s, %2$s and %3$d others left</string>
+    <string name="CallParticipantsListUpdatePopupWindow__you_on_another_device">You (on another device)</string>
+    <string name="CallParticipantsListUpdatePopupWindow__s_on_another_device">%1$s (on another device)</string>
 
     <!-- EOF -->
 
