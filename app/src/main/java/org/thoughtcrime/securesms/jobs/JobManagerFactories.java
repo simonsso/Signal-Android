@@ -30,6 +30,7 @@ import org.thoughtcrime.securesms.migrations.AvatarIdRemovalMigrationJob;
 import org.thoughtcrime.securesms.migrations.AvatarMigrationJob;
 import org.thoughtcrime.securesms.migrations.CachedAttachmentsMigrationJob;
 import org.thoughtcrime.securesms.migrations.DatabaseMigrationJob;
+import org.thoughtcrime.securesms.migrations.DirectoryRefreshMigrationJob;
 import org.thoughtcrime.securesms.migrations.KbsEnclaveMigrationJob;
 import org.thoughtcrime.securesms.migrations.LegacyMigrationJob;
 import org.thoughtcrime.securesms.migrations.MigrationCompleteJob;
@@ -70,6 +71,7 @@ public final class JobManagerFactories {
       put(KbsEnclaveMigrationWorkerJob.KEY,          new KbsEnclaveMigrationWorkerJob.Factory());
       put(LeaveGroupJob.KEY,                         new LeaveGroupJob.Factory());
       put(LocalBackupJob.KEY,                        new LocalBackupJob.Factory());
+      put(LocalBackupJobApi29.KEY,                   new LocalBackupJobApi29.Factory());
       put(MmsDownloadJob.KEY,                        new MmsDownloadJob.Factory());
       put(MmsReceiveJob.KEY,                         new MmsReceiveJob.Factory());
       put(MmsSendJob.KEY,                            new MmsSendJob.Factory());
@@ -135,6 +137,7 @@ public final class JobManagerFactories {
       put(AvatarMigrationJob.KEY,                    new AvatarMigrationJob.Factory());
       put(CachedAttachmentsMigrationJob.KEY,         new CachedAttachmentsMigrationJob.Factory());
       put(DatabaseMigrationJob.KEY,                  new DatabaseMigrationJob.Factory());
+      put(DirectoryRefreshMigrationJob.KEY,          new DirectoryRefreshMigrationJob.Factory());
       put(KbsEnclaveMigrationJob.KEY,                new KbsEnclaveMigrationJob.Factory());
       put(LegacyMigrationJob.KEY,                    new LegacyMigrationJob.Factory());
       put(MigrationCompleteJob.KEY,                  new MigrationCompleteJob.Factory());

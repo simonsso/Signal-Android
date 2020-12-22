@@ -256,7 +256,8 @@ public class RecipientUtil {
     return threadRecipient.isLocalNumber()    ||
            threadRecipient.isProfileSharing() ||
            threadRecipient.isSystemContact()  ||
-           !threadRecipient.isRegistered();
+           !threadRecipient.isRegistered()    ||
+           threadRecipient.isForceSmsSelection();
   }
 
   @WorkerThread
@@ -280,7 +281,7 @@ public class RecipientUtil {
   }
 
   @WorkerThread
-  private static boolean hasSentMessageInThread(@NonNull Context context, long threadId) {
+  public static boolean hasSentMessageInThread(@NonNull Context context, long threadId) {
     return DatabaseFactory.getMmsSmsDatabase(context).getOutgoingSecureConversationCount(threadId) != 0;
   }
 
