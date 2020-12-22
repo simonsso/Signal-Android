@@ -156,7 +156,7 @@ public class CommunicationActions {
    */
   public static boolean handlePotentialGroupLinkUrl(@NonNull FragmentActivity activity, @NonNull String potentialGroupLinkUrl) {
     try {
-      GroupInviteLinkUrl groupInviteLinkUrl = GroupInviteLinkUrl.fromUrl(potentialGroupLinkUrl);
+      GroupInviteLinkUrl groupInviteLinkUrl = GroupInviteLinkUrl.fromUri(potentialGroupLinkUrl);
 
       if (groupInviteLinkUrl == null) {
         return false;
