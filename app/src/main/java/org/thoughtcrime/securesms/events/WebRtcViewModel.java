@@ -1,18 +1,23 @@
 package org.thoughtcrime.securesms.events;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import com.annimon.stream.Stream;
 
 import org.thoughtcrime.securesms.components.webrtc.BroadcastVideoSink;
 import org.thoughtcrime.securesms.recipients.Recipient;
-import org.thoughtcrime.securesms.ringrtc.CameraState;
+import org.thoughtcrime.securesms.recipients.RecipientId;
+import org.thoughtcrime.securesms.service.webrtc.state.WebRtcServiceState;
 
 import java.util.List;
+import java.util.Set;
 
 public class WebRtcViewModel {
 
   public enum State {
+    IDLE,
+
     // Normal states
     CALL_PRE_JOIN,
     CALL_INCOMING,
@@ -32,11 +37,55 @@ public class WebRtcViewModel {
     // Multiring Hangup States
     CALL_ACCEPTED_ELSEWHERE,
     CALL_DECLINED_ELSEWHERE,
-    CALL_ONGOING_ELSEWHERE
+    CALL_ONGOING_ELSEWHERE;
+
+    public boolean isErrorState() {
+      return this == NETWORK_FAILURE       ||
+             this == RECIPIENT_UNAVAILABLE ||
+             this == NO_SUCH_USER          ||
+             this == UNTRUSTED_IDENTITY;
+    }
   }
 
-  private final @NonNull State     state;
-  private final @NonNull Recipient recipient;
+  public enum GroupCallState {
+    IDLE,
+    DISCONNECTED,
+    CONNECTING,
+    RECONNECTING,
+    CONNECTED,
+    CONNECTED_AND_JOINING,
+    CONNECTED_AND_JOINED;
+
+    public boolean isNotIdle() {
+      return this != IDLE;
+    }
+
+    public boolean isConnected() {
+      switch (this) {
+        case CONNECTED:
+        case CONNECTED_AND_JOINING:
+        case CONNECTED_AND_JOINED:
+          return true;
+      }
+
+      return false;
+    }
+
+    public boolean isNotIdleOrConnected() {
+      switch (this) {
+        case DISCONNECTED:
+        case CONNECTING:
+        case RECONNECTING:
+          return true;
+      }
+
+      return false;
+    }
+  }
+
+  private final @NonNull State          state;
+  private final @NonNull GroupCallState groupState;
+  private final @NonNull Recipient      recipient;
 
   private final boolean isBluetoothAvailable;
   private final boolean isRemoteVideoOffer;
@@ -44,29 +93,33 @@ public class WebRtcViewModel {
 
   private final CallParticipant       localParticipant;
   private final List<CallParticipant> remoteParticipants;
+  private final Set<RecipientId>      identityChangedRecipients;
+  private final long                  remoteDevicesCount;
+  private final Long                  participantLimit;
 
-  public WebRtcViewModel(@NonNull State state,
-                         @NonNull Recipient recipient,
-                         @NonNull CameraState localCameraState,
-                         @NonNull BroadcastVideoSink localSink,
-                         boolean isBluetoothAvailable,
-                         boolean isMicrophoneEnabled,
-                         boolean isRemoteVideoOffer,
-                         long callConnectedTime,
-                         @NonNull List<CallParticipant> remoteParticipants)
-  {
-    this.state                = state;
-    this.recipient            = recipient;
-    this.isBluetoothAvailable = isBluetoothAvailable;
-    this.isRemoteVideoOffer   = isRemoteVideoOffer;
-    this.callConnectedTime    = callConnectedTime;
-    this.remoteParticipants   = remoteParticipants;
-
-    localParticipant = CallParticipant.createLocal(localCameraState, localSink, isMicrophoneEnabled);
+  public WebRtcViewModel(@NonNull WebRtcServiceState state) {
+    this.state                     = state.getCallInfoState().getCallState();
+    this.groupState                = state.getCallInfoState().getGroupCallState();
+    this.recipient                 = state.getCallInfoState().getCallRecipient();
+    this.isRemoteVideoOffer        = state.getCallSetupState().isRemoteVideoOffer();
+    this.isBluetoothAvailable      = state.getLocalDeviceState().isBluetoothAvailable();
+    this.remoteParticipants        = state.getCallInfoState().getRemoteCallParticipants();
+    this.identityChangedRecipients = state.getCallInfoState().getIdentityChangedRecipients();
+    this.callConnectedTime         = state.getCallInfoState().getCallConnectedTime();
+    this.remoteDevicesCount        = state.getCallInfoState().getRemoteDevicesCount();
+    this.participantLimit          = state.getCallInfoState().getParticipantLimit();
+    this.localParticipant          = CallParticipant.createLocal(state.getLocalDeviceState().getCameraState(),
+                                                                 state.getVideoState().getLocalSink() != null ? state.getVideoState().getLocalSink()
+                                                                                                              : new BroadcastVideoSink(null),
+                                                                 state.getLocalDeviceState().isMicrophoneEnabled());
   }
 
   public @NonNull State getState() {
     return state;
+  }
+
+  public @NonNull GroupCallState getGroupState() {
+    return groupState;
   }
 
   public @NonNull Recipient getRecipient() {
@@ -74,7 +127,7 @@ public class WebRtcViewModel {
   }
 
   public boolean isRemoteVideoEnabled() {
-    return Stream.of(remoteParticipants).anyMatch(CallParticipant::isVideoEnabled);
+    return Stream.of(remoteParticipants).anyMatch(CallParticipant::isVideoEnabled) || (groupState.isNotIdle() && remoteParticipants.size() > 1);
   }
 
   public boolean isBluetoothAvailable() {
@@ -97,4 +150,31 @@ public class WebRtcViewModel {
     return remoteParticipants;
   }
 
+  public @NonNull Set<RecipientId> getIdentityChangedParticipants() {
+    return identityChangedRecipients;
+  }
+
+  public long getRemoteDevicesCount() {
+    return remoteDevicesCount;
+  }
+
+  public @Nullable Long getParticipantLimit() {
+    return participantLimit;
+  }
+
+  @Override
+  public @NonNull String toString() {
+    return "WebRtcViewModel{" +
+           "state=" + state +
+           ", recipient=" + recipient.getId() +
+           ", isBluetoothAvailable=" + isBluetoothAvailable +
+           ", isRemoteVideoOffer=" + isRemoteVideoOffer +
+           ", callConnectedTime=" + callConnectedTime +
+           ", localParticipant=" + localParticipant +
+           ", remoteParticipants=" + remoteParticipants +
+           ", identityChangedRecipients=" + identityChangedRecipients +
+           ", remoteDevicesCount=" + remoteDevicesCount +
+           ", participantLimit=" + participantLimit +
+           '}';
+  }
 }

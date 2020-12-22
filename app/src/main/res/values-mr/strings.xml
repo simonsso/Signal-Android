@@ -78,7 +78,7 @@
   <!--AudioSlidePlayer-->
   <string name="AudioSlidePlayer_error_playing_audio">ऑडिओ प्ले करण्यात त्रुटी!</string>
   <!--BlockedContactsActivity-->
-  <string name="BlockedContactsActivity_blocked_contacts">अवरोधित संपर्क</string>
+  <!-- Removed by excludeNonTranslatables <string name="BlockedContactsActivity_blocked_contacts">अवरोधित संपर्क</string> -->
   <!--BlockUnblockDialog-->
   <string name="BlockUnblockDialog_block_and_leave_s">%1$sअवरोधित करायचे आणि पडायचे?</string>
   <string name="BlockUnblockDialog_block_s">%1$s अवरोधित करायचे?</string>
@@ -280,7 +280,7 @@
   <string name="ConversationFragment_deleting_messages">संदेश हटवत आहे…</string>
   <string name="ConversationFragment_delete_for_me">माझ्यासाठी हटवा</string>
   <string name="ConversationFragment_delete_for_everyone">प्रत्येकासाठी हटवा</string>
-  <string name="ConversationFragment_this_message_will_be_permanently_deleted_for_everyone">हा संदेश संभाषणातील प्रत्येकासाठी कायमचा हटविला जाईल. आपण संदेश हटविला हे सदस्य पाहण्यास सक्षम असतील.</string>
+  <!-- Removed by excludeNonTranslatables <string name="ConversationFragment_this_message_will_be_permanently_deleted_for_everyone">हा संदेश संभाषणातील प्रत्येकासाठी कायमचा हटविला जाईल. आपण संदेश हटविला हे सदस्य पाहण्यास सक्षम असतील.</string> -->
   <string name="ConversationFragment_quoted_message_not_found">मूळ संदेश आढळला नाही</string>
   <string name="ConversationFragment_quoted_message_no_longer_available">मूळ संदेश आता उपलब्ध नाही</string>
   <string name="ConversationFragment_failed_to_open_message">संदेश उघडण्यात अयशस्वी</string>
@@ -406,7 +406,7 @@
   <string name="LinkPreviewsMegaphone_disable">अक्षम करा</string>
   <!--LinkPreviewView-->
   <!--PendingMembersActivity-->
-  <string name="PendingMemberInvitesActivity_pending_group_invites">प्रलंबित गट आमंत्रणे</string>
+  <!-- Removed by excludeNonTranslatables <string name="PendingMemberInvitesActivity_pending_group_invites">प्रलंबित गट आमंत्रणे</string> -->
   <string name="PendingMembersActivity_people_you_invited">आपण आमंत्रित केलेल्या व्यक्ती</string>
   <string name="PendingMembersActivity_you_have_no_pending_invites">आपल्याकडे प्रलंबित आमंत्रणे नाहीत.</string>
   <string name="PendingMembersActivity_invites_by_other_group_members">इतर गट सदस्यांद्वारा आमंत्रण</string>
@@ -432,7 +432,7 @@
   <!--NonGv2MemberDialog-->
   <!--ManageGroupActivity-->
   <string name="ManageGroupActivity_disappearing_messages">हरवणारे संदेश</string>
-  <string name="ManageGroupActivity_pending_group_invites">प्रलंबित गट आमंत्रणे</string>
+  <!-- Removed by excludeNonTranslatables <string name="ManageGroupActivity_pending_group_invites">प्रलंबित गट आमंत्रणे</string> -->
   <string name="ManageGroupActivity_add_members">सदस्य जोडा</string>
   <string name="ManageGroupActivity_block_group">गट अवरोधित करा</string>
   <string name="ManageGroupActivity_unblock_group">गट अनवरोधित करा</string>
@@ -593,13 +593,13 @@
   <string name="MessageRecord_message_encrypted_with_a_legacy_protocol_version_that_is_no_longer_supported">Signal ची जुनी आवृत्ती वापरून एन्क्रिप्टेड संदेश प्राप्त झाला आहे जो आता समर्थित नाही. कृपया प्रेषकाला सर्वात अलीकडील आवृत्तीवर अद्यतन करण्यास आणि संदेश पुन्हा पाठविण्यास विचारा.</string>
   <string name="MessageRecord_left_group">आपण गट सोडला आहे.</string>
   <string name="MessageRecord_you_updated_group">आपण गट अद्ययावत केले.</string>
-  <string name="MessageRecord_you_called">आपण कॉल केलेला</string>
-  <string name="MessageRecord_called_you">संपर्काने कॉल केलेला</string>
-  <string name="MessageRecord_missed_call">सुटलेला कॉल</string>
+  <!-- Removed by excludeNonTranslatables <string name="MessageRecord_you_called">आपण कॉल केलेला</string> -->
+  <!-- Removed by excludeNonTranslatables <string name="MessageRecord_called_you">संपर्काने कॉल केलेला</string> -->
+  <!-- Removed by excludeNonTranslatables <string name="MessageRecord_missed_call">सुटलेला कॉल</string> -->
   <string name="MessageRecord_s_updated_group">%s ने गट अद्ययावत केले.</string>
-  <string name="MessageRecord_s_called_you">%s ने आपल्याला कॉल केले.</string>
+  <!-- Removed by excludeNonTranslatables <string name="MessageRecord_s_called_you">%s ने आपल्याला कॉल केले.</string> -->
   <string name="MessageRecord_called_s">%s ला कॉल केलेला</string>
-  <string name="MessageRecord_missed_call_from">%s कडून सुटलेला कॉल</string>
+  <!-- Removed by excludeNonTranslatables <string name="MessageRecord_missed_call_from">%s कडून सुटलेला कॉल</string> -->
   <string name="MessageRecord_s_joined_signal">%s Signal वर आहे!</string>
   <string name="MessageRecord_you_disabled_disappearing_messages">आपण नाहीसे होणारे संदेश अक्षम केले.</string>
   <string name="MessageRecord_s_disabled_disappearing_messages">%1$s ने हरवणारे संदेश अक्षम केले.</string>
@@ -840,7 +840,7 @@
   <string name="ThreadRecord_draft">मसुदा:</string>
   <string name="ThreadRecord_called">आपण कॉल केलेला</string>
   <string name="ThreadRecord_called_you">आपल्याला कॉल केला होता</string>
-  <string name="ThreadRecord_missed_call">सुटलेला कॉल</string>
+  <!-- Removed by excludeNonTranslatables <string name="ThreadRecord_missed_call">सुटलेला कॉल</string> -->
   <string name="ThreadRecord_media_message">मिडिया संदेश</string>
   <string name="ThreadRecord_sticker">स्टिकर</string>
   <string name="ThreadRecord_view_once_photo">एकदा-बघा फोटो</string>
@@ -867,12 +867,12 @@
   <string name="UpdateApkReadyListener_Signal_update">Signal अद्यतन</string>
   <string name="UpdateApkReadyListener_a_new_version_of_signal_is_available_tap_to_update">Signal ची एक नवीन आवृत्ती उपलब्ध आहे, अद्ययावत करण्यासाठी टॅप करा</string>
   <!--UnknownSenderView-->
-  <string name="UnknownSenderView_block_s">%s अवरोधित करायचे?</string>
-  <string name="UnknownSenderView_blocked_contacts_will_no_longer_be_able_to_send_you_messages_or_call_you">अवरोधित संपर्क आपल्याला यापुढे आपल्याला संदेश पाठवू किंवा कॉल करू शकणार नाहीत.</string>
-  <string name="UnknownSenderView_block">अवरोधित करा</string>
-  <string name="UnknownSenderView_share_profile_with_s">%s सोबत प्रोफाईल सामायिक करायची?</string>
-  <string name="UnknownSenderView_the_easiest_way_to_share_your_profile_information_is_to_add_the_sender_to_your_contacts">आपली प्रोफाईल माहिती सामायिक करण्याचा सर्वात सहज मार्ग म्हणजे प्रेषकाला आपल्या संपर्कात जोडणे आहे. जर आपली इच्छा नसेल, तरीही आपण ह्या मार्गाने आपली प्रोफाईल माहिती सामायिक करू शकता.</string>
-  <string name="UnknownSenderView_share_profile">प्रोफाईल सामायिक करा</string>
+  <!-- Removed by excludeNonTranslatables <string name="UnknownSenderView_block_s">%s अवरोधित करायचे?</string> -->
+  <!-- Removed by excludeNonTranslatables <string name="UnknownSenderView_blocked_contacts_will_no_longer_be_able_to_send_you_messages_or_call_you">अवरोधित संपर्क आपल्याला यापुढे आपल्याला संदेश पाठवू किंवा कॉल करू शकणार नाहीत.</string> -->
+  <!-- Removed by excludeNonTranslatables <string name="UnknownSenderView_block">अवरोधित करा</string> -->
+  <!-- Removed by excludeNonTranslatables <string name="UnknownSenderView_share_profile_with_s">%s सोबत प्रोफाईल सामायिक करायची?</string> -->
+  <!-- Removed by excludeNonTranslatables <string name="UnknownSenderView_the_easiest_way_to_share_your_profile_information_is_to_add_the_sender_to_your_contacts">आपली प्रोफाईल माहिती सामायिक करण्याचा सर्वात सहज मार्ग म्हणजे प्रेषकाला आपल्या संपर्कात जोडणे आहे. जर आपली इच्छा नसेल, तरीही आपण ह्या मार्गाने आपली प्रोफाईल माहिती सामायिक करू शकता.</string> -->
+  <!-- Removed by excludeNonTranslatables <string name="UnknownSenderView_share_profile">प्रोफाईल सामायिक करा</string> -->
   <!--UntrustedSendDialog-->
   <string name="UntrustedSendDialog_send_message">संदेश पाठवायचा?</string>
   <string name="UntrustedSendDialog_send">पाठवा</string>
@@ -957,8 +957,8 @@
   <string name="MessageNotifier_reacted_s_to_your_image">आपल्या चित्राला %1$s प्रतिसाद दिला.</string>
   <string name="MessageNotifier_reacted_s_to_your_file">आपल्या फाईलला %1$s प्रतिसाद दिला. </string>
   <string name="MessageNotifier_reacted_s_to_your_audio">आपल्या ऑडिओला %1$s प्रतिसाद दिला.</string>
-  <string name="MessageNotifier_reacted_s_to_your_view_once_photo">आपल्या एकदा-बघा फोटोला %1$s प्रतिसाद दिला.</string>
-  <string name="MessageNotifier_reacted_s_to_your_view_once_video">आपल्या एकदा-बघा व्हिडिओला %1$s प्रतिसाद दिला.</string>
+  <!-- Removed by excludeNonTranslatables <string name="MessageNotifier_reacted_s_to_your_view_once_photo">आपल्या एकदा-बघा फोटोला %1$s प्रतिसाद दिला.</string> -->
+  <!-- Removed by excludeNonTranslatables <string name="MessageNotifier_reacted_s_to_your_view_once_video">आपल्या एकदा-बघा व्हिडिओला %1$s प्रतिसाद दिला.</string> -->
   <string name="MessageNotifier_reacted_s_to_your_sticker">आपल्या स्टिकरला %1$s प्रतिसाद दिला.</string>
   <string name="MessageNotifier_this_message_was_deleted">हा संदेश हटविला गेला.</string>
   <!--Notification Channels-->
@@ -1064,7 +1064,7 @@
   <string name="ContactSelectionListFragment_error_retrieving_contacts_check_your_network_connection">संपर्क पुनर्प्राप्त करण्यात त्रुटी, आपले  नेटवर्क कनेक्शन तपासा</string>
   <string name="ContactSelectionListFragment_username_not_found">वापरकर्तानाव आढळले नाही</string>
   <string name="ContactSelectionListFragment_s_is_not_a_signal_user">\"%1$s\" Signal वापरकर्ता नाही. कृपया वापरकर्तानाव तपासा आणि पुन्हा प्रयत्न करा.</string>
-  <string name="ContactSelectionListFragment_okay">ठीक आहे</string>
+  <!-- Removed by excludeNonTranslatables <string name="ContactSelectionListFragment_okay">ठीक आहे</string> -->
   <!--blocked_contacts_fragment-->
   <string name="blocked_contacts_fragment__no_blocked_contacts">कुठेलही अवरोधित संपर्क नाहीत</string>
   <!--contact_selection_list_fragment-->
@@ -1217,7 +1217,7 @@
   </plurals>
   <string name="GroupUtil_group_name_is_now">गटाचे नाव आता \'%1$s\' आहे.</string>
   <!--profile_group_share_view-->
-  <string name="profile_group_share_view__make_your_profile_name_and_photo_visible_to_this_group">आपले प्रोफाईल नाव आणि फोटो या गटासाठी दृश्यमान करायचे?</string>
+  <!-- Removed by excludeNonTranslatables <string name="profile_group_share_view__make_your_profile_name_and_photo_visible_to_this_group">आपले प्रोफाईल नाव आणि फोटो या गटासाठी दृश्यमान करायचे?</string> -->
   <!--prompt_passphrase_activity-->
   <string name="prompt_passphrase_activity__unlock">अनलॉक करा</string>
   <!--prompt_mms_activity-->
@@ -1400,7 +1400,7 @@
   <string name="preferences__typing_indicators">टाईपिंग निर्देशक</string>
   <string name="preferences__if_typing_indicators_are_disabled_you_wont_be_able_to_see_typing_indicators">जर टाईपिंग निर्देशक अक्षम केले आहेत, तर इतरांकडून आपल्याला टाईपिंग निर्देशक बघता येणार नाही.</string>
   <string name="preferences__request_keyboard_to_disable_personalized_learning">वैयक्तिकृत शिकणे अक्षम करण्यासाठी कीबोर्डला विनंती करा</string>
-  <string name="preferences_app_protection__blocked_contacts">अवरोधित संपर्क</string>
+  <!-- Removed by excludeNonTranslatables <string name="preferences_app_protection__blocked_contacts">अवरोधित संपर्क</string> -->
   <string name="preferences_chats__when_using_mobile_data">मोबाईल डेटा वापरताना</string>
   <string name="preferences_chats__when_using_wifi">Wi-Fi वापरताना</string>
   <string name="preferences_chats__when_roaming">रोमिंग असताना</string>

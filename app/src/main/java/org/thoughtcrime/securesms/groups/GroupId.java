@@ -3,11 +3,13 @@ package org.thoughtcrime.securesms.groups;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import org.signal.zkgroup.InvalidInputException;
 import org.signal.zkgroup.groups.GroupIdentifier;
 import org.signal.zkgroup.groups.GroupMasterKey;
 import org.signal.zkgroup.groups.GroupSecretParams;
 import org.thoughtcrime.securesms.util.Hex;
 import org.thoughtcrime.securesms.util.Util;
+import org.whispersystems.libsignal.kdf.HKDFv3;
 
 import java.io.IOException;
 import java.security.SecureRandom;
@@ -41,13 +43,6 @@ public abstract class GroupId {
   }
 
   public static @NonNull GroupId.V1 v1(byte[] gv1GroupIdBytes) throws BadGroupIdException {
-    if (gv1GroupIdBytes.length == V2_BYTE_LENGTH) {
-      throw new BadGroupIdException();
-    }
-    return new GroupId.V1(gv1GroupIdBytes);
-  }
-
-  public static @NonNull GroupId.V1 v1Exact(byte[] gv1GroupIdBytes) throws BadGroupIdException {
     if (gv1GroupIdBytes.length != V1_BYTE_LENGTH) {
       throw new BadGroupIdException();
     }
@@ -173,9 +168,8 @@ public abstract class GroupId {
     return encodedId.hashCode();
   }
 
-  @NonNull
   @Override
-  public String toString() {
+  public @NonNull String toString() {
     return encodedId;
   }
 
@@ -258,13 +252,25 @@ public abstract class GroupId {
 
     @Override
     public boolean isV1() {
-    return true;
-  }
+      return true;
+    }
 
     @Override
     public boolean isV2() {
-    return false;
-  }
+      return false;
+    }
+
+    public GroupMasterKey deriveV2MigrationMasterKey() {
+      try {
+        return new GroupMasterKey(new HKDFv3().deriveSecrets(getDecodedId(), "GV2 Migration".getBytes(), GroupMasterKey.SIZE));
+      } catch (InvalidInputException e) {
+        throw new AssertionError(e);
+      }
+    }
+
+    public GroupId.V2 deriveV2MigrationGroupId() {
+      return v2(deriveV2MigrationMasterKey());
+    }
   }
 
   public static final class V2 extends GroupId.Push {

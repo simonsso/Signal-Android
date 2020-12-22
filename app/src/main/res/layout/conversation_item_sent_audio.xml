@@ -7,6 +7,8 @@
         android:layout_height="wrap_content"
         app:foregroundTintColor="@color/grey_500"
         app:backgroundTintColor="@color/white"
-        app:waveformPlayedBarsColor="@color/core_ultramarine_light"
-        app:waveformUnplayedBarsColor="@color/core_grey_25"
+        app:waveformThumbTint="@color/audio_seek_bar_sent_played_color"
+        app:waveformPlayedBarsColor="@color/audio_seek_bar_sent_played_color"
+        app:waveformUnplayedBarsColor="@color/audio_seek_bar_sent_unplayed_color"
+        app:progressAndPlayTint="@color/audio_play_pause_sent_background_tint"
         android:visibility="gone"/>

@@ -12,15 +12,15 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.WorkerThread;
 
+import org.signal.core.util.StreamUtil;
+import org.signal.core.util.concurrent.SignalExecutors;
+import org.signal.core.util.logging.Log;
 import org.thoughtcrime.securesms.BuildConfig;
 import org.thoughtcrime.securesms.crypto.AttachmentSecret;
 import org.thoughtcrime.securesms.crypto.AttachmentSecretProvider;
 import org.thoughtcrime.securesms.crypto.ModernDecryptingPartInputStream;
 import org.thoughtcrime.securesms.crypto.ModernEncryptingPartOutputStream;
-import org.thoughtcrime.securesms.logging.Log;
 import org.thoughtcrime.securesms.util.IOFunction;
-import org.thoughtcrime.securesms.util.Util;
-import org.thoughtcrime.securesms.util.concurrent.SignalExecutors;
 import org.thoughtcrime.securesms.video.ByteArrayMediaDataSource;
 import org.thoughtcrime.securesms.video.EncryptedMediaDataSource;
 
@@ -45,7 +45,7 @@ public class BlobProvider {
   private static final String MULTI_SESSION_DIRECTORY  = "multi_session_blobs";
   private static final String SINGLE_SESSION_DIRECTORY = "single_session_blobs";
 
-  public static final String AUTHORITY   = BuildConfig.APPLICATION_ID;
+  public static final String AUTHORITY   = BuildConfig.APPLICATION_ID + ".blob";
   public static final Uri    CONTENT_URI = Uri.parse("content://" + AUTHORITY + "/blob");
   public static final String PATH        = "blob/*/*/*/*/*";
 
@@ -224,7 +224,7 @@ public class BlobProvider {
     }
 
     try (InputStream stream = getStream(context, uri)) {
-      return Util.getStreamLength(stream);
+      return StreamUtil.getStreamLength(stream);
     } catch (IOException e) {
       Log.w(TAG, e);
       return 0;
@@ -271,7 +271,7 @@ public class BlobProvider {
 
     SignalExecutors.UNBOUNDED.execute(() -> {
       try {
-        Util.copy(blobSpec.getData(), outputStream);
+        StreamUtil.copy(blobSpec.getData(), outputStream);
 
         if (successListener != null) {
           successListener.onSuccess();

@@ -6,10 +6,11 @@ import android.os.Handler;
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 
+import org.signal.core.util.concurrent.SignalExecutors;
 import org.thoughtcrime.securesms.recipients.Recipient;
+import org.thoughtcrime.securesms.util.BubbleUtil;
 import org.thoughtcrime.securesms.util.LeakyBucketLimiter;
 import org.thoughtcrime.securesms.util.Util;
-import org.thoughtcrime.securesms.util.concurrent.SignalExecutors;
 
 /**
  * Uses a leaky-bucket strategy to limiting notification updates.
@@ -28,6 +29,11 @@ public class OptimizedMessageNotifier implements MessageNotifier {
   @Override
   public void setVisibleThread(long threadId) {
     wrapped.setVisibleThread(threadId);
+  }
+
+  @Override
+  public long getVisibleThread() {
+    return wrapped.getVisibleThread();
   }
 
   @Override
@@ -61,13 +67,18 @@ public class OptimizedMessageNotifier implements MessageNotifier {
   }
 
   @Override
+  public void updateNotification(@NonNull Context context, long threadId, @NonNull BubbleUtil.BubbleState defaultBubbleState) {
+    runOnLimiter(() -> wrapped.updateNotification(context, threadId, defaultBubbleState));
+  }
+
+  @Override
   public void updateNotification(@NonNull Context context, long threadId, boolean signal) {
     runOnLimiter(() -> wrapped.updateNotification(context, threadId, signal));
   }
 
   @Override
-  public void updateNotification(@NonNull Context context, long threadId, boolean signal, int reminderCount) {
-    runOnLimiter(() -> wrapped.updateNotification(context, threadId, signal, reminderCount));
+  public void updateNotification(@NonNull Context context, long threadId, boolean signal, int reminderCount, @NonNull BubbleUtil.BubbleState defaultBubbleState) {
+    runOnLimiter(() -> wrapped.updateNotification(context, threadId, signal, reminderCount, defaultBubbleState));
   }
 
   @Override

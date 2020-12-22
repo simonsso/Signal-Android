@@ -19,6 +19,7 @@ import androidx.annotation.WorkerThread;
 import com.annimon.stream.Collectors;
 import com.annimon.stream.Stream;
 
+import org.signal.core.util.logging.Log;
 import org.thoughtcrime.securesms.BuildConfig;
 import org.thoughtcrime.securesms.R;
 import org.thoughtcrime.securesms.contacts.ContactAccessor;
@@ -29,23 +30,20 @@ import org.thoughtcrime.securesms.database.MessageDatabase.InsertResult;
 import org.thoughtcrime.securesms.database.RecipientDatabase;
 import org.thoughtcrime.securesms.database.RecipientDatabase.BulkOperationsHandle;
 import org.thoughtcrime.securesms.database.RecipientDatabase.RegisteredState;
-import org.thoughtcrime.securesms.database.SessionDatabase;
-import org.thoughtcrime.securesms.database.ThreadDatabase;
 import org.thoughtcrime.securesms.dependencies.ApplicationDependencies;
 import org.thoughtcrime.securesms.jobs.MultiDeviceContactUpdateJob;
 import org.thoughtcrime.securesms.jobs.RetrieveProfileJob;
 import org.thoughtcrime.securesms.jobs.StorageSyncJob;
 import org.thoughtcrime.securesms.keyvalue.SignalStore;
-import org.thoughtcrime.securesms.logging.Log;
 import org.thoughtcrime.securesms.notifications.NotificationChannels;
 import org.thoughtcrime.securesms.permissions.Permissions;
 import org.thoughtcrime.securesms.phonenumbers.PhoneNumberFormatter;
-import org.thoughtcrime.securesms.registration.RegistrationUtil;
-import org.thoughtcrime.securesms.storage.StorageSyncHelper;
 import org.thoughtcrime.securesms.recipients.Recipient;
 import org.thoughtcrime.securesms.recipients.RecipientId;
+import org.thoughtcrime.securesms.registration.RegistrationUtil;
 import org.thoughtcrime.securesms.sms.IncomingJoinedMessage;
-import org.thoughtcrime.securesms.util.FeatureFlags;
+import org.thoughtcrime.securesms.storage.StorageSyncHelper;
+import org.thoughtcrime.securesms.tracing.Trace;
 import org.thoughtcrime.securesms.util.ProfileUtil;
 import org.thoughtcrime.securesms.util.SetUtil;
 import org.thoughtcrime.securesms.util.Stopwatch;
@@ -75,6 +73,7 @@ import java.util.concurrent.TimeoutException;
 /**
  * Manages all the stuff around determining if a user is registered or not.
  */
+@Trace
 public class DirectoryHelper {
 
   private static final String TAG = Log.tag(DirectoryHelper.class);
@@ -86,7 +85,7 @@ public class DirectoryHelper {
       return;
     }
 
-    if (!Permissions.hasAll(context, Manifest.permission.WRITE_CONTACTS)) {
+    if (!Permissions.hasAll(context, Manifest.permission.READ_CONTACTS, Manifest.permission.WRITE_CONTACTS)) {
       Log.w(TAG, "No contact permissions. Skipping.");
       return;
     }
@@ -238,6 +237,7 @@ public class DirectoryHelper {
     Set<RecipientId>         inactiveIds   = Stream.of(allNumbers)
                                                    .filterNot(activeNumbers::contains)
                                                    .filterNot(n -> result.getNumberRewrites().containsKey(n))
+                                                   .filterNot(n -> result.getIgnoredNumbers().contains(n))
                                                    .map(recipientDatabase::getOrInsertFromE164)
                                                    .collect(Collectors.toSet());
 
@@ -297,6 +297,11 @@ public class DirectoryHelper {
                                              boolean removeMissing,
                                              @NonNull Map<String, String> rewrites)
   {
+    if (!Permissions.hasAll(context, Manifest.permission.READ_CONTACTS, Manifest.permission.WRITE_CONTACTS)) {
+      Log.w(TAG, "[updateContactsDatabase] No contact permissions. Skipping.");
+      return;
+    }
+
     AccountHolder account = getOrCreateSystemAccount(context);
 
     if (account == null) {
@@ -398,7 +403,7 @@ public class DirectoryHelper {
 
     for (RecipientId newUser: newUsers) {
       Recipient recipient = Recipient.resolved(newUser);
-      if (!SessionUtil.hasSession(context, recipient.getId()) && !recipient.isLocalNumber()) {
+      if (!SessionUtil.hasSession(context, recipient.getId()) && !recipient.isSelf()) {
         IncomingJoinedMessage  message      = new IncomingJoinedMessage(newUser);
         Optional<InsertResult> insertResult = DatabaseFactory.getSmsDatabase(context).insertMessageInbox(message);
 
@@ -471,12 +476,15 @@ public class DirectoryHelper {
   static class DirectoryResult {
     private final Map<String, UUID>   registeredNumbers;
     private final Map<String, String> numberRewrites;
+    private final Set<String>         ignoredNumbers;
 
     DirectoryResult(@NonNull Map<String, UUID> registeredNumbers,
-                    @NonNull Map<String, String> numberRewrites)
+                    @NonNull Map<String, String> numberRewrites,
+                    @NonNull Set<String> ignoredNumbers)
     {
       this.registeredNumbers = registeredNumbers;
       this.numberRewrites    = numberRewrites;
+      this.ignoredNumbers    = ignoredNumbers;
     }
 
 
@@ -486,6 +494,10 @@ public class DirectoryHelper {
 
     @NonNull Map<String, String> getNumberRewrites() {
       return numberRewrites;
+    }
+
+    @NonNull Set<String> getIgnoredNumbers() {
+      return ignoredNumbers;
     }
   }
 

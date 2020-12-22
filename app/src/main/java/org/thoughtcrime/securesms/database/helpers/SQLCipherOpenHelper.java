@@ -21,13 +21,8 @@ import net.sqlcipher.database.SQLiteDatabase;
 import net.sqlcipher.database.SQLiteDatabaseHook;
 import net.sqlcipher.database.SQLiteOpenHelper;
 
+import org.signal.core.util.logging.Log;
 import org.thoughtcrime.securesms.contacts.avatars.ContactColorsLegacy;
-import org.thoughtcrime.securesms.database.MentionDatabase;
-import org.thoughtcrime.securesms.database.RemappedRecordsDatabase;
-import org.thoughtcrime.securesms.profiles.AvatarHelper;
-import org.thoughtcrime.securesms.profiles.ProfileName;
-import org.thoughtcrime.securesms.recipients.RecipientId;
-import org.thoughtcrime.securesms.storage.StorageSyncHelper;
 import org.thoughtcrime.securesms.crypto.DatabaseSecret;
 import org.thoughtcrime.securesms.crypto.MasterSecret;
 import org.thoughtcrime.securesms.database.AttachmentDatabase;
@@ -38,10 +33,12 @@ import org.thoughtcrime.securesms.database.IdentityDatabase;
 import org.thoughtcrime.securesms.database.JobDatabase;
 import org.thoughtcrime.securesms.database.KeyValueDatabase;
 import org.thoughtcrime.securesms.database.MegaphoneDatabase;
+import org.thoughtcrime.securesms.database.MentionDatabase;
 import org.thoughtcrime.securesms.database.MmsDatabase;
 import org.thoughtcrime.securesms.database.OneTimePreKeyDatabase;
 import org.thoughtcrime.securesms.database.PushDatabase;
 import org.thoughtcrime.securesms.database.RecipientDatabase;
+import org.thoughtcrime.securesms.database.RemappedRecordsDatabase;
 import org.thoughtcrime.securesms.database.SearchDatabase;
 import org.thoughtcrime.securesms.database.SessionDatabase;
 import org.thoughtcrime.securesms.database.SignedPreKeyDatabase;
@@ -52,24 +49,32 @@ import org.thoughtcrime.securesms.database.ThreadDatabase;
 import org.thoughtcrime.securesms.dependencies.ApplicationDependencies;
 import org.thoughtcrime.securesms.groups.GroupId;
 import org.thoughtcrime.securesms.jobs.RefreshPreKeysJob;
-import org.thoughtcrime.securesms.logging.Log;
 import org.thoughtcrime.securesms.notifications.NotificationChannels;
 import org.thoughtcrime.securesms.phonenumbers.PhoneNumberFormatter;
+import org.thoughtcrime.securesms.profiles.AvatarHelper;
+import org.thoughtcrime.securesms.profiles.ProfileName;
+import org.thoughtcrime.securesms.recipients.RecipientId;
 import org.thoughtcrime.securesms.service.KeyCachingService;
+import org.thoughtcrime.securesms.storage.StorageSyncHelper;
 import org.thoughtcrime.securesms.util.Base64;
 import org.thoughtcrime.securesms.util.CursorUtil;
 import org.thoughtcrime.securesms.util.FileUtils;
+import org.thoughtcrime.securesms.util.Hex;
 import org.thoughtcrime.securesms.util.ServiceUtil;
 import org.thoughtcrime.securesms.util.SqlUtil;
 import org.thoughtcrime.securesms.util.TextSecurePreferences;
+import org.thoughtcrime.securesms.util.Triple;
 import org.thoughtcrime.securesms.util.Util;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
+import java.util.Set;
 
 public class SQLCipherOpenHelper extends SQLiteOpenHelper {
 
@@ -151,8 +156,17 @@ public class SQLCipherOpenHelper extends SQLiteOpenHelper {
   private static final int THUMBNAIL_CLEANUP                = 74;
   private static final int STICKER_CONTENT_TYPE_CLEANUP     = 75;
   private static final int MENTION_CLEANUP                  = 76;
+  private static final int MENTION_CLEANUP_V2               = 77;
+  private static final int REACTION_CLEANUP                 = 78;
+  private static final int CAPABILITIES_REFACTOR            = 79;
+  private static final int GV1_MIGRATION                    = 80;
+  private static final int NOTIFIED_TIMESTAMP               = 81;
+  private static final int GV1_MIGRATION_LAST_SEEN          = 82;
+  private static final int VIEWED_RECEIPTS                  = 83;
+  private static final int CLEAN_UP_GV1_IDS                 = 84;
+  private static final int GV1_MIGRATION_REFACTOR           = 85;
 
-  private static final int    DATABASE_VERSION = 76;
+  private static final int    DATABASE_VERSION = 85;
   private static final String DATABASE_NAME    = "signal.db";
 
   private final Context        context;
@@ -1086,6 +1100,150 @@ public class SQLCipherOpenHelper extends SQLiteOpenHelper {
         }
       }
 
+      if (oldVersion < MENTION_CLEANUP_V2) {
+        String selectMentionIdsWithMismatchingThreadIds = "select mention._id from mention left join mms on mention.message_id = mms._id where mention.thread_id != mms.thread_id";
+        db.delete("mention", "_id in (" + selectMentionIdsWithMismatchingThreadIds + ")", null);
+
+        List<Long>                          idsToDelete   = new LinkedList<>();
+        Set<Triple<Long, Integer, Integer>> mentionTuples = new HashSet<>();
+        try (Cursor cursor = db.rawQuery("select mention.*, mms.body from mention inner join mms on mention.message_id = mms._id order by mention._id desc", null)) {
+          while (cursor != null && cursor.moveToNext()) {
+            long   mentionId   = CursorUtil.requireLong(cursor, "_id");
+            long   messageId   = CursorUtil.requireLong(cursor, "message_id");
+            int    rangeStart  = CursorUtil.requireInt(cursor, "range_start");
+            int    rangeLength = CursorUtil.requireInt(cursor, "range_length");
+            String body        = CursorUtil.requireString(cursor, "body");
+
+            if (body != null && rangeStart < body.length() && body.charAt(rangeStart) != '\uFFFC') {
+              idsToDelete.add(mentionId);
+            } else {
+              Triple<Long, Integer, Integer> tuple = new Triple<>(messageId, rangeStart, rangeLength);
+              if (mentionTuples.contains(tuple)) {
+                idsToDelete.add(mentionId);
+              } else {
+                mentionTuples.add(tuple);
+              }
+            }
+          }
+
+          if (Util.hasItems(idsToDelete)) {
+            String ids = TextUtils.join(",", idsToDelete);
+            db.delete("mention", "_id in (" + ids + ")", null);
+          }
+        }
+      }
+
+      if (oldVersion < REACTION_CLEANUP) {
+        ContentValues values = new ContentValues();
+        values.putNull("reactions");
+        db.update("sms", values, "remote_deleted = ?", new String[] { "1" });
+      }
+
+      if (oldVersion < CAPABILITIES_REFACTOR) {
+        db.execSQL("ALTER TABLE recipient ADD COLUMN capabilities INTEGER DEFAULT 0");
+
+        db.execSQL("UPDATE recipient SET capabilities = 1 WHERE gv2_capability = 1");
+        db.execSQL("UPDATE recipient SET capabilities = 2 WHERE gv2_capability = -1");
+      }
+
+      if (oldVersion < GV1_MIGRATION) {
+        db.execSQL("ALTER TABLE groups ADD COLUMN expected_v2_id TEXT DEFAULT NULL");
+        db.execSQL("ALTER TABLE groups ADD COLUMN former_v1_members TEXT DEFAULT NULL");
+        db.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS expected_v2_id_index ON groups (expected_v2_id)");
+
+        int count = 0;
+        try (Cursor cursor = db.rawQuery("SELECT * FROM groups WHERE group_id LIKE '__textsecure_group__!%' AND LENGTH(group_id) = 53", null)) {
+          while (cursor.moveToNext()) {
+            String gv1 = CursorUtil.requireString(cursor, "group_id");
+            String gv2 = GroupId.parseOrThrow(gv1).requireV1().deriveV2MigrationGroupId().toString();
+
+            ContentValues values = new ContentValues();
+            values.put("expected_v2_id", gv2);
+            count += db.update("groups", values, "group_id = ?", SqlUtil.buildArgs(gv1));
+          }
+        }
+
+        Log.i(TAG, "Updated " + count + " GV1 groups with expected GV2 IDs.");
+      }
+
+      if (oldVersion < NOTIFIED_TIMESTAMP) {
+        db.execSQL("ALTER TABLE sms ADD COLUMN notified_timestamp INTEGER DEFAULT 0");
+        db.execSQL("ALTER TABLE mms ADD COLUMN notified_timestamp INTEGER DEFAULT 0");
+      }
+
+      if (oldVersion < GV1_MIGRATION_LAST_SEEN) {
+        db.execSQL("ALTER TABLE recipient ADD COLUMN last_gv1_migrate_reminder INTEGER DEFAULT 0");
+      }
+
+      if (oldVersion < VIEWED_RECEIPTS) {
+        db.execSQL("ALTER TABLE mms ADD COLUMN viewed_receipt_count INTEGER DEFAULT 0");
+      }
+
+      if (oldVersion < CLEAN_UP_GV1_IDS) {
+        List<String> deletableRecipients = new LinkedList<>();
+        try (Cursor cursor = db.rawQuery("SELECT _id, group_id FROM recipient\n" +
+                                         "WHERE group_id NOT IN (SELECT group_id FROM groups)\n" +
+                                         "AND group_id LIKE '__textsecure_group__!%' AND length(group_id) <> 53\n" +
+                                         "AND (_id NOT IN (SELECT recipient_ids FROM thread) OR _id IN (SELECT recipient_ids FROM thread WHERE message_count = 0))", null))
+        {
+          while (cursor.moveToNext()) {
+            String recipientId = cursor.getString(cursor.getColumnIndexOrThrow("_id"));
+            String groupIdV1   = cursor.getString(cursor.getColumnIndexOrThrow("group_id"));
+            deletableRecipients.add(recipientId);
+            Log.d(TAG, String.format(Locale.US, "Found invalid GV1 on %s with no or empty thread %s length %d", recipientId, groupIdV1, groupIdV1.length()));
+          }
+        }
+
+        for (String recipientId : deletableRecipients) {
+          db.delete("recipient", "_id = ?", new String[]{recipientId});
+          Log.d(TAG, "Deleted recipient " + recipientId);
+        }
+
+        List<String> orphanedThreads = new LinkedList<>();
+        try (Cursor cursor = db.rawQuery("SELECT _id FROM thread WHERE message_count = 0 AND recipient_ids NOT IN (SELECT _id FROM recipient)", null)) {
+          while (cursor.moveToNext()) {
+            orphanedThreads.add(cursor.getString(cursor.getColumnIndexOrThrow("_id")));
+          }
+        }
+
+        for (String orphanedThreadId : orphanedThreads) {
+          db.delete("thread", "_id = ?", new String[]{orphanedThreadId});
+          Log.d(TAG, "Deleted orphaned thread " + orphanedThreadId);
+        }
+
+        List<String> remainingInvalidGV1Recipients = new LinkedList<>();
+        try (Cursor cursor = db.rawQuery("SELECT _id, group_id FROM recipient\n" +
+                                         "WHERE group_id NOT IN (SELECT group_id FROM groups)\n" +
+                                         "AND group_id LIKE '__textsecure_group__!%' AND length(group_id) <> 53\n" +
+                                         "AND _id IN (SELECT recipient_ids FROM thread)", null))
+        {
+          while (cursor.moveToNext()) {
+            String recipientId = cursor.getString(cursor.getColumnIndexOrThrow("_id"));
+            String groupIdV1   = cursor.getString(cursor.getColumnIndexOrThrow("group_id"));
+            remainingInvalidGV1Recipients.add(recipientId);
+            Log.d(TAG, String.format(Locale.US, "Found invalid GV1 on %s with non-empty thread %s length %d", recipientId, groupIdV1, groupIdV1.length()));
+          }
+        }
+
+        for (String recipientId : remainingInvalidGV1Recipients) {
+          String        newId  = "__textsecure_group__!" + Hex.toStringCondensed(Util.getSecretBytes(16));
+          ContentValues values = new ContentValues(1);
+          values.put("group_id", newId);
+
+          db.update("recipient", values, "_id = ?", new String[] { String.valueOf(recipientId) });
+          Log.d(TAG, String.format("Replaced group id on recipient %s now %s", recipientId, newId));
+        }
+      }
+
+      if (oldVersion < GV1_MIGRATION_REFACTOR) {
+        ContentValues values = new ContentValues(1);
+        values.putNull("former_v1_members");
+
+        int count = db.update("groups", values, "former_v1_members NOT NULL", null);
+
+        Log.i(TAG, "Cleared former_v1_members for " + count + " rows");
+      }
+
       db.setTransactionSuccessful();
     } finally {
       db.endTransaction();
@@ -1098,12 +1256,12 @@ public class SQLCipherOpenHelper extends SQLiteOpenHelper {
     Log.i(TAG, "Upgrade complete. Took " + (System.currentTimeMillis() - startTime) + " ms.");
   }
 
-  public SQLiteDatabase getReadableDatabase() {
-    return getReadableDatabase(databaseSecret.asString());
+  public org.thoughtcrime.securesms.database.SQLiteDatabase getReadableDatabase() {
+    return new org.thoughtcrime.securesms.database.SQLiteDatabase(getReadableDatabase(databaseSecret.asString()));
   }
 
-  public SQLiteDatabase getWritableDatabase() {
-    return getWritableDatabase(databaseSecret.asString());
+  public org.thoughtcrime.securesms.database.SQLiteDatabase getWritableDatabase() {
+    return new org.thoughtcrime.securesms.database.SQLiteDatabase(getWritableDatabase(databaseSecret.asString()));
   }
 
   public void markCurrent(SQLiteDatabase db) {

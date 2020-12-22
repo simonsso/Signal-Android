@@ -17,9 +17,12 @@ import java.util.Map;
 final class GroupV1ConflictMerger implements StorageSyncHelper.ConflictMerger<SignalGroupV1Record> {
 
   private final Map<GroupId, SignalGroupV1Record> localByGroupId;
+  private final GroupV2ExistenceChecker groupExistenceChecker;
 
-  GroupV1ConflictMerger(@NonNull Collection<SignalGroupV1Record> localOnly) {
+  GroupV1ConflictMerger(@NonNull Collection<SignalGroupV1Record> localOnly, @NonNull GroupV2ExistenceChecker groupExistenceChecker) {
     localByGroupId = Stream.of(localOnly).collect(Collectors.toMap(g -> GroupId.v1orThrow(g.getGroupId()), g -> g));
+
+    this.groupExistenceChecker = groupExistenceChecker;
   }
 
   @Override
@@ -30,19 +33,26 @@ final class GroupV1ConflictMerger implements StorageSyncHelper.ConflictMerger<Si
   @Override
   public @NonNull Collection<SignalGroupV1Record> getInvalidEntries(@NonNull Collection<SignalGroupV1Record> remoteRecords) {
     return Stream.of(remoteRecords)
-                 .filterNot(GroupV1ConflictMerger::isValidGroupId)
-                 .toList();
+                 .filter(record -> {
+                   try {
+                     GroupId.V1 id = GroupId.v1(record.getGroupId());
+                     return groupExistenceChecker.exists(id.deriveV2MigrationGroupId());
+                   } catch (BadGroupIdException e) {
+                     return true;
+                   }
+                 }).toList();
   }
 
   @Override
   public @NonNull SignalGroupV1Record merge(@NonNull SignalGroupV1Record remote, @NonNull SignalGroupV1Record local, @NonNull StorageSyncHelper.KeyGenerator keyGenerator) {
     byte[]  unknownFields  = remote.serializeUnknownFields();
     boolean blocked        = remote.isBlocked();
-    boolean profileSharing = remote.isProfileSharingEnabled() || local.isProfileSharingEnabled();
+    boolean profileSharing = remote.isProfileSharingEnabled();
     boolean archived       = remote.isArchived();
+    boolean forcedUnread   = remote.isForcedUnread();
 
-    boolean matchesRemote = Arrays.equals(unknownFields, remote.serializeUnknownFields()) && blocked == remote.isBlocked() && profileSharing == remote.isProfileSharingEnabled() && archived == remote.isArchived();
-    boolean matchesLocal  = Arrays.equals(unknownFields, local.serializeUnknownFields())  && blocked == local.isBlocked()  && profileSharing == local.isProfileSharingEnabled()  && archived == local.isArchived();
+    boolean matchesRemote = Arrays.equals(unknownFields, remote.serializeUnknownFields()) && blocked == remote.isBlocked() && profileSharing == remote.isProfileSharingEnabled() && archived == remote.isArchived() && forcedUnread == remote.isForcedUnread();
+    boolean matchesLocal  = Arrays.equals(unknownFields, local.serializeUnknownFields())  && blocked == local.isBlocked()  && profileSharing == local.isProfileSharingEnabled()  && archived == local.isArchived()  && forcedUnread == local.isForcedUnread();
 
     if (matchesRemote) {
       return remote;
@@ -53,16 +63,8 @@ final class GroupV1ConflictMerger implements StorageSyncHelper.ConflictMerger<Si
                                     .setUnknownFields(unknownFields)
                                     .setBlocked(blocked)
                                     .setProfileSharingEnabled(blocked)
+                                    .setForcedUnread(forcedUnread)
                                     .build();
-    }
-  }
-
-  private static boolean isValidGroupId(@NonNull SignalGroupV1Record record) {
-    try {
-      GroupId.v1Exact(record.getGroupId());
-      return true;
-    } catch (BadGroupIdException e) {
-      return false;
     }
   }
 }

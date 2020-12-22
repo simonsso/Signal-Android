@@ -4,12 +4,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:parentTag="org.thoughtcrime.securesms.components.webrtc.WebRtcCallView">
 
-    <View
-        android:id="@+id/call_screen_blur_overlay"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="@color/transparent_black_40" />
-
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/call_screen_participants_parent"
         android:layout_width="match_parent"
@@ -31,6 +25,12 @@
         layout="@layout/webrtc_call_view_large_local_render"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
+
+    <ViewStub
+        android:id="@+id/group_call_call_full_view"
+        android:layout="@layout/group_call_call_full"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/call_screen"
@@ -109,8 +109,9 @@
                 tools:background="@color/red"
                 tools:visibility="visible">
 
-                <org.thoughtcrime.securesms.components.webrtc.TextureViewRenderer
+                <include
                     android:id="@+id/call_screen_small_local_renderer"
+                    layout="@layout/call_participant_item"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent" />
 
@@ -289,6 +290,7 @@
             android:paddingEnd="16dp"
             android:paddingBottom="32dp"
             android:visibility="gone"
+            android:gravity="center"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -315,10 +317,21 @@
                 android:layout_weight="1"
                 android:text="@string/WebRtcCallView__start_call"
                 android:textAllCaps="false"
-                android:textColor="@color/core_white"
+                android:textColor="@color/core_green_text_button"
                 app:backgroundTint="@color/core_green" />
 
         </LinearLayout>
+
+        <ViewStub
+            android:id="@+id/call_screen_group_call_speaker_hint"
+            android:layout="@layout/group_call_speaker_hint"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="24dp"
+            android:inflatedId="@+id/call_screen_group_call_speaker_hint_view"
+            app:layout_constraintBottom_toTopOf="@+id/call_screen_footer_gradient_barrier"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
 
         <androidx.constraintlayout.widget.Barrier
             android:id="@+id/call_screen_footer_gradient_barrier"

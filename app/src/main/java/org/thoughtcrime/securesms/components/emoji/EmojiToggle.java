@@ -2,13 +2,14 @@ package org.thoughtcrime.securesms.components.emoji;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
+import android.util.AttributeSet;
+
 import androidx.annotation.NonNull;
 import androidx.appcompat.widget.AppCompatImageButton;
-import android.util.AttributeSet;
+import androidx.core.content.ContextCompat;
 
 import org.thoughtcrime.securesms.R;
 import org.thoughtcrime.securesms.stickers.StickerKeyboardProvider;
-import org.thoughtcrime.securesms.util.ResUtil;
 import org.thoughtcrime.securesms.util.TextSecurePreferences;
 
 public class EmojiToggle extends AppCompatImageButton implements MediaKeyboard.MediaKeyboardListener {
@@ -44,9 +45,9 @@ public class EmojiToggle extends AppCompatImageButton implements MediaKeyboard.M
   }
 
   private void initialize() {
-    this.emojiToggle   = ResUtil.getDrawable(getContext(), R.attr.conversation_emoji_toggle);
-    this.stickerToggle = ResUtil.getDrawable(getContext(), R.attr.conversation_sticker_toggle);
-    this.imeToggle     = ResUtil.getDrawable(getContext(), R.attr.conversation_keyboard_toggle);
+    this.emojiToggle   = ContextCompat.getDrawable(getContext(), R.drawable.ic_emoji_smiley_24);
+    this.stickerToggle = ContextCompat.getDrawable(getContext(), R.drawable.ic_sticker_24);
+    this.imeToggle     = ContextCompat.getDrawable(getContext(), R.drawable.ic_keyboard_24);
     this.mediaToggle   = emojiToggle;
 
     setToMedia();

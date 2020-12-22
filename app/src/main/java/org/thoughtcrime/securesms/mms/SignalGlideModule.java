@@ -2,10 +2,10 @@ package org.thoughtcrime.securesms.mms;
 
 import android.content.Context;
 import android.graphics.Bitmap;
-import androidx.annotation.NonNull;
-
 import android.graphics.drawable.Drawable;
 import android.util.Log;
+
+import androidx.annotation.NonNull;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.GlideBuilder;
@@ -22,6 +22,7 @@ import com.bumptech.glide.load.resource.gif.GifDrawable;
 import com.bumptech.glide.load.resource.gif.StreamGifDecoder;
 import com.bumptech.glide.module.AppGlideModule;
 
+import org.signal.glide.apng.decode.APNGDecoder;
 import org.thoughtcrime.securesms.blurhash.BlurHash;
 import org.thoughtcrime.securesms.blurhash.BlurHashModelLoader;
 import org.thoughtcrime.securesms.blurhash.BlurHashResourceDecoder;
@@ -29,22 +30,22 @@ import org.thoughtcrime.securesms.contacts.avatars.ContactPhoto;
 import org.thoughtcrime.securesms.crypto.AttachmentSecret;
 import org.thoughtcrime.securesms.crypto.AttachmentSecretProvider;
 import org.thoughtcrime.securesms.giph.model.ChunkedImageUrl;
-import org.thoughtcrime.securesms.glide.cache.ApngBufferCacheDecoder;
-import org.thoughtcrime.securesms.glide.cache.EncryptedApngCacheEncoder;
 import org.thoughtcrime.securesms.glide.ChunkedImageUrlLoader;
 import org.thoughtcrime.securesms.glide.ContactPhotoLoader;
-import org.thoughtcrime.securesms.glide.cache.ApngFrameDrawableTranscoder;
 import org.thoughtcrime.securesms.glide.OkHttpUrlLoader;
+import org.thoughtcrime.securesms.glide.cache.ApngBufferCacheDecoder;
+import org.thoughtcrime.securesms.glide.cache.ApngFrameDrawableTranscoder;
 import org.thoughtcrime.securesms.glide.cache.ApngStreamCacheDecoder;
+import org.thoughtcrime.securesms.glide.cache.EncryptedApngCacheEncoder;
 import org.thoughtcrime.securesms.glide.cache.EncryptedBitmapResourceEncoder;
 import org.thoughtcrime.securesms.glide.cache.EncryptedCacheDecoder;
 import org.thoughtcrime.securesms.glide.cache.EncryptedCacheEncoder;
 import org.thoughtcrime.securesms.glide.cache.EncryptedGifDrawableResourceEncoder;
-import org.signal.glide.apng.decode.APNGDecoder;
 import org.thoughtcrime.securesms.mms.AttachmentStreamUriLoader.AttachmentModel;
 import org.thoughtcrime.securesms.mms.DecryptableStreamUriLoader.DecryptableUri;
 import org.thoughtcrime.securesms.stickers.StickerRemoteUri;
 import org.thoughtcrime.securesms.stickers.StickerRemoteUriLoader;
+import org.thoughtcrime.securesms.util.ConversationShortcutPhoto;
 
 import java.io.File;
 import java.io.InputStream;
@@ -89,6 +90,7 @@ public class SignalGlideModule extends AppGlideModule {
 
     registry.prepend(BlurHash.class, Bitmap.class, new BlurHashResourceDecoder());
 
+    registry.append(ConversationShortcutPhoto.class, Bitmap.class, new ConversationShortcutPhoto.Loader.Factory(context));
     registry.append(ContactPhoto.class, InputStream.class, new ContactPhotoLoader.Factory(context));
     registry.append(DecryptableUri.class, InputStream.class, new DecryptableStreamUriLoader.Factory(context));
     registry.append(AttachmentModel.class, InputStream.class, new AttachmentStreamUriLoader.Factory());

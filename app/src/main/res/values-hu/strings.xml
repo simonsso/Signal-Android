@@ -79,8 +79,17 @@
   <string name="AttachmentUploadJob_compressing_video_start">Videó tömörítése…</string>
   <!--AudioSlidePlayer-->
   <string name="AudioSlidePlayer_error_playing_audio">Hiba történt a hang lejátszása során!</string>
-  <!--BlockedContactsActivity-->
-  <string name="BlockedContactsActivity_blocked_contacts">Blokkolt kontaktok</string>
+  <!--BlockedUsersActivity-->
+  <string name="BlockedUsersActivity__blocked_users">Letiltott felhasználók</string>
+  <string name="BlockedUsersActivity__add_blocked_user">Felhasználó letiltása</string>
+  <string name="BlockedUsersActivity__blocked_users_will">A letiltott felhasználók nem fognak tudni sem üzenetet küldeni neked, sem pedig felhívni.</string>
+  <string name="BlockedUsersActivity__no_blocked_users">Nincs letiltott felhasználó</string>
+  <string name="BlockedUsersActivity__block_user">Felhasználó letiltása?</string>
+  <string name="BlockedUserActivity__s_will_not_be_able_to">A \"%1$s\" nem fog tudni sem üzenetet küldeni neked, sem pedig felhívni.</string>
+  <string name="BlockedUsersActivity__block">Letiltás</string>
+  <string name="BlockedUsersActivity__unblock_user">Tiltás feloldása?</string>
+  <string name="BlockedUsersActivity__do_you_want_to_unblock_s">Szeretnéd feloldani \"%1$s\" felhasználót?</string>
+  <string name="BlockedUsersActivity__unblock">Tiltás feloldása</string>
   <!--BlockUnblockDialog-->
   <string name="BlockUnblockDialog_block_and_leave_s">%1$s letiltása és kilépés?</string>
   <string name="BlockUnblockDialog_block_s">Letiltod %1$s-t?</string>
@@ -126,9 +135,17 @@
   <string name="ClearProfileActivity_remove">Eltávolítás</string>
   <string name="ClearProfileActivity_remove_profile_photo">Eltávolítod a profilképed?</string>
   <string name="ClearProfileActivity_remove_group_photo">Eltávolítod a csoport képét?</string>
+  <!--ClientDeprecatedActivity-->
+  <string name="ClientDeprecatedActivity_update_signal">Signal frissítése</string>
+  <string name="ClientDeprecatedActivity_this_version_of_the_app_is_no_longer_supported">Az app jelenlegi verziója elavult. Üzenetek küldése és fogadása előtt frissítened újabb verzióra.</string>
+  <string name="ClientDeprecatedActivity_update">Frissítés</string>
+  <string name="ClientDeprecatedActivity_dont_update">Nincs frissítés</string>
+  <string name="ClientDeprecatedActivity_warning">Figyelmeztetés</string>
+  <string name="ClientDeprecatedActivity_your_version_of_signal_has_expired_you_can_view_your_message_history">Az általad használt Signal verziója elavult. Megtekintheted a beszélgetés-előzményeket, de frissítésig nem fogsz tudni üzeneteket küldeni és fogadni.</string>
   <!--CommunicationActions-->
   <string name="CommunicationActions_no_browser_found">Nem található böngésző.</string>
   <string name="CommunicationActions_no_email_app_found">Nem található e-mail alkalmazás.</string>
+  <string name="CommunicationActions_send_email">E-mail küldése</string>
   <string name="CommunicationActions_a_cellular_call_is_already_in_progress">Egy mobilhívás épp folyamatban van.</string>
   <string name="CommunicationActions_start_video_call">Szeretnél videóhívást indítani?</string>
   <string name="CommunicationActions_start_voice_call">Szeretnél hanghívást indítani?</string>
@@ -192,15 +209,11 @@
   <string name="ConversationActivity_recipient_is_not_a_valid_sms_or_email_address_exclamation">A címzett nem egy érvényes SMS vagy email cím!</string>
   <string name="ConversationActivity_message_is_empty_exclamation">Üres az üzenet!</string>
   <string name="ConversationActivity_group_members">Csoporttagok</string>
+  <string name="ConversationActivity__tap_here_to_start_a_group_call">Csoporthívás indítás itt</string>
   <string name="ConversationActivity_invalid_recipient">Érvénytelen címzett!</string>
   <string name="ConversationActivity_added_to_home_screen">Hozzáadva a kezdőképernyőhöz</string>
   <string name="ConversationActivity_calls_not_supported">A hívások nem támogatottak</string>
   <string name="ConversationActivity_this_device_does_not_appear_to_support_dial_actions">Úgy tűnik, hogy ez a készülék nem támogatja a tárcsázási műveleteket.</string>
-  <!-- Removed by excludeNonTranslatables <string name="ConversationActivity_leave_group">Kilépsz a csoportból?</string> -->
-  <!-- Removed by excludeNonTranslatables <string name="ConversationActivity_are_you_sure_you_want_to_leave_this_group">Biztosan ki szeretnél lépni ebből a csoportból?</string> -->
-  <!-- Removed by excludeNonTranslatables <string name="ConversationActivity_choose_new_admin">Új admin választása</string> -->
-  <!-- Removed by excludeNonTranslatables <string name="ConversationActivity_before_you_leave_you_must_choose_at_least_one_new_admin_for_this_group">Kilépés előtt ki kell jelölnöd legalább egy új admint.</string> -->
-  <!-- Removed by excludeNonTranslatables <string name="ConversationActivity_choose_admin">Admin kiválasztása</string> -->
   <string name="ConversationActivity_transport_insecure_sms">Titkosítatlan SMS</string>
   <string name="ConversationActivity_transport_insecure_mms">Titkosítatlan MMS</string>
   <string name="ConversationActivity_transport_signal">Signal</string>
@@ -245,6 +258,8 @@
   <string name="ConversationActivity__to_call_s_signal_needs_access_to_your_microphone">%1$s hívásához a Signalnak hozzá kell férnie mikrofonodhoz</string>
   <string name="ConversationActivity__to_call_s_signal_needs_access_to_your_microphone_and_camera">%1$s hívásához a Signalnak hozzá kell férnie mikrofonodhoz és kamerádhoz.</string>
   <string name="ConversationActivity__more_options_now_in_group_settings">További opciók mostantól a \"Csoportbeállítások\" menüben</string>
+  <string name="ConversationActivity_join">Belépés</string>
+  <string name="ConversationActivity_full">Tele</string>
   <!--ConversationAdapter-->
   <plurals name="ConversationAdapter_n_unread_messages">
     <item quantity="one">%d olvasatlan üzenet</item>
@@ -285,7 +300,7 @@
   <string name="ConversationFragment_deleting_messages">Üzenetek törlése…</string>
   <string name="ConversationFragment_delete_for_me">Törlés számomra</string>
   <string name="ConversationFragment_delete_for_everyone">Törlés mindenki számára</string>
-  <string name="ConversationFragment_this_message_will_be_permanently_deleted_for_everyone">Ez az üzenet a beszélgetés minden tagja számára véglegesen törlésre kerül. A tagok számára látható lesz, hogy törölted az üzenetet.</string>
+  <string name="ConversationFragment_this_message_will_be_deleted_for_everyone_in_the_conversation">Ez az üzenet a beszélgetés minden olyan résztvevőjénél törlésre kerül, aki a Signal friss verzióját használja. Számukra az is látható látható lesz, hogy töröltél egy üzenetet.</string>
   <string name="ConversationFragment_quoted_message_not_found">Az eredeti üzenet nem található</string>
   <string name="ConversationFragment_quoted_message_no_longer_available">Az eredeti üzenet már nem érhető el</string>
   <string name="ConversationFragment_failed_to_open_message">Nem sikerült megnyitni az üzenetet</string>
@@ -294,6 +309,10 @@
   <string name="ConversationFragment_outgoing_view_once_media_files_are_automatically_removed">A kimenő egyszer megjelenő médiafájlokat automatikusan töröljük feladásukat követően</string>
   <string name="ConversationFragment_you_already_viewed_this_message">Ezt az üzenetet egyszer már megtekintetted</string>
   <string name="ConversationFragment__you_can_add_notes_for_yourself_in_this_conversation">Ehhez a beszélgetéshez privát jegyzeteket fűzhetsz.\nHa társítottál más eszközöket is fiókodhoz, akkor az új jegyzetek a szinkronizálás révén ott is elérhetőek lesznek.</string>
+  <string name="ConversationFragment__d_group_members_have_the_same_name">A csoport %1$d tagjának megegyezik a neve.</string>
+  <string name="ConversationFragment__tap_to_review">Koppints az áttekintéshez</string>
+  <string name="ConversationFragment__review_requests_carefully">Gondosan nézd át a kéréseket</string>
+  <string name="ConversationFragment__signal_found_another_contact_with_the_same_name">A Signal talált egy másik, azonos nevű kontaktot.</string>
   <!--ConversationListActivity-->
   <string name="ConversationListActivity_there_is_no_browser_installed_on_your_device">Nincs böngésző telepítve a készülékedre.</string>
   <!--ConversationListFragment-->
@@ -334,6 +353,32 @@
   <string name="CreateProfileActivity_set_up_your_profile">Profilod beállítása</string>
   <string name="CreateProfileActivity_signal_profiles_are_end_to_end_encrypted">Profilod adatai végponttól végpontig titkosítva vannak. Profilod adatai, valamint az abban bekövetkező változások csak azután lesznek láthatóak partnereid számára, miután új beszélgetést kezdeményeztél vagy fogadtál el, illetve beléptél egy új csoportba.</string>
   <string name="CreateProfileActivity_set_avatar_description">Profilkép beállítása</string>
+  <!--ChooseBackupFragment-->
+  <string name="ChooseBackupFragment__restore_from_backup">Visszaállítás biztonsági mentésből?</string>
+  <string name="ChooseBackupFragment__restore_your_messages_and_media">Állítsd vissza elmentett üzeneteid és médiafájljaid egy helyi biztonsági mentésből. Ha most nem állítod vissza, később már nem lesz rá lehetőség.</string>
+  <string name="ChooseBackupFragment__icon_content_description">\"Visszaállítás biztonsági mentésből\" ikonja</string>
+  <string name="ChooseBackupFragment__choose_backup">Válassz biztonsági mentést!</string>
+  <string name="ChooseBackupFragment__learn_more">További információ</string>
+  <!--RestoreBackupFragment-->
+  <string name="RestoreBackupFragment__restore_complete">Visszaállítás kész</string>
+  <string name="RestoreBackupFragment__to_continue_using_backups_please_choose_a_folder">A biztonsági mentések használatának folytatásához válassz egy mappát! Az újabb mentések már itt lesznek létrehozva.</string>
+  <string name="RestoreBackupFragment__choose_folder">Mappa kiválasztása</string>
+  <string name="RestoreBackupFragment__not_now">Most nem</string>
+  <!--BackupsPreferenceFragment-->
+  <string name="BackupsPreferenceFragment__chat_backups">Csevegések biztonsági mentése</string>
+  <string name="BackupsPreferenceFragment__backups_are_encrypted_with_a_passphrase">A biztonsági mentések egy jelszóval titkosítva vannak, és a saját eszközöd tárolja őket.</string>
+  <string name="BackupsPreferenceFragment__create_backup">Biztonsági mentés létrehozása</string>
+  <string name="BackupsPreferenceFragment__last_backup">Utolsó biztonsági mentés: %1$s</string>
+  <string name="BackupsPreferenceFragment__backup_folder">Biztonsági mentés mappája</string>
+  <string name="BackupsPreferenceFragment__verify_backup_passphrase">Biztonsági mentés jelmondatának megerősítése</string>
+  <string name="BackupsPreferenceFragment__test_your_backup_passphrase">Ellenőrzi, hogy a biztonsági mentés jelmondata megfelelő-e</string>
+  <string name="BackupsPreferenceFragment__turn_on">Bekapcsolás</string>
+  <string name="BackupsPreferenceFragment__turn_off">Kikapcsolás</string>
+  <string name="BackupsPreferenceFragment__to_restore_a_backup">Egy biztonsági mentés visszaállításához először is telepítsd a Signalt! Nyisd meg az alkalmazást, koppints a \"Biztonsági mentés visszaállítása\" feliratra, majd keresd ki a biztonsági mentést tartalmazó fájlt! %1$s</string>
+  <string name="BackupsPreferenceFragment__learn_more">További információ</string>
+  <string name="BackupsPreferenceFragment__in_progress">Folyamatban…</string>
+  <string name="BackupsPreferenceFragment__d_so_far">%1$d eddig…</string>
+  <string name="BackupsPreferenceFragment_signal_requires_external_storage_permission_in_order_to_create_backups">A Signal-nak külső tárhely engedélyre van szüksége ahhoz, hogy biztonsági mentést hozzon létre, de ez jelenleg meg van tagadva. Kérlek menj az alkalmazás-beállításokhoz, válaszd az \"Engedélyek\"-et és engedélyezd a \"Tárhely\"-t.</string>
   <!--CustomDefaultPreference-->
   <string name="CustomDefaultPreference_using_custom">Egyéni használata: %s</string>
   <string name="CustomDefaultPreference_using_default">Alapértelmezett használata: %s</string>
@@ -344,6 +389,7 @@
   <string name="AvatarSelectionBottomSheetDialogFragment__choose_from_gallery">Válassz galériából</string>
   <string name="AvatarSelectionBottomSheetDialogFragment__remove_photo">Fotó eltávolítása</string>
   <string name="AvatarSelectionBottomSheetDialogFragment__taking_a_photo_requires_the_camera_permission">Kép készítéséhez szükség van a kamera-jogosultságra.</string>
+  <string name="AvatarSelectionBottomSheetDialogFragment__viewing_your_gallery_requires_the_storage_permission">A galériád megtekintéséhez szükség van a tárhelyhozzáférés-jogosultságra.</string>
   <!--DateUtils-->
   <string name="DateUtils_just_now">Most</string>
   <string name="DateUtils_minutes_ago">%dp</string>
@@ -369,9 +415,26 @@
   <string name="DeviceListItem_today">Ma</string>
   <!--DocumentView-->
   <string name="DocumentView_unnamed_file">Névtelen fájl</string>
+  <!--DonateMegaphone-->
+  <string name="DonateMegaphone_donate_to_signal">Adomány a Signal számára</string>
+  <string name="DonateMegaphone_Signal_is_powered_by_people_like_you_show_your_support_today">A Signalt olyan emberek működtetik, mint Te. Támogasd te is még ma!</string>
+  <string name="DonateMegaphone_donate">Támogatás</string>
+  <string name="DonateMegaphone_no_thanks">Köszönöm, nem!</string>
+  <!--GroupCallingMegaphone-->
+  <string name="GroupCallingMegaphone__introducing_group_calls">Újdonság: Csoporthívások</string>
+  <string name="GroupCallingMegaphone__open_a_new_group_to_start">Ingyenes, titkosított csoporthívás az újonnan nyitott csoportokban</string>
   <!--DozeReminder-->
   <string name="DozeReminder_optimize_for_missing_play_services">Optimalizálás hiányzó Play Szolgáltatásokra</string>
   <string name="DozeReminder_this_device_does_not_support_play_services_tap_to_disable_system_battery">Ez a készülék nem támogatja a Play Szolgáltatásokat. Koppints a rendszer akkumulátor-optimalizációinak letiltásához, ami megakadályozza a Signal-t abban, hogy inaktív állapotban is letöltse az üzeneteket.</string>
+  <!--ExpiredBuildReminder-->
+  <string name="ExpiredBuildReminder_this_version_of_signal_has_expired">Az általad használt Signal verziója elavult. Üzenetek küldéséhez és fogadásához frissíts most!</string>
+  <string name="ExpiredBuildReminder_update_now">Frissítés most</string>
+  <!--PendingGroupJoinRequestsReminder-->
+  <plurals name="PendingGroupJoinRequestsReminder_d_pending_member_requests">
+    <item quantity="one">%d függőben lévő tagsági kérés.</item>
+    <item quantity="other">%d függőben lévő tagsági kérés.</item>
+  </plurals>
+  <string name="PendingGroupJoinRequestsReminder_view">Megtekintés</string>
   <!--ShareActivity-->
   <string name="ShareActivity_share_with">Megosztás…</string>
   <string name="ShareActivity_multiple_attachments_are_only_supported">Több csatolmányt használata csak fényképek és videók esetén támogatott.</string>
@@ -392,6 +455,7 @@
   <string name="AddToGroupActivity_add_to_group">Hozzáadás a csoporthoz</string>
   <string name="AddToGroupActivity_add_to_groups">Hozzáadás csoportokhoz</string>
   <string name="AddToGroupActivity_this_person_cant_be_added_to_legacy_groups">Ez a személyt nem adható régi típusú csoporthoz.</string>
+  <string name="AddToGroupActivity_add">Hozzáadás</string>
   <!--ChooseNewAdminActivity-->
   <string name="ChooseNewAdminActivity_choose_new_admin">Új admin választása</string>
   <string name="ChooseNewAdminActivity_done">Befejezés</string>
@@ -415,6 +479,76 @@
   <string name="GroupManagement_invite_single_user">Nem lehet \"%1$s\" nevű kontaktodat automatikusan a csoporthoz adni.\n\nBár már meg lett hívva, addig mégsem láthatja az csoportüzeneteket, míg el nem fogadja a meghívást.</string>
   <string name="GroupManagement_learn_more">További információ</string>
   <string name="GroupManagement_invite_multiple_users">Ezeket a felhasználókat nem lehet automatikusan a csoporthoz adni.\n\nBár már meg lettek hívva, addig mégsem láthatják a csoportüzeneteket, míg el nem fogadják a meghívást.</string>
+  <!--GroupsV1MigrationLearnMoreBottomSheetDialogFragment-->
+  <string name="GroupsV1MigrationLearnMore_what_are_new_groups">Mik azok az új típusú csoportok?</string>
+  <string name="GroupsV1MigrationLearnMore_new_groups_have_features_like_mentions">Az új típusú csoportok olyan képességekkel rendelkeznek, mint példáui @említések, csoportadminok, és a jövőben újabb képességes hozzáadása várható.</string>
+  <string name="GroupsV1MigrationLearnMore_all_message_history_and_media_has_been_kept">Megtartottuk a frissítés előtti üzenet-előzményeket és médiafájlokat.</string>
+  <string name="GroupsV1MigrationLearnMore_you_will_need_to_accept_an_invite_to_join_this_group_again">Csak egy meghívó elfogadása után leszel képes a csoporthoz újra csatlakozni, amíg ez nem teljesül, addig nem kapsz innen üzeneteket.</string>
+  <plurals name="GroupsV1MigrationLearnMore_these_members_will_need_to_accept_an_invite">
+    <item quantity="one">Ezt a tagot újra meg meg kell hívni, és kell fogadnia a meghívót, mielőtt újra üzenetet tudna fogadni a csoporttól:</item>
+    <item quantity="other">Ezeket a tagokat újra meg meg kell hívni, és kell fogadniuk a meghívót, mielőtt újra üzenetet tudnak fogadni a csoporttól:</item>
+  </plurals>
+  <plurals name="GroupsV1MigrationLearnMore_these_members_were_removed_from_the_group">
+    <item quantity="one">Az alábbi tag eltávolításra került a csoportból és amíg nem frissítik az alkalmazását nem is lesz képes újra csatlakozni:</item>
+    <item quantity="other">Az alábbi tagok eltávolításra kerültek a csoportból és amíg nem frissítik az alkalmazásukat nem is lesznek képesek újra csatlakozni:</item>
+  </plurals>
+  <!--GroupsV1MigrationInitiationBottomSheetDialogFragment-->
+  <string name="GroupsV1MigrationInitiation_upgrade_to_new_group">Frissítés új típusú csoportra</string>
+  <string name="GroupsV1MigrationInitiation_upgrade_this_group">Csoport bővítése</string>
+  <string name="GroupsV1MigrationInitiation_new_groups_have_features_like_mentions">Az új típusú csoportok olyan képességekkel rendelkeznek, mint példáui @említések, csoportadminok, és a jövőben újabb képességes hozzáadása várható.</string>
+  <string name="GroupsV1MigrationInitiation_all_message_history_and_media_will_be_kept">Megtartottuk a frissítés előtti üzenet-előzményeket és médiafájlokat.</string>
+  <string name="GroupsV1MigrationInitiation_encountered_a_network_error">Hálózati hiba történt. Próbáld újra később.</string>
+  <string name="GroupsV1MigrationInitiation_failed_to_upgrade">Bővítés sikertelen</string>
+  <plurals name="GroupsV1MigrationInitiation_these_members_will_need_to_accept_an_invite">
+    <item quantity="one">Az alábbi tag csak egy meghívó elfogadása után lesz képes a csoporthoz újra csatlakozni és annak megtörténtéig nem kap innen üzeneteket sem:</item>
+    <item quantity="other">Az alábbi tagok csak egy meghívó elfogadása után lesznek képesek a csoporthoz újra csatlakozni és annak megtörténtéig nem kapnak innen üzeneteket sem:</item>
+  </plurals>
+  <plurals name="GroupsV1MigrationInitiation_these_members_are_not_capable_of_joining_new_groups">
+    <item quantity="one">Az alábbi tag nem képes az új típusú csoportba belépni és eltávolításra kerül:</item>
+    <item quantity="other">Az alábbi tagok nem képesek az új típusú csoportba belépni és eltávolításra kerülnek:</item>
+  </plurals>
+  <!--GroupsV1MigrationInitiationReminder-->
+  <string name="GroupsV1MigrationInitiationReminder_to_access_new_features_like_mentions">Az újabb funkciók eléréséhez, mint az @említések, vagy admin szerep, frissítsd a csoportot.</string>
+  <string name="GroupsV1MigrationInitiationReminder_not_now">Most nem</string>
+  <string name="GroupsV1MigrationInitiationReminder_update_group">Csoport frissítése</string>
+  <!--GroupsV1MigrationSuggestionsReminder-->
+  <plurals name="GroupsV1MigrationSuggestionsReminder_members_couldnt_be_added_to_the_new_group">
+    <item quantity="one">%1$d tagot nem sikerült az új típusú csoporthoz újra hozzáadni. Hozzá akarod őket adni most?</item>
+    <item quantity="other">%1$d tagot nem sikerült az új típusú csoporthoz újra hozzáadni. Hozzá akarod őket adni most?</item>
+  </plurals>
+  <plurals name="GroupsV1MigrationSuggestionsReminder_add_members">
+    <item quantity="one">Tag hozzáadása</item>
+    <item quantity="other">Tagok hozzáadása</item>
+  </plurals>
+  <string name="GroupsV1MigrationSuggestionsReminder_no_thanks">Nem, köszönöm</string>
+  <!--GroupsV1MigrationSuggestionsDialog-->
+  <plurals name="GroupsV1MigrationSuggestionsDialog_add_members_question">
+    <item quantity="one">Tag hozzáadása?</item>
+    <item quantity="other">Tagok hozzáadása?</item>
+  </plurals>
+  <plurals name="GroupsV1MigrationSuggestionsDialog_these_members_couldnt_be_automatically_added">
+    <item quantity="one">Az alábbi tagot nem sikerült az új típusú csoporthoz automatikusan hozzáadni a frissítés során:</item>
+    <item quantity="other">Az alábbi tagokat nem sikerült az új típusú csoporthoz automatikusan hozzáadni a frissítés során:</item>
+  </plurals>
+  <plurals name="GroupsV1MigrationSuggestionsDialog_add_members">
+    <item quantity="one">Tag hozzáadása</item>
+    <item quantity="other">Tagok hozzáadása</item>
+  </plurals>
+  <plurals name="GroupsV1MigrationSuggestionsDialog_failed_to_add_members_try_again_later">
+    <item quantity="one">Sikertelen a tag hozzáadása. Kérjük próbáld később újra.</item>
+    <item quantity="other">Sikertelen a tagok hozzáadása. Kérjük próbáld később újra.</item>
+  </plurals>
+  <plurals name="GroupsV1MigrationSuggestionsDialog_cannot_add_members">
+    <item quantity="one">Sikertelen a tag hozzáadása.</item>
+    <item quantity="other">Sikertelen a tagok hozzáadása.</item>
+  </plurals>
+  <!--LeaveGroupDialog-->
+  <string name="LeaveGroupDialog_leave_group">Kilépsz a csoportból?</string>
+  <string name="LeaveGroupDialog_you_will_no_longer_be_able_to_send_or_receive_messages_in_this_group">Többé nem tudsz küldeni vagy fogadni üzeneteket és hívásokat ebben a csoportban.</string>
+  <string name="LeaveGroupDialog_leave">Csoport elhagyása</string>
+  <string name="LeaveGroupDialog_choose_new_admin">Új admin választása</string>
+  <string name="LeaveGroupDialog_before_you_leave_you_must_choose_at_least_one_new_admin_for_this_group">Kilépés előtt ki kell jelölnöd legalább egy új admint.</string>
+  <string name="LeaveGroupDialog_choose_admin">Admin kiválasztása</string>
   <!--LinkPreviewsMegaphone-->
   <string name="LinkPreviewsMegaphone_disable">Kikapcsolás</string>
   <string name="LinkPreviewsMegaphone_preview_any_link">Előnézet bármely weboldalhoz</string>
@@ -429,7 +563,7 @@
     <item quantity="other">%1$d tag</item>
   </plurals>
   <!--PendingMembersActivity-->
-  <string name="PendingMemberInvitesActivity_pending_group_invites">Függőben lévő csoportmeghívók</string>
+  <string name="PendingMembersActivity_pending_group_invites">Függőben lévő csoportmeghívók</string>
   <string name="PendingMembersActivity_requests">Kérések</string>
   <string name="PendingMembersActivity_invites">Meghívók</string>
   <string name="PendingMembersActivity_people_you_invited">Általad meghívott személyek</string>
@@ -460,17 +594,20 @@
     <item quantity="one">Hozzáadod \"%1$s\"-t a \"%2$s\" csoporthoz?</item>
     <item quantity="other">Hozzáadsz %3$d tagot a \"%2$s\" csoporthoz?</item>
   </plurals>
+  <string name="AddMembersActivity__add">Hozzáadás</string>
   <!--AddGroupDetailsFragment-->
   <string name="AddGroupDetailsFragment__name_this_group">Csoport elnevezése</string>
   <string name="AddGroupDetailsFragment__create_group">Csoport létrehozása</string>
   <string name="AddGroupDetailsFragment__create">Létrehozás</string>
   <string name="AddGroupDetailsFragment__members">Tagok</string>
   <string name="AddGroupDetailsFragment__group_name_required">Csoport neve (kötelező)</string>
+  <string name="AddGroupDetailsFragment__group_name_optional">Csoport neve (opcionális)</string>
   <string name="AddGroupDetailsFragment__this_field_is_required">A mező kitöltése kötelező.</string>
   <string name="AddGroupDetailsFragment__groups_require_at_least_two_members">Egy csoportnak legalább két tagból kell állnia.</string>
   <string name="AddGroupDetailsFragment__group_creation_failed">A csoport létrehozása nem sikerült.</string>
   <string name="AddGroupDetailsFragment__try_again_later">Próbáld újra később!</string>
   <string name="AddGroupDetailsFragment__youve_selected_a_contact_that_doesnt">Olyan kontaktot választottál ki, aki nem támogatja a Signal csoportokat, így ez a csoport MMS lesz.</string>
+  <string name="AddGroupDetailsFragment_custom_mms_group_names_and_photos_will_only_be_visible_to_you">Az egyéni MMS csoport nevek és fotók csak számodra láthatók.</string>
   <string name="AddGroupDetailsFragment__remove">Eltávolítás</string>
   <string name="AddGroupDetailsFragment__sms_contact">SMS kontakt</string>
   <string name="AddGroupDetailsFragment__remove_s_from_this_group">Eltávolítod %1$s-t ebből a csoportból?</string>
@@ -478,20 +615,24 @@
     <item quantity="one">%d tag nem támogatja az új típusú csoportokat, ezért a csoport továbbra is régi típusú marad.</item>
     <item quantity="other">%d tag nem támogatja az új típusú csoportokat, ezért a csoport továbbra is régi típusú marad.</item>
   </plurals>
+  <plurals name="AddGroupDetailsFragment__d_members_do_not_support_new_groups_so_this_group_cannot_be_created">
+    <item quantity="one">%d tag nem támogatja az új csoportokat, ezért ez a csoport nem létrehozható.</item>
+    <item quantity="other">%d tag nem támogatja az új csoportokat, ezért ez a csoport nem létrehozható.</item>
+  </plurals>
   <!--NonGv2MemberDialog-->
   <string name="NonGv2MemberDialog_single_users_are_non_gv2_capable">Régi típusú csoport lesz létrehozva, mivel \"%1$s\" a Signal egy régi verzióját használja. Új típusú csoportot csak azután fogsz tudni létrehozni, hogy ő is frissítette Signalját, vagy ha eltávolítod a felvételre kerülő tagok közül.</string>
   <plurals name="NonGv2MemberDialog_d_users_are_non_gv2_capable">
     <item quantity="one">Régi típusú csoport lesz létrehozva, mivel %1$d tag a Signal egy régi verzióját használja. Új típusú csoportot csak azután fogsz tudni létrehozni, hogy ő is frissítette Signalját, vagy ha eltávolítod a felvételre kerülő tagok közül.</item>
     <item quantity="other">Régi típusú csoport lesz létrehozva, mivel %1$d tag a Signal egy régi verzióját használja. Új típusú csoportot csak azután fogsz tudni létrehozni, hogy ők is frissítették Signaljukat, vagy ha eltávolítod őket a felvételre kerülő tagok közül.</item>
   </plurals>
+  <string name="NonGv2MemberDialog_single_users_are_non_gv2_capable_forced_migration">Ez a csoport sajnos nem hozható létre, mivel \"%1$s\" tag még a Signal egy régi verzióját használja. El kell távolítanod őket mielőtt létrehozod a csoportot</string>
   <!--ManageGroupActivity-->
   <string name="ManageGroupActivity_disappearing_messages">Eltűnő üzenetek</string>
-  <string name="ManageGroupActivity_pending_group_invites">Függőben lévő csoportmeghívók</string>
   <string name="ManageGroupActivity_member_requests_and_invites">Tagsági kérések és meghívók</string>
   <string name="ManageGroupActivity_add_members">Tagok hozzáadása</string>
   <string name="ManageGroupActivity_edit_group_info">Csoportinfó szerkesztése</string>
-  <!-- Removed by excludeNonTranslatables <string name="ManageGroupActivity_choose_who_can_edit_the_group_name_avatar_and_disappearing_messages">Add meg, hogy ki változtathatja meg a csoport nevét, képét és az eltűnő üzenetekkel kapcsolatos beállításokat!</string> -->
-  <!-- Removed by excludeNonTranslatables <string name="ManageGroupActivity_choose_who_can_add_or_invite_new_members">Add meg, hogy ki adhat hozzá vagy hívhat meg új tagokat!</string> -->
+  <string name="ManageGroupActivity_who_can_add_new_members">Ki vehet fel új tagokat?</string>
+  <string name="ManageGroupActivity_who_can_edit_this_groups_info">Ki szerkesztheti a csoport adatait?</string>
   <string name="ManageGroupActivity_group_link">Csoporthivatkozás</string>
   <string name="ManageGroupActivity_block_group">Csoport letiltása</string>
   <string name="ManageGroupActivity_unblock_group">Csoport blokkolásának feloldása</string>
@@ -513,6 +654,9 @@
     <item quantity="one">%d tag hozzáadva</item>
     <item quantity="other">%d tag hozzáadva</item>
   </plurals>
+  <string name="ManageGroupActivity_only_admins_can_enable_or_disable_the_sharable_group_link">A megosztható csoporthivatkozást csak admin kapcsolhatja be vagy ki.</string>
+  <string name="ManageGroupActivity_only_admins_can_enable_or_disable_the_option_to_approve_new_members">Az új tagok jóváhagyását csak admin kapcsolhatja be vagy ki.</string>
+  <string name="ManageGroupActivity_only_admins_can_reset_the_sharable_group_link">A megosztható csoporthivatkozást csak az adminok módosíthatják.</string>
   <string name="ManageGroupActivity_you_dont_have_the_rights_to_do_this">Ehhez nincs elegendő jogosultságod</string>
   <string name="ManageGroupActivity_not_capable">Egy általad hozzáadott csoporttag nem támogatja az új csoportokat, ezért frissítenie kell a Signalt</string>
   <string name="ManageGroupActivity_failed_to_update_the_group">Nem sikerült a csoport frissítése</string>
@@ -521,7 +665,12 @@
   <string name="ManageGroupActivity_failed_to_update_the_group_due_to_a_network_error_please_retry_later">Hálózati hiba miatt nem sikerült a csoport frissítése. Kérlek próbáld újra később!</string>
   <string name="ManageGroupActivity_edit_name_and_picture">Név és kép szerkesztése</string>
   <string name="ManageGroupActivity_legacy_group">Régi típusú csoport</string>
-  <string name="ManageGroupActivity_legacy_group_learn_more">Ez egy régi típusú csoport. Az újabb funkciók eléréséhez (pl. csoport-adminok) hozz létre egy új csoportot!</string>
+  <string name="ManageGroupActivity_legacy_group_learn_more">Ez egy régi típusú csoport. Az újabb funkciók (pl. csoport-adminok) csak az újabb típusú csoportokban érhetőek el.</string>
+  <string name="ManageGroupActivity_legacy_group_upgrade">Ez egy régi típusú csoport. Az újabb funkciók eléréséhez, mint az @említések és adminok,</string>
+  <string name="ManageGroupActivity_legacy_group_too_large">Ezt a régi típusú csoportot nem lehet új típusúra frissíteni, mert túl nagy. A maximális csoportméret %1$d.</string>
+  <string name="ManageGroupActivity_upgrade_this_group">frissítsd a csoportot.</string>
+  <string name="ManageGroupActivity_this_is_an_insecure_mms_group">Ez egy nem biztonságos MMS-csoport. A biztonságos társalgáshoz hívd meg kontaktjaidat a Signal-ra.</string>
+  <string name="ManageGroupActivity_invite_now">Meghívás most</string>
   <!--GroupMentionSettingDialog-->
   <string name="GroupMentionSettingDialog_notify_me_for_mentions">Értesítsen említés esetén</string>
   <string name="GroupMentionSettingDialog_receive_notifications_when_youre_mentioned_in_muted_chats">Szeretnél értesítéseket kapni, ha egy lenémított beszélgetésben megemlítenek?</string>
@@ -611,9 +760,9 @@
   <!--GroupJoinUpdateRequiredBottomSheetDialogFragment-->
   <string name="GroupJoinUpdateRequiredBottomSheetDialogFragment_group_links_coming_soon">A csoporthivatkozások hamarosan megérkeznek</string>
   <string name="GroupJoinUpdateRequiredBottomSheetDialogFragment_update_signal_to_use_group_links">Frissítsd a Signalt a csoporthivatkozások használatához</string>
-  <string name="GroupJoinUpdateRequiredBottomSheetDialogFragment_coming_soon">A csoporthivatkozások általi belépést egyelőre nem támogatja a Signal. Ez a funkció egy jövőbeli frissítéssel lesz elérhető.</string>
-  <string name="GroupJoinUpdateRequiredBottomSheetDialogFragment_update_message">Az általad használt verziójú Signal nem támogatja a csoporthivatkozásokat. Frissíts a legújabb verzióra, hogy a hivatkozás használatával csatlakozhass ehhez a csoporthoz!</string>
+  <string name="GroupJoinUpdateRequiredBottomSheetDialogFragment_update_message">Ez a Signal verzió nem támogatja a csoporthivatkozásokat. Frissíts a legújabb verzióra, hogy a hivatkozás használatával csatlakozhass ehhez a csoporthoz.</string>
   <string name="GroupJoinUpdateRequiredBottomSheetDialogFragment_update_signal">Signal frissítése</string>
+  <string name="GroupJoinUpdateRequiredBottomSheetDialogFragment_update_linked_device_message">Egy vagy több párosított eszközöd a Signal olyan verzióját használja, amely nem támogatja a csoporthivatkozásokat. A belépéshez frissítsd Signalt párosított eszközeiden!</string>
   <string name="GroupJoinUpdateRequiredBottomSheetDialogFragment_group_link_is_not_valid">A csoporthivatkozás érvénytelen</string>
   <!--GV2 Request confirmation dialog-->
   <string name="RequestConfirmationDialog_add_s_to_the_group">\"%1$s\" hozzáadása a csoporthoz?</string>
@@ -746,25 +895,35 @@
   <string name="MediaSendActivity_tap_here_to_make_this_message_disappear_after_it_is_viewed">Koppints ide, hogy az üzenet olvasás után azonnal törlődő típusú legyen.</string>
   <!--MediaRepository-->
   <string name="MediaRepository_all_media">Összes médiafájl</string>
+  <string name="MediaRepository__camera">Kamera</string>
   <!--MessageRecord-->
   <string name="MessageRecord_unknown">Ismeretlen</string>
   <string name="MessageRecord_message_encrypted_with_a_legacy_protocol_version_that_is_no_longer_supported">Egy olyan üzenet érkezett, amely a Signal egy régebbi, már nem támogatott verziójával lett titkosítva. Kérd meg a feladót, hogy frissítsen a legfrissebb verzióra, majd küldje el újra az üzenetet!</string>
   <string name="MessageRecord_left_group">Kiléptél a csoportból.</string>
   <string name="MessageRecord_you_updated_group">Frissítetted a csoportot.</string>
   <string name="MessageRecord_the_group_was_updated">A csoport frissítve lett.</string>
-  <string name="MessageRecord_you_called">Te hívtad</string>
-  <string name="MessageRecord_called_you">A partner hívott</string>
-  <string name="MessageRecord_missed_call">Nem fogadott hívás</string>
+  <string name="MessageRecord_you_called_date">Te hívtad · %1$s</string>
+  <string name="MessageRecord_missed_audio_call_date">Nem fogadott hanghívás · %1$s</string>
+  <string name="MessageRecord_missed_video_call_date">Nem fogadott videóhívás · %1$s</string>
   <string name="MessageRecord_s_updated_group">%s frissítette a csoportot.</string>
-  <string name="MessageRecord_s_called_you">%s hívott téged</string>
+  <string name="MessageRecord_s_called_you_date">%1$s hívott téged · %2$s</string>
   <string name="MessageRecord_called_s">Kimenő hívás: %s</string>
-  <string name="MessageRecord_missed_call_from">Nem fogadott hívás tőle: %s</string>
   <string name="MessageRecord_s_joined_signal">%s a Signal-on van!</string>
   <string name="MessageRecord_you_disabled_disappearing_messages">Letiltottad az eltűnő üzeneteket.</string>
   <string name="MessageRecord_s_disabled_disappearing_messages">%1$s letiltotta az eltűnő üzeneteket.</string>
   <string name="MessageRecord_you_set_disappearing_message_time_to_s">Beállítottad, hogy az üzenetek ennyi idő után tűnjenek el: %1$s.</string>
   <string name="MessageRecord_s_set_disappearing_message_time_to_s">%1$s beállította, hogy az üzenetek ennyi idő után tűnjenek el: %2$s.</string>
   <string name="MessageRecord_disappearing_message_time_set_to_s">Az eltűnő üzenetek új beállítása: %1$s</string>
+  <string name="MessageRecord_this_group_was_updated_to_a_new_group">Ez a csoport új típusú csoporttá lett alakítva.</string>
+  <string name="MessageRecord_you_couldnt_be_added_to_the_new_group_and_have_been_invited_to_join">Nem tudtak közvetlenül hozzáadni az új típusú csoporthoz, ezért helyette meghívót kaptál.</string>
+  <plurals name="MessageRecord_members_couldnt_be_added_to_the_new_group_and_have_been_invited">
+    <item quantity="one">Egy tagot nem lehetett közvetlenül hozzáadni az új csoporthoz, ezért meg lett hívva.</item>
+    <item quantity="other">%1$s tagot nem lehetett közvetlenül hozzáadni az új csoporthoz, ezért meg lettek hívva.</item>
+  </plurals>
+  <plurals name="MessageRecord_members_couldnt_be_added_to_the_new_group_and_have_been_removed">
+    <item quantity="one">Egy tagot nem lehetett közvetlenül hozzáadni az új csoporthoz, ezért eltávolításra került.</item>
+    <item quantity="other">%1$s tagot nem lehetett közvetlenül hozzáadni az új csoporthoz, ezért eltávolításra kerültek.</item>
+  </plurals>
   <!--Profile change updates-->
   <string name="MessageRecord_changed_their_profile_name_to">%1$s megváltoztatta profilnevét erre: %2$s</string>
   <string name="MessageRecord_changed_their_profile_name_from_to">%1$s megváltoztatta profilnevét. Korábbi név: %2$s, új név: %3$s</string>
@@ -857,6 +1016,12 @@
   <string name="MessageRecord_the_group_link_has_been_turned_on_with_admin_approval_off">Bekapcsolták a csoporthivatkozást (adminisztrátori jóváhagyás nélkül használható)</string>
   <string name="MessageRecord_the_group_link_has_been_turned_on_with_admin_approval_on">Bekapcsolták a csoporthivatkozást (adminisztrátori jóváhagyással használható)</string>
   <string name="MessageRecord_the_group_link_has_been_turned_off">A csoporthivatkozás ki lett kapcsolva.</string>
+  <string name="MessageRecord_you_turned_off_admin_approval_for_the_group_link">Kikapcsoltad az adminisztrátori jóváhagyás kérését a megosztható csoporthivatkozáshoz.</string>
+  <string name="MessageRecord_s_turned_off_admin_approval_for_the_group_link">%1$s kikapcsolta a csoporthivatkozás generálásához szükséges adminisztrátori jóváhagyást.</string>
+  <string name="MessageRecord_the_admin_approval_for_the_group_link_has_been_turned_off">A csoporthivatkozás generálásához szükséges adminisztrátori jóváhagyás ki lett kapcsolva.</string>
+  <string name="MessageRecord_you_turned_on_admin_approval_for_the_group_link">Bekapcsoltad az adminisztrátori jóváhagyás kérését a megosztható csoporthivatkozáshoz.</string>
+  <string name="MessageRecord_s_turned_on_admin_approval_for_the_group_link">%1$s bekapcsolta a csoporthivatkozás generálásához szükséges adminisztrátori jóváhagyást.</string>
+  <string name="MessageRecord_the_admin_approval_for_the_group_link_has_been_turned_on">A csoporthivatkozás generálásához szükséges adminisztrátori jóváhagyás be lett kapcsolva.</string>
   <!--GV2 group link reset-->
   <string name="MessageRecord_you_reset_the_group_link">Lecserélted a megosztható csoporthivatkozást.</string>
   <string name="MessageRecord_s_reset_the_group_link">%1$s lecserélte a csoporthivatkozást.</string>
@@ -885,14 +1050,42 @@
   <string name="MessageRecord_you_marked_your_safety_number_with_s_verified_from_another_device">Biztonsági számodat egy másik eszközről megerősítetlennek jelölted %s nevű partnereddel</string>
   <string name="MessageRecord_you_marked_your_safety_number_with_s_unverified">Biztonsági számodat megerősítetlennek jelölted a %s nevű partnereddel</string>
   <string name="MessageRecord_you_marked_your_safety_number_with_s_unverified_from_another_device">Biztonsági számodat egy másik készülékről megerősítetlennek jelölted %s nevű partnereddel</string>
+  <!--Group Calling update messages-->
+  <string name="MessageRecord_s_started_a_group_call_s">%1$s csoport hívást indított · %2$s</string>
+  <string name="MessageRecord_s_is_in_the_group_call_s">%1$s csoporthívásban van · %2$s</string>
+  <string name="MessageRecord_you_are_in_the_group_call_s1">Csoport hívásban vagy · %1$s</string>
+  <string name="MessageRecord_s_and_s_are_in_the_group_call_s1">%1$s és %2$s csoporthívásban van · %3$s</string>
+  <string name="MessageRecord_s_s_and_s_are_in_the_group_call_s">%1$s, %2$s és %3$s csoporthívásban van ·  %4$s</string>
+  <string name="MessageRecord_group_call_s">Csoporthívás · %1$s</string>
+  <string name="MessageRecord_s_started_a_group_call">%1$s csoporthívást indított</string>
+  <string name="MessageRecord_s_is_in_the_group_call">%1$s csoporthívásban van</string>
+  <string name="MessageRecord_you_are_in_the_group_call">Csoporthívásban vagy</string>
+  <string name="MessageRecord_s_and_s_are_in_the_group_call">%1$s és %2$s csoporthívásban van</string>
+  <string name="MessageRecord_s_s_and_s_are_in_the_group_call">%1$s, %2$s és %3$s csoporthívásban van</string>
+  <string name="MessageRecord_group_call">Csoporthívás</string>
+  <string name="MessageRecord_you">Te</string>
+  <plurals name="MessageRecord_s_s_and_d_others_are_in_the_group_call_s">
+    <item quantity="one">%1$s, %2$s és %3$d másik személy csoporthívásban van · %4$s</item>
+    <item quantity="other">%1$s, %2$s és %3$d másik személy csoporthívásban van ·  %4$s</item>
+  </plurals>
+  <plurals name="MessageRecord_s_s_and_d_others_are_in_the_group_call">
+    <item quantity="one">%1$s, %2$s és %3$d másik személy csoporthívásban van</item>
+    <item quantity="other">%1$s, %2$s és %3$d másik személy csoporthívásban van</item>
+  </plurals>
   <!--MessageRequestBottomView-->
   <string name="MessageRequestBottomView_accept">Elfogadás</string>
+  <string name="MessageRequestBottomView_continue">Folytatás</string>
   <string name="MessageRequestBottomView_delete">Törlés</string>
   <string name="MessageRequestBottomView_block">Letiltás</string>
   <string name="MessageRequestBottomView_unblock">Tiltás feloldása</string>
   <string name="MessageRequestBottomView_do_you_want_to_let_s_message_you_they_wont_know_youve_seen_their_messages_until_you_accept">Engedélyezed, hogy %1$s üzenetet küldjön számodra, és lássa nevedet, valamint profilképedet? Amíg ebbe bele nem egyezel, addig nem értesül arról sem, hogy elolvastad-e az üzeneteit.</string>
   <string name="MessageRequestBottomView_do_you_want_to_let_s_message_you_wont_receive_any_messages_until_you_unblock_them">Engedélyezed, hogy %1$s üzenetet küldjön számodra, és lássa nevedet, valamint profilképedet? Nem fogsz üzenetet kapni tőle, amíg fel nem oldod a tiltást.</string>
+  <string name="MessageRequestBottomView_continue_your_conversation_with_this_group_and_share_your_name_and_photo">Folytatod a csoporton belüli csevegést, és megosztod nevedet, valamint profilképed a tagokkal?</string>
+  <string name="MessageRequestBottomView_upgrade_this_group_to_activate_new_features">Frissítsd a csoportot, hogy elérd az új funkciókat, mint az @említés és az admin szerepkör. Azok a tagok, akik nem osztották meg a nevüket vagy képüket, meghívásra kerülnek.</string>
+  <string name="MessageRequestBottomView_this_legacy_group_can_no_longer_be_used">Ezt a régi csoportot tovább nem használható, mert túl nagy létszáma. A maximum csoportméret %1$d.</string>
+  <string name="MessageRequestBottomView_continue_your_conversation_with_s_and_share_your_name_and_photo">Folytatod a csevegést a %1$s csoporttal, és megosztod nevedet, valamint profilképed a tagokkal?</string>
   <string name="MessageRequestBottomView_do_you_want_to_join_this_group_they_wont_know_youve_seen_their_messages_until_you_accept">Belépsz a csoportba, és megosztod velük neved és profilképedet? Amíg ebbe bele nem egyezel, addig nem értesülnek arról sem, hogy elolvastad-e üzeneteiket.</string>
+  <string name="MessageRequestBottomView_join_this_group_they_wont_know_youve_seen_their_messages_until_you_accept">Belépsz ebbe a csoportba? Amíg ezt meg nem erősíted, senki nem értesül róla, hogy láttad az eddigi üzeneteket.</string>
   <string name="MessageRequestBottomView_unblock_this_group_and_share_your_name_and_photo_with_its_members">Feloldod a csoport tiltását és megosztod profilodat a tagokkal? Amíg nem oldod fel a tiltást, nem kapsz üzeneteket a csoportból.</string>
   <string name="MessageRequestProfileView_member_of_one_group">%1$s tagja</string>
   <string name="MessageRequestProfileView_member_of_two_groups">%1$s és %2$s tagja</string>
@@ -919,7 +1112,7 @@
   <string name="DeviceProvisioningActivity_content_intro">Képes lesz</string>
   <string name="DeviceProvisioningActivity_content_bullets">
         • Az összes üzeneted elolvasására
-        \n• Üzeneteket küldeni a nevedben
+        \n• Küld üzeneteid saját nevedben
     </string>
   <string name="DeviceProvisioningActivity_content_progress_title">Eszköz társítása</string>
   <string name="DeviceProvisioningActivity_content_progress_content">Új eszköz társítása…</string>
@@ -937,6 +1130,13 @@
   <string name="ExpirationDialog_disappearing_messages">Eltűnő üzenetek</string>
   <string name="ExpirationDialog_your_messages_will_not_expire">Üzeneteid nem fognak eltűnni.</string>
   <string name="ExpirationDialog_your_messages_will_disappear_s_after_they_have_been_seen">Ebben a beszélgetésben a kimenő és bejövő üzenetek el fognak tűnni a megtekintést követő %s után.</string>
+  <!--OutdatedBuildReminder-->
+  <string name="OutdatedBuildReminder_update_now">Frissítés most</string>
+  <string name="OutdatedBuildReminder_your_version_of_signal_will_expire_today">A Signal jelenleg telepített verziója ma lejár. Frissíts a legújabb verzióra!</string>
+  <plurals name="OutdatedBuildReminder_your_version_of_signal_will_expire_in_n_days">
+    <item quantity="one">A Signal jelenleg telepített verziója holnap lejár. Frissíts a legújabb verzióra!</item>
+    <item quantity="other">A Signal jelenleg telepített verziója %d napon belül lejár. Frissíts a legújabb verzióra!</item>
+  </plurals>
   <!--PassphrasePromptActivity-->
   <string name="PassphrasePromptActivity_enter_passphrase">Add meg a jelmondatot</string>
   <string name="PassphrasePromptActivity_watermark_content_description">Signal ikon</string>
@@ -1015,9 +1215,40 @@ Kérlek telepítsd újra a Google Play Szolgáltatásokat, majd próbáld újra!
   <string name="WebRtcCallActivity__to_call_s_signal_needs_access_to_your_camera">%1$s hívásához a Signalnak hozzá kell férnie kamerádhoz</string>
   <string name="WebRtcCallActivity__signal_s">Signal %1$s</string>
   <string name="WebRtcCallActivity__calling">Hívás…</string>
+  <string name="WebRtcCallActivity__group_call">Csoporthívás</string>
   <!--WebRtcCallView-->
   <string name="WebRtcCallView__signal_voice_call">Signal hanghívás…</string>
   <string name="WebRtcCallView__signal_video_call">Signal videóhívás…</string>
+  <string name="WebRtcCallView__start_call">Hívás indítása</string>
+  <string name="WebRtcCallView__join_call">Belépés a hívásba</string>
+  <string name="WebRtcCallView__call_is_full">A hívás betelt</string>
+  <string name="WebRtcCallView__the_maximum_number_of_d_participants_has_been_Reached_for_this_call">A csoporthívás elérte a maximális %1$d főt ebben a hívásban. Kérlek próbáld később.</string>
+  <string name="WebRtcCallView__s_group_call">\"%1$s\" Csoporthívás</string>
+  <string name="WebRtcCallView__view_participants_list">Résztvevők megtekintése</string>
+  <string name="WebRtcCallView__your_video_is_off">A kamerád ki van kapcsolva</string>
+  <string name="WebRtcCallView__connecting">Csatlakozás…</string>
+  <string name="WebRtcCallView__reconnecting">Újracsatlakozás…</string>
+  <string name="WebRtcCallView__joining">Csatlakozás…</string>
+  <string name="WebRtcCallView__disconnected">Lecsatlakozva</string>
+  <string name="WebRtcCallView__no_one_else_is_here">Nincs itt senki</string>
+  <string name="WebRtcCallView__s_is_in_this_call">%1$s ebben a hívásban van</string>
+  <string name="WebRtcCallView__s_and_s_are_in_this_call">%1$s és  %2$s ebben a hívásban van</string>
+  <plurals name="WebRtcCallView__s_s_and_d_others_are_in_this_call">
+    <item quantity="one">%1$s, %2$s és még %3$d másik személy van ebben a hívásban</item>
+    <item quantity="other">%1$s, %2$s és még %3$d másik személy van ebben a hívásban</item>
+  </plurals>
+  <!--CallParticipantsListDialog-->
+  <plurals name="CallParticipantsListDialog_in_this_call_d_people">
+    <item quantity="one">Ebben a hívásban · %1$d személy</item>
+    <item quantity="other">Ebben a hívásban · %1$d személy</item>
+  </plurals>
+  <!--CallParticipantView-->
+  <string name="CallParticipantView__s_is_blocked">%1$s letiltva</string>
+  <string name="CallParticipantView__more_info">Részletek</string>
+  <string name="CallParticipantView__you_wont_receive_their_audio_or_video">Nem fogod hallani és látni őket, illetve ők sem téged</string>
+  <string name="CallParticipantView__cant_receive_audio_video_from_s">Sikertelen hang és kép fogadás %1$s irányából</string>
+  <string name="CallParticipantView__cant_receive_audio_and_video_from_s">Sikertelen hang és kép fogadás %1$s irányából</string>
+  <string name="CallParticipantView__this_may_be_Because_they_have_not_verified_your_safety_number_change">Ennek oka lehet, hogy esetleg nem ellenőrizte le a biztonsági azonosítód megváltozását, készülék problémája van, vagy letiltott téged.</string>
   <!--RegistrationActivity-->
   <string name="RegistrationActivity_select_your_country">Saját ország kiválasztása </string>
   <string name="RegistrationActivity_you_must_specify_your_country_code">Meg kell adnod az
@@ -1040,6 +1271,7 @@ szám (%s) érvénytelen.
   <string name="RegistrationActivity_more_information">További információ</string>
   <string name="RegistrationActivity_less_information">Kevesebb információ</string>
   <string name="RegistrationActivity_signal_needs_access_to_your_contacts_and_media_in_order_to_connect_with_friends">A Signal-nak szüksége van a kontaktjaidhoz és médiádhoz való hozzáférésre a barátokkal való kapcsolódáshoz, üzenetváltáshoz és biztonságos hívások bonyolításához.</string>
+  <string name="RegistrationActivity_signal_needs_access_to_your_contacts_in_order_to_connect_with_friends">A Signalnak hozzá kell férnie a névjegyeidhez annak érdekében, hogy kapcsolatot teremthess barátaiddal, üzenetet cserélhess velük, és hogy biztonságos hívásokat tudj bonyolítani.</string>
   <string name="RegistrationActivity_rate_limited_to_service">Túl sokszor próbálkoztál ennek a számnak a regisztrációjával. Kérlek próbáld újra később!</string>
   <string name="RegistrationActivity_unable_to_connect_to_service">Nem lehet kapcsolódni szolgáltatáshoz. Kérlek ellenőrizd a hálózati kapcsolatot és próbáld újra!</string>
   <string name="RegistrationActivity_to_easily_verify_your_phone_number_signal_can_automatically_detect_your_verification_code">Hogy könnyedén ellenőrizd a telefonszámod, a Signal automatikusan érzékeli az ellenőrző kódod, ha engedélyezed a Signal-nak, hogy megtekintse az SMS üzeneteket.</string>
@@ -1155,7 +1387,8 @@ Kulcs-csere üzenet érkezett érvénytelen protokoll verzióhoz.
   <string name="ThreadRecord_draft">Piszkozat:</string>
   <string name="ThreadRecord_called">Te hívtad</string>
   <string name="ThreadRecord_called_you">Hívott téged</string>
-  <string name="ThreadRecord_missed_call">Nem fogadott hívás</string>
+  <string name="ThreadRecord_missed_audio_call">Nem fogadott hívás</string>
+  <string name="ThreadRecord_missed_video_call">Nem fogadott videóhívás</string>
   <string name="ThreadRecord_media_message">Média üzenet</string>
   <string name="ThreadRecord_sticker">Matrica</string>
   <string name="ThreadRecord_view_once_photo">Egyszer megjelenő fotó</string>
@@ -1183,13 +1416,6 @@ Kulcs-csere üzenet érkezett érvénytelen protokoll verzióhoz.
   <!--UpdateApkReadyListener-->
   <string name="UpdateApkReadyListener_Signal_update">Signal frissítés</string>
   <string name="UpdateApkReadyListener_a_new_version_of_signal_is_available_tap_to_update">A Signal egy új verziója érhető el, koppints a frissítéshez</string>
-  <!--UnknownSenderView-->
-  <string name="UnknownSenderView_block_s">%s letiltása?</string>
-  <string name="UnknownSenderView_blocked_contacts_will_no_longer_be_able_to_send_you_messages_or_call_you">A blokkolt kontaktok többé nem lesznek képesek üzeneteket küldeni neked vagy hívni téged.</string>
-  <string name="UnknownSenderView_block">Blokkolás</string>
-  <string name="UnknownSenderView_share_profile_with_s">Megosztod profilodat a következővel: %s?</string>
-  <string name="UnknownSenderView_the_easiest_way_to_share_your_profile_information_is_to_add_the_sender_to_your_contacts">A profilod adait legegyszerűbben úgy tudod megosztani, ha hozzáadod a feladót a névjegyzékedhez. Ha nem szeretnél így tenni, ilyen módon továbbra is megoszthatod profilod adatait.</string>
-  <string name="UnknownSenderView_share_profile">Profil megosztása</string>
   <!--UntrustedSendDialog-->
   <string name="UntrustedSendDialog_send_message">Üzenet küldése?</string>
   <string name="UntrustedSendDialog_send">Küldés</string>
@@ -1219,6 +1445,7 @@ Kulcs-csere üzenet érkezett érvénytelen protokoll verzióhoz.
   <string name="VerifyIdentityActivity_no_safety_number_to_compare_was_found_in_the_clipboard">A vágólapon nem található biztonsági szám, amellyel össze lehetne hasonlítani</string>
   <string name="VerifyIdentityActivity_signal_needs_the_camera_permission_in_order_to_scan_a_qr_code_but_it_has_been_permanently_denied">A Signal-nak szüksége van a Kamera engedélyre, hogy QR kódot szkennelhessen, de ez jelenleg nincs megadva. Kérlek menj az alkalmazásbeállításokhoz, válaszd az \"Engedélyek\"-et és engedélyezd a \"Kamera\"-t.</string>
   <string name="VerifyIdentityActivity_unable_to_scan_qr_code_without_camera_permission">Nem lehet QR kódot szkennelni Kamera engedély nélkül</string>
+  <string name="VerifyIdentityActivity_you_must_first_exchange_messages_in_order_to_view">Ahhoz, hogy megtekinthesd %1$s biztonsági számát, előbb üzenetet kell váltanotok.</string>
   <!--ViewOnceMessageActivity-->
   <!--AudioView-->
   <!--MessageDisplayHelper-->
@@ -1249,6 +1476,7 @@ Kulcs-csere üzenet érkezett érvénytelen protokoll verzióhoz.
   <string name="MediaPreviewActivity_media_delete_confirmation_message">Ez véglegesen törölni fogja ezt az üzenetet.</string>
   <string name="MediaPreviewActivity_s_to_s">%1$s (címzett: %2$s)</string>
   <string name="MediaPreviewActivity_media_no_longer_available">A médiafájl már nem érhető el</string>
+  <string name="MediaPreviewActivity_cant_find_an_app_able_to_share_this_media">Nem található alkalmazás ezen médiafájl megnyitásához.</string>
   <!--MessageNotifier-->
   <string name="MessageNotifier_d_new_messages_in_d_conversations">%1$d új üzenet %2$d beszélgetésben</string>
   <string name="MessageNotifier_most_recent_from_s">Legutóbb tőle: %1$s</string>
@@ -1276,8 +1504,7 @@ Kulcs-csere üzenet érkezett érvénytelen protokoll verzióhoz.
   <string name="MessageNotifier_reacted_s_to_your_image">Reakció a képedre: %1$s</string>
   <string name="MessageNotifier_reacted_s_to_your_file">Reakció a fájlodra: %1$s</string>
   <string name="MessageNotifier_reacted_s_to_your_audio">Reakció a hangfájlodra: %1$s</string>
-  <string name="MessageNotifier_reacted_s_to_your_view_once_photo">Reakció az egyszer megtekinthető fotódra: %1$s</string>
-  <string name="MessageNotifier_reacted_s_to_your_view_once_video">Reakció az egyszer megtekinthető videódra: %1$s</string>
+  <string name="MessageNotifier_reacted_s_to_your_view_once_media">Reakció az egyszer megtekinthető videódra: %1$s</string>
   <string name="MessageNotifier_reacted_s_to_your_sticker">Reakció a matricádra: %1$s</string>
   <string name="MessageNotifier_this_message_was_deleted">Ez az üzenet ki lett törölve.</string>
   <string name="TurnOffContactJoinedNotificationsActivity__turn_off_contact_joined_signal">Kikapcsolod az új kontakt érhető el Signalon értesítést? Újra engedélyezheted a  Signal &gt; Beállítások &gt; Értesítések menüpontban.</string>
@@ -1291,6 +1518,7 @@ Kulcs-csere üzenet érkezett érvénytelen protokoll verzióhoz.
   <string name="NotificationChannel_other">Egyéb</string>
   <string name="NotificationChannel_group_messages">Üzenetek</string>
   <string name="NotificationChannel_missing_display_name">Ismeretlen</string>
+  <string name="NotificationChannel_voice_notes">Hangjegyzetek</string>
   <!--ProfileEditNameFragment-->
   <string name="ProfileEditNameFragment_successfully_set_profile_name">A profilnév beállítása sikerült.</string>
   <string name="ProfileEditNameFragment_encountered_a_network_error">Hálózati hiba történt.</string>
@@ -1327,6 +1555,7 @@ Kulcs-csere üzenet érkezett érvénytelen protokoll verzióhoz.
   <string name="WebRtcCallActivity__answered_on_a_linked_device">Fogadva egy társított eszközön.</string>
   <string name="WebRtcCallActivity__declined_on_a_linked_device">Elutasítva egy társított eszközön.</string>
   <string name="WebRtcCallActivity__busy_on_a_linked_device">Foglalt jelzés egy társított eszközön.</string>
+  <string name="GroupCallSafetyNumberChangeNotification__someone_has_joined_this_call_with_a_safety_number_that_has_changed">Valaki olyan csatlakozott a híváshoz, akinek biztonsági azonosítója megváltozott. </string>
   <!--WebRtcCallScreen-->
   <string name="WebRtcCallScreen_new_safety_numbers">A biztonsági számod megváltozott a vele folytatott beszélgetésedhez: %1$s. Ez jelentheti azt, hogy valaki megpróbálja lehallgatni a kommunikációdat, vagy azt, hogy %2$s egyszerűen újratelepítette a Signal-t.
     </string>
@@ -1334,6 +1563,7 @@ Kulcs-csere üzenet érkezett érvénytelen protokoll verzióhoz.
   <string name="WebRtcCallScreen_new_safety_number_title">Új biztonsági szám</string>
   <string name="WebRtcCallScreen_accept">Elfogadás</string>
   <string name="WebRtcCallScreen_end_call">Hívás befejezése</string>
+  <string name="WebRtcCallScreen_swipe_up_to_change_views">Nézetváltás felfelé suhintással</string>
   <!--WebRtcCallScreen V2-->
   <string name="WebRtcCallScreen__decline">Elutasítás</string>
   <string name="WebRtcCallScreen__answer">Válasz</string>
@@ -1392,9 +1622,15 @@ Kulcs-csere üzenet érkezett érvénytelen protokoll verzióhoz.
   <string name="ContactSelectionListFragment_error_retrieving_contacts_check_your_network_connection">Hiba történt a névjegyek betöltése során, ellenőrizd a hálózati kapcsolatod</string>
   <string name="ContactSelectionListFragment_username_not_found">A felhasználónév nem található</string>
   <string name="ContactSelectionListFragment_s_is_not_a_signal_user">\"%1$s\" nem Signal felhasználó. Kérlek ellenőrizd a felhasználónevet, majd próbáld újra.</string>
-  <string name="ContactSelectionListFragment_okay">Oké</string>
-  <string name="ContactSelectionListFragment_the_group_is_full">A csoport megtelt</string>
   <string name="ContactSelectionListFragment_you_do_not_need_to_add_yourself_to_the_group">Nem szükséges saját magadat a csoporthoz adnod</string>
+  <string name="ContactSelectionListFragment_maximum_group_size_reached">A csoport elérte maximális taglétszámát</string>
+  <string name="ContactSelectionListFragment_signal_groups_can_have_a_maximum_of_d_members">A Signal csoportok legfeljebb %1$d tagból állhatnak.</string>
+  <string name="ContactSelectionListFragment_recommended_member_limit_reached">Elérted a javasolt limitet</string>
+  <string name="ContactSelectionListFragment_signal_groups_perform_best_with_d_members_or_fewer">A Signal csoportok akkor működnek a legjöbban, ha %1$d vagy kevesebb tagból állnak. Több tag hozzáadásával az üzenetek küldésének és fogadásának ideje megnőhet.</string>
+  <plurals name="ContactSelectionListFragment_d_members">
+    <item quantity="one">%1$d tag</item>
+    <item quantity="other">%1$d tag</item>
+  </plurals>
   <!--blocked_contacts_fragment-->
   <string name="blocked_contacts_fragment__no_blocked_contacts">Nincsenek blokkolt kontaktok</string>
   <!--contact_selection_list_fragment-->
@@ -1433,6 +1669,12 @@ Kulcs-csere üzenet érkezett érvénytelen protokoll verzióhoz.
   <string name="conversation_item_sent__message_read">Üzenet elolvasva</string>
   <!--conversation_item_received-->
   <string name="conversation_item_received__contact_photo_description">Kontakt fotó</string>
+  <!--ConversationUpdateItem-->
+  <string name="ConversationUpdateItem_loading">Betöltés</string>
+  <string name="ConversationUpdateItem_learn_more">További információ</string>
+  <string name="ConversationUpdateItem_join_call">Belépés a hívásba</string>
+  <string name="ConversationUpdateItem_return_to_call">Vissza a híváshoz</string>
+  <string name="ConversationUpdateItem_call_is_full">A hívás betelt</string>
   <!--audio_view-->
   <string name="audio_view__play_pause_accessibility_description">Lejátszás … Szünet</string>
   <string name="audio_view__download_accessibility_description">Letöltés</string>
@@ -1451,6 +1693,9 @@ Kulcs-csere üzenet érkezett érvénytelen protokoll verzióhoz.
   <string name="safety_number_change_dialog__safety_number_changes">Biztonságiszám-változások</string>
   <string name="safety_number_change_dialog__send_anyway">Küldés így is</string>
   <string name="safety_number_change_dialog__call_anyway">Hívás ennek ellenére</string>
+  <string name="safety_number_change_dialog__join_call">Belépés a hívásba</string>
+  <string name="safety_number_change_dialog__continue_call">Hívás folytatása</string>
+  <string name="safety_number_change_dialog__leave_call">Kilépés a hívásból</string>
   <string name="safety_number_change_dialog__the_following_people_may_have_reinstalled_or_changed_devices">A következő személyek lehet, hogy újratelepítették a Signalt vagy készüléket cseréltek. Ellenőrizd biztonsági számotokat a privacy megőrzése érdekében!</string>
   <string name="safety_number_change_dialog__view">Megtekintés</string>
   <string name="safety_number_change_dialog__previous_verified">Korábban megerősítve</string>
@@ -1557,8 +1802,6 @@ Kulcs-csere üzenet érkezett érvénytelen protokoll verzióhoz.
     <item quantity="other">%1$s csatlakozott a csoporthoz.</item>
   </plurals>
   <string name="GroupUtil_group_name_is_now">A csoport neve mostantól \'%1$s\'.</string>
-  <!--profile_group_share_view-->
-  <string name="profile_group_share_view__make_your_profile_name_and_photo_visible_to_this_group">Láthatóvá teszed a profilneved- és képed a csoport számára?</string>
   <!--prompt_passphrase_activity-->
   <string name="prompt_passphrase_activity__unlock">Feloldás</string>
   <!--prompt_mms_activity-->
@@ -1570,6 +1813,7 @@ Kulcs-csere üzenet érkezett érvénytelen protokoll verzióhoz.
   <string name="CreateProfileActivity_next">Tovább</string>
   <string name="CreateProfileActivity__username">Felhasználónév</string>
   <string name="CreateProfileActivity__create_a_username">Felhasználónév létrehozása</string>
+  <string name="CreateProfileActivity_custom_mms_group_names_and_photos_will_only_be_visible_to_you">Az egyéni MMS csoport nevek és fotók csak számodra láthatók.</string>
   <!--EditProfileFragment-->
   <string name="EditProfileFragment__edit_group_name_and_photo">Csoport nevének és képének szerkesztése</string>
   <string name="EditProfileFragment__group_name">Csoport neve</string>
@@ -1776,6 +2020,7 @@ Kulcs-csere üzenet érkezett érvénytelen protokoll verzióhoz.
   <string name="preferences__advanced_pin_settings">További PIN beállítások</string>
   <string name="preferences__free_private_messages_and_calls">Ingyenes és privát üzenetek, valamint hívások Signal felhasználók részére</string>
   <string name="preferences__submit_debug_log">Hibakeresési napló küldése</string>
+  <string name="preferences__delete_account">Fiók törlése</string>
   <string name="preferences__support_wifi_calling">\'WiFi hívás\' kompatibilitási mód</string>
   <string name="preferences__enable_if_your_device_supports_sms_mms_delivery_over_wifi">Akkor engedélyezd, ha eszközöd az SMS-eket és MMS-eket WiFi-n keresztül kézbesíti (csak akkor engedélyezd, ha a \'WiFi hívás\' is engedélyezve van eszközödön)</string>
   <string name="preferences__incognito_keyboard">Inkognitó billentyűzet</string>
@@ -1784,7 +2029,7 @@ Kulcs-csere üzenet érkezett érvénytelen protokoll verzióhoz.
   <string name="preferences__typing_indicators">Gépelés-indikátorok</string>
   <string name="preferences__if_typing_indicators_are_disabled_you_wont_be_able_to_see_typing_indicators">Ha a gépelés-indikátorod ki van kapcsolva, te sem fogsz értesülni róla, ha mások épp gépelnek.</string>
   <string name="preferences__request_keyboard_to_disable_personalized_learning">Tanulás letiltásának kérése a billentyűzettől (személyre szabás kikapcsolása)</string>
-  <string name="preferences_app_protection__blocked_contacts">Blokkolt kontaktok</string>
+  <string name="preferences_app_protection__blocked_users">Letiltott felhasználók</string>
   <string name="preferences_chats__when_using_mobile_data">Mobilinternet használata során</string>
   <string name="preferences_chats__when_using_wifi">Wi-Fi használata során</string>
   <string name="preferences_chats__when_roaming">Barangoláskor</string>
@@ -1811,7 +2056,6 @@ Kulcs-csere üzenet érkezett érvénytelen protokoll verzióhoz.
   <string name="preferences_storage__none">Egyik sem</string>
   <string name="preferences_storage__s_messages">%1$s db üzenet</string>
   <string name="preferences_storage__custom">Egyéni</string>
-  <!-- Removed by excludeNonTranslatables <string name="preferences_Storage__custom_conversation_length_limit">Egyéni beszélgetés-hosszlimit </string> -->
   <string name="preferences_advanced__use_system_emoji">Rendszer emojik használata</string>
   <string name="preferences_advanced__disable_signal_built_in_emoji_support">A Signal beépített emoji-támogatásának letiltása</string>
   <string name="preferences_advanced__relay_all_calls_through_the_signal_server_to_avoid_revealing_your_ip_address">A hívások átjátszása a Signal szerverein annak érdekében, hogy IP címed telefonhívás során is rejtve maradjon partnered előtt. Engedélyezésével a hívások minősége gyengébb lesz.</string>
@@ -1848,6 +2092,7 @@ Kulcs-csere üzenet érkezett érvénytelen protokoll verzióhoz.
   <!--****************************************-->
   <!--contact_selection_list-->
   <string name="contact_selection_list__unknown_contact">Új üzenet…</string>
+  <string name="contact_selection_list__unknown_contact_block">Felhasználó letiltása</string>
   <string name="contact_selection_list__unknown_contact_add_to_group">Hozzáadás a csoporthoz</string>
   <!--conversation_callable_insecure-->
   <string name="conversation_callable_insecure__menu_call">Hívás</string>
@@ -1911,6 +2156,7 @@ Kulcs-csere üzenet érkezett érvénytelen protokoll verzióhoz.
   <string name="conversation__menu_conversation_settings">Beszélgetés beállításai</string>
   <string name="conversation__menu_add_shortcut">Hozzáadás a kezdőképernyőhöz</string>
   <string name="conversation__menu_pending_members">Függőben lévő tagok</string>
+  <string name="conversation__menu_create_bubble">Buborék létrehozása</string>
   <!--conversation_popup-->
   <string name="conversation_popup__menu_expand_popup">Felugró ablak nagyítása</string>
   <!--conversation_callable_insecure-->
@@ -1931,14 +2177,6 @@ Kulcs-csere üzenet érkezett érvénytelen protokoll verzióhoz.
   <string name="verify_display_fragment_context_menu__copy_to_clipboard">Másolás vágólapra</string>
   <string name="verify_display_fragment_context_menu__compare_with_clipboard">Összehasonlítás vágólappal</string>
   <!--reminder_header-->
-  <!-- Removed by excludeNonTranslatables <string name="reminder_header_outdated_build">A Signal-od verziója elavult</string> -->
-  <!-- Removed by excludeNonTranslatables <plurals name="reminder_header_outdated_build_details">
-    <item quantity="one">A Signal-od verziója %d nap múlva lejár. Érints a legutóbbi verzióra történő frissítéshez.</item>
-    <item quantity="other">A Signal-od verziója %d nap múlva lejár. Koppints ide a legfrissebb verzióra történő frissítéshez.</item>
-  </plurals> -->
-  <!-- Removed by excludeNonTranslatables <string name="reminder_header_outdated_build_details_today">A Signal-od verziója ma le fog járni. Koppints ide a legfrissebb verzióra történő frissítéshez.</string> -->
-  <!-- Removed by excludeNonTranslatables <string name="reminder_header_expired_build">A Signal-od verziója lejárt!</string> -->
-  <!-- Removed by excludeNonTranslatables <string name="reminder_header_expired_build_details">A továbbiakban üzeneteidet nem lehet sikeresen elküldeni. Koppints ide a legfrissebb verzióra történő frissítéshez.</string> -->
   <string name="reminder_header_sms_default_title">Alapértelmezett SMS alkalmazás</string>
   <string name="reminder_header_sms_default_text">Koppints a Signal alapértelmezett SMS alkalmazássá tételéhez.</string>
   <string name="reminder_header_sms_import_title">SMS-ek importálása</string>
@@ -1955,6 +2193,7 @@ Kulcs-csere üzenet érkezett érvénytelen protokoll verzióhoz.
   <!--media_preview-->
   <string name="media_preview__save_title">Mentés</string>
   <string name="media_preview__forward_title">Továbbítás</string>
+  <string name="media_preview__share_title">Megosztás</string>
   <string name="media_preview__all_media_title">Összes médiafájl</string>
   <!--media_preview_activity-->
   <string name="media_preview_activity__media_content_description">Média előnézet</string>
@@ -2080,9 +2319,16 @@ Kulcs-csere üzenet érkezett érvénytelen protokoll verzióhoz.
   <string name="KbsMegaphone__update_pin">PIN kód frissítése</string>
   <string name="KbsMegaphone__well_remind_you_later_creating_a_pin">Később emlékeztetni fogunk. A PIN létrehozása %1$d nap múlva kötelező lesz.</string>
   <string name="KbsMegaphone__well_remind_you_later_confirming_your_pin">Később emlékeztetni fogunk. A PIN megerősítése %1$d nap múlva kötelező lesz.</string>
-  <!--Mention Megaphone-->
-  <!-- Removed by excludeNonTranslatables <string name="MentionsMegaphone__introducing_mentions">Bemutatkozik az @Említések</string> -->
-  <!-- Removed by excludeNonTranslatables <string name="MentionsMegaphone__get_someones_attention_in_a_group_by_typing">Hívd fel valaki figyelmét egy új típusú csoportban a @ használatával</string> -->
+  <!--Research Megaphone-->
+  <string name="ResearchMegaphone_tell_signal_what_you_think">Üzenj a Signal fejlesztőknek</string>
+  <string name="ResearchMegaphone_to_make_signal_the_best_messaging_app_on_the_planet">A legjobb csevegőalkalmazás címének eléréséhez szívesen vennének a visszajelzéseidet.</string>
+  <string name="ResearchMegaphone_learn_more">További információ</string>
+  <string name="ResearchMegaphone_dismiss">Elvetés</string>
+  <string name="ResearchMegaphoneDialog_signal_research">Signal kutatás</string>
+  <string name="ResearchMegaphoneDialog_we_believe_in_privacy"><![CDATA[<p><b>Hiszünk a személyes adatok védelmében.</b></p><p>A Signal nem gyűjt senkiről felhasználói viselkedést érintő adatokat, ezért felhasználói visszajelzésekre támaszkodunk - <b>például a tiédre.</b></p><p>Elindítottunk egy kérdőíves felmérést, hogy megértsük a felhasználói szokásokat. A kitöltés során semmilyen téged beazonosító adat nem kerül birtokunkba. Viszont ha a jövőben is szeretnél további visszajelzéssel a segítségünkre lenni, akkor megadhatsz magadról kapcsolattartáshoz szükséges információkat is.</p><p>Ha van pár perced, örömmel vennénk, ha segítenél a kérdőív kitöltésével.</p>]]></string>
+  <string name="ResearchMegaphoneDialog_take_the_survey">Kérdőív kitöltése</string>
+  <string name="ResearchMegaphoneDialog_no_thanks">Nem, köszönöm</string>
+  <string name="ResearchMegaphoneDialog_the_survey_is_hosted_by_alchemer_at_the_secure_domain">A kérdőív szolgáltatója az Alchemer, amely a surveys.signalusers.org biztonságos domain alatt érhető el.</string>
   <!--transport_selection_list_item-->
   <string name="transport_selection_list_item__transport_icon">Átvitel ikon</string>
   <string name="ConversationListFragment_loading">Betöltés…</string>
@@ -2098,6 +2344,8 @@ Kulcs-csere üzenet érkezett érvénytelen protokoll verzióhoz.
   <string name="PushDecryptJob_unlock_to_view_pending_messages">Oldd fel a függő üzenetek megtekintéséhez</string>
   <string name="enter_backup_passphrase_dialog__backup_passphrase">Biztonsági mentés jelmondat</string>
   <string name="backup_enable_dialog__backups_will_be_saved_to_external_storage_and_encrypted_with_the_passphrase_below_you_must_have_this_passphrase_in_order_to_restore_a_backup">A biztonsági mentések külső tárolóra lesznek mentve, és az alábbi jelmondattal lesznek titkosítva. Ezt a jelmondatot kell megadnod a biztonsági mentés visszaállításához.</string>
+  <string name="backup_enable_dialog__you_must_have_this_passphrase">Erre a jelmondatra szükséged lesz ahhoz, hogy visszaállítsd a biztonsági mentést.</string>
+  <string name="backup_enable_dialog__folder">Mappa</string>
   <string name="backup_enable_dialog__i_have_written_down_this_passphrase">Feljegyeztem ezt a jelmondatot. Enélkül nem leszek képes visszaállítani biztonsági mentést.</string>
   <string name="registration_activity__restore_backup">Biztonsági mentés visszaállítása</string>
   <string name="registration_activity__skip">Kihagyás</string>
@@ -2123,6 +2371,8 @@ Kulcs-csere üzenet érkezett érvénytelen protokoll verzióhoz.
   <string name="BackupDialog_delete_backups">Törlöd a biztonsági mentéseket?</string>
   <string name="BackupDialog_disable_and_delete_all_local_backups">Letiltod és törlöd az összes helyi biztonsági mentést?</string>
   <string name="BackupDialog_delete_backups_statement">Biztonsági mentések törlése</string>
+  <string name="BackupDialog_to_enable_backups_choose_a_folder">A biztonsági mentések engedélyezéséhez válassz egy mappát! A mentések itt lesznek létrehozva.</string>
+  <string name="BackupDialog_choose_folder">Mappa kiválasztása</string>
   <string name="BackupDialog_copied_to_clipboard">Vágólapra másolva</string>
   <string name="BackupDialog_enter_backup_passphrase_to_verify">Add meg megerősítés céljából a biztonsági mentés jelmondatát</string>
   <string name="BackupDialog_verify">Hitelesítés</string>
@@ -2132,6 +2382,11 @@ Kulcs-csere üzenet érkezett érvénytelen protokoll verzióhoz.
   <string name="ChatsPreferenceFragment_last_backup_s">Utolsó biztonsági mentés: %s</string>
   <string name="ChatsPreferenceFragment_in_progress">Folyamatban</string>
   <string name="LocalBackupJob_creating_backup">Biztonsági mentés létrehozása…</string>
+  <string name="LocalBackupJobApi29_backup_failed">Sikertelen biztonsági mentés</string>
+  <string name="LocalBackupJobApi29_your_backup_directory_has_been_deleted_or_moved">A biztonsági mentéseket tartalmazó könyvtár törölve lett, vagy át lett helyezve.</string>
+  <string name="LocalBackupJobApi29_your_backup_file_is_too_large">A biztonsági mentés mérete túl nagy ahhoz, hogy itt legyen létrehozva.</string>
+  <string name="LocalBackupJobApi29_there_is_not_enough_space">Nincs elég tárterület a biztonsági mentés létrehozásához.</string>
+  <string name="LocalBackupJobApi29_tap_to_manage_backups">Koppints a biztonsági mentések kezeléséhez!</string>
   <string name="ProgressPreference_d_messages_so_far">Eddig %d db üzenet</string>
   <string name="RegistrationActivity_please_enter_the_verification_code_sent_to_s">Kérlek add meg az alábbi számra kiküldött ellenőrző kódot: %s.</string>
   <string name="RegistrationActivity_wrong_number">Hibás szám</string>
@@ -2222,8 +2477,8 @@ Kulcs-csere üzenet érkezett érvénytelen protokoll verzióhoz.
   <string name="RecipientBottomSheet_insecure_voice_call_description">Titkosítatlan hanghívás</string>
   <string name="RecipientBottomSheet_video_call_description">Videóhívás</string>
   <string name="RecipientBottomSheet_remove_s_as_group_admin">Eltávolítod %1$s-t a csoport adminjai közül?</string>
-  <string name="RecipientBottomSheet_s_will_be_able_to_edit_group">%1$s szerkesztheti a csoportot és annak tagjait</string>
-  <!-- Removed by excludeNonTranslatables <string name="RecipientBottomSheet_remove_s_from_s">Eltávolítod %1$s-t innen: \"%2$s\"?</string> -->
+  <string name="RecipientBottomSheet_s_will_be_able_to_edit_group">\"%1$s\" szerkesztheti a csoportot és annak tagjait</string>
+  <string name="RecipientBottomSheet_remove_s_from_the_group">Eltávolítod %1$s-t a csoportból?</string>
   <string name="RecipientBottomSheet_remove">Eltávolítás</string>
   <string name="RecipientBottomSheet_copied_to_clipboard">Vágólapra másolva</string>
   <string name="GroupRecipientListItem_admin">Admin</string>
@@ -2233,9 +2488,9 @@ Kulcs-csere üzenet érkezett érvénytelen protokoll verzióhoz.
   <string name="GroupsLearnMore_legacy_vs_new_groups">Régi vs. új csoportok</string>
   <string name="GroupsLearnMore_what_are_legacy_groups">Mik azok a régi típusú csoportok?</string>
   <string name="GroupsLearnMore_paragraph_1">A régi típusú csoportok olyan csoportok, amelyek nem kompatibilisek az új típusú csoportokban rendelkezésre álló újabb funkciókkal, mint amilyen pl. a csoport-adminok kijelölése vagy a részletesebb csoportfrissítések használata.</string>
-  <!-- Removed by excludeNonTranslatables <string name="GroupsLearnMore_how_do_i_use_new_groups">Hogyan használhatóm az új típusú csoportokat?</string> -->
-  <string name="GroupsLearnMore_paragraph_2">A régi típusú csoportokat nem lehet új típusúvá alakítani, viszont lehetőséged van egy új típusú csoport létrehozására a régivel megegyező csoporttagsággal.</string>
-  <string name="GroupsLearnMore_paragraph_3">Az új típusú csoport létrehozásához az összes tagnak frissítenie kell a Signal legújabb verziójára.</string>
+  <string name="GroupsLearnMore_can_i_upgrade_a_legacy_group">Tudom frissíteni a régi csoport típusomat újra?</string>
+  <string name="GroupsLearnMore_paragraph_2">A régi típusú csoportokat még nem lehet új típusúvá alakítani, viszont lehetőséged van egy új típusú csoport létrehozására a régivel megegyező csoporttagsággal, amennyiben a tagok rendelkeznek a Signal legújabb verziójával.</string>
+  <string name="GroupsLearnMore_paragraph_3">A Signal a jövőben lehetővé fogja tenni a régi típusú csoportok átalakítását új típusúvá.</string>
   <!--GroupLinkBottomSheetDialogFragment-->
   <string name="GroupLinkBottomSheet_share_via_signal">Megosztás Signallal</string>
   <string name="GroupLinkBottomSheet_copy">Másolás</string>
@@ -2243,5 +2498,69 @@ Kulcs-csere üzenet érkezett érvénytelen protokoll verzióhoz.
   <string name="GroupLinkBottomSheet_share">Megosztás</string>
   <string name="GroupLinkBottomSheet_copied_to_clipboard">Vágólapra másolva</string>
   <string name="GroupLinkBottomSheet_the_link_is_not_currently_active">A hivatkozás jelenleg nem aktív</string>
+  <!--VoiceNotePlaybackPreparer-->
+  <string name="VoiceNotePlaybackPreparer__could_not_start_playback">Nem sikerült elindítani a lejátszást.</string>
+  <!--VoiceNoteMediaDescriptionCompatFactory-->
+  <string name="VoiceNoteMediaDescriptionCompatFactory__voice_message">Hangüzenet · %1$s</string>
+  <string name="VoiceNoteMediaDescriptionCompatFactory__s_to_s">%1$s (címzett: %2$s)</string>
+  <!--StorageUtil-->
+  <string name="StorageUtil__s_s">%1$s/%2$s</string>
+  <string name="BlockedUsersActivity__s_has_been_blocked">\"%1$s\" letiltva.</string>
+  <string name="BlockedUsersActivity__failed_to_block_s">Sikertelen \"%1$s\" tiltása</string>
+  <string name="BlockedUsersActivity__s_has_been_unblocked">\"%1$s\" letiltása feloldva.</string>
+  <!--ReviewCardDialogFragment-->
+  <string name="ReviewCardDialogFragment__review_members">Tagok áttekintése</string>
+  <string name="ReviewCardDialogFragment__review_request">Kérések áttekintése</string>
+  <string name="ReviewCardDialogFragment__d_group_members_have_the_same_name">%1$d csoporttagnak ugyanaz a neve. Tekintsd át a listájukat, és dönts a továbbiakról!</string>
+  <string name="ReviewCardDialogFragment__if_youre_not_sure">Ha nem vagy benne biztos, hogy kitől is érkezett a kérés, akkor tekintsd át az alábbi kontaktokat döntés előtt!</string>
+  <string name="ReviewCardDialogFragment__no_other_groups_in_common">Nincs egyéb közös csoportotok.</string>
+  <string name="ReviewCardDialogFragment__no_groups_in_common">Nincs közös csoportotok.</string>
+  <plurals name="ReviewCardDialogFragment__d_other_groups_in_common">
+    <item quantity="one">%d db közös csoport</item>
+    <item quantity="other">%d db közös csoport</item>
+  </plurals>
+  <plurals name="ReviewCardDialogFragment__d_groups_in_common">
+    <item quantity="one">%d db közös csoport</item>
+    <item quantity="other">%d db közös csoport</item>
+  </plurals>
+  <string name="ReviewCardDialogFragment__remove_s_from_group">Eltávolítod %1$s-t a csoportból?</string>
+  <string name="ReviewCardDialogFragment__remove">Eltávolítás</string>
+  <string name="ReviewCardDialogFragment__failed_to_remove_group_member">Nem sikerült eltávolítani a csoporttagot.</string>
+  <!--ReviewCard-->
+  <string name="ReviewCard__member">Tag</string>
+  <string name="ReviewCard__request">Kérés</string>
+  <string name="ReviewCard__your_contact">Saját profil</string>
+  <string name="ReviewCard__remove_from_group">Eltávolítás a csoportból</string>
+  <string name="ReviewCard__update_contact">Profil frissítése</string>
+  <string name="ReviewCard__block">Letiltás</string>
+  <string name="ReviewCard__delete">Törlés</string>
+  <string name="ReviewCard__recently_changed">Nemrég megváltoztatta profilnevét erről: %1$s erre: %2$s</string>
+  <!--CallParticipantsListUpdatePopupWindow-->
+  <string name="CallParticipantsListUpdatePopupWindow__s_joined">%1$s csatlakozott</string>
+  <string name="CallParticipantsListUpdatePopupWindow__s_and_s_joined">%1$s és %2$s csatlakozott</string>
+  <string name="CallParticipantsListUpdatePopupWindow__s_s_and_s_joined">%1$s, %2$s és %3$s csatlakozott</string>
+  <string name="CallParticipantsListUpdatePopupWindow__s_s_and_d_others_joined">%1$s, %2$s és %3$d másik személy csatlakozott</string>
+  <string name="CallParticipantsListUpdatePopupWindow__s_left">%1$s kilépett</string>
+  <string name="CallParticipantsListUpdatePopupWindow__s_and_s_left">%1$s és %2$s kilépett</string>
+  <string name="CallParticipantsListUpdatePopupWindow__s_s_and_s_left">%1$s, %2$s és %3$s kilépett</string>
+  <string name="CallParticipantsListUpdatePopupWindow__s_s_and_d_others_left">%1$s, %2$s és %3$d másik személy kilépett</string>
+  <string name="CallParticipantsListUpdatePopupWindow__you_on_another_device">Te (másik eszközön)</string>
+  <string name="CallParticipantsListUpdatePopupWindow__s_on_another_device">%1$s (másik eszközön)</string>
+  <!--DeleteAccountFragment-->
+  <string name="DeleteAccountFragment__deleting_your_account_will">A fiók törlése a következőket jelenti:</string>
+  <string name="DeleteAccountFragment__enter_your_phone_number">Add meg a telefonszámod</string>
+  <string name="DeleteAccountFragment__delete_account">Fiók törlése</string>
+  <string name="DeleteAccountFragment__delete_your_account_info_and_profile_photo">A fiók információ és profil fotó törlése</string>
+  <string name="DeleteAccountFragment__delete_all_your_messages">Minden üzeneted törlése</string>
+  <string name="DeleteAccountFragment__no_country_code">Nincs országkód megadva</string>
+  <string name="DeleteAccountFragment__no_number">Nincs szám megadva</string>
+  <string name="DeleteAccountFragment__the_phone_number">A megadott telefonszám nem egyezik a fiókodhoz tartozóval.</string>
+  <string name="DeleteAccountFragment__are_you_sure">Biztosan törölni akarod a fiókod?</string>
+  <string name="DeleteAccountFragment__this_will_delete_your_signal_account">Ez törölni fogja a Signal fiókod és alaphelyzetbe állítja az alkalmazást. Az app bezáródik a folyamat végeztével.</string>
+  <string name="DeleteAccountFragment__failed_to_delete_account">Sikertelen a fiók törlése. Van hálózati kapcsolatod?</string>
+  <string name="DeleteAccountFragment__failed_to_delete_local_data">Sikertelen a helyi adat törlése. Kézzel törölheted a rendszer alkalmazás-beállításai alatt.</string>
+  <string name="DeleteAccountFragment__launch_app_settings">App beállítások indítása</string>
+  <!--DeleteAccountCountryPickerFragment-->
+  <string name="DeleteAccountCountryPickerFragment__search_countries">Ország keresése</string>
   <!--EOF-->
 </resources>

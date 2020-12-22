@@ -5,9 +5,7 @@ import android.animation.AnimatorSet;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.PointF;
-import android.graphics.PorterDuff;
 import android.graphics.Rect;
-import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.util.AttributeSet;
 import android.view.HapticFeedbackConstants;
@@ -41,6 +39,7 @@ import org.thoughtcrime.securesms.recipients.Recipient;
 import org.thoughtcrime.securesms.util.ThemeUtil;
 import org.thoughtcrime.securesms.util.Util;
 import org.thoughtcrime.securesms.util.ViewUtil;
+import org.thoughtcrime.securesms.util.WindowUtil;
 
 import java.util.Collections;
 import java.util.LinkedList;
@@ -60,6 +59,7 @@ public final class ConversationReactionOverlay extends RelativeLayout {
   private final PointF   lastSeenDownPoint       = new PointF();
 
   private Activity      activity;
+  private Recipient     conversationRecipient;
   private MessageRecord messageRecord;
   private OverlayState  overlayState = OverlayState.HIDDEN;
 
@@ -145,15 +145,21 @@ public final class ConversationReactionOverlay extends RelativeLayout {
     maskView.setTargetParentTranslationY(translationY);
   }
 
-  public void show(@NonNull Activity activity, @NonNull View maskTarget, @NonNull MessageRecord messageRecord, int maskPaddingBottom) {
+  public void show(@NonNull Activity activity,
+                   @NonNull View maskTarget,
+                   @NonNull Recipient conversationRecipient,
+                   @NonNull MessageRecord messageRecord,
+                   int maskPaddingBottom)
+  {
 
     if (overlayState != OverlayState.HIDDEN) {
       return;
     }
 
-    this.messageRecord = messageRecord;
-    overlayState       = OverlayState.UNINITAILIZED;
-    selected           = -1;
+    this.messageRecord         = messageRecord;
+    this.conversationRecipient = conversationRecipient;
+    overlayState               = OverlayState.UNINITAILIZED;
+    selected                   = -1;
 
     setupToolbarMenuItems();
     setupSelectedEmoji();
@@ -195,10 +201,10 @@ public final class ConversationReactionOverlay extends RelativeLayout {
     if (Build.VERSION.SDK_INT >= 21) {
       this.activity = activity;
       originalStatusBarColor = activity.getWindow().getStatusBarColor();
-      activity.getWindow().setStatusBarColor(ThemeUtil.getThemedColor(getContext(), R.attr.reactions_overlay_toolbar_background_color));
+      WindowUtil.setStatusBarColor(activity.getWindow(), ContextCompat.getColor(getContext(), R.color.action_mode_status_bar));
 
-      if (!ThemeUtil.isDarkTheme(getContext()) && Build.VERSION.SDK_INT >= 23) {
-        activity.getWindow().getDecorView().setSystemUiVisibility(activity.getWindow().getDecorView().getSystemUiVisibility() | View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
+      if (!ThemeUtil.isDarkTheme(getContext())) {
+        WindowUtil.setLightStatusBar(activity.getWindow());
       }
     }
   }
@@ -236,9 +242,9 @@ public final class ConversationReactionOverlay extends RelativeLayout {
     revealAnimatorSet.end();
     hideAnimatorSet.start();
 
-    if (Build.VERSION.SDK_INT >= 23 && activity != null) {
-      activity.getWindow().setStatusBarColor(originalStatusBarColor);
-      activity.getWindow().getDecorView().setSystemUiVisibility(activity.getWindow().getDecorView().getSystemUiVisibility() & ~View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
+    if (Build.VERSION.SDK_INT >= 21 && activity != null) {
+      WindowUtil.setStatusBarColor(activity.getWindow(), originalStatusBarColor);
+      WindowUtil.clearLightStatusBar(activity.getWindow());
       activity = null;
     }
 
@@ -401,7 +407,7 @@ public final class ConversationReactionOverlay extends RelativeLayout {
           view.setImageEmoji(SignalStore.emojiValues().getPreferredVariation(ReactionEmoji.values()[i].emoji));
         }
       } else if (isAtCustomIndex) {
-        view.setImageDrawable(ThemeUtil.getThemedDrawable(getContext(), R.attr.reactions_overlay_custom_emoji_icon));
+        view.setImageDrawable(ContextCompat.getDrawable(getContext(), R.drawable.ic_any_emoji_32));
         view.setTag(null);
       } else {
         view.setImageEmoji(SignalStore.emojiValues().getPreferredVariation(ReactionEmoji.values()[i].emoji));
@@ -498,7 +504,7 @@ public final class ConversationReactionOverlay extends RelativeLayout {
   }
 
   private void setupToolbarMenuItems() {
-    MenuState menuState = MenuState.getMenuState(Collections.singleton(messageRecord), false);
+    MenuState menuState = MenuState.getMenuState(conversationRecipient, Collections.singleton(messageRecord), false);
 
     toolbar.getMenu().findItem(R.id.action_copy).setVisible(menuState.shouldShowCopyAction());
     toolbar.getMenu().findItem(R.id.action_download).setVisible(menuState.shouldShowSaveAttachmentAction());

@@ -15,10 +15,10 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.annimon.stream.Stream;
 
+import org.signal.core.util.logging.Log;
 import org.thoughtcrime.securesms.TransportOption;
 import org.thoughtcrime.securesms.database.ThreadDatabase;
 import org.thoughtcrime.securesms.database.model.Mention;
-import org.thoughtcrime.securesms.logging.Log;
 import org.thoughtcrime.securesms.mms.MediaConstraints;
 import org.thoughtcrime.securesms.mms.OutgoingMediaMessage;
 import org.thoughtcrime.securesms.mms.OutgoingSecureMediaMessage;
@@ -460,14 +460,11 @@ class MediaSendViewModel extends ViewModel {
     }
 
     MutableLiveData<MediaSendActivityResult> result          = new MutableLiveData<>();
-    Runnable                                 dialogRunnable  = () -> event.postValue(Event.SHOW_RENDER_PROGRESS);
     String                                   trimmedBody     = isViewOnce() ? "" : body.toString().trim();
     List<Media>                              initialMedia    = getSelectedMediaOrDefault();
     List<Mention>                            trimmedMentions = isViewOnce() ? Collections.emptyList() : mentions;
 
     Preconditions.checkState(initialMedia.size() > 0, "No media to send!");
-
-    Util.runOnMainDelayed(dialogRunnable, 250);
 
     MediaRepository.transformMedia(application, initialMedia, modelsToTransform, (oldToNew) -> {
       List<Media> updatedMedia = new ArrayList<>(oldToNew.values());
@@ -499,7 +496,6 @@ class MediaSendViewModel extends ViewModel {
           uploadRepository.deleteAbandonedAttachments();
         }
 
-        Util.cancelRunnableOnMain(dialogRunnable);
         result.postValue(MediaSendActivityResult.forPreUpload(uploadResults, splitBody, transport, isViewOnce(), trimmedMentions));
       });
     });
@@ -601,7 +597,7 @@ class MediaSendViewModel extends ViewModel {
   }
 
   private boolean viewOnceSupported() {
-    return !isSms && (recipient == null || !recipient.isLocalNumber()) && mediaSupportsRevealableMessage(getSelectedMediaOrDefault());
+    return !isSms && (recipient == null || !recipient.isSelf()) && mediaSupportsRevealableMessage(getSelectedMediaOrDefault());
   }
 
   private boolean mediaSupportsRevealableMessage(@NonNull List<Media> media) {
@@ -676,12 +672,16 @@ class MediaSendViewModel extends ViewModel {
     }
   }
 
+  boolean isSms() {
+    return transport.isSms();
+  }
+
   enum Error {
     ITEM_TOO_LARGE, TOO_MANY_ITEMS, NO_ITEMS, ONLY_ITEM_TOO_LARGE
   }
 
   enum Event {
-    VIEW_ONCE_TOOLTIP, SHOW_RENDER_PROGRESS, HIDE_RENDER_PROGRESS
+    VIEW_ONCE_TOOLTIP
   }
 
   enum Page {

@@ -1,25 +1,28 @@
 package org.thoughtcrime.securesms.util;
 
+import android.os.Build;
 import android.text.TextUtils;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.VisibleForTesting;
 
 import com.annimon.stream.Stream;
-import com.google.android.collect.Sets;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.signal.core.util.logging.Log;
 import org.thoughtcrime.securesms.BuildConfig;
 import org.thoughtcrime.securesms.dependencies.ApplicationDependencies;
+import org.thoughtcrime.securesms.groups.SelectionLimits;
+import org.thoughtcrime.securesms.jobs.RefreshAttributesJob;
 import org.thoughtcrime.securesms.jobs.RemoteConfigRefreshJob;
 import org.thoughtcrime.securesms.keyvalue.SignalStore;
-import org.thoughtcrime.securesms.logging.Log;
 
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.concurrent.TimeUnit;
@@ -48,35 +51,40 @@ public final class FeatureFlags {
   private static final long FETCH_INTERVAL = TimeUnit.HOURS.toMillis(2);
 
   private static final String USERNAMES                    = "android.usernames";
-  private static final String REMOTE_DELETE                = "android.remoteDelete";
-  private static final String GROUPS_V2_CREATE_VERSION     = "android.groupsv2.createVersion";
-  private static final String GROUPS_V2_JOIN_VERSION       = "android.groupsv2.joinVersion";
-  private static final String GROUPS_V2_LINKS_VERSION      = "android.groupsv2.manageGroupLinksVersion";
-  private static final String GROUPS_V2_CAPACITY           = "global.groupsv2.maxGroupSize";
+  private static final String GROUPS_V2_RECOMMENDED_LIMIT  = "global.groupsv2.maxGroupSize";
+  private static final String GROUPS_V2_HARD_LIMIT         = "global.groupsv2.groupSizeHardLimit";
   private static final String INTERNAL_USER                = "android.internalUser";
-  private static final String MENTIONS                     = "android.mentions";
   private static final String VERIFY_V2                    = "android.verifyV2";
   private static final String PHONE_NUMBER_PRIVACY_VERSION = "android.phoneNumberPrivacyVersion";
   private static final String CLIENT_EXPIRATION            = "android.clientExpiration";
   public  static final String RESEARCH_MEGAPHONE_1         = "research.megaphone.1";
+  public  static final String DONATE_MEGAPHONE             = "android.donate";
+  private static final String VIEWED_RECEIPTS              = "android.viewed.receipts";
+  private static final String GROUP_CALLING                = "android.groupsv2.calling.2";
+  private static final String GV1_MANUAL_MIGRATE           = "android.groupsV1Migration.manual";
+  private static final String GV1_FORCED_MIGRATE           = "android.groupsV1Migration.forced";
+  private static final String GV1_MIGRATION_JOB            = "android.groupsV1Migration.job";
+  private static final String SEND_VIEWED_RECEIPTS         = "android.sendViewedReceipts";
 
   /**
    * We will only store remote values for flags in this set. If you want a flag to be controllable
    * remotely, place it in here.
    */
-
-  private static final Set<String> REMOTE_CAPABLE = Sets.newHashSet(
-      REMOTE_DELETE,
-      GROUPS_V2_CREATE_VERSION,
-      GROUPS_V2_CAPACITY,
-      GROUPS_V2_JOIN_VERSION,
-      GROUPS_V2_LINKS_VERSION,
+  private static final Set<String> REMOTE_CAPABLE = SetUtil.newHashSet(
+      GROUPS_V2_RECOMMENDED_LIMIT,
+      GROUPS_V2_HARD_LIMIT,
       INTERNAL_USER,
       USERNAMES,
-      MENTIONS,
       VERIFY_V2,
       CLIENT_EXPIRATION,
-      RESEARCH_MEGAPHONE_1
+      RESEARCH_MEGAPHONE_1,
+      DONATE_MEGAPHONE,
+      VIEWED_RECEIPTS,
+      GV1_MIGRATION_JOB,
+      GV1_MANUAL_MIGRATE,
+      GV1_FORCED_MIGRATE,
+      GROUP_CALLING,
+      SEND_VIEWED_RECEIPTS
   );
 
   /**
@@ -96,17 +104,17 @@ public final class FeatureFlags {
    * will be updated arbitrarily at runtime. This will make values more responsive, but also places
    * more burden on the reader to ensure that the app experience remains consistent.
    */
-  private static final Set<String> HOT_SWAPPABLE = Sets.newHashSet(
-      GROUPS_V2_CREATE_VERSION,
-      GROUPS_V2_JOIN_VERSION,
+  private static final Set<String> HOT_SWAPPABLE = SetUtil.newHashSet(
       VERIFY_V2,
-      CLIENT_EXPIRATION
+      CLIENT_EXPIRATION,
+      GROUP_CALLING,
+      GV1_MIGRATION_JOB
   );
 
   /**
    * Flags in this set will stay true forever once they receive a true value from a remote config.
    */
-  private static final Set<String> STICKY = Sets.newHashSet(
+  private static final Set<String> STICKY = SetUtil.newHashSet(
       VERIFY_V2
     );
 
@@ -174,62 +182,17 @@ public final class FeatureFlags {
     return getBoolean(USERNAMES, false);
   }
 
-  /** Send support for remotely deleting a message. */
-  public static boolean remoteDelete() {
-    return getBoolean(REMOTE_DELETE, false);
-  }
-
-  /** Attempt groups v2 creation. */
-  public static boolean groupsV2create() {
-    return getVersionFlag(GROUPS_V2_CREATE_VERSION) == VersionFlag.ON &&
-           !SignalStore.internalValues().gv2DoNotCreateGv2Groups();
-  }
-
-  /** Allow creation and managing of group links. */
-  public static boolean groupsV2manageGroupLinks() {
-    return getVersionFlag(GROUPS_V2_LINKS_VERSION) == VersionFlag.ON;
-  }
-
   /**
    * Maximum number of members allowed in a group.
    */
-  public static int gv2GroupCapacity() {
-    return getInteger(GROUPS_V2_CAPACITY, 151);
-  }
-
-  /**
-   * Ability of local client to join a GV2 group.
-   * <p>
-   * You must still check GV2 capabilities to respect linked devices.
-   */
-  public static GroupJoinStatus clientLocalGroupJoinStatus() {
-    switch (getVersionFlag(GROUPS_V2_JOIN_VERSION)) {
-      case ON_IN_FUTURE_VERSION: return GroupJoinStatus.UPDATE_TO_JOIN;
-      case ON                  : return GroupJoinStatus.LOCAL_CAN_JOIN;
-      case OFF                 :
-      default                  : return GroupJoinStatus.COMING_SOON;
-    }
-  }
-
-  public enum GroupJoinStatus {
-    /** No version of the client that can join V2 groups by link is in production. */
-    COMING_SOON,
-
-    /** A newer version of the client is in production that will allow joining via GV2 group links. */
-    UPDATE_TO_JOIN,
-
-    /** This version of the client allows joining via GV2 group links. */
-    LOCAL_CAN_JOIN
+  public static SelectionLimits groupLimits() {
+    return new SelectionLimits(getInteger(GROUPS_V2_RECOMMENDED_LIMIT, 151),
+                               getInteger(GROUPS_V2_HARD_LIMIT, 1001));
   }
 
   /** Internal testing extensions. */
   public static boolean internalUser() {
     return getBoolean(INTERNAL_USER, false);
-  }
-
-  /** Whether or not we allow mentions send support in groups. */
-  public static boolean mentions() {
-    return getBoolean(MENTIONS, false);
   }
 
   /** Whether or not to use the UUID in verification codes. */
@@ -247,12 +210,47 @@ public final class FeatureFlags {
     return getString(RESEARCH_MEGAPHONE_1, "");
   }
 
+  /** The raw donate megaphone CSV string */
+  public static String donateMegaphone() {
+    return getString(DONATE_MEGAPHONE, "");
+  }
+
   /**
    * Whether the user can choose phone number privacy settings, and;
    * Whether to fetch and store the secondary certificate
    */
   public static boolean phoneNumberPrivacy() {
     return getVersionFlag(PHONE_NUMBER_PRIVACY_VERSION) == VersionFlag.ON;
+  }
+
+  /** Whether the user should display the content revealed dot in voice notes. */
+  public static boolean viewedReceipts() {
+    return getBoolean(VIEWED_RECEIPTS, false);
+  }
+
+  /** Whether or not group calling is enabled. */
+  public static boolean groupCalling() {
+    return Build.VERSION.SDK_INT > 19 && getBoolean(GROUP_CALLING, false);
+  }
+
+  /** Whether or not we should run the job to proactively migrate groups. */
+  public static boolean groupsV1MigrationJob() {
+    return getBoolean(GV1_MIGRATION_JOB, false);
+  }
+
+  /** Whether or not manual migration from GV1->GV2 is enabled. */
+  public static boolean groupsV1ManualMigration() {
+    return getBoolean(GV1_MANUAL_MIGRATE, false);
+  }
+
+  /** Whether or not forced migration from GV1->GV2 is enabled. */
+  public static boolean groupsV1ForcedMigration() {
+    return getBoolean(GV1_FORCED_MIGRATE, false) && groupsV1ManualMigration();
+  }
+
+  /** Whether or not to send viewed receipts. */
+  public static boolean sendViewedReceipts() {
+    return getBoolean(SEND_VIEWED_RECEIPTS, false);
   }
 
   /** Only for rendering debug info. */
@@ -363,7 +361,7 @@ public final class FeatureFlags {
         changes.put(key, Change.REMOVED);
       } else if (newValue != oldValue && newValue instanceof Boolean) {
         changes.put(key, (boolean) newValue ? Change.ENABLED : Change.DISABLED);
-      } else if (newValue != oldValue) {
+      } else if (!Objects.equals(oldValue, newValue)) {
         changes.put(key, Change.CHANGED);
       }
     }

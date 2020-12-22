@@ -13,6 +13,7 @@ import androidx.annotation.WorkerThread;
 import com.annimon.stream.Collectors;
 import com.annimon.stream.Stream;
 
+import org.signal.core.util.logging.Log;
 import org.signal.zkgroup.VerificationFailedException;
 import org.signal.zkgroup.profiles.ProfileKey;
 import org.thoughtcrime.securesms.ApplicationContext;
@@ -50,6 +51,7 @@ import org.thoughtcrime.securesms.groups.GroupId;
 import org.thoughtcrime.securesms.groups.GroupManager;
 import org.thoughtcrime.securesms.groups.GroupNotAMemberException;
 import org.thoughtcrime.securesms.groups.GroupV1MessageProcessor;
+import org.thoughtcrime.securesms.groups.GroupsV1MigrationUtil;
 import org.thoughtcrime.securesms.jobmanager.Data;
 import org.thoughtcrime.securesms.jobmanager.Job;
 import org.thoughtcrime.securesms.jobmanager.JobManager;
@@ -58,7 +60,6 @@ import org.thoughtcrime.securesms.keyvalue.SignalStore;
 import org.thoughtcrime.securesms.linkpreview.Link;
 import org.thoughtcrime.securesms.linkpreview.LinkPreview;
 import org.thoughtcrime.securesms.linkpreview.LinkPreviewUtil;
-import org.thoughtcrime.securesms.logging.Log;
 import org.thoughtcrime.securesms.mms.IncomingMediaMessage;
 import org.thoughtcrime.securesms.mms.MmsException;
 import org.thoughtcrime.securesms.mms.OutgoingExpirationUpdateMessage;
@@ -81,13 +82,16 @@ import org.thoughtcrime.securesms.sms.OutgoingEndSessionMessage;
 import org.thoughtcrime.securesms.sms.OutgoingTextMessage;
 import org.thoughtcrime.securesms.stickers.StickerLocator;
 import org.thoughtcrime.securesms.storage.StorageSyncHelper;
+import org.thoughtcrime.securesms.tracing.Trace;
 import org.thoughtcrime.securesms.util.Base64;
+import org.thoughtcrime.securesms.util.FeatureFlags;
 import org.thoughtcrime.securesms.util.GroupUtil;
 import org.thoughtcrime.securesms.util.Hex;
 import org.thoughtcrime.securesms.util.IdentityUtil;
 import org.thoughtcrime.securesms.util.MediaUtil;
 import org.thoughtcrime.securesms.util.RemoteDeleteUtil;
 import org.thoughtcrime.securesms.util.TextSecurePreferences;
+import org.thoughtcrime.securesms.util.Util;
 import org.whispersystems.libsignal.state.SessionStore;
 import org.whispersystems.libsignal.util.Pair;
 import org.whispersystems.libsignal.util.guava.Optional;
@@ -107,6 +111,7 @@ import org.whispersystems.signalservice.api.messages.calls.BusyMessage;
 import org.whispersystems.signalservice.api.messages.calls.HangupMessage;
 import org.whispersystems.signalservice.api.messages.calls.IceUpdateMessage;
 import org.whispersystems.signalservice.api.messages.calls.OfferMessage;
+import org.whispersystems.signalservice.api.messages.calls.OpaqueMessage;
 import org.whispersystems.signalservice.api.messages.calls.SignalServiceCallMessage;
 import org.whispersystems.signalservice.api.messages.multidevice.BlockedListMessage;
 import org.whispersystems.signalservice.api.messages.multidevice.ConfigurationMessage;
@@ -125,6 +130,7 @@ import org.whispersystems.signalservice.api.push.exceptions.PushNetworkException
 import java.io.IOException;
 import java.security.SecureRandom;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
@@ -133,6 +139,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
+@Trace
 public final class PushProcessMessageJob extends BaseJob {
 
   public static final String KEY          = "PushProcessJob";
@@ -236,27 +243,29 @@ public final class PushProcessMessageJob extends BaseJob {
         try {
           SignalServiceGroupContext signalServiceGroupContext = content.getDataMessage().get().getGroupContext().get();
           GroupId                   groupId                   = GroupUtil.idFromGroupContext(signalServiceGroupContext);
-          Recipient                 recipient                 = Recipient.externalGroup(context, groupId);
 
-          queueName = getQueueName(recipient.getId());
+          queueName = getQueueName(Recipient.externalPossiblyMigratedGroup(context, groupId).getId());
 
           if (groupId.isV2()) {
             int localRevision = DatabaseFactory.getGroupDatabase(context)
                                                .getGroupV2Revision(groupId.requireV2());
 
-            if (signalServiceGroupContext.getGroupV2().get().getRevision() > localRevision) {
+            if (signalServiceGroupContext.getGroupV2().get().getRevision() > localRevision ||
+                DatabaseFactory.getGroupDatabase(context).getGroupV1ByExpectedV2(groupId.requireV2()).isPresent())
+            {
+              Log.i(TAG, "Adding network constraint to group-related job.");
               builder.addConstraint(NetworkConstraint.KEY)
                      .setLifespan(TimeUnit.DAYS.toMillis(30));
             }
           }
         } catch (BadGroupIdException e) {
-          Log.w(TAG, "Bad groupId! Using default queue.");
+          Log.w(TAG, "Bad groupId! Using default queue. ID: " + content.getTimestamp());
         }
       } else {
         queueName = getQueueName(RecipientId.fromHighTrust(content.getSender()));
       }
     } else if (exceptionMetadata != null) {
-      Recipient recipient = exceptionMetadata.groupId != null ? Recipient.externalGroup(context, exceptionMetadata.groupId)
+      Recipient recipient = exceptionMetadata.groupId != null ? Recipient.externalPossiblyMigratedGroup(context, exceptionMetadata.groupId)
                                                               : Recipient.external(context, exceptionMetadata.sender);
       queueName = getQueueName(recipient.getId());
     }
@@ -302,7 +311,7 @@ public final class PushProcessMessageJob extends BaseJob {
                                                                                  .retrieve(Recipient.externalPush(context, content.getSender()).getId(),
                                                                                            content.getTimestamp());
       if (earlyContent.isPresent()) {
-        Log.i(TAG, "Found " + earlyContent.get().size() + " dependent item(s) that were retrieved earlier. Processing.");
+        log(TAG, String.valueOf(content.getTimestamp()), "Found " + earlyContent.get().size() + " dependent item(s) that were retrieved earlier. Processing.");
 
         for (SignalServiceContent earlyItem : earlyContent.get()) {
           handleMessage(earlyItem, Optional.absent());
@@ -311,7 +320,7 @@ public final class PushProcessMessageJob extends BaseJob {
     } else if (exceptionMetadata != null) {
       handleExceptionMessage(exceptionMetadata, optionalSmsMessageId);
     } else {
-      Log.w(TAG, "Bad state! messageState: " + messageState);
+      warn(TAG, "Bad state! messageState: " + messageState);
     }
   }
 
@@ -333,11 +342,11 @@ public final class PushProcessMessageJob extends BaseJob {
       GroupDatabase groupDatabase = DatabaseFactory.getGroupDatabase(context);
 
       if (content == null || shouldIgnore(content)) {
-        Log.i(TAG, "Ignoring message.");
+        log(TAG, content != null ? String.valueOf(content.getTimestamp()) : "null", "Ignoring message.");
         return;
       }
 
-      Log.i(TAG, "Processing message ID " + content.getTimestamp());
+      log(TAG, String.valueOf(content.getTimestamp()), "Beginning message processing.");
 
       if (content.getDataMessage().isPresent()) {
         SignalServiceDataMessage message        = content.getDataMessage().get();
@@ -348,26 +357,32 @@ public final class PushProcessMessageJob extends BaseJob {
         if (isGv2Message) {
           GroupId.V2 groupIdV2 = groupId.get().requireV2();
 
+          Optional<GroupDatabase.GroupRecord> possibleGv1 = groupDatabase.getGroupV1ByExpectedV2(groupIdV2);
+          if (possibleGv1.isPresent()) {
+            GroupsV1MigrationUtil.performLocalMigration(context, possibleGv1.get().getId().requireV1());
+          }
+
           if (!updateGv2GroupFromServerOrP2PChange(content, message.getGroupContext().get().getGroupV2().get())) {
-            Log.i(TAG, "Ignoring GV2 message for group we are not currently in " + groupIdV2);
+            log(TAG, String.valueOf(content.getTimestamp()), "Ignoring GV2 message for group we are not currently in " + groupIdV2);
             return;
           }
 
           Recipient sender = Recipient.externalPush(context, content.getSender());
           if (!groupDatabase.isCurrentMember(groupIdV2, sender.getId())) {
-            Log.i(TAG, "Ignoring GV2 message from member not in group " + groupIdV2);
+            log(TAG, String.valueOf(content.getTimestamp()), "Ignoring GV2 message from member not in group " + groupIdV2);
             return;
           }
         }
 
-        if      (isInvalidMessage(message))             handleInvalidMessage(content.getSender(), content.getSenderDevice(), groupId, content.getTimestamp(), smsMessageId);
-        else if (message.isEndSession())                handleEndSessionMessage(content, smsMessageId);
-        else if (message.isGroupV1Update())             handleGroupV1Message(content, message, smsMessageId, groupId.get().requireV1());
-        else if (message.isExpirationUpdate())          handleExpirationUpdate(content, message, smsMessageId, groupId);
-        else if (message.getReaction().isPresent())     handleReaction(content, message);
-        else if (message.getRemoteDelete().isPresent()) handleRemoteDelete(content, message);
-        else if (isMediaMessage)                        handleMediaMessage(content, message, smsMessageId);
-        else if (message.getBody().isPresent())         handleTextMessage(content, message, smsMessageId, groupId);
+        if      (isInvalidMessage(message))                                               handleInvalidMessage(content.getSender(), content.getSenderDevice(), groupId, content.getTimestamp(), smsMessageId);
+        else if (message.isEndSession())                                                  handleEndSessionMessage(content, smsMessageId);
+        else if (message.isGroupV1Update())                                               handleGroupV1Message(content, message, smsMessageId, groupId.get().requireV1());
+        else if (message.isExpirationUpdate())                                            handleExpirationUpdate(content, message, smsMessageId, groupId);
+        else if (message.getReaction().isPresent())                                       handleReaction(content, message);
+        else if (message.getRemoteDelete().isPresent())                                   handleRemoteDelete(content, message);
+        else if (isMediaMessage)                                                          handleMediaMessage(content, message, smsMessageId);
+        else if (message.getBody().isPresent())                                           handleTextMessage(content, message, smsMessageId, groupId);
+        else if (FeatureFlags.groupCalling() && message.getGroupCallUpdate().isPresent()) handleGroupCallUpdateMessage(content, message, groupId);
 
         if (groupId.isPresent() && groupDatabase.isUnknownGroup(groupId.get())) {
           handleUnknownGroupMessage(content, message.getGroupContext().get());
@@ -395,15 +410,15 @@ public final class PushProcessMessageJob extends BaseJob {
         else if (syncMessage.getBlockedList().isPresent())            handleSynchronizeBlockedListMessage(syncMessage.getBlockedList().get());
         else if (syncMessage.getFetchType().isPresent())              handleSynchronizeFetchMessage(syncMessage.getFetchType().get());
         else if (syncMessage.getMessageRequestResponse().isPresent()) handleSynchronizeMessageRequestResponse(syncMessage.getMessageRequestResponse().get());
-        else                                                         Log.w(TAG, "Contains no known sync types...");
+        else                                                          warn(TAG, String.valueOf(content.getTimestamp()), "Contains no known sync types...");
       } else if (content.getCallMessage().isPresent()) {
-        Log.i(TAG, "Got call message...");
+        log(TAG, String.valueOf(content.getTimestamp()), "Got call message...");
 
         SignalServiceCallMessage message             = content.getCallMessage().get();
         Optional<Integer>        destinationDeviceId = message.getDestinationDeviceId();
 
         if (destinationDeviceId.isPresent() && destinationDeviceId.get() != 1) {
-          Log.i(TAG, String.format(Locale.US, "Ignoring call message that is not for this device! intended: %d, this: %d", destinationDeviceId.get(), 1));
+          log(TAG, String.valueOf(content.getTimestamp()), String.format(Locale.US, "Ignoring call message that is not for this device! intended: %d, this: %d", destinationDeviceId.get(), 1));
           return;
         }
 
@@ -412,23 +427,25 @@ public final class PushProcessMessageJob extends BaseJob {
         else if (message.getIceUpdateMessages().isPresent()) handleCallIceUpdateMessage(content, message.getIceUpdateMessages().get());
         else if (message.getHangupMessage().isPresent())     handleCallHangupMessage(content, message.getHangupMessage().get(), smsMessageId);
         else if (message.getBusyMessage().isPresent())       handleCallBusyMessage(content, message.getBusyMessage().get());
+        else if (message.getOpaqueMessage().isPresent())     handleCallOpaqueMessage(content, message.getOpaqueMessage().get());
       } else if (content.getReceiptMessage().isPresent()) {
         SignalServiceReceiptMessage message = content.getReceiptMessage().get();
 
         if      (message.isReadReceipt())     handleReadReceipt(content, message);
         else if (message.isDeliveryReceipt()) handleDeliveryReceipt(content, message);
+        else if (message.isViewedReceipt())   handleViewedReceipt(content, message);
       } else if (content.getTypingMessage().isPresent()) {
         handleTypingMessage(content, content.getTypingMessage().get());
       } else {
-        Log.w(TAG, "Got unrecognized message...");
+        warn(TAG, String.valueOf(content.getTimestamp()), "Got unrecognized message!");
       }
 
       resetRecipientToPush(Recipient.externalPush(context, content.getSender()));
     } catch (StorageFailedException e) {
-      Log.w(TAG, e);
+      warn(TAG, String.valueOf(content.getTimestamp()), e);
       handleCorruptMessage(e.getSender(), e.getSenderDevice(), timestamp, smsMessageId);
     } catch (BadGroupIdException e) {
-      Log.w(TAG, "Ignoring message with bad group id", e);
+      warn(TAG, String.valueOf(content.getTimestamp()), "Ignoring message with bad group id", e);
     }
   }
 
@@ -449,7 +466,7 @@ public final class PushProcessMessageJob extends BaseJob {
       GroupManager.updateGroupFromServer(context, groupV2.getMasterKey(), groupV2.getRevision(), content.getTimestamp(), groupV2.getSignedGroupChange());
       return true;
     } catch (GroupNotAMemberException e) {
-      Log.w(TAG, "Ignoring message for a group we're not in");
+      warn(TAG, String.valueOf(content.getTimestamp()), "Ignoring message for a group we're not in");
       return false;
     }
   }
@@ -458,39 +475,38 @@ public final class PushProcessMessageJob extends BaseJob {
     Recipient sender = Recipient.external(context, e.sender);
 
     if (sender.isBlocked()) {
-      Log.w(TAG, "Ignoring exception content from blocked sender, message state:" + messageState);
+      warn(TAG, "Ignoring exception content from blocked sender, message state:" + messageState);
       return;
     }
 
     switch (messageState) {
 
       case INVALID_VERSION:
-        Log.w(TAG, "Handling invalid version (" + timestamp + ")");
+        warn(TAG, String.valueOf(timestamp), "Handling invalid version.");
         handleInvalidVersionMessage(e.sender, e.senderDevice, timestamp, smsMessageId);
         break;
 
       case CORRUPT_MESSAGE:
-        Log.w(TAG, "Handling corrupt message (" + timestamp + ")");
+        warn(TAG, String.valueOf(timestamp), "Handling corrupt message.");
         handleCorruptMessage(e.sender, e.senderDevice, timestamp, smsMessageId);
         break;
 
       case NO_SESSION:
-        Log.w(TAG, "Handling no session (" + timestamp + ")");
+        warn(TAG, String.valueOf(timestamp), "Handling no session.");
         handleNoSessionMessage(e.sender, e.senderDevice, timestamp, smsMessageId);
         break;
 
       case LEGACY_MESSAGE:
-        Log.w(TAG, "Handling legacy message (" + timestamp + ")");
+        warn(TAG, String.valueOf(timestamp), "Handling legacy message.");
         handleLegacyMessage(e.sender, e.senderDevice, timestamp, smsMessageId);
         break;
 
       case DUPLICATE_MESSAGE:
-        Log.w(TAG, "Handling duplicate message (" + timestamp + ")");
-        handleDuplicateMessage(e.sender, e.senderDevice, timestamp, smsMessageId);
+        warn(TAG, String.valueOf(timestamp), "Duplicate message. Dropping.");
         break;
 
       case UNSUPPORTED_DATA_MESSAGE:
-        Log.w(TAG, "Handling unsupported data message (" + timestamp + ")");
+        warn(TAG, String.valueOf(timestamp), "Handling unsupported data message.");
         handleUnsupportedDataMessage(e.sender, e.senderDevice, Optional.fromNullable(e.groupId), timestamp, smsMessageId);
         break;
 
@@ -503,16 +519,16 @@ public final class PushProcessMessageJob extends BaseJob {
                                       @NonNull OfferMessage message,
                                       @NonNull Optional<Long> smsMessageId)
   {
-    Log.i(TAG, "handleCallOfferMessage...");
+    log(TAG, String.valueOf(content.getTimestamp()), "handleCallOfferMessage...");
 
     if (smsMessageId.isPresent()) {
       MessageDatabase database = DatabaseFactory.getSmsDatabase(context);
-      database.markAsMissedCall(smsMessageId.get());
+      database.markAsMissedCall(smsMessageId.get(), message.getType() == OfferMessage.Type.VIDEO_CALL);
     } else {
       Intent     intent            = new Intent(context, WebRtcCallService.class);
       Recipient  recipient         = Recipient.externalHighTrustPush(context, content.getSender());
       RemotePeer remotePeer        = new RemotePeer(recipient.getId());
-      byte[]     remoteIdentityKey = recipient.getIdentityKey();
+      byte[]     remoteIdentityKey = DatabaseFactory.getIdentityDatabase(context).getIdentity(recipient.getId()).transform(record -> record.getIdentityKey().serialize()).orNull();
 
       intent.setAction(WebRtcCallService.ACTION_RECEIVE_OFFER)
             .putExtra(WebRtcCallService.EXTRA_CALL_ID,                    message.getId())
@@ -534,11 +550,11 @@ public final class PushProcessMessageJob extends BaseJob {
   private void handleCallAnswerMessage(@NonNull SignalServiceContent content,
                                        @NonNull AnswerMessage message)
   {
-    Log.i(TAG, "handleCallAnswerMessage...");
+    log(TAG, String.valueOf(content), "handleCallAnswerMessage...");
     Intent     intent            = new Intent(context, WebRtcCallService.class);
     Recipient  recipient         = Recipient.externalHighTrustPush(context, content.getSender());
     RemotePeer remotePeer        = new RemotePeer(recipient.getId());
-    byte[]     remoteIdentityKey = recipient.getIdentityKey();
+    byte[]     remoteIdentityKey = DatabaseFactory.getIdentityDatabase(context).getIdentity(recipient.getId()).transform(record -> record.getIdentityKey().serialize()).orNull();
 
     intent.setAction(WebRtcCallService.ACTION_RECEIVE_ANSWER)
           .putExtra(WebRtcCallService.EXTRA_CALL_ID,             message.getId())
@@ -555,7 +571,7 @@ public final class PushProcessMessageJob extends BaseJob {
   private void handleCallIceUpdateMessage(@NonNull SignalServiceContent content,
                                           @NonNull List<IceUpdateMessage> messages)
   {
-    Log.i(TAG, "handleCallIceUpdateMessage... " + messages.size());
+    log(TAG, String.valueOf(content), "handleCallIceUpdateMessage... " + messages.size());
 
     ArrayList<IceCandidateParcel> iceCandidates = new ArrayList<>(messages.size());
     long callId = -1;
@@ -580,9 +596,9 @@ public final class PushProcessMessageJob extends BaseJob {
                                        @NonNull HangupMessage message,
                                        @NonNull Optional<Long> smsMessageId)
   {
-    Log.i(TAG, "handleCallHangupMessage");
+    log(TAG, String.valueOf(content), "handleCallHangupMessage");
     if (smsMessageId.isPresent()) {
-      DatabaseFactory.getSmsDatabase(context).markAsMissedCall(smsMessageId.get());
+      DatabaseFactory.getSmsDatabase(context).markAsMissedCall(smsMessageId.get(), false);
     } else {
       Intent     intent     = new Intent(context, WebRtcCallService.class);
       RemotePeer remotePeer = new RemotePeer(Recipient.externalHighTrustPush(context, content.getSender()).getId());
@@ -602,7 +618,7 @@ public final class PushProcessMessageJob extends BaseJob {
   private void handleCallBusyMessage(@NonNull SignalServiceContent content,
                                      @NonNull BusyMessage message)
   {
-    Log.i(TAG, "handleCallBusyMessage");
+    log(TAG, String.valueOf(content.getTimestamp()), "handleCallBusyMessage");
 
     Intent     intent     = new Intent(context, WebRtcCallService.class);
     RemotePeer remotePeer = new RemotePeer(Recipient.externalHighTrustPush(context, content.getSender()).getId());
@@ -613,6 +629,46 @@ public final class PushProcessMessageJob extends BaseJob {
           .putExtra(WebRtcCallService.EXTRA_REMOTE_DEVICE, content.getSenderDevice());
 
     context.startService(intent);
+  }
+
+  private void handleCallOpaqueMessage(@NonNull SignalServiceContent content,
+                                       @NonNull OpaqueMessage message)
+  {
+    log(TAG, String.valueOf(content.getTimestamp()), "handleCallOpaqueMessage");
+
+    Intent intent = new Intent(context, WebRtcCallService.class);
+
+    long messageAgeSeconds = 0;
+    if (content.getServerReceivedTimestamp() > 0 && content.getServerDeliveredTimestamp() >= content.getServerReceivedTimestamp()) {
+      messageAgeSeconds = (content.getServerDeliveredTimestamp() - content.getServerReceivedTimestamp()) / 1000;
+    }
+
+    intent.setAction(WebRtcCallService.ACTION_RECEIVE_OPAQUE_MESSAGE)
+          .putExtra(WebRtcCallService.EXTRA_OPAQUE_MESSAGE, message.getOpaque())
+          .putExtra(WebRtcCallService.EXTRA_UUID, Recipient.externalHighTrustPush(context, content.getSender()).requireUuid().toString())
+          .putExtra(WebRtcCallService.EXTRA_REMOTE_DEVICE, content.getSenderDevice())
+          .putExtra(WebRtcCallService.EXTRA_MESSAGE_AGE_SECONDS, messageAgeSeconds);
+
+    context.startService(intent);
+  }
+
+  private void handleGroupCallUpdateMessage(@NonNull SignalServiceContent content,
+                                            @NonNull SignalServiceDataMessage message,
+                                            @NonNull Optional<GroupId> groupId)
+  {
+    if (!groupId.isPresent() || !groupId.get().isV2()) {
+      Log.w(TAG, "Invalid group for group call update message");
+      return;
+    }
+
+    RecipientId groupRecipientId = DatabaseFactory.getRecipientDatabase(context).getOrInsertFromPossiblyMigratedGroupId(groupId.get());
+
+    DatabaseFactory.getSmsDatabase(context).insertOrUpdateGroupCall(groupRecipientId,
+                                                                    RecipientId.from(content.getSender()),
+                                                                    content.getServerReceivedTimestamp(),
+                                                                    message.getGroupCallUpdate().get().getEraId());
+
+    GroupCallPeekJob.enqueue(groupRecipientId);
   }
 
   private void handleEndSessionMessage(@NonNull SignalServiceContent content,
@@ -699,10 +755,10 @@ public final class PushProcessMessageJob extends BaseJob {
       if (groupV1.getType() != SignalServiceGroup.Type.REQUEST_INFO) {
         ApplicationDependencies.getJobManager().add(new RequestGroupInfoJob(Recipient.externalHighTrustPush(context, content.getSender()).getId(), GroupId.v1(groupV1.getGroupId())));
       } else {
-        Log.w(TAG, "Received a REQUEST_INFO message for a group we don't know about. Ignoring.");
+        warn(TAG, String.valueOf(content.getTimestamp()), "Received a REQUEST_INFO message for a group we don't know about. Ignoring.");
       }
     } else {
-      Log.w(TAG, "Received a message for a group we don't know about without a GV1 context. Ignoring.");
+      warn(TAG, String.valueOf(content.getTimestamp()), "Received a message for a group we don't know about without a GV1 context. Ignoring.");
     }
   }
 
@@ -713,7 +769,7 @@ public final class PushProcessMessageJob extends BaseJob {
       throws StorageFailedException, BadGroupIdException
   {
     if (groupId.isPresent() && groupId.get().isV2()) {
-      Log.w(TAG, "Expiration update received for GV2. Ignoring.");
+      warn(TAG, String.valueOf(content.getTimestamp()), "Expiration update received for GV2. Ignoring.");
       return;
     }
 
@@ -722,7 +778,7 @@ public final class PushProcessMessageJob extends BaseJob {
     Recipient                           recipient        = getMessageDestination(content, groupContext);
 
     if (recipient.getExpireMessages() == expiresInSeconds) {
-      Log.i(TAG, "No change in message expiry for group. Ignoring.");
+      log(TAG, String.valueOf(content.getTimestamp()), "No change in message expiry for group. Ignoring.");
       return;
     }
 
@@ -777,9 +833,9 @@ public final class PushProcessMessageJob extends BaseJob {
         ApplicationDependencies.getMessageNotifier().updateNotification(context, targetMessage.getThreadId(), false);
       }
     } else if (targetMessage != null) {
-      Log.w(TAG, "[handleReaction] Found a matching message, but it's flagged as remotely deleted. timestamp: " + reaction.getTargetSentTimestamp() + "  author: " + targetAuthor.getId());
+      warn(TAG, String.valueOf(content.getTimestamp()), "[handleReaction] Found a matching message, but it's flagged as remotely deleted. timestamp: " + reaction.getTargetSentTimestamp() + "  author: " + targetAuthor.getId());
     } else {
-      Log.w(TAG, "[handleReaction] Could not find matching message! timestamp: " + reaction.getTargetSentTimestamp() + "  author: " + targetAuthor.getId());
+      warn(TAG, String.valueOf(content.getTimestamp()), "[handleReaction] Could not find matching message! timestamp: " + reaction.getTargetSentTimestamp() + "  author: " + targetAuthor.getId());
       ApplicationDependencies.getEarlyMessageCache().store(targetAuthor.getId(), reaction.getTargetSentTimestamp(), content);
     }
   }
@@ -795,11 +851,11 @@ public final class PushProcessMessageJob extends BaseJob {
       db.markAsRemoteDelete(targetMessage.getId());
       ApplicationDependencies.getMessageNotifier().updateNotification(context, targetMessage.getThreadId(), false);
     } else if (targetMessage == null) {
-      Log.w(TAG, "[handleRemoteDelete] Could not find matching message! timestamp: " + delete.getTargetSentTimestamp() + "  author: " + sender.getId());
+      warn(TAG, String.valueOf(content.getTimestamp()), "[handleRemoteDelete] Could not find matching message! timestamp: " + delete.getTargetSentTimestamp() + "  author: " + sender.getId());
       ApplicationDependencies.getEarlyMessageCache().store(sender.getId(), delete.getTargetSentTimestamp(), content);
     } else {
-      Log.w(TAG, String.format(Locale.ENGLISH, "[handleRemoteDelete] Invalid remote delete! deleteTime: %d, targetTime: %d, deleteAuthor: %s, targetAuthor: %s",
-                                                content.getServerReceivedTimestamp(), targetMessage.getServerTimestamp(), sender.getId(), targetMessage.getRecipient().getId()));
+      warn(TAG, String.valueOf(content.getTimestamp()), String.format(Locale.ENGLISH, "[handleRemoteDelete] Invalid remote delete! deleteTime: %d, targetTime: %d, deleteAuthor: %s, targetAuthor: %s",
+                                                                      content.getServerReceivedTimestamp(), targetMessage.getServerTimestamp(), sender.getId(), targetMessage.getRecipient().getId()));
     }
   }
 
@@ -824,7 +880,7 @@ public final class PushProcessMessageJob extends BaseJob {
             break;
         }
       } else {
-        Log.w(TAG, "Received incomplete sticker pack operation sync.");
+        warn(TAG, "Received incomplete sticker pack operation sync.");
       }
     }
   }
@@ -851,8 +907,8 @@ public final class PushProcessMessageJob extends BaseJob {
     DatabaseFactory.getRecipientDatabase(context).applyBlockedUpdate(blockMessage.getAddresses(), blockMessage.getGroupIds());
   }
 
-  private static void handleSynchronizeFetchMessage(@NonNull SignalServiceSyncMessage.FetchType fetchType) {
-    Log.i(TAG, "Received fetch request with type: " + fetchType);
+  private void handleSynchronizeFetchMessage(@NonNull SignalServiceSyncMessage.FetchType fetchType) {
+    log(TAG, "Received fetch request with type: " + fetchType);
 
     switch (fetchType) {
       case LOCAL_PROFILE:
@@ -878,9 +934,9 @@ public final class PushProcessMessageJob extends BaseJob {
       recipient = Recipient.externalPush(context, response.getPerson().get());
     } else if (response.getGroupId().isPresent()) {
       GroupId groupId = GroupId.v1(response.getGroupId().get());
-      recipient = Recipient.externalGroup(context, groupId);
+      recipient = Recipient.externalPossiblyMigratedGroup(context, groupId);
     } else {
-      Log.w(TAG, "Message request response was missing a thread recipient! Skipping.");
+      warn(TAG, "Message request response was missing a thread recipient! Skipping.");
       return;
     }
 
@@ -905,7 +961,7 @@ public final class PushProcessMessageJob extends BaseJob {
         if (threadId > 0) threadDatabase.deleteConversation(threadId);
         break;
       default:
-        Log.w(TAG, "Got an unknown response type! Skipping");
+        warn(TAG, "Got an unknown response type! Skipping");
         break;
     }
   }
@@ -914,8 +970,17 @@ public final class PushProcessMessageJob extends BaseJob {
                                             @NonNull SentTranscriptMessage message)
       throws StorageFailedException, BadGroupIdException, IOException, GroupChangeBusyException
   {
+    log(TAG, String.valueOf(content.getTimestamp()), "Processing sent transcript for message with ID " + message.getTimestamp());
+
     try {
       GroupDatabase groupDatabase = DatabaseFactory.getGroupDatabase(context);
+
+      if (message.getMessage().isGroupV2Message()) {
+        Optional<GroupDatabase.GroupRecord> possibleGv1 = groupDatabase.getGroupV1ByExpectedV2(GroupId.v2(message.getMessage().getGroupContext().get().getGroupV2().get().getMasterKey()));
+        if (possibleGv1.isPresent()) {
+          GroupsV1MigrationUtil.performLocalMigration(context, possibleGv1.get().getId().requireV1());
+        }
+      }
 
       long threadId = -1;
 
@@ -929,6 +994,10 @@ public final class PushProcessMessageJob extends BaseJob {
       } else if (message.getMessage().isGroupV2Update()) {
         handleSynchronizeSentGv2Update(content, message);
         threadId = DatabaseFactory.getThreadDatabase(context).getThreadIdFor(getSyncMessageDestination(message));
+      } else if (FeatureFlags.groupCalling() && message.getMessage().getGroupCallUpdate().isPresent()) {
+        handleGroupCallUpdateMessage(content, message.getMessage(), GroupUtil.idFromGroupContext(message.getMessage().getGroupContext()));
+      } else if (message.getMessage().isEmptyGroupV2Message()) {
+        // Do nothing
       } else if (message.getMessage().isExpirationUpdate()) {
         threadId = handleSynchronizeSentExpirationUpdate(message);
       } else if (message.getMessage().getReaction().isPresent()) {
@@ -936,7 +1005,7 @@ public final class PushProcessMessageJob extends BaseJob {
         threadId = DatabaseFactory.getThreadDatabase(context).getThreadIdFor(getSyncMessageDestination(message));
       } else if (message.getMessage().getRemoteDelete().isPresent()) {
         handleRemoteDelete(content, message.getMessage());
-      } else if (message.getMessage().getAttachments().isPresent() || message.getMessage().getQuote().isPresent() || message.getMessage().getPreviews().isPresent() || message.getMessage().getSticker().isPresent() || message.getMessage().isViewOnce()) {
+      } else if (message.getMessage().getAttachments().isPresent() || message.getMessage().getQuote().isPresent() || message.getMessage().getPreviews().isPresent() || message.getMessage().getSticker().isPresent() || message.getMessage().isViewOnce() || message.getMessage().getMentions().isPresent()) {
         threadId = handleSynchronizeSentMediaMessage(message);
       } else {
         threadId = handleSynchronizeSentTextMessage(message);
@@ -973,7 +1042,7 @@ public final class PushProcessMessageJob extends BaseJob {
     GroupId.V2           groupIdV2            = GroupId.v2(signalServiceGroupV2.getMasterKey());
 
     if (!updateGv2GroupFromServerOrP2PChange(content, signalServiceGroupV2)) {
-      Log.i(TAG, "Ignoring GV2 message for group we are not currently in " + groupIdV2);
+      log(TAG, String.valueOf(content.getTimestamp()), "Ignoring GV2 message for group we are not currently in " + groupIdV2);
     }
   }
 
@@ -1030,12 +1099,16 @@ public final class PushProcessMessageJob extends BaseJob {
   }
 
   private void handleSynchronizeViewOnceOpenMessage(@NonNull ViewOnceOpenMessage openMessage, long envelopeTimestamp) {
+    log(TAG, String.valueOf(envelopeTimestamp), "Handling a view-once open for message: " + openMessage.getTimestamp());
+
     RecipientId   author    = Recipient.externalPush(context, openMessage.getSender()).getId();
     long          timestamp = openMessage.getTimestamp();
     MessageRecord record    = DatabaseFactory.getMmsSmsDatabase(context).getMessageFor(timestamp, author);
 
     if (record != null && record.isMms()) {
       DatabaseFactory.getAttachmentDatabase(context).deleteAttachmentFilesForViewOnceMessage(record.getId());
+    } else {
+      warn(TAG, String.valueOf(envelopeTimestamp), "Got a view-once open message for a message we don't have!");
     }
 
     MessageNotifier messageNotifier = ApplicationDependencies.getMessageNotifier();
@@ -1082,16 +1155,6 @@ public final class PushProcessMessageJob extends BaseJob {
       insertResult = database.insertSecureDecryptedMessageInbox(mediaMessage, -1);
 
       if (insertResult.isPresent()) {
-        List<DatabaseAttachment> allAttachments     = DatabaseFactory.getAttachmentDatabase(context).getAttachmentsForMessage(insertResult.get().getMessageId());
-        List<DatabaseAttachment> stickerAttachments = Stream.of(allAttachments).filter(Attachment::isSticker).toList();
-        List<DatabaseAttachment> attachments        = Stream.of(allAttachments).filterNot(Attachment::isSticker).toList();
-
-        forceStickerDownloadIfNecessary(stickerAttachments);
-
-        for (DatabaseAttachment attachment : attachments) {
-          ApplicationDependencies.getJobManager().add(new AttachmentDownloadJob(insertResult.get().getMessageId(), attachment.getAttachmentId(), false));
-        }
-
         if (smsMessageId.isPresent()) {
           DatabaseFactory.getSmsDatabase(context).deleteMessage(smsMessageId.get());
         }
@@ -1105,7 +1168,18 @@ public final class PushProcessMessageJob extends BaseJob {
     }
 
     if (insertResult.isPresent()) {
+      List<DatabaseAttachment> allAttachments     = DatabaseFactory.getAttachmentDatabase(context).getAttachmentsForMessage(insertResult.get().getMessageId());
+      List<DatabaseAttachment> stickerAttachments = Stream.of(allAttachments).filter(Attachment::isSticker).toList();
+      List<DatabaseAttachment> attachments        = Stream.of(allAttachments).filterNot(Attachment::isSticker).toList();
+
+      forceStickerDownloadIfNecessary(stickerAttachments);
+
+      for (DatabaseAttachment attachment : attachments) {
+        ApplicationDependencies.getJobManager().add(new AttachmentDownloadJob(insertResult.get().getMessageId(), attachment.getAttachmentId(), false));
+      }
+
       ApplicationDependencies.getMessageNotifier().updateNotification(context, insertResult.get().getThreadId());
+      ApplicationDependencies.getJobManager().add(new TrimThreadJob(insertResult.get().getThreadId()));
 
       if (message.isViewOnce()) {
         ApplicationContext.getInstance(context).getViewOnceMessageManager().scheduleIfNecessary();
@@ -1202,7 +1276,7 @@ public final class PushProcessMessageJob extends BaseJob {
                                             message.getMessage().getExpiresInSeconds() * 1000L);
       }
 
-      if (recipients.isLocalNumber()) {
+      if (recipients.isSelf()) {
         SyncMessageId id = new SyncMessageId(recipients.getId(), message.getTimestamp());
         DatabaseFactory.getMmsSmsDatabase(context).incrementDeliveryReceiptCount(id, System.currentTimeMillis());
         DatabaseFactory.getMmsSmsDatabase(context).incrementReadReceiptCount(id, System.currentTimeMillis());
@@ -1221,7 +1295,7 @@ public final class PushProcessMessageJob extends BaseJob {
     Recipient recipient = getSyncMessageDestination(message);
 
     if (!recipient.isGroup()) {
-      Log.w(TAG, "Got recipient update for a non-group message! Skipping.");
+      warn(TAG, "Got recipient update for a non-group message! Skipping.");
       return;
     }
 
@@ -1229,12 +1303,12 @@ public final class PushProcessMessageJob extends BaseJob {
     MessageRecord  record   = database.getMessageFor(message.getTimestamp(), Recipient.self().getId());
 
     if (record == null) {
-      Log.w(TAG, "Got recipient update for non-existing message! Skipping.");
+      warn(TAG, "Got recipient update for non-existing message! Skipping.");
       return;
     }
 
     if (!record.isMms()) {
-      Log.w(TAG, "Recipient update matched a non-MMS message! Skipping.");
+      warn(TAG, "Recipient update matched a non-MMS message! Skipping.");
       return;
     }
 
@@ -1322,7 +1396,7 @@ public final class PushProcessMessageJob extends BaseJob {
     boolean isGroup   = recipient.isGroup();
 
     MessageDatabase database;
-    long              messageId;
+    long            messageId;
 
     if (isGroup) {
       OutgoingMediaMessage outgoingMediaMessage = new OutgoingMediaMessage(recipient,
@@ -1360,7 +1434,7 @@ public final class PushProcessMessageJob extends BaseJob {
                         .scheduleDeletion(messageId, isGroup, message.getExpirationStartTimestamp(), expiresInMillis);
     }
 
-    if (recipient.isLocalNumber()) {
+    if (recipient.isSelf()) {
       SyncMessageId id = new SyncMessageId(recipient.getId(), message.getTimestamp());
       DatabaseFactory.getMmsSmsDatabase(context).incrementDeliveryReceiptCount(id, System.currentTimeMillis());
       DatabaseFactory.getMmsSmsDatabase(context).incrementReadReceiptCount(id, System.currentTimeMillis());
@@ -1477,22 +1551,6 @@ public final class PushProcessMessageJob extends BaseJob {
     }
   }
 
-  @SuppressWarnings("unused")
-  private void handleDuplicateMessage(@NonNull String sender, int senderDeviceId, long timestamp,
-                                      @NonNull Optional<Long> smsMessageId)
-  {
-    // Let's start ignoring these now
-//    SmsDatabase smsDatabase = DatabaseFactory.getEncryptingSmsDatabase(context);
-//
-//    if (smsMessageId <= 0) {
-//      Pair<Long, Long> messageAndThreadId = insertPlaceholder(masterSecret, envelope);
-//      smsDatabase.markAsDecryptDuplicate(messageAndThreadId.first);
-//      ApplicationDependencies.getMessageNotifier().updateNotification(context, masterSecret, messageAndThreadId.second);
-//    } else {
-//      smsDatabase.markAsDecryptDuplicate(smsMessageId);
-//    }
-  }
-
   private void handleProfileKey(@NonNull SignalServiceContent content,
                                 @NonNull byte[] messageProfileKeyBytes)
   {
@@ -1505,7 +1563,7 @@ public final class PushProcessMessageJob extends BaseJob {
         ApplicationDependencies.getJobManager().add(RetrieveProfileJob.forRecipient(recipient.getId()));
       }
     } else {
-      Log.w(TAG, "Ignored invalid profile key seen in message");
+      warn(TAG, String.valueOf(content.getTimestamp()), "Ignored invalid profile key seen in message");
     }
   }
 
@@ -1515,35 +1573,64 @@ public final class PushProcessMessageJob extends BaseJob {
     ApplicationDependencies.getJobManager().add(new SendDeliveryReceiptJob(RecipientId.fromHighTrust(content.getSender()), message.getTimestamp()));
   }
 
+  private void handleViewedReceipt(@NonNull SignalServiceContent content,
+                                   @NonNull SignalServiceReceiptMessage message)
+  {
+    if (!TextSecurePreferences.isReadReceiptsEnabled(context)) {
+      log(TAG, "Ignoring viewed receipts for IDs: " + Util.join(message.getTimestamps(), ", "));
+      return;
+    }
+
+    log(TAG, "Processing viewed reciepts for IDs: " + Util.join(message.getTimestamps(), ","));
+
+    Recipient                 sender    = Recipient.externalHighTrustPush(context, content.getSender());
+    List<SyncMessageId>       ids       = Stream.of(message.getTimestamps())
+                                                .map(t -> new SyncMessageId(sender.getId(), t))
+                                                .toList();
+    Collection<SyncMessageId> unhandled = DatabaseFactory.getMmsSmsDatabase(context)
+                                                         .incrementViewedReceiptCounts(ids, content.getTimestamp());
+
+    for (SyncMessageId id : unhandled) {
+      warn(TAG, String.valueOf(content.getTimestamp()), "[handleViewedReceipt] Could not find matching message! timestamp: " + id.getTimetamp() + "  author: " + sender.getId());
+      ApplicationDependencies.getEarlyMessageCache().store(sender.getId(), id.getTimetamp(), content);
+    }
+  }
+
   @SuppressLint("DefaultLocale")
   private void handleDeliveryReceipt(@NonNull SignalServiceContent content,
                                      @NonNull SignalServiceReceiptMessage message)
   {
-    for (long timestamp : message.getTimestamps()) {
-      Log.i(TAG, String.format("Received encrypted delivery receipt: (XXXXX, %d)", timestamp));
-      DatabaseFactory.getMmsSmsDatabase(context)
-                     .incrementDeliveryReceiptCount(new SyncMessageId(RecipientId.fromHighTrust(content.getSender()), timestamp), System.currentTimeMillis());
-    }
+    log(TAG, "Processing delivery receipts for IDs: " + Util.join(message.getTimestamps(), ", "));
+
+    Recipient           sender  = Recipient.externalHighTrustPush(context, content.getSender());
+    List<SyncMessageId> ids     = Stream.of(message.getTimestamps())
+                                        .map(t -> new SyncMessageId(sender.getId(), t))
+                                        .toList();
+
+    DatabaseFactory.getMmsSmsDatabase(context).incrementDeliveryReceiptCounts(ids, System.currentTimeMillis());
   }
 
   @SuppressLint("DefaultLocale")
   private void handleReadReceipt(@NonNull SignalServiceContent content,
                                  @NonNull SignalServiceReceiptMessage message)
   {
-    if (TextSecurePreferences.isReadReceiptsEnabled(context)) {
-      for (long timestamp : message.getTimestamps()) {
-        Log.i(TAG, String.format("Received encrypted read receipt: (XXXXX, %d)", timestamp));
+    if (!TextSecurePreferences.isReadReceiptsEnabled(context)) {
+      log(TAG, "Ignoring read receipts for IDs: " + Util.join(message.getTimestamps(), ", "));
+      return;
+    }
 
-        Recipient     sender  = Recipient.externalHighTrustPush(context, content.getSender());
-        SyncMessageId id      = new SyncMessageId(sender.getId(), timestamp);
-        boolean       handled = DatabaseFactory.getMmsSmsDatabase(context)
-                                               .incrementReadReceiptCount(id, content.getTimestamp());
+    log(TAG, "Processing read receipts for IDs: " + Util.join(message.getTimestamps(), ", "));
 
-        if (!handled) {
-          Log.w(TAG, "[handleReadReceipt] Could not find matching message! timestamp: " + timestamp + "  author: " + sender.getId());
-          ApplicationDependencies.getEarlyMessageCache().store(sender.getId(), timestamp, content);
-        }
-      }
+    Recipient           sender  = Recipient.externalHighTrustPush(context, content.getSender());
+    List<SyncMessageId> ids     = Stream.of(message.getTimestamps())
+                                        .map(t -> new SyncMessageId(sender.getId(), t))
+                                        .toList();
+
+    Collection<SyncMessageId> unhandled = DatabaseFactory.getMmsSmsDatabase(context).incrementReadReceiptCounts(ids, content.getTimestamp());
+
+    for (SyncMessageId id : unhandled) {
+      warn(TAG, String.valueOf(content.getTimestamp()), "[handleReadReceipt] Could not find matching message! timestamp: " + id.getTimetamp() + "  author: " + sender.getId());
+      ApplicationDependencies.getEarlyMessageCache().store(sender.getId(), id.getTimetamp(), content);
     }
   }
 
@@ -1563,11 +1650,11 @@ public final class PushProcessMessageJob extends BaseJob {
       GroupId.Push groupId = GroupId.push(typingMessage.getGroupId().get());
 
       if (!DatabaseFactory.getGroupDatabase(context).isCurrentMember(groupId, author.getId())) {
-        Log.w(TAG, "Seen typing indicator for non-member");
+        warn(TAG, String.valueOf(content.getTimestamp()), "Seen typing indicator for non-member");
         return;
       }
 
-      Recipient groupRecipient = Recipient.externalGroup(context, groupId);
+      Recipient groupRecipient = Recipient.externalPossiblyMigratedGroup(context, groupId);
 
       threadId = DatabaseFactory.getThreadDatabase(context).getThreadIdFor(groupRecipient);
     } else {
@@ -1575,16 +1662,16 @@ public final class PushProcessMessageJob extends BaseJob {
     }
 
     if (threadId <= 0) {
-      Log.w(TAG, "Couldn't find a matching thread for a typing message.");
+      warn(TAG, String.valueOf(content.getTimestamp()), "Couldn't find a matching thread for a typing message.");
       return;
     }
 
     if (typingMessage.isTypingStarted()) {
       Log.d(TAG, "Typing started on thread " + threadId);
-      ApplicationContext.getInstance(context).getTypingStatusRepository().onTypingStarted(context,threadId, author, content.getSenderDevice());
+      ApplicationDependencies.getTypingStatusRepository().onTypingStarted(context,threadId, author, content.getSenderDevice());
     } else {
       Log.d(TAG, "Typing stopped on thread " + threadId);
-      ApplicationContext.getInstance(context).getTypingStatusRepository().onTypingStopped(context, threadId, author, content.getSenderDevice(), false);
+      ApplicationDependencies.getTypingStatusRepository().onTypingStopped(context, threadId, author, content.getSenderDevice(), false);
     }
   }
 
@@ -1607,12 +1694,12 @@ public final class PushProcessMessageJob extends BaseJob {
     if (!quote.isPresent()) return Optional.absent();
 
     if (quote.get().getId() <= 0) {
-      Log.w(TAG, "Received quote without an ID! Ignoring...");
+      warn(TAG, "Received quote without an ID! Ignoring...");
       return Optional.absent();
     }
 
     if (quote.get().getAuthor() == null) {
-      Log.w(TAG, "Received quote without an author! Ignoring...");
+      warn(TAG, "Received quote without an author! Ignoring...");
       return Optional.absent();
     }
 
@@ -1620,7 +1707,7 @@ public final class PushProcessMessageJob extends BaseJob {
     MessageRecord message = DatabaseFactory.getMmsSmsDatabase(context).getMessageFor(quote.get().getId(), author);
 
     if (message != null && !message.isRemoteDelete()) {
-      Log.i(TAG, "Found matching message record...");
+      log(TAG, "Found matching message record...");
 
       List<Attachment> attachments = new LinkedList<>();
       List<Mention>    mentions    = new LinkedList<>();
@@ -1646,10 +1733,10 @@ public final class PushProcessMessageJob extends BaseJob {
 
       return Optional.of(new QuoteModel(quote.get().getId(), author, message.getBody(), false, attachments, mentions));
     } else if (message != null) {
-      Log.w(TAG, "Found the target for the quote, but it's flagged as remotely deleted.");
+      warn(TAG, "Found the target for the quote, but it's flagged as remotely deleted.");
     }
 
-    Log.w(TAG, "Didn't find matching message record...");
+    warn(TAG, "Didn't find matching message record...");
 
     return Optional.of(new QuoteModel(quote.get().getId(),
                                       author,
@@ -1665,7 +1752,7 @@ public final class PushProcessMessageJob extends BaseJob {
     }
 
     if (sticker.get().getPackId() == null || sticker.get().getPackKey() == null || sticker.get().getAttachment() == null) {
-      Log.w(TAG, "Malformed sticker!");
+      warn(TAG, "Malformed sticker!");
       return Optional.absent();
     }
 
@@ -1711,7 +1798,7 @@ public final class PushProcessMessageJob extends BaseJob {
     return Optional.of(contacts);
   }
 
-  private static Optional<List<LinkPreview>> getLinkPreviews(Optional<List<Preview>> previews, @NonNull String message) {
+  private Optional<List<LinkPreview>> getLinkPreviews(Optional<List<Preview>> previews, @NonNull String message) {
     if (!previews.isPresent()) return Optional.absent();
 
     List<LinkPreview> linkPreviews = new ArrayList<>(previews.get().size());
@@ -1729,7 +1816,7 @@ public final class PushProcessMessageJob extends BaseJob {
         LinkPreview linkPreview = new LinkPreview(url.get(), title.or(""), description.or(""), preview.getDate(), thumbnail);
         linkPreviews.add(linkPreview);
       } else {
-        Log.w(TAG, String.format("Discarding an invalid link preview. hasTitle: %b presentInBody: %b validDomain: %b", hasTitle, presentInBody, validDomain));
+        warn(TAG, String.format("Discarding an invalid link preview. hasTitle: %b presentInBody: %b validDomain: %b", hasTitle, presentInBody, validDomain));
       }
     }
 
@@ -1794,7 +1881,7 @@ public final class PushProcessMessageJob extends BaseJob {
       throws BadGroupIdException
   {
     if (message.isPresent()) {
-      return Optional.of(Recipient.externalGroup(context, GroupUtil.idFromGroupContext(message.get())));
+      return Optional.of(Recipient.externalPossiblyMigratedGroup(context, GroupUtil.idFromGroupContext(message.get())));
     }
     return Optional.absent();
   }
@@ -1805,7 +1892,7 @@ public final class PushProcessMessageJob extends BaseJob {
 
     if (threadId > 0) {
       Log.d(TAG, "Typing stopped on thread " + threadId + " due to an incoming message.");
-      ApplicationContext.getInstance(context).getTypingStatusRepository().onTypingStopped(context, threadId, author, device, true);
+      ApplicationDependencies.getTypingStatusRepository().onTypingStopped(context, threadId, author, device, true);
     }
   }
 
@@ -1813,7 +1900,7 @@ public final class PushProcessMessageJob extends BaseJob {
       throws BadGroupIdException
   {
     if (content == null) {
-      Log.w(TAG, "Got a message with null content.");
+      warn(TAG, "Got a message with null content.");
       return true;
     }
 
@@ -1829,8 +1916,17 @@ public final class PushProcessMessageJob extends BaseJob {
         GroupDatabase     groupDatabase = DatabaseFactory.getGroupDatabase(context);
         Optional<GroupId> groupId       = GroupUtil.idFromGroupContext(message.getGroupContext());
 
+        if (groupId.isPresent()       &&
+            groupId.get().isV1()      &&
+            message.isGroupV1Update() &&
+            groupDatabase.groupExists(groupId.get().requireV1().deriveV2MigrationGroupId()))
+        {
+          warn(TAG, String.valueOf(content.getTimestamp()), "Ignoring V1 update for a group we've already migrated to V2.");
+          return true;
+        }
+
         if (groupId.isPresent() && groupDatabase.isUnknownGroup(groupId.get())) {
-          return false;
+          return sender.isBlocked();
         }
 
         boolean isTextMessage    = message.getBody().isPresent();
@@ -1854,7 +1950,7 @@ public final class PushProcessMessageJob extends BaseJob {
 
       if (content.getTypingMessage().get().getGroupId().isPresent()) {
         GroupId   groupId        = GroupId.push(content.getTypingMessage().get().getGroupId().get());
-        Recipient groupRecipient = Recipient.externalGroup(context, groupId);
+        Recipient groupRecipient = Recipient.externalPossiblyMigratedGroup(context, groupId);
         return groupRecipient.isBlocked() || !groupRecipient.isActiveGroup();
       }
     }
@@ -1880,7 +1976,7 @@ public final class PushProcessMessageJob extends BaseJob {
         downloadJob.setContext(context);
         downloadJob.doWork();
       } catch (Exception e) {
-        Log.w(TAG, "Failed to download sticker inline. Scheduling.");
+        warn(TAG, "Failed to download sticker inline. Scheduling.");
         ApplicationDependencies.getJobManager().add(downloadJob);
       }
     }

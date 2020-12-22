@@ -7,6 +7,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.preference.PreferenceDataStore;
 
+import org.signal.core.util.logging.Log;
 import org.thoughtcrime.securesms.ApplicationPreferencesActivity;
 import org.thoughtcrime.securesms.R;
 import org.thoughtcrime.securesms.components.SwitchPreferenceCompat;
@@ -18,7 +19,7 @@ import org.thoughtcrime.securesms.jobs.RotateProfileKeyJob;
 import org.thoughtcrime.securesms.jobs.StorageForcePushJob;
 import org.thoughtcrime.securesms.keyvalue.InternalValues;
 import org.thoughtcrime.securesms.keyvalue.SignalStore;
-import org.thoughtcrime.securesms.logging.Log;
+import org.thoughtcrime.securesms.util.ConversationUtil;
 
 public class InternalOptionsPreferenceFragment extends CorrectedPreferenceFragment {
   private static final String TAG = Log.tag(InternalOptionsPreferenceFragment.class);
@@ -39,6 +40,9 @@ public class InternalOptionsPreferenceFragment extends CorrectedPreferenceFragme
     initializeSwitchPreference(preferenceDataStore, InternalValues.GV2_FORCE_INVITES, SignalStore.internalValues().gv2ForceInvites());
     initializeSwitchPreference(preferenceDataStore, InternalValues.GV2_IGNORE_SERVER_CHANGES, SignalStore.internalValues().gv2IgnoreServerChanges());
     initializeSwitchPreference(preferenceDataStore, InternalValues.GV2_IGNORE_P2P_CHANGES, SignalStore.internalValues().gv2IgnoreP2PChanges());
+    initializeSwitchPreference(preferenceDataStore, InternalValues.GV2_DISABLE_AUTOMIGRATE_INITIATION, SignalStore.internalValues().disableGv1AutoMigrateInitiation());
+    initializeSwitchPreference(preferenceDataStore, InternalValues.GV2_DISABLE_AUTOMIGRATE_NOTIFICATION, SignalStore.internalValues().disableGv1AutoMigrateNotification());
+    initializeSwitchPreference(preferenceDataStore, InternalValues.FORCE_CENSORSHIP, SignalStore.internalValues().forcedCensorship());
 
     findPreference("pref_refresh_attributes").setOnPreferenceClickListener(preference -> {
       ApplicationDependencies.getJobManager()
@@ -64,6 +68,12 @@ public class InternalOptionsPreferenceFragment extends CorrectedPreferenceFragme
     findPreference("pref_force_send").setOnPreferenceClickListener(preference -> {
       ApplicationDependencies.getJobManager().add(new StorageForcePushJob());
       Toast.makeText(getContext(), "Scheduled storage force push", Toast.LENGTH_SHORT).show();
+      return true;
+    });
+
+    findPreference("pref_delete_dynamic_shortcuts").setOnPreferenceClickListener(preference -> {
+      ConversationUtil.clearAllShortcuts(requireContext());
+      Toast.makeText(getContext(), "Deleted all dynamic shortcuts.", Toast.LENGTH_SHORT).show();
       return true;
     });
   }

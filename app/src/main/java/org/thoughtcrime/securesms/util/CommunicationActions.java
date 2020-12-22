@@ -20,22 +20,22 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.core.app.TaskStackBuilder;
 import androidx.fragment.app.FragmentActivity;
 
+import org.signal.core.util.concurrent.SignalExecutors;
+import org.signal.core.util.logging.Log;
 import org.thoughtcrime.securesms.R;
 import org.thoughtcrime.securesms.WebRtcCallActivity;
-import org.thoughtcrime.securesms.conversation.ConversationActivity;
+import org.thoughtcrime.securesms.conversation.ConversationIntents;
 import org.thoughtcrime.securesms.database.DatabaseFactory;
 import org.thoughtcrime.securesms.database.GroupDatabase;
 import org.thoughtcrime.securesms.groups.GroupId;
 import org.thoughtcrime.securesms.groups.ui.invitesandrequests.joining.GroupJoinBottomSheetDialogFragment;
 import org.thoughtcrime.securesms.groups.ui.invitesandrequests.joining.GroupJoinUpdateRequiredBottomSheetDialogFragment;
 import org.thoughtcrime.securesms.groups.v2.GroupInviteLinkUrl;
-import org.thoughtcrime.securesms.logging.Log;
 import org.thoughtcrime.securesms.permissions.Permissions;
 import org.thoughtcrime.securesms.recipients.Recipient;
 import org.thoughtcrime.securesms.ringrtc.RemotePeer;
 import org.thoughtcrime.securesms.service.WebRtcCallService;
 import org.thoughtcrime.securesms.sms.MessageSender;
-import org.thoughtcrime.securesms.util.concurrent.SignalExecutors;
 import org.thoughtcrime.securesms.util.concurrent.SimpleTask;
 import org.whispersystems.signalservice.api.messages.calls.OfferMessage;
 
@@ -94,12 +94,12 @@ public class CommunicationActions {
 
       @Override
       protected void onPostExecute(Long threadId) {
-        Intent intent = ConversationActivity.buildIntent(context, recipient.getId(), threadId);
-
+        ConversationIntents.Builder builder = ConversationIntents.createBuilder(context, recipient.getId(), threadId);
         if (!TextUtils.isEmpty(text)) {
-          intent.putExtra(ConversationActivity.TEXT_EXTRA, text);
+          builder.withDraftText(text);
         }
 
+        Intent intent = builder.build();
         if (backStack != null) {
           backStack.addNextIntent(intent);
           backStack.startActivities();
@@ -146,7 +146,7 @@ public class CommunicationActions {
     intent.putExtra(Intent.EXTRA_SUBJECT, Util.emptyIfNull(subject));
     intent.putExtra(Intent.EXTRA_TEXT, Util.emptyIfNull(body));
 
-    context.startActivity(intent);
+    context.startActivity(Intent.createChooser(intent, context.getString(R.string.CommunicationActions_send_email)));
   }
 
   /**
@@ -156,7 +156,7 @@ public class CommunicationActions {
    */
   public static boolean handlePotentialGroupLinkUrl(@NonNull FragmentActivity activity, @NonNull String potentialGroupLinkUrl) {
     try {
-      GroupInviteLinkUrl groupInviteLinkUrl = GroupInviteLinkUrl.fromUrl(potentialGroupLinkUrl);
+      GroupInviteLinkUrl groupInviteLinkUrl = GroupInviteLinkUrl.fromUri(potentialGroupLinkUrl);
 
       if (groupInviteLinkUrl == null) {
         return false;

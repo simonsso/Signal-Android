@@ -3,11 +3,11 @@ package org.thoughtcrime.securesms.jobs;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import org.signal.core.util.logging.Log;
 import org.thoughtcrime.securesms.jobmanager.Data;
 import org.thoughtcrime.securesms.jobmanager.Job;
 import org.thoughtcrime.securesms.jobmanager.JobLogger;
 import org.thoughtcrime.securesms.jobmanager.JobManager.Chain;
-import org.thoughtcrime.securesms.logging.Log;
 
 public abstract class BaseJob extends Job {
 
@@ -51,7 +51,7 @@ public abstract class BaseJob extends Job {
   }
 
   protected void log(@NonNull String tag, @NonNull String message) {
-    log(tag, "", JobLogger.format(this, message));
+    Log.i(tag, JobLogger.format(this, message));
   }
 
   protected void log(@NonNull String tag, @NonNull String extra, @NonNull String message) {

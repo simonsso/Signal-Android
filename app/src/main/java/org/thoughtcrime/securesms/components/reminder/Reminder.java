@@ -1,11 +1,10 @@
 package org.thoughtcrime.securesms.components.reminder;
 
+import android.view.View.OnClickListener;
+
 import androidx.annotation.IdRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-
-import android.view.View;
-import android.view.View.OnClickListener;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -74,7 +73,7 @@ public abstract class Reminder {
     NORMAL, ERROR, TERMINAL
   }
 
-  public final class Action {
+  public static final class Action {
     private final CharSequence title;
     private final int          actionId;
 

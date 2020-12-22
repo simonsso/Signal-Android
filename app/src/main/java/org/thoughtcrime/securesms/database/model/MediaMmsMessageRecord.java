@@ -17,9 +17,10 @@
 package org.thoughtcrime.securesms.database.model;
 
 import android.content.Context;
+import android.text.SpannableString;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import android.text.SpannableString;
 
 import org.thoughtcrime.securesms.R;
 import org.thoughtcrime.securesms.contactshare.Contact;
@@ -73,12 +74,14 @@ public class MediaMmsMessageRecord extends MmsMessageRecord {
                                boolean unidentified,
                                @NonNull List<ReactionRecord> reactions,
                                boolean remoteDelete,
-                               boolean mentionsSelf)
+                               boolean mentionsSelf,
+                               long notifiedTimestamp,
+                               int viewedReceiptCount)
   {
     super(id, body, conversationRecipient, individualRecipient, recipientDeviceId, dateSent,
           dateReceived, dateServer, threadId, Status.STATUS_NONE, deliveryReceiptCount, mailbox, mismatches, failures,
           subscriptionId, expiresIn, expireStarted, viewOnce, slideDeck,
-          readReceiptCount, quote, contacts, linkPreviews, unidentified, reactions, remoteDelete);
+          readReceiptCount, quote, contacts, linkPreviews, unidentified, reactions, remoteDelete, notifiedTimestamp, viewedReceiptCount);
     this.partCount    = partCount;
     this.mentionsSelf = mentionsSelf;
   }

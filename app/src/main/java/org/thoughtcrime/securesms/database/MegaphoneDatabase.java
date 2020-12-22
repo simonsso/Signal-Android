@@ -6,12 +6,11 @@ import android.database.Cursor;
 
 import androidx.annotation.NonNull;
 
-import net.sqlcipher.database.SQLiteDatabase;
-
+import org.signal.core.util.logging.Log;
 import org.thoughtcrime.securesms.database.helpers.SQLCipherOpenHelper;
 import org.thoughtcrime.securesms.database.model.MegaphoneRecord;
-import org.thoughtcrime.securesms.logging.Log;
 import org.thoughtcrime.securesms.megaphone.Megaphones.Event;
+import org.thoughtcrime.securesms.tracing.Trace;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -22,6 +21,7 @@ import java.util.Set;
 /**
  * IMPORTANT: Writes should only be made through {@link org.thoughtcrime.securesms.megaphone.MegaphoneRepository}.
  */
+@Trace
 public class MegaphoneDatabase extends Database {
 
   private static final String TAG = Log.tag(MegaphoneDatabase.class);

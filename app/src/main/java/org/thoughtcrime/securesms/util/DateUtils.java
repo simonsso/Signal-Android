@@ -24,12 +24,12 @@ import android.text.format.DateFormat;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import org.signal.core.util.logging.Log;
 import org.thoughtcrime.securesms.R;
-import org.thoughtcrime.securesms.logging.Log;
 
+import java.text.DateFormatSymbols;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
@@ -40,8 +40,9 @@ import java.util.concurrent.TimeUnit;
 public class DateUtils extends android.text.format.DateUtils {
 
   @SuppressWarnings("unused")
-  private static final String           TAG         = DateUtils.class.getSimpleName();
-  private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyyMMdd");
+  private static final String           TAG                = DateUtils.class.getSimpleName();
+  private static final SimpleDateFormat DATE_FORMAT        = new SimpleDateFormat("yyyyMMdd");
+  private static final SimpleDateFormat BRIEF_EXACT_FORMAT = new SimpleDateFormat();
 
   private static boolean isWithin(final long millis, final long span, final TimeUnit unit) {
     return System.currentTimeMillis() - millis <= unit.toMillis(span);
@@ -61,7 +62,7 @@ public class DateUtils extends android.text.format.DateUtils {
 
   private static String getFormattedDateTime(long time, String template, Locale locale) {
     final String localizedPattern = getLocalizedPattern(template, locale);
-    return new SimpleDateFormat(localizedPattern, locale).format(new Date(time));
+    return setLowercaseAmPmStrings(new SimpleDateFormat(localizedPattern, locale), locale).format(new Date(time));
   }
 
   public static String getBriefRelativeTimeSpanString(final Context c, final Locale locale, final long timestamp) {
@@ -174,6 +175,15 @@ public class DateUtils extends android.text.format.DateUtils {
 
   private static String getLocalizedPattern(String template, Locale locale) {
     return DateFormat.getBestDateTimePattern(locale, template);
+  }
+
+  private static @NonNull SimpleDateFormat setLowercaseAmPmStrings(@NonNull SimpleDateFormat format, @NonNull Locale locale) {
+    DateFormatSymbols symbols = new DateFormatSymbols(locale);
+
+    symbols.setAmPmStrings(new String[] { "am", "pm"});
+    format.setDateFormatSymbols(symbols);
+
+    return format;
   }
 
   /**

@@ -27,6 +27,7 @@ import org.thoughtcrime.securesms.components.ContactFilterToolbar.OnFilterChange
 import org.thoughtcrime.securesms.contacts.ContactsCursorLoader.DisplayMode;
 import org.thoughtcrime.securesms.contacts.SelectedContact;
 import org.thoughtcrime.securesms.database.DatabaseFactory;
+import org.thoughtcrime.securesms.groups.SelectionLimits;
 import org.thoughtcrime.securesms.recipients.Recipient;
 import org.thoughtcrime.securesms.recipients.RecipientId;
 import org.thoughtcrime.securesms.sms.MessageSender;
@@ -62,7 +63,8 @@ public class InviteActivity extends PassphraseRequiredActivity implements Contac
   @Override
   protected void onCreate(Bundle savedInstanceState, boolean ready) {
     getIntent().putExtra(ContactSelectionListFragment.DISPLAY_MODE, DisplayMode.FLAG_SMS);
-    getIntent().putExtra(ContactSelectionListFragment.MULTI_SELECT, true);
+    getIntent().putExtra(ContactSelectionListFragment.SELECTION_LIMITS, SelectionLimits.NO_LIMITS);
+    getIntent().putExtra(ContactSelectionListFragment.HIDE_COUNT, true);
     getIntent().putExtra(ContactSelectionListFragment.REFRESHABLE, false);
 
     setContentView(R.layout.invite_activity);
@@ -162,10 +164,10 @@ public class InviteActivity extends PassphraseRequiredActivity implements Contac
   private void setPrimaryColorsToolbarNormal() {
     primaryToolbar.setBackgroundColor(0);
     primaryToolbar.getNavigationIcon().setColorFilter(null);
-    primaryToolbar.setTitleTextColor(ThemeUtil.getThemedColor(this, R.attr.title_text_color_primary));
+    primaryToolbar.setTitleTextColor(ContextCompat.getColor(this, R.color.signal_text_primary));
 
     if (Build.VERSION.SDK_INT >= 23) {
-      getWindow().setStatusBarColor(ThemeUtil.getThemedColor(this, android.R.attr.statusBarColor));
+      WindowUtil.setStatusBarColor(getWindow(), ThemeUtil.getThemedColor(this, android.R.attr.statusBarColor));
       getWindow().setNavigationBarColor(ThemeUtil.getThemedColor(this, android.R.attr.navigationBarColor));
       WindowUtil.setLightStatusBarFromTheme(this);
     }
@@ -175,11 +177,11 @@ public class InviteActivity extends PassphraseRequiredActivity implements Contac
 
   private void setPrimaryColorsToolbarForSms() {
     primaryToolbar.setBackgroundColor(ContextCompat.getColor(this, R.color.core_ultramarine));
-    primaryToolbar.getNavigationIcon().setColorFilter(ThemeUtil.getThemedColor(this, R.attr.conversation_subtitle_color), PorterDuff.Mode.SRC_IN);
-    primaryToolbar.setTitleTextColor(ThemeUtil.getThemedColor(this, R.attr.conversation_title_color));
+    primaryToolbar.getNavigationIcon().setColorFilter(ContextCompat.getColor(this, R.color.signal_text_toolbar_subtitle), PorterDuff.Mode.SRC_IN);
+    primaryToolbar.setTitleTextColor(ContextCompat.getColor(this, R.color.signal_text_toolbar_title));
 
     if (Build.VERSION.SDK_INT >= 23) {
-      getWindow().setStatusBarColor(ContextCompat.getColor(this, R.color.core_ultramarine));
+      WindowUtil.setStatusBarColor(getWindow(), ContextCompat.getColor(this, R.color.core_ultramarine));
       WindowUtil.clearLightStatusBar(getWindow());
     }
 

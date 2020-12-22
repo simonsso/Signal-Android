@@ -18,12 +18,14 @@ package org.thoughtcrime.securesms;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
 import android.database.ContentObserver;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.Menu;
@@ -37,6 +39,8 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatDelegate;
+import androidx.core.app.ShareCompat;
 import androidx.core.util.Pair;
 import androidx.core.view.ViewCompat;
 import androidx.fragment.app.Fragment;
@@ -49,18 +53,19 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager.widget.ViewPager;
 
+import org.signal.core.util.logging.Log;
 import org.thoughtcrime.securesms.animation.DepthPageTransformer;
 import org.thoughtcrime.securesms.attachments.DatabaseAttachment;
 import org.thoughtcrime.securesms.components.viewpager.ExtendedOnPageChangedListener;
 import org.thoughtcrime.securesms.database.MediaDatabase;
 import org.thoughtcrime.securesms.database.MediaDatabase.MediaRecord;
 import org.thoughtcrime.securesms.database.loaders.PagingMediaLoader;
-import org.thoughtcrime.securesms.logging.Log;
 import org.thoughtcrime.securesms.mediaoverview.MediaOverviewActivity;
 import org.thoughtcrime.securesms.mediapreview.MediaPreviewFragment;
 import org.thoughtcrime.securesms.mediapreview.MediaPreviewViewModel;
 import org.thoughtcrime.securesms.mediapreview.MediaRailAdapter;
 import org.thoughtcrime.securesms.mms.GlideApp;
+import org.thoughtcrime.securesms.mms.PartAuthority;
 import org.thoughtcrime.securesms.permissions.Permissions;
 import org.thoughtcrime.securesms.recipients.Recipient;
 import org.thoughtcrime.securesms.recipients.RecipientId;
@@ -70,6 +75,7 @@ import org.thoughtcrime.securesms.util.DateUtils;
 import org.thoughtcrime.securesms.util.FullscreenHelper;
 import org.thoughtcrime.securesms.util.SaveAttachmentTask;
 import org.thoughtcrime.securesms.util.SaveAttachmentTask.Attachment;
+import org.thoughtcrime.securesms.util.StorageUtil;
 
 import java.util.HashMap;
 import java.util.Locale;
@@ -137,6 +143,12 @@ public final class MediaPreviewActivity extends PassphraseRequiredActivity
     return intent;
   }
 
+  @Override
+  protected void attachBaseContext(@NonNull Context newBase) {
+    getDelegate().setLocalNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+    super.attachBaseContext(newBase);
+  }
+
   @SuppressWarnings("ConstantConditions")
   @Override
   protected void onCreate(Bundle bundle, boolean ready) {
@@ -193,7 +205,7 @@ public final class MediaPreviewActivity extends PassphraseRequiredActivity
 
       if (threadRecipient != null) {
         if (mediaItem.outgoing || threadRecipient.isGroup()) {
-          if (threadRecipient.isLocalNumber()) {
+          if (threadRecipient.isSelf()) {
             from = getString(R.string.note_to_self);
           } else {
             to = threadRecipient.getDisplayName(this);
@@ -377,6 +389,27 @@ public final class MediaPreviewActivity extends PassphraseRequiredActivity
     }
   }
 
+  private void share() {
+    MediaItem mediaItem = getCurrentMediaItem();
+
+    if (mediaItem != null) {
+      Uri    publicUri   = PartAuthority.getAttachmentPublicUri(mediaItem.uri);
+      String mimeType    = Intent.normalizeMimeType(mediaItem.type);
+      Intent shareIntent = ShareCompat.IntentBuilder.from(this)
+                                                    .setStream(publicUri)
+                                                    .setType(mimeType)
+                                                    .createChooserIntent()
+                                                    .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+
+      try {
+        startActivity(shareIntent);
+      } catch (ActivityNotFoundException e) {
+        Log.w(TAG, "No activity existed to share the media.", e);
+        Toast.makeText(this, R.string.MediaPreviewActivity_cant_find_an_app_able_to_share_this_media, Toast.LENGTH_LONG).show();
+      }
+    }
+  }
+
   @SuppressWarnings("CodeBlock2Expr")
   @SuppressLint("InlinedApi")
   private void saveToDisk() {
@@ -384,19 +417,28 @@ public final class MediaPreviewActivity extends PassphraseRequiredActivity
 
     if (mediaItem != null) {
       SaveAttachmentTask.showWarningDialog(this, (dialogInterface, i) -> {
+        if (StorageUtil.canWriteToMediaStore()) {
+          performSavetoDisk(mediaItem);
+          return;
+        }
+
         Permissions.with(this)
-                   .request(Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE)
+                   .request(Manifest.permission.WRITE_EXTERNAL_STORAGE)
                    .ifNecessary()
                    .withPermanentDenialDialog(getString(R.string.MediaPreviewActivity_signal_needs_the_storage_permission_in_order_to_write_to_external_storage_but_it_has_been_permanently_denied))
                    .onAnyDenied(() -> Toast.makeText(this, R.string.MediaPreviewActivity_unable_to_write_to_external_storage_without_permission, Toast.LENGTH_LONG).show())
                    .onAllGranted(() -> {
-                     SaveAttachmentTask saveTask = new SaveAttachmentTask(MediaPreviewActivity.this);
-                     long saveDate = (mediaItem.date > 0) ? mediaItem.date : System.currentTimeMillis();
-                     saveTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, new Attachment(mediaItem.uri, mediaItem.type, saveDate, null));
+                     performSavetoDisk(mediaItem);
                    })
                    .execute();
       });
     }
+  }
+
+  private void performSavetoDisk(@NonNull MediaItem mediaItem) {
+    SaveAttachmentTask saveTask = new SaveAttachmentTask(MediaPreviewActivity.this);
+    long               saveDate = (mediaItem.date > 0) ? mediaItem.date : System.currentTimeMillis();
+    saveTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, new Attachment(mediaItem.uri, mediaItem.type, saveDate, null));
   }
 
   @SuppressLint("StaticFieldLeak")
@@ -407,7 +449,7 @@ public final class MediaPreviewActivity extends PassphraseRequiredActivity
     }
 
     AlertDialog.Builder builder = new AlertDialog.Builder(this);
-    builder.setIconAttribute(R.attr.dialog_alert_icon);
+    builder.setIcon(R.drawable.ic_warning);
     builder.setTitle(R.string.MediaPreviewActivity_media_delete_confirmation_title);
     builder.setMessage(R.string.MediaPreviewActivity_media_delete_confirmation_message);
     builder.setCancelable(true);
@@ -445,6 +487,9 @@ public final class MediaPreviewActivity extends PassphraseRequiredActivity
       menu.findItem(R.id.delete).setVisible(false);
     }
 
+    // Restricted to API26 because of MemoryFileUtil not supporting lower API levels well
+    menu.findItem(R.id.media_preview__share).setVisible(Build.VERSION.SDK_INT >= 26);
+
     if (cameFromAllMedia) {
       menu.findItem(R.id.media_preview__overview).setVisible(false);
     }
@@ -454,16 +499,17 @@ public final class MediaPreviewActivity extends PassphraseRequiredActivity
   }
 
   @Override
-  public boolean onOptionsItemSelected(MenuItem item) {
+  public boolean onOptionsItemSelected(@NonNull MenuItem item) {
     super.onOptionsItemSelected(item);
 
-    switch (item.getItemId()) {
-      case R.id.media_preview__overview: showOverview(); return true;
-      case R.id.media_preview__forward:  forward();      return true;
-      case R.id.save:                    saveToDisk();   return true;
-      case R.id.delete:                  deleteMedia();  return true;
-      case android.R.id.home:            finish();       return true;
-    }
+    int itemId = item.getItemId();
+
+    if (itemId == R.id.media_preview__overview) { showOverview(); return true; }
+    if (itemId == R.id.media_preview__forward)  { forward();      return true; }
+    if (itemId == R.id.media_preview__share)    { share();        return true; }
+    if (itemId == R.id.save)                    { saveToDisk();   return true; }
+    if (itemId == R.id.delete)                  { deleteMedia();  return true; }
+    if (itemId == android.R.id.home)            { finish();       return true; }
 
     return false;
   }

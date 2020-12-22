@@ -3,17 +3,15 @@ package org.thoughtcrime.securesms.contacts.avatars;
 
 import android.content.Context;
 import android.net.Uri;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import org.thoughtcrime.securesms.dependencies.ApplicationDependencies;
-import org.thoughtcrime.securesms.logging.Log;
 import org.thoughtcrime.securesms.profiles.AvatarHelper;
 import org.thoughtcrime.securesms.recipients.Recipient;
-import org.thoughtcrime.securesms.recipients.RecipientId;
 import org.whispersystems.libsignal.util.ByteUtil;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.MessageDigest;
@@ -67,7 +65,7 @@ public class ProfileContactPhoto implements ContactPhoto {
   }
 
   private long getFileLastModified() {
-    if (!recipient.isLocalNumber()) {
+    if (!recipient.isSelf()) {
       return 0;
     }
 

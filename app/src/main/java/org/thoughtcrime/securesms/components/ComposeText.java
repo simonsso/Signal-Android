@@ -21,10 +21,12 @@ import android.view.inputmethod.InputConnection;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 import androidx.core.view.inputmethod.EditorInfoCompat;
 import androidx.core.view.inputmethod.InputConnectionCompat;
 import androidx.core.view.inputmethod.InputContentInfoCompat;
 
+import org.signal.core.util.logging.Log;
 import org.thoughtcrime.securesms.R;
 import org.thoughtcrime.securesms.TransportOption;
 import org.thoughtcrime.securesms.components.emoji.EmojiEditText;
@@ -33,12 +35,9 @@ import org.thoughtcrime.securesms.components.mention.MentionDeleter;
 import org.thoughtcrime.securesms.components.mention.MentionRendererDelegate;
 import org.thoughtcrime.securesms.components.mention.MentionValidatorWatcher;
 import org.thoughtcrime.securesms.database.model.Mention;
-import org.thoughtcrime.securesms.logging.Log;
 import org.thoughtcrime.securesms.recipients.RecipientId;
-import org.thoughtcrime.securesms.util.FeatureFlags;
 import org.thoughtcrime.securesms.util.StringUtil;
 import org.thoughtcrime.securesms.util.TextSecurePreferences;
-import org.thoughtcrime.securesms.util.ThemeUtil;
 
 import java.util.List;
 
@@ -100,7 +99,7 @@ public class ComposeText extends EmojiEditText {
   protected void onSelectionChanged(int selectionStart, int selectionEnd) {
     super.onSelectionChanged(selectionStart, selectionEnd);
 
-    if (FeatureFlags.mentions() && getText() != null) {
+    if (getText() != null) {
       boolean selectionChanged = changeSelectionForPartialMentions(getText(), selectionStart, selectionEnd);
       if (selectionChanged) {
         return;
@@ -192,9 +191,7 @@ public class ComposeText extends EmojiEditText {
   }
 
   public void setMentionValidator(@Nullable MentionValidatorWatcher.MentionValidator mentionValidator) {
-    if (FeatureFlags.mentions()) {
-      mentionValidatorWatcher.setMentionValidator(mentionValidator);
-    }
+    mentionValidatorWatcher.setMentionValidator(mentionValidator);
   }
 
   private boolean isLandscape() {
@@ -259,13 +256,11 @@ public class ComposeText extends EmojiEditText {
       setImeOptions(getImeOptions() | 16777216);
     }
 
-    mentionRendererDelegate = new MentionRendererDelegate(getContext(), ThemeUtil.getThemedColor(getContext(), R.attr.conversation_mention_background_color));
+    mentionRendererDelegate = new MentionRendererDelegate(getContext(), ContextCompat.getColor(getContext(), R.color.conversation_mention_background_color));
 
-    if (FeatureFlags.mentions()) {
-      addTextChangedListener(new MentionDeleter());
-      mentionValidatorWatcher = new MentionValidatorWatcher();
-      addTextChangedListener(mentionValidatorWatcher);
-    }
+    addTextChangedListener(new MentionDeleter());
+    mentionValidatorWatcher = new MentionValidatorWatcher();
+    addTextChangedListener(mentionValidatorWatcher);
   }
 
   private boolean changeSelectionForPartialMentions(@NonNull Spanned spanned, int selectionStart, int selectionEnd) {

@@ -54,14 +54,12 @@ import androidx.appcompat.view.ActionMode;
 import androidx.appcompat.widget.Toolbar;
 import androidx.appcompat.widget.TooltipCompat;
 import androidx.core.content.res.ResourcesCompat;
-import androidx.core.view.ViewCompat;
 import androidx.fragment.app.DialogFragment;
 import androidx.lifecycle.DefaultLifecycleObserver;
 import androidx.lifecycle.LifecycleObserver;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.ProcessLifecycleOwner;
 import androidx.lifecycle.ViewModelProviders;
-import androidx.paging.PagedList;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -72,7 +70,8 @@ import com.google.android.material.snackbar.Snackbar;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
-import org.thoughtcrime.securesms.ApplicationContext;
+import org.signal.core.util.concurrent.SignalExecutors;
+import org.signal.core.util.logging.Log;
 import org.thoughtcrime.securesms.MainFragment;
 import org.thoughtcrime.securesms.MainNavigator;
 import org.thoughtcrime.securesms.NewConversationActivity;
@@ -104,8 +103,8 @@ import org.thoughtcrime.securesms.dependencies.ApplicationDependencies;
 import org.thoughtcrime.securesms.events.ReminderUpdateEvent;
 import org.thoughtcrime.securesms.insights.InsightsLauncher;
 import org.thoughtcrime.securesms.jobs.ServiceOutageDetectionJob;
+import org.thoughtcrime.securesms.keyvalue.SignalStore;
 import org.thoughtcrime.securesms.lock.v2.CreateKbsPinActivity;
-import org.thoughtcrime.securesms.logging.Log;
 import org.thoughtcrime.securesms.mediasend.MediaSendActivity;
 import org.thoughtcrime.securesms.megaphone.Megaphone;
 import org.thoughtcrime.securesms.megaphone.MegaphoneActionController;
@@ -118,6 +117,7 @@ import org.thoughtcrime.securesms.recipients.Recipient;
 import org.thoughtcrime.securesms.service.KeyCachingService;
 import org.thoughtcrime.securesms.sms.MessageSender;
 import org.thoughtcrime.securesms.storage.StorageSyncHelper;
+import org.thoughtcrime.securesms.tracing.Trace;
 import org.thoughtcrime.securesms.util.AvatarUtil;
 import org.thoughtcrime.securesms.util.PlayStoreUtil;
 import org.thoughtcrime.securesms.util.ServiceUtil;
@@ -126,7 +126,7 @@ import org.thoughtcrime.securesms.util.StickyHeaderDecoration;
 import org.thoughtcrime.securesms.util.TextSecurePreferences;
 import org.thoughtcrime.securesms.util.Util;
 import org.thoughtcrime.securesms.util.ViewUtil;
-import org.thoughtcrime.securesms.util.concurrent.SignalExecutors;
+import org.thoughtcrime.securesms.util.WindowUtil;
 import org.thoughtcrime.securesms.util.concurrent.SimpleTask;
 import org.thoughtcrime.securesms.util.task.SnackbarAsyncTask;
 import org.whispersystems.libsignal.util.guava.Optional;
@@ -142,6 +142,7 @@ import java.util.Set;
 import static android.app.Activity.RESULT_OK;
 
 
+@Trace
 public class ConversationListFragment extends MainFragment implements ActionMode.Callback,
                                                                       ConversationListAdapter.OnConversationClickListener,
                                                                       ConversationListSearchAdapter.EventListener,
@@ -149,6 +150,7 @@ public class ConversationListFragment extends MainFragment implements ActionMode
                                                                       MegaphoneActionController
 {
   public static final short MESSAGE_REQUESTS_REQUEST_CODE_CREATE_NAME = 32562;
+  public static final short SMS_ROLE_REQUEST_CODE                     = 32563;
 
   private static final String TAG = Log.tag(ConversationListFragment.class);
 
@@ -233,7 +235,7 @@ public class ConversationListFragment extends MainFragment implements ActionMode
       Permissions.with(requireActivity())
                  .request(Manifest.permission.CAMERA)
                  .ifNecessary()
-                 .withRationaleDialog(getString(R.string.ConversationActivity_to_capture_photos_and_video_allow_signal_access_to_the_camera), R.drawable.ic_camera_solid_24)
+                 .withRationaleDialog(getString(R.string.ConversationActivity_to_capture_photos_and_video_allow_signal_access_to_the_camera), R.drawable.ic_camera_24)
                  .withPermanentDenialDialog(getString(R.string.ConversationActivity_signal_needs_the_camera_permission_to_take_photos_or_video))
                  .onAllGranted(() -> startActivity(MediaSendActivity.buildCameraFirstIntent(requireActivity())))
                  .onAnyDenied(() -> Toast.makeText(requireContext(), R.string.ConversationActivity_signal_needs_camera_permissions_to_take_photos_or_video, Toast.LENGTH_LONG).show())
@@ -510,7 +512,7 @@ public class ConversationListFragment extends MainFragment implements ActionMode
   }
 
   private void initializeTypingObserver() {
-    ApplicationContext.getInstance(requireContext()).getTypingStatusRepository().getTypingThreads().observe(this, threadIds -> {
+    ApplicationDependencies.getTypingStatusRepository().getTypingThreads().observe(this, threadIds -> {
       if (threadIds == null) {
         threadIds = Collections.emptySet();
       }
@@ -590,7 +592,7 @@ public class ConversationListFragment extends MainFragment implements ActionMode
       } else if (OutdatedBuildReminder.isEligible()) {
         return Optional.of(new OutdatedBuildReminder(context));
       } else if (DefaultSmsReminder.isEligible(context)) {
-        return Optional.of(new DefaultSmsReminder(context));
+        return Optional.of(new DefaultSmsReminder(this, SMS_ROLE_REQUEST_CODE));
       } else if (Util.isDefaultSmsProvider(context) && SystemSmsImportReminder.isEligible(context)) {
         return Optional.of((new SystemSmsImportReminder(context)));
       } else if (PushRegistrationReminder.isEligible(context)) {
@@ -719,7 +721,7 @@ public class ConversationListFragment extends MainFragment implements ActionMode
   private void handleDeleteAllSelected() {
     int                 conversationsCount = defaultAdapter.getBatchSelectionIds().size();
     AlertDialog.Builder alert              = new AlertDialog.Builder(getActivity());
-    alert.setIconAttribute(R.attr.dialog_alert_icon);
+    alert.setIcon(R.drawable.ic_warning);
     alert.setTitle(getActivity().getResources().getQuantityString(R.plurals.ConversationListFragment_delete_selected_conversations,
                                                                   conversationsCount, conversationsCount));
     alert.setMessage(getActivity().getResources().getQuantityString(R.plurals.ConversationListFragment_this_will_permanently_delete_all_n_selected_conversations,
@@ -888,14 +890,7 @@ public class ConversationListFragment extends MainFragment implements ActionMode
 
     mode.setTitle("1");
 
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-      getActivity().getWindow().setStatusBarColor(getResources().getColor(R.color.action_mode_status_bar));
-    }
-
-    if (Build.VERSION.SDK_INT >= 23) {
-      int current = getActivity().getWindow().getDecorView().getSystemUiVisibility();
-      getActivity().getWindow().getDecorView().setSystemUiVisibility(current & ~View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
-    }
+    WindowUtil.setStatusBarColor(requireActivity().getWindow(), getResources().getColor(R.color.action_mode_status_bar));
 
     return true;
   }
@@ -927,7 +922,7 @@ public class ConversationListFragment extends MainFragment implements ActionMode
 
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
       TypedArray color = getActivity().getTheme().obtainStyledAttributes(new int[] {android.R.attr.statusBarColor});
-      getActivity().getWindow().setStatusBarColor(color.getColor(0, Color.BLACK));
+      WindowUtil.setStatusBarColor(getActivity().getWindow(), color.getColor(0, Color.BLACK));
       color.recycle();
     }
 

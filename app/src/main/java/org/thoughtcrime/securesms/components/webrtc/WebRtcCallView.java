@@ -4,7 +4,7 @@ import android.content.Context;
 import android.graphics.ColorMatrix;
 import android.graphics.ColorMatrixColorFilter;
 import android.util.AttributeSet;
-import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
@@ -22,7 +22,6 @@ import androidx.constraintlayout.widget.Guideline;
 import androidx.core.util.Consumer;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.transition.AutoTransition;
-import androidx.transition.ChangeBounds;
 import androidx.transition.Transition;
 import androidx.transition.TransitionManager;
 import androidx.transition.TransitionSet;
@@ -31,12 +30,14 @@ import androidx.viewpager2.widget.ViewPager2;
 
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.load.resource.bitmap.CenterCrop;
+import com.google.android.material.button.MaterialButton;
 
 import org.thoughtcrime.securesms.R;
 import org.thoughtcrime.securesms.animation.ResizeAnimation;
 import org.thoughtcrime.securesms.components.AccessibleToggleButton;
 import org.thoughtcrime.securesms.contacts.avatars.ProfileContactPhoto;
 import org.thoughtcrime.securesms.events.CallParticipant;
+import org.thoughtcrime.securesms.events.WebRtcViewModel;
 import org.thoughtcrime.securesms.mediasend.SimpleAnimationListener;
 import org.thoughtcrime.securesms.mms.GlideApp;
 import org.thoughtcrime.securesms.recipients.Recipient;
@@ -45,6 +46,7 @@ import org.thoughtcrime.securesms.ringrtc.CameraState;
 import org.thoughtcrime.securesms.util.BlurTransformation;
 import org.thoughtcrime.securesms.util.SetUtil;
 import org.thoughtcrime.securesms.util.ViewUtil;
+import org.thoughtcrime.securesms.util.views.Stub;
 import org.webrtc.RendererCommon;
 import org.whispersystems.signalservice.api.messages.calls.HangupMessage;
 
@@ -67,7 +69,7 @@ public class WebRtcCallView extends FrameLayout {
   private AccessibleToggleButton        videoToggle;
   private AccessibleToggleButton        micToggle;
   private ViewGroup                     smallLocalRenderFrame;
-  private TextureViewRenderer           smallLocalRender;
+  private CallParticipantView           smallLocalRender;
   private View                          largeLocalRenderFrame;
   private TextureViewRenderer           largeLocalRender;
   private View                          largeLocalRenderNoVideo;
@@ -89,6 +91,10 @@ public class WebRtcCallView extends FrameLayout {
   private ViewPager2                    callParticipantsPager;
   private RecyclerView                  callParticipantsRecycler;
   private Toolbar                       toolbar;
+  private MaterialButton                startCall;
+  private TextView                      participantCount;
+  private Stub<FrameLayout>             groupCallSpeakerHint;
+  private Stub<View>                    groupCallFullStub;
   private int                           pagerBottomMarginDp;
   private boolean                       controlsVisible = true;
 
@@ -112,7 +118,7 @@ public class WebRtcCallView extends FrameLayout {
   public WebRtcCallView(@NonNull Context context, @Nullable AttributeSet attrs) {
     super(context, attrs);
 
-    LayoutInflater.from(context).inflate(R.layout.webrtc_call_view, this, true);
+    inflate(context, R.layout.webrtc_call_view, this);
   }
 
   @SuppressWarnings("CodeBlock2Expr")
@@ -143,13 +149,15 @@ public class WebRtcCallView extends FrameLayout {
     callParticipantsPager         = findViewById(R.id.call_screen_participants_pager);
     callParticipantsRecycler      = findViewById(R.id.call_screen_participants_recycler);
     toolbar                       = findViewById(R.id.call_screen_toolbar);
+    startCall                     = findViewById(R.id.call_screen_start_call_start_call);
+    groupCallSpeakerHint          = new Stub<>(findViewById(R.id.call_screen_group_call_speaker_hint));
+    groupCallFullStub             = new Stub<>(findViewById(R.id.group_call_call_full_view));
 
     View      topGradient            = findViewById(R.id.call_screen_header_gradient);
     View      decline                = findViewById(R.id.call_screen_decline_call);
     View      answerLabel            = findViewById(R.id.call_screen_answer_call_label);
     View      declineLabel           = findViewById(R.id.call_screen_decline_call_label);
     Guideline statusBarGuideline     = findViewById(R.id.call_screen_status_bar_guideline);
-    View      startCall              = findViewById(R.id.call_screen_start_call_start_call);
     View      cancelStartCall        = findViewById(R.id.call_screen_start_call_cancel);
 
     callParticipantsPager.setPageTransformer(new MarginPageTransformer(ViewUtil.dpToPx(4)));
@@ -203,7 +211,12 @@ public class WebRtcCallView extends FrameLayout {
 
     pictureInPictureGestureHelper = PictureInPictureGestureHelper.applyTo(smallLocalRenderFrame);
 
-    startCall.setOnClickListener(v -> runIfNonNull(controlsListener, listener -> listener.onStartCall(videoToggle.isChecked())));
+    startCall.setOnClickListener(v -> {
+      if (controlsListener != null) {
+        startCall.setEnabled(false);
+        controlsListener.onStartCall(videoToggle.isChecked());
+      }
+    });
     cancelStartCall.setOnClickListener(v -> runIfNonNull(controlsListener, ControlsListener::onCancelStartCall));
 
     ColorMatrix greyScaleMatrix = new ColorMatrix();
@@ -242,18 +255,30 @@ public class WebRtcCallView extends FrameLayout {
     List<WebRtcCallParticipantsPage> pages = new ArrayList<>(2);
 
     if (!state.getGridParticipants().isEmpty()) {
-      pages.add(WebRtcCallParticipantsPage.forMultipleParticipants(state.getGridParticipants(), state.isInPipMode()));
+      pages.add(WebRtcCallParticipantsPage.forMultipleParticipants(state.getGridParticipants(), state.getFocusedParticipant(), state.isInPipMode()));
     }
 
     if (state.getFocusedParticipant() != null && state.getAllRemoteParticipants().size() > 1) {
       pages.add(WebRtcCallParticipantsPage.forSingleParticipant(state.getFocusedParticipant(), state.isInPipMode()));
     }
 
+    if ((state.getGroupCallState().isNotIdle() && state.getRemoteDevicesCount() > 0) || state.getGroupCallState().isConnected()) {
+      recipientName.setText(state.getRemoteParticipantsDescription(getContext()));
+    } else if (state.getGroupCallState().isNotIdle()) {
+      recipientName.setText(getContext().getString(R.string.WebRtcCallView__s_group_call, Recipient.resolved(recipientId).getDisplayName(getContext())));
+    }
+
+    if (state.getGroupCallState().isNotIdle() && participantCount != null) {
+      boolean includeSelf = state.getGroupCallState() == WebRtcViewModel.GroupCallState.CONNECTED_AND_JOINED;
+
+      participantCount.setText(String.valueOf(state.getRemoteDevicesCount() + (includeSelf ? 1 : 0)));
+    }
+
     pagerAdapter.submitList(pages);
     recyclerAdapter.submitList(state.getListParticipants());
     updateLocalCallParticipant(state.getLocalRenderState(), state.getLocalParticipant());
 
-    if (state.isLargeVideoGroup()) {
+    if (state.isLargeVideoGroup() && !state.isInPipMode()) {
       layoutParticipantsForLargeCount();
     } else {
       layoutParticipantsForSmallCount();
@@ -268,38 +293,33 @@ public class WebRtcCallView extends FrameLayout {
     largeLocalRender.setScalingType(RendererCommon.ScalingType.SCALE_ASPECT_FILL);
 
     if (localCallParticipant.getVideoSink().getEglBase() != null) {
-      smallLocalRender.init(localCallParticipant.getVideoSink().getEglBase());
       largeLocalRender.init(localCallParticipant.getVideoSink().getEglBase());
     }
+
+    smallLocalRender.setCallParticipant(localCallParticipant);
+    smallLocalRender.setRenderInPip(true);
+    videoToggle.setChecked(localCallParticipant.isVideoEnabled(), false);
 
     switch (state) {
       case GONE:
         largeLocalRender.attachBroadcastVideoSink(null);
         largeLocalRenderFrame.setVisibility(View.GONE);
-        smallLocalRender.attachBroadcastVideoSink(null);
         smallLocalRenderFrame.setVisibility(View.GONE);
 
-        videoToggle.setChecked(false, false);
         break;
       case SMALL_RECTANGLE:
         smallLocalRenderFrame.setVisibility(View.VISIBLE);
-        smallLocalRender.attachBroadcastVideoSink(localCallParticipant.getVideoSink());
-        animatePipToRectangle();
+        animatePipToLargeRectangle();
 
         largeLocalRender.attachBroadcastVideoSink(null);
         largeLocalRenderFrame.setVisibility(View.GONE);
-
-        videoToggle.setChecked(true, false);
         break;
-      case SMALL_SQUARE:
+      case SMALLER_RECTANGLE:
         smallLocalRenderFrame.setVisibility(View.VISIBLE);
-        smallLocalRender.attachBroadcastVideoSink(localCallParticipant.getVideoSink());
-        animatePipToSquare();
+        animatePipToSmallRectangle();
 
         largeLocalRender.attachBroadcastVideoSink(null);
         largeLocalRenderFrame.setVisibility(View.GONE);
-
-        videoToggle.setChecked(true, false);
         break;
       case LARGE:
         largeLocalRender.attachBroadcastVideoSink(localCallParticipant.getVideoSink());
@@ -308,10 +328,7 @@ public class WebRtcCallView extends FrameLayout {
         largeLocalRenderNoVideo.setVisibility(View.GONE);
         largeLocalRenderNoVideoAvatar.setVisibility(View.GONE);
 
-        smallLocalRender.attachBroadcastVideoSink(null);
         smallLocalRenderFrame.setVisibility(View.GONE);
-
-        videoToggle.setChecked(true, false);
         break;
       case LARGE_NO_VIDEO:
         largeLocalRender.attachBroadcastVideoSink(null);
@@ -326,10 +343,7 @@ public class WebRtcCallView extends FrameLayout {
                 .diskCacheStrategy(DiskCacheStrategy.ALL)
                 .into(largeLocalRenderNoVideoAvatar);
 
-        smallLocalRender.attachBroadcastVideoSink(null);
         smallLocalRenderFrame.setVisibility(View.GONE);
-
-        videoToggle.setChecked(false, false);
         break;
     }
   }
@@ -342,10 +356,13 @@ public class WebRtcCallView extends FrameLayout {
     recipientId = recipient.getId();
 
     if (recipient.isGroup()) {
-      recipientName.setText(R.string.WebRtcCallView__group_call);
       if (toolbar.getMenu().findItem(R.id.menu_group_call_participants_list) == null) {
         toolbar.inflateMenu(R.menu.group_call);
-        toolbar.setOnMenuItemClickListener(unused -> showParticipantsList());
+
+        View showParticipants = toolbar.getMenu().findItem(R.id.menu_group_call_participants_list).getActionView();
+        showParticipants.setOnClickListener(unused -> showParticipantsList());
+
+        participantCount = showParticipants.findViewById(R.id.show_participants_menu_counter);
       }
     } else {
       recipientName.setText(recipient.getDisplayName(getContext()));
@@ -376,6 +393,25 @@ public class WebRtcCallView extends FrameLayout {
     }
   }
 
+  public void setStatusFromGroupCallState(@NonNull WebRtcViewModel.GroupCallState groupCallState) {
+    switch (groupCallState) {
+      case DISCONNECTED:
+        status.setText(R.string.WebRtcCallView__disconnected);
+        break;
+      case RECONNECTING:
+        status.setText(R.string.WebRtcCallView__reconnecting);
+        break;
+      case CONNECTED_AND_JOINING:
+        status.setText(R.string.WebRtcCallView__joining);
+        break;
+      case CONNECTING:
+      case CONNECTED_AND_JOINED:
+      case CONNECTED:
+        status.setText("");
+        break;
+    }
+  }
+
   public void setWebRtcControls(@NonNull WebRtcControls webRtcControls) {
     Set<View> lastVisibleSet = new HashSet<>(visibleViewSet);
 
@@ -384,6 +420,22 @@ public class WebRtcCallView extends FrameLayout {
     if (webRtcControls.displayStartCallControls()) {
       visibleViewSet.add(footerGradient);
       visibleViewSet.add(startCallControls);
+
+      startCall.setText(webRtcControls.getStartCallButtonText());
+      startCall.setEnabled(webRtcControls.isStartCallEnabled());
+    }
+
+    if (webRtcControls.displayGroupCallFull()) {
+      groupCallFullStub.get().setVisibility(View.VISIBLE);
+      ((TextView) groupCallFullStub.get().findViewById(R.id.group_call_call_full_message)).setText(webRtcControls.getGroupCallFullMessage(getContext()));
+    } else if (groupCallFullStub.resolved()) {
+      groupCallFullStub.get().setVisibility(View.GONE);
+    }
+
+    MenuItem item = toolbar.getMenu().findItem(R.id.menu_group_call_participants_list);
+    if (item != null) {
+      item.setVisible(webRtcControls.displayGroupMembersButton());
+      item.setEnabled(webRtcControls.displayGroupMembersButton());
     }
 
     if (webRtcControls.displayTopViews()) {
@@ -463,7 +515,17 @@ public class WebRtcCallView extends FrameLayout {
     return videoToggle;
   }
 
-  private void animatePipToRectangle() {
+  public void showSpeakerViewHint() {
+    groupCallSpeakerHint.get().setVisibility(View.VISIBLE);
+  }
+
+  public void hideSpeakerViewHint() {
+    if (groupCallSpeakerHint.resolved()) {
+      groupCallSpeakerHint.get().setVisibility(View.GONE);
+    }
+  }
+
+  private void animatePipToLargeRectangle() {
     ResizeAnimation animation = new ResizeAnimation(smallLocalRenderFrame, ViewUtil.dpToPx(90), ViewUtil.dpToPx(160));
     animation.setDuration(PIP_RESIZE_DURATION);
     animation.setAnimationListener(new SimpleAnimationListener() {
@@ -477,11 +539,11 @@ public class WebRtcCallView extends FrameLayout {
     smallLocalRenderFrame.startAnimation(animation);
   }
 
-  private void animatePipToSquare() {
+  private void animatePipToSmallRectangle() {
     pictureInPictureGestureHelper.lockToBottomEnd();
 
     pictureInPictureGestureHelper.performAfterFling(() -> {
-      ResizeAnimation animation = new ResizeAnimation(smallLocalRenderFrame, ViewUtil.dpToPx(72), ViewUtil.dpToPx(72));
+      ResizeAnimation animation = new ResizeAnimation(smallLocalRenderFrame, ViewUtil.dpToPx(54), ViewUtil.dpToPx(72));
       animation.setDuration(PIP_RESIZE_DURATION);
       animation.setAnimationListener(new SimpleAnimationListener() {
         @Override
@@ -553,6 +615,7 @@ public class WebRtcCallView extends FrameLayout {
     Transition transition = new AutoTransition().setOrdering(TransitionSet.ORDERING_TOGETHER)
                                                 .setDuration(TRANSITION_DURATION_MILLIS);
 
+    TransitionManager.endTransitions(parent);
     TransitionManager.beginDelayedTransition(parent, transition);
 
     ConstraintSet constraintSet = new ConstraintSet();
@@ -570,6 +633,7 @@ public class WebRtcCallView extends FrameLayout {
   private void fadeInNewUiState(@NonNull Set<View> previouslyVisibleViewSet, boolean useSmallMargins) {
     Transition transition = new AutoTransition().setDuration(TRANSITION_DURATION_MILLIS);
 
+    TransitionManager.endTransitions(parent);
     TransitionManager.beginDelayedTransition(parent, transition);
 
     ConstraintSet constraintSet = new ConstraintSet();
@@ -605,9 +669,9 @@ public class WebRtcCallView extends FrameLayout {
     getHandler().removeCallbacks(fadeOutRunnable);
   }
 
-  private static void runIfNonNull(@Nullable ControlsListener controlsListener, @NonNull Consumer<ControlsListener> controlsListenerConsumer) {
-    if (controlsListener != null) {
-      controlsListenerConsumer.accept(controlsListener);
+  private static <T> void runIfNonNull(@Nullable T listener, @NonNull Consumer<T> listenerConsumer) {
+    if (listener != null) {
+      listenerConsumer.accept(listener);
     }
   }
 

@@ -10,11 +10,10 @@ import androidx.annotation.Nullable;
 
 import com.annimon.stream.Stream;
 
-import net.sqlcipher.database.SQLiteDatabase;
-
 import org.thoughtcrime.securesms.database.helpers.SQLCipherOpenHelper;
 import org.thoughtcrime.securesms.database.model.Mention;
 import org.thoughtcrime.securesms.recipients.RecipientId;
+import org.thoughtcrime.securesms.tracing.Trace;
 import org.thoughtcrime.securesms.util.CursorUtil;
 import org.thoughtcrime.securesms.util.SqlUtil;
 
@@ -24,6 +23,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+@Trace
 public class MentionDatabase extends Database {
 
   static final String TABLE_NAME = "mention";
@@ -134,7 +134,7 @@ public class MentionDatabase extends Database {
 
   void deleteAbandonedMentions() {
     SQLiteDatabase db    = databaseHelper.getWritableDatabase();
-    String         where = MESSAGE_ID + " NOT IN (SELECT _id FROM " + MmsDatabase.TABLE_NAME + ") OR " + THREAD_ID + " NOT IN (SELECT _id FROM " + ThreadDatabase.TABLE_NAME + ")";
+    String         where = MESSAGE_ID + " NOT IN (SELECT " + MmsDatabase.ID + " FROM " + MmsDatabase.TABLE_NAME + ") OR " + THREAD_ID + " NOT IN (SELECT " + ThreadDatabase.ID + " FROM " + ThreadDatabase.TABLE_NAME + ")";
 
     db.delete(TABLE_NAME, where, null);
   }

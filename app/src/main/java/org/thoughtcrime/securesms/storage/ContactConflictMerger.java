@@ -5,7 +5,7 @@ import androidx.annotation.Nullable;
 
 import com.annimon.stream.Stream;
 
-import org.thoughtcrime.securesms.logging.Log;
+import org.signal.core.util.logging.Log;
 import org.thoughtcrime.securesms.recipients.Recipient;
 import org.whispersystems.libsignal.util.guava.Optional;
 import org.whispersystems.signalservice.api.push.SignalServiceAddress;
@@ -86,8 +86,9 @@ class ContactConflictMerger implements StorageSyncHelper.ConflictMerger<SignalCo
     boolean              blocked        = remote.isBlocked();
     boolean              profileSharing = remote.isProfileSharingEnabled();
     boolean              archived       = remote.isArchived();
-    boolean              matchesRemote  = doParamsMatch(remote, unknownFields, address, givenName, familyName, profileKey, username, identityState, identityKey, blocked, profileSharing, archived);
-    boolean              matchesLocal   = doParamsMatch(local, unknownFields, address, givenName, familyName, profileKey, username, identityState, identityKey, blocked, profileSharing, archived);
+    boolean              forcedUnread   = remote.isForcedUnread();
+    boolean              matchesRemote  = doParamsMatch(remote, unknownFields, address, givenName, familyName, profileKey, username, identityState, identityKey, blocked, profileSharing, archived, forcedUnread);
+    boolean              matchesLocal   = doParamsMatch(local, unknownFields, address, givenName, familyName, profileKey, username, identityState, identityKey, blocked, profileSharing, archived, forcedUnread);
 
     if (matchesRemote) {
       return remote;
@@ -104,6 +105,7 @@ class ContactConflictMerger implements StorageSyncHelper.ConflictMerger<SignalCo
                                     .setIdentityKey(identityKey)
                                     .setBlocked(blocked)
                                     .setProfileSharingEnabled(profileSharing)
+                                    .setForcedUnread(forcedUnread)
                                     .build();
     }
   }
@@ -119,7 +121,8 @@ class ContactConflictMerger implements StorageSyncHelper.ConflictMerger<SignalCo
                                        @Nullable byte[] identityKey,
                                        boolean blocked,
                                        boolean profileSharing,
-                                       boolean archived)
+                                       boolean archived,
+                                       boolean forcedUnread)
   {
     return Arrays.equals(contact.serializeUnknownFields(), unknownFields) &&
            Objects.equals(contact.getAddress(), address)                  &&
@@ -131,6 +134,7 @@ class ContactConflictMerger implements StorageSyncHelper.ConflictMerger<SignalCo
            Arrays.equals(contact.getIdentityKey().orNull(), identityKey)  &&
            contact.isBlocked() == blocked                                 &&
            contact.isProfileSharingEnabled() == profileSharing            &&
-           contact.isArchived() == archived;
+           contact.isArchived() == archived                               &&
+           contact.isForcedUnread() == forcedUnread;
   }
 }

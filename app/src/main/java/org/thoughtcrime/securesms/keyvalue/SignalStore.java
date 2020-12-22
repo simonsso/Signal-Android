@@ -4,7 +4,7 @@ import androidx.annotation.NonNull;
 import androidx.preference.PreferenceDataStore;
 
 import org.thoughtcrime.securesms.dependencies.ApplicationDependencies;
-import org.thoughtcrime.securesms.logging.SignalUncaughtExceptionHandler;
+import org.thoughtcrime.securesms.util.SignalUncaughtExceptionHandler;
 
 /**
  * Simple, encrypted key-value store.
@@ -29,7 +29,7 @@ public final class SignalStore {
   private final PhoneNumberPrivacyValues phoneNumberPrivacyValues;
 
   private SignalStore() {
-    this.store                    = ApplicationDependencies.getKeyValueStore();
+    this.store                    = new KeyValueStore(ApplicationDependencies.getApplication());
     this.kbsValues                = new KbsValues(store);
     this.registrationValues       = new RegistrationValues(store);
     this.pinValues                = new PinValues(store);

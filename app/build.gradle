@@ -2,25 +2,6 @@ import org.signal.signing.ApkSignerUtil
 
 import java.security.MessageDigest
 
-buildscript {
-    repositories {
-        google()
-        maven {
-            url "https://repo1.maven.org/maven2"
-        }
-        jcenter {
-            content {
-                includeVersion 'org.jetbrains.trove4j', 'trove4j', '20160824'
-            }
-        }
-    }
-    dependencies {
-        classpath 'com.android.tools.build:gradle:3.6.3'
-        classpath 'androidx.navigation:navigation-safe-args-gradle-plugin:2.1.0'
-        classpath 'com.google.protobuf:protobuf-gradle-plugin:0.8.10'
-    }
-}
-
 apply plugin: 'com.android.application'
 apply plugin: 'com.google.protobuf'
 apply plugin: 'androidx.navigation.safeargs'
@@ -80,8 +61,8 @@ protobuf {
     }
 }
 
-def canonicalVersionCode = 714
-def canonicalVersionName = "4.72.5"
+def canonicalVersionCode = 759
+def canonicalVersionName = "5.0.8"
 
 def postFixSize = 10
 def abiPostFix = ['universal'   : 0,
@@ -90,10 +71,13 @@ def abiPostFix = ['universal'   : 0,
                   'x86'         : 3,
                   'x86_64'      : 4]
 
+def keystores = [ 'debug'  : loadKeystoreProperties('keystore.debug.properties') ]
+
 android {
-    flavorDimensions "none"
-    compileSdkVersion 28
-    buildToolsVersion '28.0.3'
+    buildToolsVersion BUILD_TOOL_VERSION
+    compileSdkVersion COMPILE_SDK
+
+    flavorDimensions 'distribution', 'environment'
     useLibrary 'org.apache.http.legacy'
 
     dexOptions {
@@ -101,11 +85,13 @@ android {
     }
 
     signingConfigs {
-        staging {
-            storeFile file("${project.rootDir}/dev.keystore")
-            storePassword 'android'
-            keyAlias 'staging'
-            keyPassword 'android'
+        if (keystores.debug != null) {
+            debug {
+                storeFile file("${project.rootDir}/${keystores.debug.storeFile}")
+                storePassword keystores.debug.storePassword
+                keyAlias keystores.debug.keyAlias
+                keyPassword keystores.debug.keyPassword
+            }
         }
     }
 
@@ -113,8 +99,9 @@ android {
         versionCode canonicalVersionCode * postFixSize
         versionName canonicalVersionName
 
-        minSdkVersion 19
-        targetSdkVersion 28
+        minSdkVersion MINIMUM_SDK
+        targetSdkVersion TARGET_SDK
+
         multiDexEnabled true
 
         vectorDrawables.useSupportLibrary = true
@@ -128,17 +115,20 @@ android {
         buildConfigField "String", "SIGNAL_CONTACT_DISCOVERY_URL", "\"https://api.directory.signal.org\""
         buildConfigField "String", "SIGNAL_SERVICE_STATUS_URL", "\"uptime.signal.org\""
         buildConfigField "String", "SIGNAL_KEY_BACKUP_URL", "\"https://api.backup.signal.org\""
+        buildConfigField "String", "SIGNAL_SFU_URL", "\"https://sfu.voip.signal.org\""
         buildConfigField "String", "CONTENT_PROXY_HOST", "\"contentproxy.signal.org\""
         buildConfigField "int", "CONTENT_PROXY_PORT", "443"
         buildConfigField "String", "SIGNAL_AGENT", "\"OWA\""
         buildConfigField "String", "CDS_MRENCLAVE", "\"c98e00a4e3ff977a56afefe7362a27e4961e4f19e211febfbb19b897e6b80b15\""
-        buildConfigField "String", "KBS_ENCLAVE_NAME", "\"fe7c1bfae98f9b073d220366ea31163ee82f6d04bead774f71ca8e5c40847bfe\""
-        buildConfigField "String", "KBS_SERVICE_ID", "\"fe7c1bfae98f9b073d220366ea31163ee82f6d04bead774f71ca8e5c40847bfe\""
-        buildConfigField "String", "KBS_MRENCLAVE", "\"a3baab19ef6ce6f34ab9ebb25ba722725ae44a8872dc0ff08ad6d83a9489de87\""
+        buildConfigField "KbsEnclave", "KBS_ENCLAVE", "new KbsEnclave(\"fe7c1bfae98f9b073d220366ea31163ee82f6d04bead774f71ca8e5c40847bfe\"," +
+                                                                     "\"fe7c1bfae98f9b073d220366ea31163ee82f6d04bead774f71ca8e5c40847bfe\", " +
+                                                                     "\"a3baab19ef6ce6f34ab9ebb25ba722725ae44a8872dc0ff08ad6d83a9489de87\")";
+        buildConfigField "KbsEnclave[]", "KBS_FALLBACKS", "new KbsEnclave[0]"
         buildConfigField "String", "UNIDENTIFIED_SENDER_TRUST_ROOT", "\"BXu6QIKVz5MA8gstzfOgRQGqyLqOwNKHL6INkv3IHWMF\""
         buildConfigField "String", "ZKGROUP_SERVER_PUBLIC_PARAMS", "\"AMhf5ywVwITZMsff/eCyudZx9JDmkkkbV6PInzG4p8x3VqVJSFiMvnvlEKWuRob/1eaIetR31IYeAbm0NdOuHH8Qi+Rexi1wLlpzIo1gstHWBfZzy1+qHRV5A4TqPp15YzBPm0WSggW6PbSn+F4lf57VCnHF7p8SvzAA2ZZJPYJURt8X7bbg+H3i+PEjH9DXItNEqs2sNcug37xZQDLm7X0=\""
         buildConfigField "String[]", "LANGUAGES", "new String[]{\"" + autoResConfig().collect { s -> s.replace('-r', '_') }.join('", "') + '"}'
         buildConfigField "int", "CANONICAL_VERSION_CODE", "$canonicalVersionCode"
+        buildConfigField "int", "TRACE_EVENT_MAX", "3500"
 
         ndk {
             abiFilters 'armeabi-v7a', 'arm64-v8a', 'x86', 'x86_64'
@@ -159,8 +149,8 @@ android {
     }
 
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility JAVA_VERSION
+        targetCompatibility JAVA_VERSION
     }
 
     packagingOptions {
@@ -179,6 +169,10 @@ android {
 
     buildTypes {
         debug {
+            if (keystores['debug'] != null) {
+                signingConfig signingConfigs.debug
+            }
+            isDefault true
             minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android.txt'),
                     'proguard/proguard-firebase-messaging.pro',
@@ -202,26 +196,11 @@ android {
             testProguardFiles 'proguard/proguard-automation.pro',
                     'proguard/proguard.cfg'
         }
-        staging {
-            initWith debug
-            applicationIdSuffix ".staging"
-            signingConfig signingConfigs.staging
-
-            buildConfigField "String", "SIGNAL_URL", "\"https://textsecure-service-staging.whispersystems.org\""
-            buildConfigField "String", "STORAGE_URL", "\"https://storage-staging.signal.org\""
-            buildConfigField "String", "SIGNAL_CDN_URL", "\"https://cdn-staging.signal.org\""
-            buildConfigField "String", "SIGNAL_CDN2_URL", "\"https://cdn2-staging.signal.org\""
-            buildConfigField "String", "SIGNAL_CONTACT_DISCOVERY_URL", "\"https://api-staging.directory.signal.org\""
-            buildConfigField "String", "SIGNAL_KEY_BACKUP_URL", "\"https://api-staging.backup.signal.org\""
-            buildConfigField "String", "CDS_MRENCLAVE", "\"bd123560b01c8fa92935bc5ae15cd2064e5c45215f23f0bd40364d521329d2ad\""
-            buildConfigField "String", "KBS_ENCLAVE_NAME", "\"823a3b2c037ff0cbe305cc48928cfcc97c9ed4a8ca6d49af6f7d6981fb60a4e9\""
-            buildConfigField "String", "KBS_SERVICE_ID", "\"038c40bbbacdc873caa81ac793bb75afde6dfe436a99ab1f15e3f0cbb7434ced\""
-            buildConfigField "String", "UNIDENTIFIED_SENDER_TRUST_ROOT", "\"BbqY1DzohE4NUZoVF+L18oUPrK3kILllLEJh2UnPSsEx\""
-            buildConfigField "String", "ZKGROUP_SERVER_PUBLIC_PARAMS", "\"ABSY21VckQcbSXVNCGRYJcfWHiAMZmpTtTELcDmxgdFbtp/bWsSxZdMKzfCp8rvIs8ocCU3B37fT3r4Mi5qAemeGeR2X+/YmOGR5ofui7tD5mDQfstAI9i+4WpMtIe8KC3wU5w3Inq3uNWVmoGtpKndsNfwJrCg0Hd9zmObhypUnSkfYn2ooMOOnBpfdanRtrvetZUayDMSC5iSRcXKpdls=\""
-        }
         flipper {
             initWith debug
+            isDefault false
             minifyEnabled false
+            matchingFallbacks = ['debug']
         }
         release {
             minifyEnabled true
@@ -231,17 +210,52 @@ android {
 
     productFlavors {
         play {
-            dimension "none"
+            dimension 'distribution'
+            isDefault true
             ext.websiteUpdateUrl = "null"
             buildConfigField "boolean", "PLAY_STORE_DISABLED", "false"
             buildConfigField "String", "NOPLAY_UPDATE_URL", "$ext.websiteUpdateUrl"
         }
 
         website {
-            dimension "none"
+            dimension 'distribution'
             ext.websiteUpdateUrl = "https://updates.signal.org/android"
             buildConfigField "boolean", "PLAY_STORE_DISABLED", "true"
             buildConfigField "String", "NOPLAY_UPDATE_URL", "\"$ext.websiteUpdateUrl\""
+        }
+
+        internal {
+            dimension 'distribution'
+            ext.websiteUpdateUrl = "null"
+            buildConfigField "boolean", "PLAY_STORE_DISABLED", "false"
+            buildConfigField "String", "NOPLAY_UPDATE_URL", "$ext.websiteUpdateUrl"
+            buildConfigField "int", "TRACE_EVENT_MAX", "30_000"
+        }
+
+        prod {
+            dimension 'environment'
+
+            isDefault true
+        }
+
+        staging {
+            dimension 'environment'
+
+            applicationIdSuffix ".staging"
+
+            buildConfigField "String", "SIGNAL_URL", "\"https://textsecure-service-staging.whispersystems.org\""
+            buildConfigField "String", "STORAGE_URL", "\"https://storage-staging.signal.org\""
+            buildConfigField "String", "SIGNAL_CDN_URL", "\"https://cdn-staging.signal.org\""
+            buildConfigField "String", "SIGNAL_CDN2_URL", "\"https://cdn2-staging.signal.org\""
+            buildConfigField "String", "SIGNAL_CONTACT_DISCOVERY_URL", "\"https://api-staging.directory.signal.org\""
+            buildConfigField "String", "SIGNAL_KEY_BACKUP_URL", "\"https://api-staging.backup.signal.org\""
+            buildConfigField "String", "CDS_MRENCLAVE", "\"c98e00a4e3ff977a56afefe7362a27e4961e4f19e211febfbb19b897e6b80b15\""
+            buildConfigField "KbsEnclave", "KBS_ENCLAVE", "new KbsEnclave(\"823a3b2c037ff0cbe305cc48928cfcc97c9ed4a8ca6d49af6f7d6981fb60a4e9\", " +
+                                                                         "\"038c40bbbacdc873caa81ac793bb75afde6dfe436a99ab1f15e3f0cbb7434ced\", " +
+                                                                         "\"a3baab19ef6ce6f34ab9ebb25ba722725ae44a8872dc0ff08ad6d83a9489de87\")"
+            buildConfigField "KbsEnclave[]", "KBS_FALLBACKS", "new KbsEnclave[0]"
+            buildConfigField "String", "UNIDENTIFIED_SENDER_TRUST_ROOT", "\"BbqY1DzohE4NUZoVF+L18oUPrK3kILllLEJh2UnPSsEx\""
+            buildConfigField "String", "ZKGROUP_SERVER_PUBLIC_PARAMS", "\"ABSY21VckQcbSXVNCGRYJcfWHiAMZmpTtTELcDmxgdFbtp/bWsSxZdMKzfCp8rvIs8ocCU3B37fT3r4Mi5qAemeGeR2X+/YmOGR5ofui7tD5mDQfstAI9i+4WpMtIe8KC3wU5w3Inq3uNWVmoGtpKndsNfwJrCg0Hd9zmObhypUnSkfYn2ooMOOnBpfdanRtrvetZUayDMSC5iSRcXKpdls=\""
         }
     }
 
@@ -273,27 +287,28 @@ android {
 dependencies {
     lintChecks project(':lintchecks')
 
-    implementation('androidx.appcompat:appcompat:1.1.0-beta01') {
+    implementation ('androidx.appcompat:appcompat:1.2.0') {
         force = true
     }
-    implementation 'androidx.recyclerview:recyclerview:1.0.0'
-    implementation 'com.google.android.material:material:1.1.0'
+    implementation 'androidx.recyclerview:recyclerview:1.1.0'
+    implementation 'com.google.android.material:material:1.2.1'
     implementation 'androidx.legacy:legacy-support-v13:1.0.0'
     implementation 'androidx.cardview:cardview:1.0.0'
     implementation 'androidx.preference:preference:1.0.0'
     implementation 'androidx.legacy:legacy-preference-v14:1.0.0'
     implementation 'androidx.gridlayout:gridlayout:1.0.0'
     implementation 'androidx.exifinterface:exifinterface:1.0.0'
-    implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
+    implementation 'androidx.constraintlayout:constraintlayout:2.0.4'
     implementation 'androidx.multidex:multidex:2.0.1'
     implementation 'androidx.navigation:navigation-fragment:2.1.0'
     implementation 'androidx.navigation:navigation-ui:2.1.0'
     implementation 'androidx.lifecycle:lifecycle-extensions:2.1.0'
     implementation 'androidx.lifecycle:lifecycle-viewmodel-savedstate:1.0.0-alpha05'
     implementation 'androidx.lifecycle:lifecycle-common-java8:2.1.0'
-    implementation "androidx.camera:camera-core:1.0.0-beta01"
-    implementation "androidx.camera:camera-camera2:1.0.0-beta01"
-    implementation "androidx.camera:camera-lifecycle:1.0.0-beta01"
+    implementation "androidx.camera:camera-core:1.0.0-beta11"
+    implementation "androidx.camera:camera-camera2:1.0.0-beta11"
+    implementation "androidx.camera:camera-lifecycle:1.0.0-beta11"
+    implementation "androidx.camera:camera-view:1.0.0-alpha18"
     implementation "androidx.concurrent:concurrent-futures:1.0.0"
     implementation "androidx.autofill:autofill:1.0.0"
     implementation "androidx.paging:paging-common:2.1.2"
@@ -312,16 +327,20 @@ dependencies {
 
     implementation 'com.google.android.exoplayer:exoplayer-core:2.9.1'
     implementation 'com.google.android.exoplayer:exoplayer-ui:2.9.1'
+    implementation 'com.google.android.exoplayer:extension-mediasession:2.9.1'
 
     implementation 'org.conscrypt:conscrypt-android:2.0.0'
     implementation 'org.signal:aesgcmprovider:0.0.3'
 
     implementation project(':libsignal-service')
+    implementation project(':paging')
+    implementation project(':core-util')
     implementation 'org.signal:zkgroup-android:0.7.0'
-
+    implementation 'org.whispersystems:signal-client-android:0.1.5'
+    implementation 'com.google.protobuf:protobuf-javalite:3.10.0'
     implementation 'org.signal:argon2:13.1@aar'
 
-    implementation 'org.signal:ringrtc-android:2.7.0'
+    implementation 'org.signal:ringrtc-android:2.8.7'
 
     implementation "me.leolin:ShortcutBadger:1.1.16"
     implementation 'se.emilsjolander:stickylistheaders:2.7.0'
@@ -382,19 +401,19 @@ dependencies {
     testImplementation 'org.powermock:powermock-classloading-xstream:1.7.4'
 
     testImplementation 'androidx.test:core:1.2.0'
-    testImplementation ('org.robolectric:robolectric:4.2') {
+    testImplementation ('org.robolectric:robolectric:4.4') {
         exclude group: 'com.google.protobuf', module: 'protobuf-java'
     }
-    testImplementation 'org.robolectric:shadows-multidex:4.2'
+    testImplementation 'org.robolectric:shadows-multidex:4.4'
+    testImplementation 'org.hamcrest:hamcrest:2.2'
 
     androidTestImplementation 'androidx.test.ext:junit:1.1.1'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
 }
 
 dependencyVerification {
-    configuration = '(play|website)(Debug|Release)RuntimeClasspath'
+    configuration = '(play|website)(Prod|Staging)(Debug|Release)RuntimeClasspath'
 }
-
 
 def assembleWebsiteDescriptor = { variant, file ->
     if (file.exists()) {
@@ -439,25 +458,21 @@ def signProductionRelease = { variant ->
 
 task signProductionPlayRelease {
     doLast {
-        signProductionRelease(android.applicationVariants.find { (it.name == 'playRelease') })
+        signProductionRelease(android.applicationVariants.find { (it.name == 'playProdRelease') })
+    }
+}
+
+task signProductionInternalRelease {
+    doLast {
+        signProductionRelease(android.applicationVariants.find { (it.name == 'internalProdRelease') })
     }
 }
 
 task signProductionWebsiteRelease {
     doLast {
-        def  variant       = android.applicationVariants.find { (it.name == 'websiteRelease') }
+        def  variant       = android.applicationVariants.find { (it.name == 'websiteProdRelease') }
         File signedRelease = signProductionRelease(variant).find { it.name.contains('universal') }
         assembleWebsiteDescriptor(variant, signedRelease)
-    }
-}
-
-tasks.whenTaskAdded { task ->
-    if (task.name.equals("assemblePlayRelease")) {
-        task.finalizedBy signProductionPlayRelease
-    }
-
-    if (task.name.equals("assembleWebsiteRelease")) {
-        task.finalizedBy signProductionWebsiteRelease
     }
 }
 
@@ -480,5 +495,16 @@ tasks.withType(Test) {
         showCauses true
         showExceptions true
         showStackTraces true
+    }
+}
+
+def loadKeystoreProperties(filename) {
+    def keystorePropertiesFile = file("${project.rootDir}/${filename}")
+    if (keystorePropertiesFile.exists()) {
+        def keystoreProperties = new Properties()
+        keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+        return keystoreProperties;
+    } else {
+        return null;
     }
 }

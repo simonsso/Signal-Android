@@ -9,6 +9,7 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
+import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -20,6 +21,7 @@ import org.thoughtcrime.securesms.R;
 import org.thoughtcrime.securesms.components.webrtc.CallParticipantsState;
 import org.thoughtcrime.securesms.components.webrtc.WebRtcCallViewModel;
 import org.thoughtcrime.securesms.events.CallParticipant;
+import org.thoughtcrime.securesms.events.WebRtcViewModel;
 import org.thoughtcrime.securesms.util.BottomSheetUtil;
 import org.thoughtcrime.securesms.util.MappingModel;
 
@@ -35,6 +37,13 @@ public class CallParticipantsListDialog extends BottomSheetDialogFragment {
     CallParticipantsListDialog fragment = new CallParticipantsListDialog();
 
     fragment.show(manager, BottomSheetUtil.STANDARD_BOTTOM_SHEET_FRAGMENT_TAG);
+  }
+
+  public static void dismiss(@NonNull FragmentManager manager) {
+    Fragment fragment = manager.findFragmentByTag(BottomSheetUtil.STANDARD_BOTTOM_SHEET_FRAGMENT_TAG);
+    if (fragment instanceof CallParticipantsListDialog) {
+      ((CallParticipantsListDialog) fragment).dismissAllowingStateLoss();
+    }
   }
 
   @Override
@@ -79,9 +88,14 @@ public class CallParticipantsListDialog extends BottomSheetDialogFragment {
   private void updateList(@NonNull CallParticipantsState callParticipantsState) {
     List<MappingModel<?>> items = new ArrayList<>();
 
-    items.add(new CallParticipantsListHeader(callParticipantsState.getAllRemoteParticipants().size() + 1));
+    boolean includeSelf = callParticipantsState.getGroupCallState() == WebRtcViewModel.GroupCallState.CONNECTED_AND_JOINED;
 
-    items.add(new CallParticipantViewState(callParticipantsState.getLocalParticipant()));
+    items.add(new CallParticipantsListHeader((int) callParticipantsState.getRemoteDevicesCount() + (includeSelf ? 1 : 0)));
+
+    if (includeSelf) {
+      items.add(new CallParticipantViewState(callParticipantsState.getLocalParticipant()));
+    }
+
     for (CallParticipant callParticipant : callParticipantsState.getAllRemoteParticipants()) {
       items.add(new CallParticipantViewState(callParticipant));
     }

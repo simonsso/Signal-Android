@@ -21,7 +21,6 @@ import android.annotation.SuppressLint;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
-import android.content.res.TypedArray;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.Rect;
@@ -45,7 +44,7 @@ import android.util.AttributeSet;
 import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -58,6 +57,7 @@ import androidx.lifecycle.LifecycleOwner;
 
 import com.annimon.stream.Stream;
 
+import org.signal.core.util.logging.Log;
 import org.thoughtcrime.securesms.BindableConversationItem;
 import org.thoughtcrime.securesms.ConfirmIdentityDialog;
 import org.thoughtcrime.securesms.MediaPreviewActivity;
@@ -92,7 +92,6 @@ import org.thoughtcrime.securesms.jobs.MmsSendJob;
 import org.thoughtcrime.securesms.jobs.SmsSendJob;
 import org.thoughtcrime.securesms.linkpreview.LinkPreview;
 import org.thoughtcrime.securesms.linkpreview.LinkPreviewUtil;
-import org.thoughtcrime.securesms.logging.Log;
 import org.thoughtcrime.securesms.mms.GlideRequests;
 import org.thoughtcrime.securesms.mms.ImageSlide;
 import org.thoughtcrime.securesms.mms.PartAuthority;
@@ -113,8 +112,8 @@ import org.thoughtcrime.securesms.util.DynamicTheme;
 import org.thoughtcrime.securesms.util.InterceptableLongClickCopyLinkSpan;
 import org.thoughtcrime.securesms.util.LongClickMovementMethod;
 import org.thoughtcrime.securesms.util.SearchUtil;
+import org.thoughtcrime.securesms.util.StringUtil;
 import org.thoughtcrime.securesms.util.TextSecurePreferences;
-import org.thoughtcrime.securesms.util.ThemeUtil;
 import org.thoughtcrime.securesms.util.UrlClickHandler;
 import org.thoughtcrime.securesms.util.Util;
 import org.thoughtcrime.securesms.util.VibrateUtil;
@@ -127,6 +126,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.Set;
 
 import static org.thoughtcrime.securesms.util.ThemeUtil.isDarkTheme;
@@ -139,7 +139,7 @@ import static org.thoughtcrime.securesms.util.ThemeUtil.isDarkTheme;
  *
  */
 
-public class ConversationItem extends LinearLayout implements BindableConversationItem,
+public final class ConversationItem extends RelativeLayout implements BindableConversationItem,
     RecipientForeverObserver
 {
   private static final String TAG = ConversationItem.class.getSimpleName();
@@ -169,7 +169,6 @@ public class ConversationItem extends LinearLayout implements BindableConversati
   @Nullable private   View                       groupSenderHolder;
             private   AvatarImageView            contactPhoto;
             private   AlertView                  alertView;
-            private   ViewGroup                  container;
             protected ReactionsConversationView  reactionsView;
 
   private @NonNull  Set<ConversationMessage>        batchSelected   = new HashSet<>();
@@ -238,7 +237,6 @@ public class ConversationItem extends LinearLayout implements BindableConversati
     this.revealableStub          = new Stub<>(findViewById(R.id.revealable_view_stub));
     this.groupSenderHolder       =            findViewById(R.id.group_sender_holder);
     this.quoteView               =            findViewById(R.id.quote_view);
-    this.container               =            findViewById(R.id.container);
     this.reply                   =            findViewById(R.id.reply_icon);
     this.reactionsView           =            findViewById(R.id.reactions_view);
 
@@ -391,11 +389,7 @@ public class ConversationItem extends LinearLayout implements BindableConversati
   }
 
   private void initializeAttributes() {
-    final int[]      attributes = new int[] {R.attr.conversation_item_bubble_background};
-    final TypedArray attrs      = context.obtainStyledAttributes(attributes);
-
-    defaultBubbleColor = attrs.getColor(0, Color.WHITE);
-    attrs.recycle();
+    defaultBubbleColor = ContextCompat.getColor(context, R.color.signal_background_secondary);
   }
 
   @Override
@@ -418,21 +412,24 @@ public class ConversationItem extends LinearLayout implements BindableConversati
   private void setBubbleState(MessageRecord messageRecord) {
     if (messageRecord.isOutgoing() && !messageRecord.isRemoteDelete()) {
       bodyBubble.getBackground().setColorFilter(defaultBubbleColor, PorterDuff.Mode.MULTIPLY);
-      footer.setTextColor(ThemeUtil.getThemedColor(context, R.attr.conversation_item_sent_text_secondary_color));
-      footer.setIconColor(ThemeUtil.getThemedColor(context, R.attr.conversation_item_sent_icon_color));
+      footer.setTextColor(ContextCompat.getColor(context, R.color.signal_text_secondary));
+      footer.setIconColor(ContextCompat.getColor(context, R.color.signal_icon_tint_secondary));
+      footer.setOnlyShowSendingStatus(false, messageRecord);
     } else if (messageRecord.isRemoteDelete() || (isViewOnceMessage(messageRecord) && ViewOnceUtil.isViewed((MmsMessageRecord) messageRecord))) {
-      bodyBubble.getBackground().setColorFilter(ThemeUtil.getThemedColor(context, R.attr.conversation_item_reveal_viewed_background_color), PorterDuff.Mode.MULTIPLY);
-      footer.setTextColor(ThemeUtil.getThemedColor(context, R.attr.conversation_item_sent_text_secondary_color));
-      footer.setIconColor(ThemeUtil.getThemedColor(context, R.attr.conversation_item_sent_icon_color));
+      bodyBubble.getBackground().setColorFilter(ContextCompat.getColor(context, R.color.signal_background_primary), PorterDuff.Mode.MULTIPLY);
+      footer.setTextColor(ContextCompat.getColor(context, R.color.signal_text_secondary));
+      footer.setIconColor(ContextCompat.getColor(context, R.color.signal_icon_tint_secondary));
+      footer.setOnlyShowSendingStatus(messageRecord.isRemoteDelete(), messageRecord);
     } else {
       bodyBubble.getBackground().setColorFilter(messageRecord.getRecipient().getColor().toConversationColor(context), PorterDuff.Mode.MULTIPLY);
-      footer.setTextColor(ThemeUtil.getThemedColor(context, R.attr.conversation_item_received_text_secondary_color));
-      footer.setIconColor(ThemeUtil.getThemedColor(context, R.attr.conversation_item_received_text_secondary_color));
+      footer.setTextColor(ContextCompat.getColor(context, R.color.conversation_item_received_text_secondary_color));
+      footer.setIconColor(ContextCompat.getColor(context, R.color.conversation_item_received_text_secondary_color));
+      footer.setOnlyShowSendingStatus(false, messageRecord);
     }
 
-    outliner.setColor(ThemeUtil.getThemedColor(getContext(), R.attr.conversation_item_sent_text_secondary_color));
+    outliner.setColor(ContextCompat.getColor(context, R.color.signal_text_secondary));
 
-    pulseOutliner.setColor(ThemeUtil.getThemedColor(getContext(), R.attr.conversation_item_mention_pulse_color));
+    pulseOutliner.setColor(ContextCompat.getColor(getContext(), R.color.signal_inverse_transparent));
     pulseOutliner.setStrokeWidth(ViewUtil.dpToPx(4));
 
     outliners.clear();
@@ -613,13 +610,14 @@ public class ConversationItem extends LinearLayout implements BindableConversati
       String deletedMessage = context.getString(messageRecord.isOutgoing() ? R.string.ConversationItem_you_deleted_this_message : R.string.ConversationItem_this_message_was_deleted);
       SpannableString italics = new SpannableString(deletedMessage);
       italics.setSpan(new StyleSpan(android.graphics.Typeface.ITALIC), 0, deletedMessage.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-      italics.setSpan(new ForegroundColorSpan(ThemeUtil.getThemedColor(context, R.attr.conversation_item_delete_for_everyone_text_color)),
+      italics.setSpan(new ForegroundColorSpan(ContextCompat.getColor(context, R.color.signal_text_primary)),
                                               0,
                                               deletedMessage.length(),
                                               Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
 
       bodyText.setText(italics);
       bodyText.setVisibility(View.VISIBLE);
+      bodyText.setOverflowText(null);
     } else if (isCaptionlessMms(messageRecord)) {
       bodyText.setVisibility(View.GONE);
     } else {
@@ -639,7 +637,7 @@ public class ConversationItem extends LinearLayout implements BindableConversati
         bodyText.setMentionBackgroundTint(ContextCompat.getColor(context, R.color.transparent_black_40));
       }
 
-      bodyText.setText(styledText);
+      bodyText.setText(StringUtil.trim(styledText));
       bodyText.setVisibility(View.VISIBLE);
     }
   }
@@ -652,7 +650,12 @@ public class ConversationItem extends LinearLayout implements BindableConversati
   {
     boolean showControls = !messageRecord.isFailed();
 
-    if (isViewOnceMessage(messageRecord)) {
+    if (eventListener != null && audioViewStub.resolved()) {
+      Log.d(TAG, "setMediaAttributes: unregistering voice note callbacks for audio slide " + audioViewStub.get().getAudioSlideUri());
+      eventListener.onUnregisterVoiceNoteCallbacks(audioViewStub.get().getPlaybackStateObserver());
+    }
+
+    if (isViewOnceMessage(messageRecord) && !messageRecord.isRemoteDelete()) {
       revealableStub.get().setVisibility(VISIBLE);
       if (mediaThumbnailStub.resolved()) mediaThumbnailStub.get().setVisibility(View.GONE);
       if (audioViewStub.resolved())      audioViewStub.get().setVisibility(View.GONE);
@@ -734,10 +737,16 @@ public class ConversationItem extends LinearLayout implements BindableConversati
       if (stickerStub.resolved())        stickerStub.get().setVisibility(View.GONE);
       if (revealableStub.resolved())     revealableStub.get().setVisibility(View.GONE);
 
-      //noinspection ConstantConditions
-      audioViewStub.get().setAudio(((MediaMmsMessageRecord) messageRecord).getSlideDeck().getAudioSlide(), showControls);
+      audioViewStub.get().setAudio(Objects.requireNonNull(((MediaMmsMessageRecord) messageRecord).getSlideDeck().getAudioSlide()), new AudioViewCallbacks(), showControls, false);
       audioViewStub.get().setDownloadClickListener(singleDownloadClickListener);
       audioViewStub.get().setOnLongClickListener(passthroughClickListener);
+
+      if (eventListener != null) {
+        Log.d(TAG, "setMediaAttributes: registered listener for audio slide " + audioViewStub.get().getAudioSlideUri());
+        eventListener.onRegisterVoiceNoteCallbacks(audioViewStub.get().getPlaybackStateObserver());
+      } else {
+        Log.w(TAG, "setMediaAttributes: could not register listener for audio slide " + audioViewStub.get().getAudioSlideUri());
+      }
 
       ViewUtil.updateLayoutParams(bodyText, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
       ViewUtil.updateLayoutParamsIfNonNull(groupSenderHolder, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
@@ -1038,9 +1047,9 @@ public class ConversationItem extends LinearLayout implements BindableConversati
 
   private void setGutterSizes(@NonNull MessageRecord current, boolean isGroupThread) {
     if (isGroupThread && current.isOutgoing()) {
-      ViewUtil.setLeftMargin(container, readDimen(R.dimen.conversation_group_left_gutter));
+      ViewUtil.setLeftMargin(this, readDimen(R.dimen.conversation_group_left_gutter));
     } else if (current.isOutgoing()) {
-      ViewUtil.setLeftMargin(container, readDimen(R.dimen.conversation_individual_left_gutter));
+      ViewUtil.setLeftMargin(this, readDimen(R.dimen.conversation_individual_left_gutter));
     }
   }
 
@@ -1117,7 +1126,7 @@ public class ConversationItem extends LinearLayout implements BindableConversati
 
   private void setGroupAuthorColor(@NonNull MessageRecord messageRecord) {
     if (groupSender != null && groupSenderProfileName != null) {
-      int stickerAuthorColor = ThemeUtil.getThemedColor(context, R.attr.conversation_sticker_author_color);
+      int stickerAuthorColor = ContextCompat.getColor(context, R.color.signal_text_primary);
       if (shouldDrawBodyBubbleOutline(messageRecord)) {
         groupSender.setTextColor(stickerAuthorColor);
         groupSenderProfileName.setTextColor(stickerAuthorColor);
@@ -1125,8 +1134,8 @@ public class ConversationItem extends LinearLayout implements BindableConversati
         groupSender.setTextColor(stickerAuthorColor);
         groupSenderProfileName.setTextColor(stickerAuthorColor);
       } else {
-        groupSender.setTextColor(ThemeUtil.getThemedColor(context, R.attr.conversation_item_received_text_primary_color));
-        groupSenderProfileName.setTextColor(ThemeUtil.getThemedColor(context, R.attr.conversation_item_received_text_primary_color));
+        groupSender.setTextColor(ContextCompat.getColor(context, R.color.conversation_item_received_text_primary_color));
+        groupSenderProfileName.setTextColor(ContextCompat.getColor(context, R.color.conversation_item_received_text_primary_color));
       }
     }
   }
@@ -1521,7 +1530,7 @@ public class ConversationItem extends LinearLayout implements BindableConversati
 
     @Override
     public void onClick(@NonNull View widget) {
-      if (eventListener != null) {
+      if (eventListener != null && batchSelected.isEmpty()) {
         VibrateUtil.vibrateTick(context);
         eventListener.onGroupMemberClicked(mentionedRecipientId, conversationRecipient.get().requireGroupId());
       }
@@ -1529,6 +1538,40 @@ public class ConversationItem extends LinearLayout implements BindableConversati
 
     @Override
     public void updateDrawState(@NonNull TextPaint ds) { }
+  }
+
+  private final class AudioViewCallbacks implements AudioView.Callbacks {
+
+    @Override
+    public void onPlay(@NonNull Uri audioUri, double progress) {
+      if (eventListener == null) return;
+
+      eventListener.onVoiceNotePlay(audioUri, messageRecord.getId(), progress);
+    }
+
+    @Override
+    public void onPause(@NonNull Uri audioUri) {
+      if (eventListener == null) return;
+
+      eventListener.onVoiceNotePause(audioUri);
+    }
+
+    @Override
+    public void onSeekTo(@NonNull Uri audioUri, double progress) {
+      if (eventListener == null) return;
+
+      eventListener.onVoiceNoteSeekTo(audioUri, progress);
+    }
+
+    @Override
+    public void onStopAndReset(@NonNull Uri audioUri) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void onProgressUpdated(long durationMillis, long playheadMillis) {
+      footer.setAudioDuration(durationMillis, playheadMillis);
+    }
   }
 
   private void handleMessageApproval() {

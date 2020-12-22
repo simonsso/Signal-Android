@@ -74,7 +74,7 @@
   <!--AudioSlidePlayer-->
   <string name="AudioSlidePlayer_error_playing_audio">ऑडियो बजाने में त्रुटि!</string>
   <!--BlockedContactsActivity-->
-  <string name="BlockedContactsActivity_blocked_contacts">ब्लॉक किये हुए संपर्क</string>
+  <!-- Removed by excludeNonTranslatables <string name="BlockedContactsActivity_blocked_contacts">ब्लॉक किये हुए संपर्क</string> -->
   <!--BlockUnblockDialog-->
   <string name="BlockUnblockDialog_group_members_will_be_able_to_add_you">ग्रूप के सदस्य आपको इस ग्रूप में फ़िर शामिल कर पाएँगे।</string>
   <string name="BlockUnblockDialog_unblock">अनब्लॉक करें</string>
@@ -522,13 +522,13 @@
   <string name="MessageRecord_message_encrypted_with_a_legacy_protocol_version_that_is_no_longer_supported">Signal के पुराने वर्ज़न का उपयोग करके एन्क्रिप्ट किया गया एक संदेश प्राप्त हुआ जो अब समर्थित नहीं है। कृपया प्रेषक से नवीनतम वर्ज़न में अपडेट करने और संदेश भेजने के लिए कहें।</string>
   <string name="MessageRecord_left_group">आपने समूह छोड़ दिया है</string>
   <string name="MessageRecord_you_updated_group">आपने समूह को अपडेट किया है।</string>
-  <string name="MessageRecord_you_called">आपने बुलाया </string>
-  <string name="MessageRecord_called_you">संपर्क को कॅाल किया गया</string>
-  <string name="MessageRecord_missed_call">मिस कॉल</string>
+  <!-- Removed by excludeNonTranslatables <string name="MessageRecord_you_called">आपने बुलाया </string> -->
+  <!-- Removed by excludeNonTranslatables <string name="MessageRecord_called_you">संपर्क को कॅाल किया गया</string> -->
+  <!-- Removed by excludeNonTranslatables <string name="MessageRecord_missed_call">मिस कॉल</string> -->
   <string name="MessageRecord_s_updated_group">%s ने समूह को अद्यतन किया</string>
-  <string name="MessageRecord_s_called_you">%s  ने आप को बुलाया </string>
+  <!-- Removed by excludeNonTranslatables <string name="MessageRecord_s_called_you">%s  ने आप को बुलाया </string> -->
   <string name="MessageRecord_called_s">%s  को बुलाया </string>
-  <string name="MessageRecord_missed_call_from">%sसे छूटी हुई कॉल </string>
+  <!-- Removed by excludeNonTranslatables <string name="MessageRecord_missed_call_from">%sसे छूटी हुई कॉल </string> -->
   <string name="MessageRecord_s_joined_signal">%sअब Signal पर हैं! </string>
   <string name="MessageRecord_you_disabled_disappearing_messages">आपने गायब मेसेज अक्षम कर दिए हैं।</string>
   <string name="MessageRecord_s_disabled_disappearing_messages">%1$sने गायब मेसेज अक्षम कर दिए हैं। </string>
@@ -766,7 +766,7 @@
   <string name="ThreadRecord_draft">ड्राफ्ट:</string>
   <string name="ThreadRecord_called">आपने बुलाया </string>
   <string name="ThreadRecord_called_you">आपको बुलाया </string>
-  <string name="ThreadRecord_missed_call">मिस कॉल</string>
+  <!-- Removed by excludeNonTranslatables <string name="ThreadRecord_missed_call">मिस कॉल</string> -->
   <string name="ThreadRecord_media_message">मीडिया मेसेज</string>
   <string name="ThreadRecord_sticker">स्टिकर</string>
   <string name="ThreadRecord_view_once_photo">देखें-एक बार फोटो</string>
@@ -792,12 +792,12 @@
   <string name="UpdateApkReadyListener_Signal_update">Signal अपडेट</string>
   <string name="UpdateApkReadyListener_a_new_version_of_signal_is_available_tap_to_update">Signal का एक नया वर्ज़न उपलब्ध है, अपडेट करने के लिए टैप करें</string>
   <!--UnknownSenderView-->
-  <string name="UnknownSenderView_block_s">%sको ब्लॉक करें?</string>
-  <string name="UnknownSenderView_blocked_contacts_will_no_longer_be_able_to_send_you_messages_or_call_you">ब्लॉक संपर्क अब आपको मेसेज भेजने या आपको कॉल करने में सक्षम नहीं होंगे।</string>
-  <string name="UnknownSenderView_block">ब्लॉक</string>
-  <string name="UnknownSenderView_share_profile_with_s">%s के साथ प्रोफाइल साझा करें?</string>
-  <string name="UnknownSenderView_the_easiest_way_to_share_your_profile_information_is_to_add_the_sender_to_your_contacts">अपनी प्रोफाइल जानकारी साझा करने का सबसे आसान तरीका प्रेषक को आपके संपर्कों में जोड़ना है। यदि आप नहीं चाहते हैं, तो भी आप अपनी प्रोफ़ाइल जानकारी इस तरह से साझा कर सकते हैं।</string>
-  <string name="UnknownSenderView_share_profile">प्रोफाइल साझा करें</string>
+  <!-- Removed by excludeNonTranslatables <string name="UnknownSenderView_block_s">%sको ब्लॉक करें?</string> -->
+  <!-- Removed by excludeNonTranslatables <string name="UnknownSenderView_blocked_contacts_will_no_longer_be_able_to_send_you_messages_or_call_you">ब्लॉक संपर्क अब आपको मेसेज भेजने या आपको कॉल करने में सक्षम नहीं होंगे।</string> -->
+  <!-- Removed by excludeNonTranslatables <string name="UnknownSenderView_block">ब्लॉक</string> -->
+  <!-- Removed by excludeNonTranslatables <string name="UnknownSenderView_share_profile_with_s">%s के साथ प्रोफाइल साझा करें?</string> -->
+  <!-- Removed by excludeNonTranslatables <string name="UnknownSenderView_the_easiest_way_to_share_your_profile_information_is_to_add_the_sender_to_your_contacts">अपनी प्रोफाइल जानकारी साझा करने का सबसे आसान तरीका प्रेषक को आपके संपर्कों में जोड़ना है। यदि आप नहीं चाहते हैं, तो भी आप अपनी प्रोफ़ाइल जानकारी इस तरह से साझा कर सकते हैं।</string> -->
+  <!-- Removed by excludeNonTranslatables <string name="UnknownSenderView_share_profile">प्रोफाइल साझा करें</string> -->
   <!--UntrustedSendDialog-->
   <string name="UntrustedSendDialog_send_message">मेसेज भेजें?</string>
   <string name="UntrustedSendDialog_send">भेजें</string>
@@ -884,8 +884,8 @@
   <string name="MessageNotifier_reacted_s_to_your_image">आपकी तस्वीर पर %1$s ने प्रतिक्रिया व्यक्त की.</string>
   <string name="MessageNotifier_reacted_s_to_your_file">आपकी फ़ाइल पर %1$sने प्रतिक्रिया व्यक्त की|</string>
   <string name="MessageNotifier_reacted_s_to_your_audio">आपके ऑडियो के लिए %1$sप्रतिक्रिया व्यक्त की।</string>
-  <string name="MessageNotifier_reacted_s_to_your_view_once_photo">आपके विचार-एक बार फोटो पर %1$sको पुनःप्रक्रिया|</string>
-  <string name="MessageNotifier_reacted_s_to_your_view_once_video">आपके दृश्य-एक बार वीडियो पर %1$sप्रतिक्रिया व्यक्त की।</string>
+  <!-- Removed by excludeNonTranslatables <string name="MessageNotifier_reacted_s_to_your_view_once_photo">आपके विचार-एक बार फोटो पर %1$sको पुनःप्रक्रिया|</string> -->
+  <!-- Removed by excludeNonTranslatables <string name="MessageNotifier_reacted_s_to_your_view_once_video">आपके दृश्य-एक बार वीडियो पर %1$sप्रतिक्रिया व्यक्त की।</string> -->
   <string name="MessageNotifier_reacted_s_to_your_sticker">आपके स्टिकर पर %1$sको पुन: सक्रिय किया।</string>
   <string name="MessageNotifier_this_message_was_deleted">यह मेसेज हटा दिया गया है।</string>
   <!--Notification Channels-->
@@ -991,7 +991,7 @@
   <string name="ContactSelectionListFragment_error_retrieving_contacts_check_your_network_connection">संपर्क पुनर्प्राप्त करने में त्रुटि, अपना नेटवर्क कनेक्शन जांचें</string>
   <string name="ContactSelectionListFragment_username_not_found">उपयोगकर्ता नाम नहीं मिला</string>
   <string name="ContactSelectionListFragment_s_is_not_a_signal_user">\"%1$s\" एक Signal उपयोगकर्ता नहीं है। कृपया उपयोगकर्ता नाम जांचें और पुनः प्रयास करें।</string>
-  <string name="ContactSelectionListFragment_okay">ठीक है</string>
+  <!-- Removed by excludeNonTranslatables <string name="ContactSelectionListFragment_okay">ठीक है</string> -->
   <!--blocked_contacts_fragment-->
   <string name="blocked_contacts_fragment__no_blocked_contacts">कोई अवरुद्ध संपर्क नहीं</string>
   <!--contact_selection_list_fragment-->
@@ -1144,7 +1144,7 @@
   </plurals>
   <string name="GroupUtil_group_name_is_now">समूह का नाम अब \'%1$s\' है</string>
   <!--profile_group_share_view-->
-  <string name="profile_group_share_view__make_your_profile_name_and_photo_visible_to_this_group">इस समूह में अपना प्रोफाइल नाम और फोटो दृश्यमान बनाएं?</string>
+  <!-- Removed by excludeNonTranslatables <string name="profile_group_share_view__make_your_profile_name_and_photo_visible_to_this_group">इस समूह में अपना प्रोफाइल नाम और फोटो दृश्यमान बनाएं?</string> -->
   <!--prompt_passphrase_activity-->
   <string name="prompt_passphrase_activity__unlock">खोलो </string>
   <!--prompt_mms_activity-->
@@ -1328,7 +1328,7 @@
   <string name="preferences__typing_indicators">टाइपिंग सूचक</string>
   <string name="preferences__if_typing_indicators_are_disabled_you_wont_be_able_to_see_typing_indicators">टाइपिंग सूचक बंद करने पर आप दूसरों के टाइपिंग सूचक भी नहीं देख पाएंगे|</string>
   <string name="preferences__request_keyboard_to_disable_personalized_learning">व्यक्तिगत सीखने को अक्षम करने के लिए कीबोर्ड को अनुरोध करें</string>
-  <string name="preferences_app_protection__blocked_contacts">ब्लॉक किये हुए कॉन्टेक्ट्स</string>
+  <!-- Removed by excludeNonTranslatables <string name="preferences_app_protection__blocked_contacts">ब्लॉक किये हुए कॉन्टेक्ट्स</string> -->
   <string name="preferences_chats__when_using_mobile_data">मोबाइल डेटा का उपयोग करते समय</string>
   <string name="preferences_chats__when_using_wifi">Wi-Fi का उपयोग करते समय</string>
   <string name="preferences_chats__when_roaming">रोमिंग करते समय</string>

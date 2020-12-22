@@ -16,7 +16,6 @@
  */
 package org.thoughtcrime.securesms.providers;
 
-import android.content.ContentProvider;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
@@ -27,15 +26,15 @@ import android.os.ParcelFileDescriptor;
 
 import androidx.annotation.NonNull;
 
+import org.signal.core.util.logging.Log;
 import org.thoughtcrime.securesms.BuildConfig;
-import org.thoughtcrime.securesms.logging.Log;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-public class MmsBodyProvider extends ContentProvider {
+public final class MmsBodyProvider extends BaseContentProvider {
   private static final String TAG                = MmsBodyProvider.class.getSimpleName();
   private static final String CONTENT_AUTHORITY  = BuildConfig.APPLICATION_ID + ".mms";
   private static final String CONTENT_URI_STRING = "content://" + CONTENT_AUTHORITY + "/mms";

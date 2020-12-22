@@ -6,13 +6,18 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.WorkerThread;
 
+import com.google.protobuf.ByteString;
+
+import org.signal.core.util.logging.Log;
+import org.signal.zkgroup.InvalidInputException;
+import org.signal.zkgroup.groups.GroupMasterKey;
 import org.thoughtcrime.securesms.R;
 import org.thoughtcrime.securesms.database.DatabaseFactory;
 import org.thoughtcrime.securesms.database.GroupDatabase;
 import org.thoughtcrime.securesms.groups.BadGroupIdException;
 import org.thoughtcrime.securesms.groups.GroupId;
-import org.thoughtcrime.securesms.logging.Log;
 import org.thoughtcrime.securesms.mms.MessageGroupContext;
+import org.thoughtcrime.securesms.mms.OutgoingGroupUpdateMessage;
 import org.thoughtcrime.securesms.recipients.Recipient;
 import org.thoughtcrime.securesms.recipients.RecipientId;
 import org.whispersystems.libsignal.util.guava.Optional;
@@ -20,8 +25,10 @@ import org.whispersystems.signalservice.api.messages.SignalServiceDataMessage;
 import org.whispersystems.signalservice.api.messages.SignalServiceGroup;
 import org.whispersystems.signalservice.api.messages.SignalServiceGroupContext;
 import org.whispersystems.signalservice.api.messages.SignalServiceGroupV2;
+import org.whispersystems.signalservice.internal.push.SignalServiceProtos.GroupContext;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
 
 public final class GroupUtil {
@@ -38,7 +45,7 @@ public final class GroupUtil {
       throws BadGroupIdException
   {
     if (groupContext.getGroupV1().isPresent()) {
-      return GroupId.v1Exact(groupContext.getGroupV1().get().getGroupId());
+      return GroupId.v1(groupContext.getGroupV1().get().getGroupId());
     } else if (groupContext.getGroupV2().isPresent()) {
       return GroupId.v2(groupContext.getGroupV2().get().getMasterKey());
     } else {
@@ -64,6 +71,14 @@ public final class GroupUtil {
       return Optional.of(idFromGroupContext(groupContext.get()));
     }
     return Optional.absent();
+  }
+
+  public static @NonNull GroupMasterKey requireMasterKey(@NonNull byte[] masterKey) {
+    try {
+      return new GroupMasterKey(masterKey);
+    } catch (InvalidInputException e) {
+      throw new AssertionError(e);
+    }
   }
 
   public static @NonNull GroupDescription getNonV2GroupDescription(@NonNull Context context, @Nullable String encodedGroup) {
@@ -96,6 +111,26 @@ public final class GroupUtil {
       } else {
         dataMessageBuilder.asGroupMessage(new SignalServiceGroup(groupId.getDecodedId()));
       }
+  }
+
+  public static OutgoingGroupUpdateMessage createGroupV1LeaveMessage(@NonNull GroupId.V1 groupId,
+                                                                     @NonNull Recipient groupRecipient)
+  {
+    GroupContext groupContext = GroupContext.newBuilder()
+                                            .setId(ByteString.copyFrom(groupId.getDecodedId()))
+                                            .setType(GroupContext.Type.QUIT)
+                                            .build();
+
+    return new OutgoingGroupUpdateMessage(groupRecipient,
+                                          groupContext,
+                                          null,
+                                          System.currentTimeMillis(),
+                                          0,
+                                          false,
+                                          null,
+                                          Collections.emptyList(),
+                                          Collections.emptyList(),
+                                          Collections.emptyList());
   }
 
   public static class GroupDescription {

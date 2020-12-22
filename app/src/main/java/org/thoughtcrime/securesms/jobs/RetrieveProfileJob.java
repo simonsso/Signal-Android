@@ -11,6 +11,8 @@ import androidx.annotation.WorkerThread;
 import com.annimon.stream.Collectors;
 import com.annimon.stream.Stream;
 
+import org.signal.core.util.concurrent.SignalExecutors;
+import org.signal.core.util.logging.Log;
 import org.signal.zkgroup.profiles.ProfileKey;
 import org.signal.zkgroup.profiles.ProfileKeyCredential;
 import org.thoughtcrime.securesms.crypto.ProfileKeyUtil;
@@ -24,19 +26,19 @@ import org.thoughtcrime.securesms.jobmanager.Job;
 import org.thoughtcrime.securesms.jobmanager.JobManager;
 import org.thoughtcrime.securesms.jobmanager.impl.NetworkConstraint;
 import org.thoughtcrime.securesms.keyvalue.SignalStore;
-import org.thoughtcrime.securesms.logging.Log;
 import org.thoughtcrime.securesms.profiles.ProfileName;
 import org.thoughtcrime.securesms.recipients.Recipient;
 import org.thoughtcrime.securesms.recipients.RecipientId;
 import org.thoughtcrime.securesms.recipients.RecipientUtil;
+import org.thoughtcrime.securesms.tracing.Trace;
 import org.thoughtcrime.securesms.transport.RetryLaterException;
 import org.thoughtcrime.securesms.util.Base64;
 import org.thoughtcrime.securesms.util.IdentityUtil;
 import org.thoughtcrime.securesms.util.ProfileUtil;
 import org.thoughtcrime.securesms.util.SetUtil;
 import org.thoughtcrime.securesms.util.Stopwatch;
+import org.thoughtcrime.securesms.util.TextSecurePreferences;
 import org.thoughtcrime.securesms.util.Util;
-import org.thoughtcrime.securesms.util.concurrent.SignalExecutors;
 import org.whispersystems.libsignal.IdentityKey;
 import org.whispersystems.libsignal.InvalidKeyException;
 import org.whispersystems.libsignal.util.Pair;
@@ -65,6 +67,7 @@ import java.util.concurrent.TimeoutException;
 /**
  * Retrieves a users profile and sets the appropriate local fields.
  */
+@Trace
 public class RetrieveProfileJob extends BaseJob {
 
   public static final String KEY = "RetrieveProfileJob";
@@ -113,7 +116,7 @@ public class RetrieveProfileJob extends BaseJob {
   public static @NonNull Job forRecipient(@NonNull RecipientId recipientId) {
     Recipient recipient = Recipient.resolved(recipientId);
 
-    if (recipient.isLocalNumber()) {
+    if (recipient.isSelf()) {
       return new RefreshOwnProfileJob();
     } else if (recipient.isGroup()) {
       Context         context    = ApplicationDependencies.getApplication();
@@ -139,7 +142,7 @@ public class RetrieveProfileJob extends BaseJob {
     for (RecipientId recipientId : recipientIds) {
       Recipient recipient = Recipient.resolved(recipientId);
 
-      if (recipient.isLocalNumber()) {
+      if (recipient.isSelf()) {
         includeSelf = true;
       } else if (recipient.isGroup()) {
         List<Recipient> recipients = DatabaseFactory.getGroupDatabase(context).getGroupMembers(recipient.requireGroupId(), GroupDatabase.MemberSet.FULL_MEMBERS_EXCLUDING_SELF);
@@ -167,7 +170,10 @@ public class RetrieveProfileJob extends BaseJob {
    * certain time period.
    */
   public static void enqueueRoutineFetchIfNecessary(Application application) {
-    if (!SignalStore.registrationValues().isRegistrationComplete()) {
+    if (!SignalStore.registrationValues().isRegistrationComplete() ||
+        !TextSecurePreferences.isPushRegistered(application)       ||
+        TextSecurePreferences.getLocalUuid(application) == null)
+    {
       Log.i(TAG, "Registration not complete. Skipping.");
       return;
     }
@@ -423,7 +429,7 @@ public class RetrieveProfileJob extends BaseJob {
 
         if (!recipient.isBlocked()      &&
             !recipient.isGroup()        &&
-            !recipient.isLocalNumber()  &&
+            !recipient.isSelf()         &&
             !localDisplayName.isEmpty() &&
             !remoteDisplayName.equals(localDisplayName))
         {
@@ -431,7 +437,7 @@ public class RetrieveProfileJob extends BaseJob {
           DatabaseFactory.getSmsDatabase(context).insertProfileNameChangeMessages(recipient, remoteDisplayName, localDisplayName);
         } else {
           Log.i(TAG, String.format(Locale.US, "Name changed, but wasn't relevant to write an event. blocked: %s, group: %s, self: %s, firstSet: %s, displayChange: %s",
-                                               recipient.isBlocked(), recipient.isGroup(), recipient.isLocalNumber(), localDisplayName.isEmpty(), !remoteDisplayName.equals(localDisplayName)));
+                                               recipient.isBlocked(), recipient.isGroup(), recipient.isSelf(), localDisplayName.isEmpty(), !remoteDisplayName.equals(localDisplayName)));
         }
       }
 

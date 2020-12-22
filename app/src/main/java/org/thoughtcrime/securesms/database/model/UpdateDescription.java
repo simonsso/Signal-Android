@@ -1,6 +1,8 @@
 package org.thoughtcrime.securesms.database.model;
 
 import androidx.annotation.AnyThread;
+import androidx.annotation.ColorInt;
+import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.WorkerThread;
@@ -28,17 +30,26 @@ public final class UpdateDescription {
   private final Collection<UUID> mentioned;
   private final StringFactory    stringFactory;
   private final String           staticString;
+  private final int              lightIconResource;
+  private final int              lightTint;
+  private final int              darkTint;
 
   private UpdateDescription(@NonNull Collection<UUID> mentioned,
                             @Nullable StringFactory stringFactory,
-                            @Nullable String staticString)
+                            @Nullable String staticString,
+                            @DrawableRes int iconResource,
+                            @ColorInt int lightTint,
+                            @ColorInt int darkTint)
   {
     if (staticString == null && stringFactory == null) {
       throw new AssertionError();
     }
-    this.mentioned     = mentioned;
-    this.stringFactory = stringFactory;
-    this.staticString  = staticString;
+    this.mentioned         = mentioned;
+    this.stringFactory     = stringFactory;
+    this.staticString      = staticString;
+    this.lightIconResource = iconResource;
+    this.lightTint         = lightTint;
+    this.darkTint          = darkTint;
   }
 
   /**
@@ -49,18 +60,35 @@ public final class UpdateDescription {
    * @param stringFactory The background method for generating the string.
    */
   public static UpdateDescription mentioning(@NonNull Collection<UUID> mentioned,
-                                             @NonNull StringFactory stringFactory)
+                                             @NonNull StringFactory stringFactory,
+                                             @DrawableRes int iconResource)
   {
     return new UpdateDescription(UuidUtil.filterKnown(mentioned),
                                  stringFactory,
-                                 null);
+                                 null,
+                                 iconResource,
+                                 0,
+                                 0);
   }
 
   /**
    * Create an update description that's string value is fixed.
    */
-  public static UpdateDescription staticDescription(@NonNull String staticString) {
-    return new UpdateDescription(Collections.emptyList(), null, staticString);
+  public static UpdateDescription staticDescription(@NonNull String staticString,
+                                                    @DrawableRes int iconResource)
+  {
+    return new UpdateDescription(Collections.emptyList(), null, staticString, iconResource, 0, 0);
+  }
+
+  /**
+   * Create an update description that's string value is fixed with a specific tint color.
+   */
+  public static UpdateDescription staticDescription(@NonNull String staticString,
+                                                    @DrawableRes int iconResource,
+                                                    @ColorInt int lightTint,
+                                                    @ColorInt int darkTint)
+  {
+    return new UpdateDescription(Collections.emptyList(), null, staticString, iconResource, lightTint, darkTint);
   }
 
   public boolean isStringStatic() {
@@ -93,6 +121,18 @@ public final class UpdateDescription {
     return mentioned;
   }
 
+  public @DrawableRes int getIconResource() {
+    return lightIconResource;
+  }
+
+  public @ColorInt int getLightTint() {
+    return lightTint;
+  }
+
+  public @ColorInt int getDarkTint() {
+    return darkTint;
+  }
+
   public static UpdateDescription concatWithNewLines(@NonNull List<UpdateDescription> updateDescriptions) {
     if (updateDescriptions.size() == 0) {
       throw new AssertionError();
@@ -103,7 +143,9 @@ public final class UpdateDescription {
     }
 
     if (allAreStatic(updateDescriptions)) {
-      return UpdateDescription.staticDescription(concatStaticLines(updateDescriptions));
+      return UpdateDescription.staticDescription(concatStaticLines(updateDescriptions),
+                                                 updateDescriptions.get(0).getIconResource()
+      );
     }
 
     Set<UUID> allMentioned = new HashSet<>();
@@ -112,7 +154,9 @@ public final class UpdateDescription {
       allMentioned.addAll(updateDescription.getMentioned());
     }
 
-    return UpdateDescription.mentioning(allMentioned, () -> concatLines(updateDescriptions));
+    return UpdateDescription.mentioning(allMentioned,
+                                        () -> concatLines(updateDescriptions),
+                                        updateDescriptions.get(0).getIconResource());
   }
 
   private static boolean allAreStatic(@NonNull Collection<UpdateDescription> updateDescriptions) {

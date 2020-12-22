@@ -17,6 +17,7 @@
 package org.thoughtcrime.securesms.util;
 
 import android.content.Context;
+
 import androidx.appcompat.app.AlertDialog;
 
 import org.thoughtcrime.securesms.R;
@@ -26,7 +27,7 @@ public class Dialogs {
     AlertDialog.Builder dialog = new AlertDialog.Builder(context);
     dialog.setTitle(title);
     dialog.setMessage(message);
-    dialog.setIconAttribute(R.attr.dialog_alert_icon);
+    dialog.setIcon(R.drawable.ic_warning);
     dialog.setPositiveButton(android.R.string.ok, null);
     dialog.show();
   }
@@ -35,7 +36,7 @@ public class Dialogs {
     AlertDialog.Builder dialog = new AlertDialog.Builder(context);
     dialog.setTitle(title);
     dialog.setMessage(message);
-    dialog.setIconAttribute(R.attr.dialog_info_icon);
+    dialog.setIcon(R.drawable.ic_info_outline);
     dialog.setPositiveButton(android.R.string.ok, null);
     dialog.show();
   }

@@ -10,6 +10,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.StringRes;
 import androidx.appcompat.widget.SwitchCompat;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.DialogFragment;
@@ -17,7 +18,6 @@ import androidx.lifecycle.ViewModelProviders;
 
 import org.thoughtcrime.securesms.R;
 import org.thoughtcrime.securesms.groups.GroupId;
-import org.thoughtcrime.securesms.util.ThemeUtil;
 import org.thoughtcrime.securesms.util.ViewUtil;
 import org.thoughtcrime.securesms.util.views.SimpleProgressDialog;
 
@@ -42,9 +42,7 @@ public final class ShareableGroupLinkDialogFragment extends DialogFragment {
   @Override
   public void onCreate(@Nullable Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    
-    setStyle(STYLE_NO_FRAME, ThemeUtil.isDarkTheme(requireActivity()) ? R.style.TextSecure_DarkTheme
-                                                                      : R.style.TextSecure_LightTheme);
+    setStyle(STYLE_NO_FRAME, R.style.Signal_DayNight_Dialog_Animated);
   }
 
   @Override
@@ -72,15 +70,16 @@ public final class ShareableGroupLinkDialogFragment extends DialogFragment {
   }
 
   private void initializeViews(@NonNull View view) {
-    SwitchCompat shareableGroupLinkSwitch  = view.findViewById(R.id.shareable_group_link_enable_switch);
-    TextView     shareableGroupLinkDisplay = view.findViewById(R.id.shareable_group_link_display);
-    SwitchCompat approveNewMembersSwitch   = view.findViewById(R.id.shareable_group_link_approve_new_members_switch);
-    View         shareableGroupLinkRow     = view.findViewById(R.id.shareable_group_link_row);
-    View         shareRow                  = view.findViewById(R.id.shareable_group_link_share_row);
-    View         resetLinkRow              = view.findViewById(R.id.shareable_group_link_reset_link_row);
-    View         approveNewMembersRow      = view.findViewById(R.id.shareable_group_link_approve_new_members_row);
-    View         membersSectionHeader      = view.findViewById(R.id.shareable_group_link_member_requests_section_header);
-    View         descriptionRow            = view.findViewById(R.id.shareable_group_link_display_row2);
+    SwitchCompat shareableGroupLinkSwitch     = view.findViewById(R.id.shareable_group_link_enable_switch);
+    TextView     shareableGroupLinkDisplay    = view.findViewById(R.id.shareable_group_link_display);
+    View         shareableGroupLinkDisplayRow = view.findViewById(R.id.shareable_group_link_display_row);
+    SwitchCompat approveNewMembersSwitch      = view.findViewById(R.id.shareable_group_link_approve_new_members_switch);
+    View         shareableGroupLinkRow        = view.findViewById(R.id.shareable_group_link_row);
+    View         shareRow                     = view.findViewById(R.id.shareable_group_link_share_row);
+    View         resetLinkRow                 = view.findViewById(R.id.shareable_group_link_reset_link_row);
+    View         approveNewMembersRow         = view.findViewById(R.id.shareable_group_link_approve_new_members_row);
+    View         membersSectionHeader         = view.findViewById(R.id.shareable_group_link_member_requests_section_header);
+    View         descriptionRow               = view.findViewById(R.id.shareable_group_link_display_row2);
 
     Toolbar toolbar = view.findViewById(R.id.shareable_group_link_toolbar);
 
@@ -91,7 +90,7 @@ public final class ShareableGroupLinkDialogFragment extends DialogFragment {
       approveNewMembersSwitch.setChecked(groupLink.isRequiresApproval());
       shareableGroupLinkDisplay.setText(formatForFullWidthWrapping(groupLink.getUrl()));
 
-      ViewUtil.setEnabledRecursive(shareableGroupLinkDisplay, groupLink.isEnabled());
+      shareableGroupLinkDisplayRow.setVisibility(groupLink.isEnabled() ? View.VISIBLE : View.GONE);
       ViewUtil.setEnabledRecursive(shareRow, groupLink.isEnabled());
       ViewUtil.setEnabledRecursive(resetLinkRow, groupLink.isEnabled());
       ViewUtil.setEnabledRecursive(membersSectionHeader, groupLink.isEnabled());
@@ -101,16 +100,19 @@ public final class ShareableGroupLinkDialogFragment extends DialogFragment {
 
     shareRow.setOnClickListener(v -> GroupLinkBottomSheetDialogFragment.show(requireFragmentManager(), groupId));
 
-    shareableGroupLinkRow.setOnClickListener(v -> viewModel.onToggleGroupLink(requireContext()));
-    approveNewMembersRow.setOnClickListener(v -> viewModel.onToggleApproveMembers(requireContext()));
-    resetLinkRow.setOnClickListener(v ->
-      new AlertDialog.Builder(requireContext())
-                     .setMessage(R.string.ShareableGroupLinkDialogFragment__are_you_sure_you_want_to_reset_the_group_link)
-                     .setPositiveButton(R.string.ShareableGroupLinkDialogFragment__reset_link, (dialog, which) -> viewModel.onResetLink(requireContext()))
-                     .setNegativeButton(android.R.string.cancel, null)
-                     .show());
+    viewModel.getCanEdit().observe(getViewLifecycleOwner(), canEdit -> {
+      if (canEdit) {
+        shareableGroupLinkRow.setOnClickListener(v -> viewModel.onToggleGroupLink());
+        approveNewMembersRow.setOnClickListener(v -> viewModel.onToggleApproveMembers());
+        resetLinkRow.setOnClickListener(v -> onResetGroupLink());
+      } else {
+        shareableGroupLinkRow.setOnClickListener(v -> toast(R.string.ManageGroupActivity_only_admins_can_enable_or_disable_the_sharable_group_link));
+        approveNewMembersRow.setOnClickListener(v -> toast(R.string.ManageGroupActivity_only_admins_can_enable_or_disable_the_option_to_approve_new_members));
+        resetLinkRow.setOnClickListener(v -> toast(R.string.ManageGroupActivity_only_admins_can_reset_the_sharable_group_link));
+      }
+    });
 
-    viewModel.getToasts().observe(getViewLifecycleOwner(), t -> Toast.makeText(requireContext(), t, Toast.LENGTH_SHORT).show());
+    viewModel.getToasts().observe(getViewLifecycleOwner(), this::toast);
 
     viewModel.getBusy().observe(getViewLifecycleOwner(), busy -> {
       if (busy) {
@@ -124,6 +126,18 @@ public final class ShareableGroupLinkDialogFragment extends DialogFragment {
         }
       }
     });
+  }
+
+  private void onResetGroupLink() {
+    new AlertDialog.Builder(requireContext())
+                   .setMessage(R.string.ShareableGroupLinkDialogFragment__are_you_sure_you_want_to_reset_the_group_link)
+                   .setPositiveButton(R.string.ShareableGroupLinkDialogFragment__reset_link, (dialog, which) -> viewModel.onResetLink())
+                   .setNegativeButton(android.R.string.cancel, null)
+                   .show();
+  }
+
+  protected void toast(@StringRes int message) {
+    Toast.makeText(requireContext(), getString(message), Toast.LENGTH_SHORT).show();
   }
 
   /**

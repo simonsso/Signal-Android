@@ -1,22 +1,31 @@
 package org.thoughtcrime.securesms.components.webrtc;
 
+import android.content.Context;
+
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.annotation.StringRes;
+
+import org.thoughtcrime.securesms.R;
 
 public final class WebRtcControls {
 
   public static final WebRtcControls NONE = new WebRtcControls();
-  public static final WebRtcControls PIP  = new WebRtcControls(false, false, false, false, true, CallState.NONE, WebRtcAudioOutput.HANDSET);
+  public static final WebRtcControls PIP  = new WebRtcControls(false, false, false, false, true, false, CallState.NONE, GroupCallState.NONE, WebRtcAudioOutput.HANDSET, null);
 
   private final boolean           isRemoteVideoEnabled;
   private final boolean           isLocalVideoEnabled;
   private final boolean           isMoreThanOneCameraAvailable;
   private final boolean           isBluetoothAvailable;
   private final boolean           isInPipMode;
+  private final boolean           hasAtLeastOneRemote;
   private final CallState         callState;
+  private final GroupCallState    groupCallState;
   private final WebRtcAudioOutput audioOutput;
+  private final Long              participantLimit;
 
   private WebRtcControls() {
-    this(false, false, false, false, false, CallState.NONE, WebRtcAudioOutput.HANDSET);
+    this(false, false, false, false, false, false, CallState.NONE, GroupCallState.NONE, WebRtcAudioOutput.HANDSET, null);
   }
 
   WebRtcControls(boolean isLocalVideoEnabled,
@@ -24,20 +33,56 @@ public final class WebRtcControls {
                  boolean isMoreThanOneCameraAvailable,
                  boolean isBluetoothAvailable,
                  boolean isInPipMode,
+                 boolean hasAtLeastOneRemote,
                  @NonNull CallState callState,
-                 @NonNull WebRtcAudioOutput audioOutput)
+                 @NonNull GroupCallState groupCallState,
+                 @NonNull WebRtcAudioOutput audioOutput,
+                 @Nullable Long participantLimit)
   {
     this.isLocalVideoEnabled          = isLocalVideoEnabled;
     this.isRemoteVideoEnabled         = isRemoteVideoEnabled;
     this.isBluetoothAvailable         = isBluetoothAvailable;
     this.isMoreThanOneCameraAvailable = isMoreThanOneCameraAvailable;
     this.isInPipMode                  = isInPipMode;
+    this.hasAtLeastOneRemote          = hasAtLeastOneRemote;
     this.callState                    = callState;
+    this.groupCallState               = groupCallState;
     this.audioOutput                  = audioOutput;
+    this.participantLimit             = participantLimit;
   }
 
   boolean displayStartCallControls() {
     return isPreJoin();
+  }
+
+  @StringRes int getStartCallButtonText() {
+    if (isGroupCall()) {
+      if (groupCallState == GroupCallState.FULL) {
+        return R.string.WebRtcCallView__call_is_full;
+      } else if (hasAtLeastOneRemote) {
+        return R.string.WebRtcCallView__join_call;
+      }
+    }
+    return R.string.WebRtcCallView__start_call;
+  }
+
+  boolean isStartCallEnabled() {
+    return groupCallState != GroupCallState.FULL;
+  }
+
+  boolean displayGroupCallFull() {
+    return groupCallState == GroupCallState.FULL;
+  }
+
+  @NonNull String getGroupCallFullMessage(@NonNull Context context) {
+    if (participantLimit != null) {
+      return context.getString(R.string.WebRtcCallView__the_maximum_number_of_d_participants_has_been_Reached_for_this_call, participantLimit);
+    }
+    return "";
+  }
+
+  boolean displayGroupMembersButton() {
+    return groupCallState.isAtLeast(GroupCallState.CONNECTING);
   }
 
   boolean displayEndCall() {
@@ -116,6 +161,10 @@ public final class WebRtcControls {
     return callState.isAtLeast(CallState.OUTGOING);
   }
 
+  private boolean isGroupCall() {
+    return groupCallState != GroupCallState.NONE;
+  }
+
   public enum CallState {
     NONE,
     PRE_JOIN,
@@ -124,7 +173,20 @@ public final class WebRtcControls {
     ONGOING,
     ENDING;
 
-    boolean isAtLeast(@NonNull CallState other) {
+    boolean isAtLeast(@SuppressWarnings("SameParameterValue") @NonNull CallState other) {
+      return compareTo(other) >= 0;
+    }
+  }
+
+  public enum GroupCallState {
+    NONE,
+    DISCONNECTED,
+    RECONNECTING,
+    CONNECTING,
+    FULL,
+    CONNECTED;
+
+    boolean isAtLeast(@SuppressWarnings("SameParameterValue") @NonNull GroupCallState other) {
       return compareTo(other) >= 0;
     }
   }

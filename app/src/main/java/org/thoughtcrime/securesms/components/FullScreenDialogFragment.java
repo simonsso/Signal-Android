@@ -27,12 +27,11 @@ public abstract class FullScreenDialogFragment extends DialogFragment {
   public void onCreate(@Nullable Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     
-    setStyle(STYLE_NO_FRAME, ThemeUtil.isDarkTheme(requireActivity()) ? R.style.TextSecure_DarkTheme_FullScreenDialog
-                                                                      : R.style.TextSecure_LightTheme_FullScreenDialog);
+    setStyle(STYLE_NO_FRAME, R.style.Signal_DayNight_Dialog_FullScreen);
   }
 
   @Override
-  public @NonNull View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+  public final @NonNull View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
     View view = inflater.inflate(R.layout.full_screen_dialog_fragment, container, false);
     inflater.inflate(getDialogLayoutResource(), view.findViewById(R.id.full_screen_dialog_content), true);
     toolbar = view.findViewById(R.id.full_screen_dialog_toolbar);

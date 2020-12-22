@@ -22,12 +22,11 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
-import androidx.core.app.NotificationManagerCompat;
 
+import org.signal.core.util.logging.Log;
 import org.thoughtcrime.securesms.database.DatabaseFactory;
-import org.thoughtcrime.securesms.dependencies.ApplicationDependencies;
 import org.thoughtcrime.securesms.database.MessageDatabase.MarkedMessageInfo;
-import org.thoughtcrime.securesms.logging.Log;
+import org.thoughtcrime.securesms.dependencies.ApplicationDependencies;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -53,7 +52,7 @@ public class AndroidAutoHeardReceiver extends BroadcastReceiver {
 
     if (threadIds != null) {
       int notificationId = intent.getIntExtra(NOTIFICATION_ID_EXTRA, -1);
-      NotificationManagerCompat.from(context).cancel(notificationId);
+      NotificationCancellationHelper.cancelLegacy(context, notificationId);
 
       new AsyncTask<Void, Void, Void>() {
         @Override

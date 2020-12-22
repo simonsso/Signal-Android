@@ -74,7 +74,7 @@
   <!--AudioSlidePlayer-->
   <string name="AudioSlidePlayer_error_playing_audio">เกิดข้อผิดพลาดในการเล่นเสียง</string>
   <!--BlockedContactsActivity-->
-  <string name="BlockedContactsActivity_blocked_contacts">รายชื่อผู้ติดต่อที่ถูกปิดกั้น</string>
+  <!-- Removed by excludeNonTranslatables <string name="BlockedContactsActivity_blocked_contacts">รายชื่อผู้ติดต่อที่ถูกปิดกั้น</string> -->
   <!--BlockUnblockDialog-->
   <string name="BlockUnblockDialog_block_and_leave_s">ปิดกั้นและออกจาก %1$s หรือไม่?</string>
   <string name="BlockUnblockDialog_block_s">ปิดกั้น %1$s หรือไม่?</string>
@@ -119,6 +119,9 @@
   <string name="ClearProfileActivity_remove">เอาออก</string>
   <string name="ClearProfileActivity_remove_profile_photo">ลบรูปโปรไฟล์หรือไม่?</string>
   <string name="ClearProfileActivity_remove_group_photo">ลบภาพกลุ่มหรือไม่?</string>
+  <!--ClientDeprecatedActivity-->
+  <string name="ClientDeprecatedActivity_update_signal">ปรับปรุง Signal</string>
+  <string name="ClientDeprecatedActivity_update">ปรับปรุง</string>
   <!--CommunicationActions-->
   <string name="CommunicationActions_no_browser_found">ไม่เจอเว็บเบราว์เซอร์</string>
   <string name="CommunicationActions_no_email_app_found">ไม่พอแอปอีเมล</string>
@@ -185,9 +188,6 @@
   <string name="ConversationActivity_added_to_home_screen">เพิ่มไปยังหน้าจอหลักแล้ว</string>
   <string name="ConversationActivity_calls_not_supported">ไม่รองรับการโทร</string>
   <string name="ConversationActivity_this_device_does_not_appear_to_support_dial_actions">อุปกรณ์นี้ไม่รองรับการโทรออก</string>
-  <!-- Removed by excludeNonTranslatables <string name="ConversationActivity_leave_group">ออกจากกลุ่มหรือไม่?</string> -->
-  <!-- Removed by excludeNonTranslatables <string name="ConversationActivity_are_you_sure_you_want_to_leave_this_group">คุณแน่ใจหรือไม่ว่าต้องการออกจากกลุ่มนี้?</string> -->
-  <!-- Removed by excludeNonTranslatables <string name="ConversationActivity_choose_new_admin">เลือกผู้ดูแลใหม่</string> -->
   <string name="ConversationActivity_transport_insecure_sms">SMS ที่ไม่ปลอดภัย</string>
   <string name="ConversationActivity_transport_insecure_mms">MMS ที่ไม่ปลอดภัย</string>
   <string name="ConversationActivity_transport_signal">Signal</string>
@@ -300,6 +300,22 @@
   <string name="CreateProfileActivity_profile_photo">รูปโปรไฟล์</string>
   <string name="CreateProfileActivity_set_up_your_profile">สร้างโปรไฟล์ของคุณ</string>
   <string name="CreateProfileActivity_set_avatar_description">สร้างอวตาร</string>
+  <!--ChooseBackupFragment-->
+  <string name="ChooseBackupFragment__restore_from_backup">กู้คืนจากข้อมูลสำรองหรือไม่?</string>
+  <string name="ChooseBackupFragment__restore_your_messages_and_media">กู้คืนข้อความและสื่อของคุณจากข้อมูลสำรองในเครื่อง หากคุณไม่กู้คืนตอนนี้ คุณจะไม่สามารถกู้คืนได้อีกในภายหลัง</string>
+  <string name="ChooseBackupFragment__learn_more">เรียนรู้เพิ่มเติม</string>
+  <!--RestoreBackupFragment-->
+  <string name="RestoreBackupFragment__choose_folder">เลือกโฟลเดอร์</string>
+  <string name="RestoreBackupFragment__not_now">ไม่ใช่ตอนนี้</string>
+  <!--BackupsPreferenceFragment-->
+  <string name="BackupsPreferenceFragment__chat_backups">ข้อมูลสำรองของการสนทนา</string>
+  <string name="BackupsPreferenceFragment__create_backup">สร้างข้อมูลสำรอง</string>
+  <string name="BackupsPreferenceFragment__verify_backup_passphrase">ตรวจยืนยันวลีรหัสผ่านสำหรับข้อมูลสำรอง</string>
+  <string name="BackupsPreferenceFragment__test_your_backup_passphrase">ทดสอบวลีรหัสผ่านสำหรับข้อมูลสำรองของคุณและตรวจยืนยันว่ามันตรงกัน</string>
+  <string name="BackupsPreferenceFragment__turn_on">เปิด</string>
+  <string name="BackupsPreferenceFragment__turn_off">ปิด</string>
+  <string name="BackupsPreferenceFragment__learn_more">เรียนรู้เพิ่มเติม</string>
+  <string name="BackupsPreferenceFragment_signal_requires_external_storage_permission_in_order_to_create_backups">เพื่อที่จะสำรองข้อมูล Signal ต้องได้รับอนุญาตให้เข้าถึงที่เก็บข้อมูลภายนอก แต่คำขอนั้นถูกปฏิเสธอย่างถาวร กรุณาไปที่เมนูตั้งค่าแอป เลือก \"การอนุญาต\" และเปิดใช้งาน \"ที่เก็บข้อมูล\"</string>
   <!--CustomDefaultPreference-->
   <string name="CustomDefaultPreference_using_custom">ใช้ค่าที่กำหนดเอง: %s</string>
   <string name="CustomDefaultPreference_using_default">ใช้ค่าเริ่มต้น: %s</string>
@@ -337,6 +353,9 @@
   <!--DozeReminder-->
   <string name="DozeReminder_optimize_for_missing_play_services">ปรับปรุงการทำงานให้รับกับการไม่มี Play Services</string>
   <string name="DozeReminder_this_device_does_not_support_play_services_tap_to_disable_system_battery">อุปกรณ์นี้ไม่รองรับ Play Services แตะเพื่อปิดใช้งานการปรับประสิทธิภาพแบตเตอรีซึ่งจะทำให้ Signal ไม่สามารถรับข้อความได้ในขณะที่ไม่ได้เปิดแอปบนหน้าจอ</string>
+  <!--ExpiredBuildReminder-->
+  <!--PendingGroupJoinRequestsReminder-->
+  <string name="PendingGroupJoinRequestsReminder_view">ดู</string>
   <!--ShareActivity-->
   <string name="ShareActivity_share_with">แบ่งปันกับ</string>
   <string name="ShareActivity_multiple_attachments_are_only_supported">การแนบแฟ้มหลายชิ้นแนบได้เฉพาะรูปภาพและวิดีโอ</string>
@@ -352,6 +371,7 @@
   <string name="GiphyFragmentPagerAdapter_stickers">สติกเกอร์</string>
   <!--AddToGroupActivity-->
   <string name="AddToGroupActivity_add_to_group">เพิ่มเข้ากลุ่ม</string>
+  <string name="AddToGroupActivity_add">เพิ่ม</string>
   <!--ChooseNewAdminActivity-->
   <string name="ChooseNewAdminActivity_choose_new_admin">เลือกผู้ดูแลใหม่</string>
   <string name="ChooseNewAdminActivity_done">เสร็จสิ้น</string>
@@ -367,12 +387,17 @@
   <string name="GroupManagement_access_level_only_admins">เฉพาะผู้ดูแล</string>
   <!--GV2 invites sent-->
   <string name="GroupManagement_learn_more">เรียนรู้เพิ่มเติม</string>
+  <!--LeaveGroupDialog-->
+  <string name="LeaveGroupDialog_leave_group">ออกจากกลุ่มหรือไม่?</string>
+  <string name="LeaveGroupDialog_you_will_no_longer_be_able_to_send_or_receive_messages_in_this_group">คุณจะไม่สามารถส่งหรือรับข้อความในกลุ่มนี้ได้อีกต่อไป</string>
+  <string name="LeaveGroupDialog_leave">ออก</string>
+  <string name="LeaveGroupDialog_choose_new_admin">เลือกผู้ดูแลใหม่</string>
   <!--LinkPreviewsMegaphone-->
   <string name="LinkPreviewsMegaphone_disable">หยุดใช้</string>
   <!--LinkPreviewView-->
   <!--LinkPreviewRepository-->
   <!--PendingMembersActivity-->
-  <string name="PendingMemberInvitesActivity_pending_group_invites">คำเชิญเข้ากลุ่มที่รอตอบกลับ</string>
+  <!-- Removed by excludeNonTranslatables <string name="PendingMemberInvitesActivity_pending_group_invites">คำเชิญเข้ากลุ่มที่รอตอบกลับ</string> -->
   <string name="PendingMembersActivity_people_you_invited">ผู้คนที่คุณได้เชิญ</string>
   <string name="PendingMembersActivity_you_have_no_pending_invites">คุณไม่มีคำเชิญที่ค้างอยู่</string>
   <string name="PendingMembersActivity_invites_by_other_group_members">เชิญโดยสมาชิกกลุ่มคนอื่น</string>
@@ -384,6 +409,7 @@
   <plurals name="AddMembersActivity__add_d_members_to_s">
     <item quantity="other">เพิ่มสมาชิก %3$d คนไปยัง \"%2$s\" หรือไม่?</item>
   </plurals>
+  <string name="AddMembersActivity__add">เพิ่ม</string>
   <!--AddGroupDetailsFragment-->
   <string name="AddGroupDetailsFragment__name_this_group">ตั้งชื่อกลุ่มนี้</string>
   <string name="AddGroupDetailsFragment__create_group">สร้างกลุ่ม</string>
@@ -399,7 +425,7 @@
   <!--NonGv2MemberDialog-->
   <!--ManageGroupActivity-->
   <string name="ManageGroupActivity_disappearing_messages">ข้อความที่ลบตัวเอง</string>
-  <string name="ManageGroupActivity_pending_group_invites">คำเชิญเข้ากลุ่มที่รอตอบกลับ</string>
+  <!-- Removed by excludeNonTranslatables <string name="ManageGroupActivity_pending_group_invites">คำเชิญเข้ากลุ่มที่รอตอบกลับ</string> -->
   <string name="ManageGroupActivity_add_members">เพิ่มสมาชิก</string>
   <string name="ManageGroupActivity_block_group">ปิดกั้นกลุ่ม</string>
   <string name="ManageGroupActivity_unblock_group">เลิกปิดกั้นกลุ่ม</string>
@@ -578,18 +604,14 @@
   <string name="MediaSendActivity_tap_here_to_make_this_message_disappear_after_it_is_viewed">แตะที่นี่เพื่อทำให้ข้อความหายไปหลังจากเห็นข้อความ</string>
   <!--MediaRepository-->
   <string name="MediaRepository_all_media">สื่อทั้งหมด</string>
+  <string name="MediaRepository__camera">กล้อง</string>
   <!--MessageRecord-->
   <string name="MessageRecord_unknown">ไม่ทราบ</string>
   <string name="MessageRecord_message_encrypted_with_a_legacy_protocol_version_that_is_no_longer_supported">ได้รับข้อความที่เข้ารหัสลับด้วย Signal รุ่นเก่าที่ไม่รองรับอีกต่อไปแล้ว โปรดขอให้ผู้ส่งปรับปรุงแอปเป็นรุ่นล่าสุดและส่งข้อความอีกครั้ง</string>
   <string name="MessageRecord_left_group">คุณได้ออกจากกลุ่ม</string>
   <string name="MessageRecord_you_updated_group">คุณได้อัปเดตกลุ่ม</string>
-  <string name="MessageRecord_you_called">คุณได้โทรหา</string>
-  <string name="MessageRecord_called_you">ผู้ติดต่อได้โทรหา</string>
-  <string name="MessageRecord_missed_call">สายที่ไม่ได้รับ</string>
   <string name="MessageRecord_s_updated_group">%s ได้อัปเดตกลุ่ม</string>
-  <string name="MessageRecord_s_called_you">%s ได้โทรหาคุณ</string>
   <string name="MessageRecord_called_s">ได้โทรหา %s</string>
-  <string name="MessageRecord_missed_call_from">สายที่ไม่ได้รับจาก %s</string>
   <string name="MessageRecord_s_joined_signal">%s ใช้งาน Signal</string>
   <string name="MessageRecord_you_disabled_disappearing_messages">คุณได้ปิดใช้งานข้อความที่ลบตัวเองแล้ว</string>
   <string name="MessageRecord_s_disabled_disappearing_messages">%1$s ได้ปิดใช้งานข้อความที่ลบตัวเองแล้ว</string>
@@ -659,6 +681,7 @@
   <string name="MessageRecord_you_marked_your_safety_number_with_s_unverified_from_another_device">คุณทำเครื่องหมายจากอีกอุปกรณ์ว่า หมายเลขความปลอดภัยของคุณกับ %s ยังไม่ถูกตรวจยืนยัน</string>
   <!--MessageRequestBottomView-->
   <string name="MessageRequestBottomView_accept">ยอมรับ</string>
+  <string name="MessageRequestBottomView_continue">ทำต่อ</string>
   <string name="MessageRequestBottomView_delete">ลบ</string>
   <string name="MessageRequestBottomView_block">ปิดกั้น</string>
   <string name="MessageRequestBottomView_unblock">เลิกปิดกั้น</string>
@@ -699,6 +722,7 @@
   <string name="ExpirationDialog_disappearing_messages">ข้อความที่ลบตัวเอง</string>
   <string name="ExpirationDialog_your_messages_will_not_expire">ข้อความของคุณจะไม่หมดอายุ</string>
   <string name="ExpirationDialog_your_messages_will_disappear_s_after_they_have_been_seen">ข้อความที่ถูกส่งและได้รับในการสนทนานี้จะลบตัวเองไป %s หลังจากที่คู่สนทนาเห็นข้อความแล้ว</string>
+  <!--OutdatedBuildReminder-->
   <!--PassphrasePromptActivity-->
   <string name="PassphrasePromptActivity_enter_passphrase">ใส่วลีรหัสผ่าน</string>
   <string name="PassphrasePromptActivity_watermark_content_description">ไอคอน Signal</string>
@@ -765,6 +789,7 @@
   <!--WebRtcCallView-->
   <string name="WebRtcCallView__signal_voice_call">การโทรเสียง Signal…</string>
   <string name="WebRtcCallView__signal_video_call">การโทรวิดีโอ Signal…</string>
+  <!--CallParticipantsListDialog-->
   <!--RegistrationActivity-->
   <string name="RegistrationActivity_select_your_country">เลือกประเทศของคุณ</string>
   <string name="RegistrationActivity_you_must_specify_your_country_code">คุณต้องระบุรหัส
@@ -897,7 +922,7 @@
   <string name="ThreadRecord_draft">ร่าง:</string>
   <string name="ThreadRecord_called">คุณได้โทรหา</string>
   <string name="ThreadRecord_called_you">โทรหาคุณ</string>
-  <string name="ThreadRecord_missed_call">สายที่ไม่ได้รับ</string>
+  <!-- Removed by excludeNonTranslatables <string name="ThreadRecord_missed_call">สายที่ไม่ได้รับ</string> -->
   <string name="ThreadRecord_media_message">ข้อความสื่อ</string>
   <string name="ThreadRecord_sticker">สติกเกอร์</string>
   <string name="ThreadRecord_view_once_photo">รูปภาพที่ดูได้ครั้งเดียว</string>
@@ -925,12 +950,12 @@
   <string name="UpdateApkReadyListener_Signal_update">อัปเดต Signal</string>
   <string name="UpdateApkReadyListener_a_new_version_of_signal_is_available_tap_to_update">Signal รุ่นใหม่มาแล้ว แตะเพื่อปรับปรุง</string>
   <!--UnknownSenderView-->
-  <string name="UnknownSenderView_block_s">ปิดกั้น %s หรือไม่?</string>
-  <string name="UnknownSenderView_blocked_contacts_will_no_longer_be_able_to_send_you_messages_or_call_you">ผู้ติดต่อที่ถูกปิดกั้นจะไม่สามารถส่งข้อความหรือโทรหาคุณได้อีก</string>
-  <string name="UnknownSenderView_block">ปิดกั้น</string>
-  <string name="UnknownSenderView_share_profile_with_s">แบ่งปันโปรไฟล์กับ %s หรือไม่?</string>
-  <string name="UnknownSenderView_the_easiest_way_to_share_your_profile_information_is_to_add_the_sender_to_your_contacts">วิธีที่ง่ายที่สุดในการแบ่งปันข้อมูลโปรไฟล์ของคุณ คือการเพิ่มชื่อผู้ส่งลงในรายชื่อผู้ติดต่อด้วย ถ้าคุณไม่อยากทำเช่นนั้น คุณยังคงแบ่งปันข้อมูลโปรไฟล์ของคุณได้ด้วยวิธีนี้</string>
-  <string name="UnknownSenderView_share_profile">แบ่งปันโปรไฟล์</string>
+  <!-- Removed by excludeNonTranslatables <string name="UnknownSenderView_block_s">ปิดกั้น %s หรือไม่?</string> -->
+  <!-- Removed by excludeNonTranslatables <string name="UnknownSenderView_blocked_contacts_will_no_longer_be_able_to_send_you_messages_or_call_you">ผู้ติดต่อที่ถูกปิดกั้นจะไม่สามารถส่งข้อความหรือโทรหาคุณได้อีก</string> -->
+  <!-- Removed by excludeNonTranslatables <string name="UnknownSenderView_block">ปิดกั้น</string> -->
+  <!-- Removed by excludeNonTranslatables <string name="UnknownSenderView_share_profile_with_s">แบ่งปันโปรไฟล์กับ %s หรือไม่?</string> -->
+  <!-- Removed by excludeNonTranslatables <string name="UnknownSenderView_the_easiest_way_to_share_your_profile_information_is_to_add_the_sender_to_your_contacts">วิธีที่ง่ายที่สุดในการแบ่งปันข้อมูลโปรไฟล์ของคุณ คือการเพิ่มชื่อผู้ส่งลงในรายชื่อผู้ติดต่อด้วย ถ้าคุณไม่อยากทำเช่นนั้น คุณยังคงแบ่งปันข้อมูลโปรไฟล์ของคุณได้ด้วยวิธีนี้</string> -->
+  <!-- Removed by excludeNonTranslatables <string name="UnknownSenderView_share_profile">แบ่งปันโปรไฟล์</string> -->
   <!--UntrustedSendDialog-->
   <string name="UntrustedSendDialog_send_message">ส่งข้อความหรือไม่?</string>
   <string name="UntrustedSendDialog_send">ส่ง</string>
@@ -1013,8 +1038,8 @@
   <string name="MessageNotifier_reacted_s_to_your_image">ตอบสนอง %1$s ต่อรูปภาพของคุณ</string>
   <string name="MessageNotifier_reacted_s_to_your_file">ตอบสนอง %1$s ต่อแฟ้มของคุณ</string>
   <string name="MessageNotifier_reacted_s_to_your_audio">ตอบสนอง %1$s ต่อเสียงของคุณ</string>
-  <string name="MessageNotifier_reacted_s_to_your_view_once_photo">ตอบสนอง %1$s กับรูปภาพที่ดูได้ครั้งเดียวของคุณ</string>
-  <string name="MessageNotifier_reacted_s_to_your_view_once_video">ตอบสนอง %1$s กับวิดีโอที่ดูได้ครั้งเดียวของคุณ</string>
+  <!-- Removed by excludeNonTranslatables <string name="MessageNotifier_reacted_s_to_your_view_once_photo">ตอบสนอง %1$s กับรูปภาพที่ดูได้ครั้งเดียวของคุณ</string> -->
+  <!-- Removed by excludeNonTranslatables <string name="MessageNotifier_reacted_s_to_your_view_once_video">ตอบสนอง %1$s กับวิดีโอที่ดูได้ครั้งเดียวของคุณ</string> -->
   <string name="MessageNotifier_reacted_s_to_your_sticker">ตอบสนอง %1$s ต่อสติกเกอร์ของคุณ</string>
   <string name="MessageNotifier_this_message_was_deleted">ข้อความนี้ถูกลบ</string>
   <!--Notification Channels-->
@@ -1120,8 +1145,6 @@
   <string name="ContactSelectionListFragment_error_retrieving_contacts_check_your_network_connection">เกิดข้อผิดพลาดระหว่างดึงผู้ติดต่อ ตรวจสอบการเชื่อมต่อเครือข่ายของคุณ</string>
   <string name="ContactSelectionListFragment_username_not_found">ไม่พบชื่อผู้ใช้</string>
   <string name="ContactSelectionListFragment_s_is_not_a_signal_user">%1$sไม่ใช่ผู้ใช้ Signal โปรดตรวจสอบชื่อผู้ใช้และลองอีกครั้ง</string>
-  <string name="ContactSelectionListFragment_okay">โอเค</string>
-  <string name="ContactSelectionListFragment_the_group_is_full">กลุ่มเต็ม</string>
   <!--blocked_contacts_fragment-->
   <string name="blocked_contacts_fragment__no_blocked_contacts">ไม่มีผู้ติดต่อที่ถูกปิดกั้น</string>
   <!--contact_selection_list_fragment-->
@@ -1155,6 +1178,8 @@
   <string name="conversation_item_sent__message_read">ข้อความถูกอ่านแล้ว</string>
   <!--conversation_item_received-->
   <string name="conversation_item_received__contact_photo_description">ภาพของผู้ติดต่อ</string>
+  <!--ConversationUpdateItem-->
+  <string name="ConversationUpdateItem_loading">กำลังโหลด</string>
   <!--audio_view-->
   <string name="audio_view__play_pause_accessibility_description">เล่น … หยุด</string>
   <string name="audio_view__download_accessibility_description">ดาวน์โหลด</string>
@@ -1268,7 +1293,7 @@
   </plurals>
   <string name="GroupUtil_group_name_is_now">ชื่อกลุ่มตอนนี้คือ \'%1$s\'</string>
   <!--profile_group_share_view-->
-  <string name="profile_group_share_view__make_your_profile_name_and_photo_visible_to_this_group">คุณต้องการให้กลุ่มนี้เห็นชื่อและรูปโปรไฟล์ของคุณหรือไม่?</string>
+  <!-- Removed by excludeNonTranslatables <string name="profile_group_share_view__make_your_profile_name_and_photo_visible_to_this_group">คุณต้องการให้กลุ่มนี้เห็นชื่อและรูปโปรไฟล์ของคุณหรือไม่?</string> -->
   <!--prompt_passphrase_activity-->
   <string name="prompt_passphrase_activity__unlock">ปลดล็อก</string>
   <!--prompt_mms_activity-->
@@ -1476,7 +1501,7 @@
   <string name="preferences__typing_indicators">แสดงว่ากำลังพิมพ์</string>
   <string name="preferences__if_typing_indicators_are_disabled_you_wont_be_able_to_see_typing_indicators">ถ้าการแจ้งการพิมพ์ข้อความตอบกลับถูกปิดใช้งาน คุณจะไม่เห็นการแจ้งการพิมพ์ข้อความตอบกลับจากผู้อื่น</string>
   <string name="preferences__request_keyboard_to_disable_personalized_learning">ขอให้แป้นพิมพ์ปิดใช้งานการเรียนรู้การแนะนำคำ</string>
-  <string name="preferences_app_protection__blocked_contacts">ผู้ติดต่อที่ถูกปิดกั้น</string>
+  <!-- Removed by excludeNonTranslatables <string name="preferences_app_protection__blocked_contacts">ผู้ติดต่อที่ถูกปิดกั้น</string> -->
   <string name="preferences_chats__when_using_mobile_data">เมื่อใช้ข้อมูลมือถือ</string>
   <string name="preferences_chats__when_using_wifi">เมื่อใช้ Wi-Fi</string>
   <string name="preferences_chats__when_roaming">เมื่อใช้บริการข้ามเครือข่าย Roaming</string>
@@ -1597,13 +1622,6 @@
   <string name="verify_display_fragment_context_menu__copy_to_clipboard">คัดลอกไปยังคลิปบอร์ด</string>
   <string name="verify_display_fragment_context_menu__compare_with_clipboard">เปรียบเทียบกับคลิปบอร์ด</string>
   <!--reminder_header-->
-  <!-- Removed by excludeNonTranslatables <string name="reminder_header_outdated_build">Signal รุ่นที่คุณมีล้าสมัยแล้ว</string> -->
-  <!-- Removed by excludeNonTranslatables <plurals name="reminder_header_outdated_build_details">
-    <item quantity="other">Signal รุ่นที่คุณมีจะหมดอายุในอีก %d วัน แตะเพื่อปรับปรุงเป็นรุ่นล่าสุด</item>
-  </plurals> -->
-  <!-- Removed by excludeNonTranslatables <string name="reminder_header_outdated_build_details_today">Signal รุ่นที่คุณมีจะหมดอายุวันนี้ แตะเพื่อปรับปรุงเป็นรุ่นล่าสุด</string> -->
-  <!-- Removed by excludeNonTranslatables <string name="reminder_header_expired_build">Signal รุ่นที่คุณมีหมดอายุแล้ว!</string> -->
-  <!-- Removed by excludeNonTranslatables <string name="reminder_header_expired_build_details">จะไม่สามารถส่งข้อความได้อีกต่อไป แตะเพื่อปรับปรุงเป็นรุ่นล่าสุด</string> -->
   <string name="reminder_header_sms_default_title">ใช้เป็นแอป SMS หลัก</string>
   <string name="reminder_header_sms_default_text">แตะเพื่อกำหนดให้ Signal เป็นแอป SMS หลักของคุณ</string>
   <string name="reminder_header_sms_import_title">นำเข้า SMS ของระบบ</string>
@@ -1733,7 +1751,10 @@
   <string name="KbsMegaphone__update_pin">ปรับปรุงรหัส PIN</string>
   <string name="KbsMegaphone__well_remind_you_later_creating_a_pin">เราจะเตือนคุณในภายหลัง การสร้างรหัส PIN จะถูกบังคับให้ทำภายใน %1$d วัน</string>
   <string name="KbsMegaphone__well_remind_you_later_confirming_your_pin">เราจะเตือนคุณในภายหลัง การยืนยันรหัส PIN ของคุณจะถูกบังคับให้ทำภายใน %1$d วัน</string>
-  <!--Mention Megaphone-->
+  <!--Research Megaphone-->
+  <string name="ResearchMegaphone_learn_more">เรียนรู้เพิ่มเติม</string>
+  <string name="ResearchMegaphone_dismiss">เลิกกัน</string>
+  <string name="ResearchMegaphoneDialog_no_thanks">ไม่ ขอบคุณ</string>
   <!--transport_selection_list_item-->
   <string name="transport_selection_list_item__transport_icon">ไอคอนขนส่ง</string>
   <string name="ConversationListFragment_loading">กำลังโหลด…</string>
@@ -1774,6 +1795,7 @@
   <string name="BackupDialog_delete_backups">ลบข้อมูลสำรองหรือไม่?</string>
   <string name="BackupDialog_disable_and_delete_all_local_backups">ปิดใช้งานและลบข้อมูลสำรองที่เก็บในอุปกรณ์นี้ทั้งหมดหรือไม่?</string>
   <string name="BackupDialog_delete_backups_statement">ลบข้อมูลสำรอง</string>
+  <string name="BackupDialog_choose_folder">เลือกโฟลเดอร์</string>
   <string name="BackupDialog_copied_to_clipboard">คัดลอกไปคลิปบอร์ดแล้ว</string>
   <string name="BackupDialog_enter_backup_passphrase_to_verify">ป้อนวลีรหัสผ่านสำหรับข้อมูลสำรองของคุณเพื่อตรวจยืนยัน</string>
   <string name="BackupDialog_verify">ตรวจยืนยัน</string>
@@ -1852,7 +1874,6 @@
   <string name="RecipientBottomSheet_remove_as_admin">ลบจากการเป็นผู้ดูแล</string>
   <string name="RecipientBottomSheet_remove_from_group">ลบจากลุ่ม</string>
   <string name="RecipientBottomSheet_message_description">ข้อความ</string>
-  <!-- Removed by excludeNonTranslatables <string name="RecipientBottomSheet_remove_s_from_s">ลบ %1$s จาก \"%2$s\" หรือไม่?</string> -->
   <string name="RecipientBottomSheet_remove">เอาออก</string>
   <string name="RecipientBottomSheet_copied_to_clipboard">คัดลอกไปคลิปบอร์ดแล้ว</string>
   <string name="GroupRecipientListItem_admin">ผู้ดูแล</string>
@@ -1861,5 +1882,9 @@
   <string name="GroupLinkBottomSheet_copy">คัดลอก</string>
   <string name="GroupLinkBottomSheet_share">แบ่งปัน</string>
   <string name="GroupLinkBottomSheet_copied_to_clipboard">คัดลอกไปคลิปบอร์ดแล้ว</string>
+  <!--VoiceNotePlaybackPreparer-->
+  <!--VoiceNoteMediaDescriptionCompatFactory-->
+  <string name="VoiceNoteMediaDescriptionCompatFactory__s_to_s">%1$s ถึง %2$s</string>
+  <!--StorageUtil-->
   <!--EOF-->
 </resources>

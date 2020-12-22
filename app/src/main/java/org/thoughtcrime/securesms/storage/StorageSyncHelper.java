@@ -9,6 +9,7 @@ import androidx.annotation.VisibleForTesting;
 import com.annimon.stream.Collectors;
 import com.annimon.stream.Stream;
 
+import org.signal.core.util.logging.Log;
 import org.thoughtcrime.securesms.database.DatabaseFactory;
 import org.thoughtcrime.securesms.database.RecipientDatabase;
 import org.thoughtcrime.securesms.database.RecipientDatabase.RecipientSettings;
@@ -17,9 +18,9 @@ import org.thoughtcrime.securesms.jobs.RetrieveProfileAvatarJob;
 import org.thoughtcrime.securesms.jobs.StorageSyncJob;
 import org.thoughtcrime.securesms.keyvalue.PhoneNumberPrivacyValues;
 import org.thoughtcrime.securesms.keyvalue.SignalStore;
-import org.thoughtcrime.securesms.logging.Log;
 import org.thoughtcrime.securesms.recipients.Recipient;
 import org.thoughtcrime.securesms.recipients.RecipientId;
+import org.thoughtcrime.securesms.tracing.Trace;
 import org.thoughtcrime.securesms.util.Base64;
 import org.thoughtcrime.securesms.util.SetUtil;
 import org.thoughtcrime.securesms.util.TextSecurePreferences;
@@ -34,7 +35,6 @@ import org.whispersystems.signalservice.api.storage.SignalStorageManifest;
 import org.whispersystems.signalservice.api.storage.SignalStorageRecord;
 import org.whispersystems.signalservice.api.storage.StorageId;
 import org.whispersystems.signalservice.api.util.OptionalUtil;
-import org.whispersystems.signalservice.internal.storage.protos.AccountRecord;
 import org.whispersystems.signalservice.internal.storage.protos.ManifestRecord;
 
 import java.nio.ByteBuffer;
@@ -43,7 +43,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -51,6 +50,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
+@Trace
 public final class StorageSyncHelper {
 
   private static final String TAG = Log.tag(StorageSyncHelper.class);
@@ -83,8 +83,7 @@ public final class StorageSyncHelper {
                                                                                 @NonNull List<RecipientSettings> inserts,
                                                                                 @NonNull List<RecipientSettings> deletes,
                                                                                 @NonNull Optional<SignalAccountRecord> accountUpdate,
-                                                                                @NonNull Optional<SignalAccountRecord> accountInsert,
-                                                                                @NonNull Set<RecipientId> archivedRecipients)
+                                                                                @NonNull Optional<SignalAccountRecord> accountInsert)
   {
     int accountCount = Stream.of(currentLocalKeys)
                              .filter(id -> id.getType() == ManifestRecord.Identifier.Type.ACCOUNT_VALUE)
@@ -119,12 +118,12 @@ public final class StorageSyncHelper {
     Map<RecipientId, byte[]> storageKeyUpdates = new HashMap<>();
 
     for (RecipientSettings insert : inserts) {
-      if (insert.getGroupType() == RecipientDatabase.GroupType.SIGNAL_V2 && insert.getGroupMasterKey() == null) {
+      if (insert.getGroupType() == RecipientDatabase.GroupType.SIGNAL_V2 && insert.getSyncExtras().getGroupMasterKey() == null) {
         Log.w(TAG, "Missing master key on gv2 recipient");
         continue;
       }
 
-      storageInserts.add(StorageSyncModels.localToRemoteRecord(insert, archivedRecipients));
+      storageInserts.add(StorageSyncModels.localToRemoteRecord(insert));
 
       switch (insert.getGroupType()) {
         case NONE:
@@ -173,7 +172,7 @@ public final class StorageSyncHelper {
           throw new AssertionError("Unsupported type!");
       }
 
-      storageInserts.add(StorageSyncModels.localToRemoteRecord(update, newId.getRaw(), archivedRecipients));
+      storageInserts.add(StorageSyncModels.localToRemoteRecord(update, newId.getRaw()));
       storageDeletes.add(ByteBuffer.wrap(oldId.getRaw()));
       completeIds.remove(oldId);
       completeIds.add(newId);
@@ -254,7 +253,8 @@ public final class StorageSyncHelper {
    * @return A set of actions that should be applied to resolve the conflict.
    */
   public static @NonNull MergeResult resolveConflict(@NonNull Collection<SignalStorageRecord> remoteOnlyRecords,
-                                                     @NonNull Collection<SignalStorageRecord> localOnlyRecords)
+                                                     @NonNull Collection<SignalStorageRecord> localOnlyRecords,
+                                                     @NonNull GroupV2ExistenceChecker groupExistenceChecker)
   {
     List<SignalContactRecord> remoteOnlyContacts = Stream.of(remoteOnlyRecords).filter(r -> r.getContact().isPresent()).map(r -> r.getContact().get()).toList();
     List<SignalContactRecord> localOnlyContacts  = Stream.of(localOnlyRecords).filter(r -> r.getContact().isPresent()).map(r -> r.getContact().get()).toList();
@@ -278,7 +278,7 @@ public final class StorageSyncHelper {
     }
 
     RecordMergeResult<SignalContactRecord> contactMergeResult = resolveRecordConflict(remoteOnlyContacts, localOnlyContacts, new ContactConflictMerger(localOnlyContacts, Recipient.self()));
-    RecordMergeResult<SignalGroupV1Record> groupV1MergeResult = resolveRecordConflict(remoteOnlyGroupV1, localOnlyGroupV1, new GroupV1ConflictMerger(localOnlyGroupV1));
+    RecordMergeResult<SignalGroupV1Record> groupV1MergeResult = resolveRecordConflict(remoteOnlyGroupV1, localOnlyGroupV1, new GroupV1ConflictMerger(localOnlyGroupV1, groupExistenceChecker));
     RecordMergeResult<SignalGroupV2Record> groupV2MergeResult = resolveRecordConflict(remoteOnlyGroupV2, localOnlyGroupV2, new GroupV2ConflictMerger(localOnlyGroupV2));
     RecordMergeResult<SignalAccountRecord> accountMergeResult = resolveRecordConflict(remoteOnlyAccount, localOnlyAccount, new AccountConflictMerger(localOnlyAccount.isEmpty() ? Optional.absent() : Optional.of(localOnlyAccount.get(0))));
 
@@ -330,21 +330,23 @@ public final class StorageSyncHelper {
                                                                    @NonNull List<StorageId> currentLocalStorageKeys,
                                                                    @NonNull MergeResult mergeResult)
   {
-    Set<StorageId> completeKeys = new HashSet<>(currentLocalStorageKeys);
-
-    completeKeys.addAll(Stream.of(mergeResult.getAllNewRecords()).map(SignalRecord::getId).toList());
-    completeKeys.removeAll(Stream.of(mergeResult.getAllRemovedRecords()).map(SignalRecord::getId).toList());
-
-    SignalStorageManifest manifest = new SignalStorageManifest(currentManifestVersion + 1, new ArrayList<>(completeKeys));
-
     List<SignalStorageRecord> inserts = new ArrayList<>();
     inserts.addAll(mergeResult.getRemoteInserts());
     inserts.addAll(Stream.of(mergeResult.getRemoteUpdates()).map(RecordUpdate::getNew).toList());
 
-    List<byte[]> deletes = Stream.of(mergeResult.getRemoteUpdates()).map(RecordUpdate::getOld).map(SignalStorageRecord::getId).map(StorageId::getRaw).toList();
-    deletes.addAll(Stream.of(mergeResult.getRemoteDeletes()).map(SignalRecord::getId).map(StorageId::getRaw).toList());
+    List<StorageId> deletes = new ArrayList<>();
+    deletes.addAll(Stream.of(mergeResult.getRemoteDeletes()).map(SignalRecord::getId).toList());
+    deletes.addAll(Stream.of(mergeResult.getRemoteUpdates()).map(RecordUpdate::getOld).map(SignalStorageRecord::getId).toList());
 
-    return new WriteOperationResult(manifest, inserts, deletes);
+    Set<StorageId> completeKeys = new HashSet<>(currentLocalStorageKeys);
+    completeKeys.addAll(Stream.of(mergeResult.getAllNewRecords()).map(SignalRecord::getId).toList());
+    completeKeys.removeAll(Stream.of(mergeResult.getAllRemovedRecords()).map(SignalRecord::getId).toList());
+    completeKeys.addAll(Stream.of(inserts).map(SignalStorageRecord::getId).toList());
+    completeKeys.removeAll(deletes);
+
+    SignalStorageManifest manifest = new SignalStorageManifest(currentManifestVersion + 1, new ArrayList<>(completeKeys));
+
+    return new WriteOperationResult(manifest, inserts, Stream.of(deletes).map(StorageId::getRaw).toList());
   }
 
   public static @NonNull byte[] generateKey() {
@@ -410,33 +412,30 @@ public final class StorageSyncHelper {
   }
 
   public static SignalStorageRecord buildAccountRecord(@NonNull Context context, @NonNull Recipient self) {
-    RecipientSettings settings = DatabaseFactory.getRecipientDatabase(context).getRecipientSettingsForSync(self.getId());
+    RecipientDatabase       recipientDatabase = DatabaseFactory.getRecipientDatabase(context);
+    RecipientSettings       settings          = recipientDatabase.getRecipientSettingsForSync(self.getId());
+    List<RecipientSettings> pinned            = Stream.of(DatabaseFactory.getThreadDatabase(context).getPinnedRecipientIds())
+                                                      .map(recipientDatabase::getRecipientSettingsForSync)
+                                                      .toList();
 
     SignalAccountRecord account = new SignalAccountRecord.Builder(self.getStorageServiceId())
-                                                         .setUnknownFields(settings != null ? settings.getStorageProto() : null)
+                                                         .setUnknownFields(settings != null ? settings.getSyncExtras().getStorageProto() : null)
                                                          .setProfileKey(self.getProfileKey())
                                                          .setGivenName(self.getProfileName().getGivenName())
                                                          .setFamilyName(self.getProfileName().getFamilyName())
                                                          .setAvatarUrlPath(self.getProfileAvatar())
-                                                         .setNoteToSelfArchived(DatabaseFactory.getThreadDatabase(context).isArchived(self.getId()))
+                                                         .setNoteToSelfArchived(settings != null && settings.getSyncExtras().isArchived())
+                                                         .setNoteToSelfForcedUnread(settings != null && settings.getSyncExtras().isForcedUnread())
                                                          .setTypingIndicatorsEnabled(TextSecurePreferences.isTypingIndicatorsEnabled(context))
                                                          .setReadReceiptsEnabled(TextSecurePreferences.isReadReceiptsEnabled(context))
                                                          .setSealedSenderIndicatorsEnabled(TextSecurePreferences.isShowUnidentifiedDeliveryIndicatorsEnabled(context))
                                                          .setLinkPreviewsEnabled(SignalStore.settings().isLinkPreviewsEnabled())
                                                          .setUnlistedPhoneNumber(SignalStore.phoneNumberPrivacy().getPhoneNumberListingMode().isUnlisted())
-                                                         .setPhoneNumberSharingMode(localToRemotePhoneNumberSharingMode(SignalStore.phoneNumberPrivacy().getPhoneNumberSharingMode()))
+                                                         .setPhoneNumberSharingMode(StorageSyncModels.localToRemotePhoneNumberSharingMode(SignalStore.phoneNumberPrivacy().getPhoneNumberSharingMode()))
+                                                         .setPinnedConversations(StorageSyncModels.localToRemotePinnedConversations(pinned))
                                                          .build();
 
     return SignalStorageRecord.forAccount(account);
-  }
-
-  private static AccountRecord.PhoneNumberSharingMode localToRemotePhoneNumberSharingMode(PhoneNumberPrivacyValues.PhoneNumberSharingMode phoneNumberPhoneNumberSharingMode) {
-    switch (phoneNumberPhoneNumberSharingMode) {
-      case EVERYONE: return AccountRecord.PhoneNumberSharingMode.EVERYBODY;
-      case CONTACTS: return AccountRecord.PhoneNumberSharingMode.CONTACTS_ONLY;
-      case NOBODY  : return AccountRecord.PhoneNumberSharingMode.NOBODY;
-      default      : throw new AssertionError();
-    }
   }
 
   public static void applyAccountStorageSyncUpdates(@NonNull Context context, Optional<StorageSyncHelper.RecordUpdate<SignalAccountRecord>> update) {
@@ -448,12 +447,13 @@ public final class StorageSyncHelper {
 
   public static void applyAccountStorageSyncUpdates(@NonNull Context context, @NonNull StorageId storageId, @NonNull SignalAccountRecord update, boolean fetchProfile) {
     DatabaseFactory.getRecipientDatabase(context).applyStorageSyncUpdates(storageId, update);
-    DatabaseFactory.getThreadDatabase(context).setArchived(Recipient.self().getId(), update.isNoteToSelfArchived());
 
     TextSecurePreferences.setReadReceiptsEnabled(context, update.isReadReceiptsEnabled());
     TextSecurePreferences.setTypingIndicatorsEnabled(context, update.isTypingIndicatorsEnabled());
     TextSecurePreferences.setShowUnidentifiedDeliveryIndicatorsEnabled(context, update.isSealedSenderIndicatorsEnabled());
     SignalStore.settings().setLinkPreviewsEnabled(update.isLinkPreviewsEnabled());
+    SignalStore.phoneNumberPrivacy().setPhoneNumberListingMode(update.isPhoneNumberUnlisted() ? PhoneNumberPrivacyValues.PhoneNumberListingMode.UNLISTED : PhoneNumberPrivacyValues.PhoneNumberListingMode.LISTED);
+    SignalStore.phoneNumberPrivacy().setPhoneNumberSharingMode(StorageSyncModels.remoteToLocalPhoneNumberSharingMode(update.getPhoneNumberSharingMode()));
 
     if (fetchProfile && update.getAvatarUrlPath().isPresent()) {
       ApplicationDependencies.getJobManager().add(new RetrieveProfileAvatarJob(Recipient.self(), update.getAvatarUrlPath().get()));

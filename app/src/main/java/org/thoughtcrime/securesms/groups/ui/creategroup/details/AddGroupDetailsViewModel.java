@@ -14,6 +14,7 @@ import com.annimon.stream.Collectors;
 import com.annimon.stream.Stream;
 
 import org.thoughtcrime.securesms.groups.ui.GroupMemberEntry;
+import org.thoughtcrime.securesms.keyvalue.SignalStore;
 import org.thoughtcrime.securesms.recipients.Recipient;
 import org.thoughtcrime.securesms.recipients.RecipientId;
 import org.thoughtcrime.securesms.util.DefaultValueLiveData;
@@ -54,15 +55,16 @@ public final class AddGroupDetailsViewModel extends ViewModel {
     isMms                = Transformations.map(members, AddGroupDetailsViewModel::isAnyForcedSms);
 
     LiveData<List<GroupMemberEntry.NewGroupCandidate>> membersToCheckGv2CapabilityOf = LiveDataUtil.combineLatest(isMms, members, (forcedMms, memberList) -> {
-      if (FeatureFlags.groupsV2create() && !forcedMms) {
-        return memberList;
-      } else {
+      if (SignalStore.internalValues().gv2DoNotCreateGv2Groups() || forcedMms) {
         return Collections.emptyList();
+      } else {
+        return memberList;
       }
     });
 
     nonGv2CapableMembers = LiveDataUtil.mapAsync(membersToCheckGv2CapabilityOf, memberList -> repository.checkCapabilities(Stream.of(memberList).map(newGroupCandidate -> newGroupCandidate.getMember().getId()).toList()));
-    canSubmitForm        = LiveDataUtil.combineLatest(isMms, isValidName, (mms, validName) -> mms || validName);
+    canSubmitForm        = FeatureFlags.groupsV1ForcedMigration() ? LiveDataUtil.just(false)
+                                                                  : LiveDataUtil.combineLatest(isMms, isValidName, (mms, validName) -> mms || validName);
 
     repository.resolveMembers(recipientIds, initialMembers::postValue);
   }
@@ -115,7 +117,7 @@ public final class AddGroupDetailsViewModel extends ViewModel {
     Set<RecipientId>                         memberIds   = Stream.of(members).map(member -> member.getMember().getId()).collect(Collectors.toSet());
     byte[]                                   avatarBytes = avatar.getValue();
     boolean                                  isGroupMms  = isMms.getValue() == Boolean.TRUE;
-    String                                   groupName   = isGroupMms ? "" : name.getValue();
+    String                                   groupName   = name.getValue();
 
     if (!isGroupMms && TextUtils.isEmpty(groupName)) {
       groupCreateResult.postValue(GroupCreateResult.error(GroupCreateResult.Error.Type.ERROR_INVALID_NAME));
@@ -127,11 +129,11 @@ public final class AddGroupDetailsViewModel extends ViewModel {
       return;
     }
 
-    repository.createPushGroup(memberIds,
-                               avatarBytes,
-                               groupName,
-                               isGroupMms,
-                               groupCreateResult::postValue);
+    repository.createGroup(memberIds,
+                           avatarBytes,
+                           groupName,
+                           isGroupMms,
+                           groupCreateResult::postValue);
   }
 
   private static @NonNull List<GroupMemberEntry.NewGroupCandidate> filterDeletedMembers(@NonNull List<GroupMemberEntry.NewGroupCandidate> members, @NonNull Set<RecipientId> deleted) {

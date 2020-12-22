@@ -22,8 +22,6 @@ import android.os.Bundle;
 import org.thoughtcrime.securesms.crypto.IdentityKeyUtil;
 import org.thoughtcrime.securesms.crypto.MasterSecret;
 import org.thoughtcrime.securesms.crypto.MasterSecretUtil;
-import org.thoughtcrime.securesms.util.TextSecurePreferences;
-import org.thoughtcrime.securesms.util.Util;
 import org.thoughtcrime.securesms.util.VersionTracker;
 
 /**
@@ -65,12 +63,6 @@ public class PassphraseCreateActivity extends PassphraseActivity {
       MasterSecretUtil.generateAsymmetricMasterSecret(PassphraseCreateActivity.this, masterSecret);
       IdentityKeyUtil.generateIdentityKeys(PassphraseCreateActivity.this);
       VersionTracker.updateLastSeenVersion(PassphraseCreateActivity.this);
-
-      TextSecurePreferences.setLastExperienceVersionCode(PassphraseCreateActivity.this, Util.getCanonicalVersionCode());
-      TextSecurePreferences.setPasswordDisabled(PassphraseCreateActivity.this, true);
-      TextSecurePreferences.setReadReceiptsEnabled(PassphraseCreateActivity.this, true);
-      TextSecurePreferences.setTypingIndicatorsEnabled(PassphraseCreateActivity.this, true);
-      TextSecurePreferences.setHasSeenWelcomeScreen(PassphraseCreateActivity.this, false);
 
       return null;
     }

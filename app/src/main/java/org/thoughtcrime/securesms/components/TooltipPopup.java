@@ -3,10 +3,6 @@ package org.thoughtcrime.securesms.components;
 import android.content.Context;
 import android.graphics.PorterDuff;
 import android.os.Build;
-import androidx.annotation.ColorInt;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.annotation.StringRes;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,9 +11,14 @@ import android.widget.ImageView;
 import android.widget.PopupWindow;
 import android.widget.TextView;
 
+import androidx.annotation.ColorInt;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.annotation.StringRes;
+import androidx.core.content.ContextCompat;
+
 import org.thoughtcrime.securesms.R;
 import org.thoughtcrime.securesms.mms.GlideApp;
-import org.thoughtcrime.securesms.util.ThemeUtil;
 
 /**
  * Class for creating simple tooltips to show throughout the app. Utilizes a popup window so you
@@ -76,8 +77,8 @@ public class TooltipPopup extends PopupWindow {
     View bubble = getContentView().findViewById(R.id.tooltip_bubble);
 
     if (backgroundTint == 0) {
-      bubble.getBackground().setColorFilter(ThemeUtil.getThemedColor(anchor.getContext(), R.attr.tooltip_default_color), PorterDuff.Mode.MULTIPLY);
-      arrow.setColorFilter(ThemeUtil.getThemedColor(anchor.getContext(), R.attr.tooltip_default_color), PorterDuff.Mode.MULTIPLY);
+      bubble.getBackground().setColorFilter(ContextCompat.getColor(anchor.getContext(), R.color.tooltip_default_color), PorterDuff.Mode.MULTIPLY);
+      arrow.setColorFilter(ContextCompat.getColor(anchor.getContext(), R.color.tooltip_default_color), PorterDuff.Mode.MULTIPLY);
     } else {
       bubble.getBackground().setColorFilter(backgroundTint, PorterDuff.Mode.MULTIPLY);
       arrow.setColorFilter(backgroundTint, PorterDuff.Mode.MULTIPLY);

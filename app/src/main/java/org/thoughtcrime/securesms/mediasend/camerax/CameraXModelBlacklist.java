@@ -8,10 +8,8 @@ import java.util.Set;
 public final class CameraXModelBlacklist {
   private static final Set<String> BLACKLIST = new HashSet<String>() {{
     // Pixel 4
-    if (Build.VERSION.SDK_INT < 30) {
-      add("Pixel 4");
-      add("Pixel 4 XL");
-    }
+    add("Pixel 4");
+    add("Pixel 4 XL");
 
     // Huawei Mate 10
     add("ALP-L29");
@@ -37,6 +35,11 @@ public final class CameraXModelBlacklist {
     add("LYA-AL10");
     add("LYA-TL00");
     add("LYA-L0C");
+
+    // Huawei Mate 20 X
+    add("EVR-L29");
+    add("EVR-AL00");
+    add("EVR-TL00");
 
     // Huawei P20
     add("EML-L29C");
@@ -78,11 +81,24 @@ public final class CameraXModelBlacklist {
     add("COL-L29");
     add("COL-L19");
 
+    // Huawei Honor 20
+    add("YAL-L21");
+    add("YAL-AL00");
+    add("YAL-TL00");
+
     // Samsung Galaxy S6
     add("SM-G920F");
 
     // Honor View 10
-    add("BLK-L09");
+    add("BKL-AL20");
+    add("BKL-L04");
+    add("BKL-L09");
+    add("BKL-AL00");
+
+    // Honor View 20
+    add("PCT-AL10");
+    add("PCT-TL10");
+    add("PCT-L29");
   }};
 
   private CameraXModelBlacklist() {

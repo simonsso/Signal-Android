@@ -34,6 +34,7 @@ import org.whispersystems.signalservice.api.messages.SignalServiceGroupV2;
 import org.whispersystems.signalservice.api.messages.SignalServiceReceiptMessage;
 import org.whispersystems.signalservice.api.messages.SignalServiceTypingMessage;
 import org.whispersystems.signalservice.api.messages.calls.AnswerMessage;
+import org.whispersystems.signalservice.api.messages.calls.CallingResponse;
 import org.whispersystems.signalservice.api.messages.calls.IceUpdateMessage;
 import org.whispersystems.signalservice.api.messages.calls.OfferMessage;
 import org.whispersystems.signalservice.api.messages.calls.SignalServiceCallMessage;
@@ -89,7 +90,6 @@ import org.whispersystems.util.Base64;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.SecureRandom;
-import java.sql.Time;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
@@ -126,6 +126,7 @@ public class SignalServiceMessageSender {
   private final AtomicBoolean                                       isMultiDevice;
 
   private final ExecutorService                                     executor;
+  private final long                                                maxEnvelopeSize;
 
   /**
    * Construct a SignalServiceMessageSender.
@@ -149,7 +150,7 @@ public class SignalServiceMessageSender {
                                     ClientZkProfileOperations clientZkProfileOperations,
                                     ExecutorService executor)
   {
-    this(urls, new StaticCredentialsProvider(uuid, e164, password, null), store, signalAgent, isMultiDevice, pipe, unidentifiedPipe, eventListener, clientZkProfileOperations, executor);
+    this(urls, new StaticCredentialsProvider(uuid, e164, password, null), store, signalAgent, isMultiDevice, pipe, unidentifiedPipe, eventListener, clientZkProfileOperations, executor, 0);
   }
 
   public SignalServiceMessageSender(SignalServiceConfiguration urls,
@@ -161,7 +162,8 @@ public class SignalServiceMessageSender {
                                     Optional<SignalServiceMessagePipe> unidentifiedPipe,
                                     Optional<EventListener> eventListener,
                                     ClientZkProfileOperations clientZkProfileOperations,
-                                    ExecutorService executor)
+                                    ExecutorService executor,
+                                    long maxEnvelopeSize)
   {
     this.socket           = new PushServiceSocket(urls, credentialsProvider, signalAgent, clientZkProfileOperations);
     this.store            = store;
@@ -171,6 +173,7 @@ public class SignalServiceMessageSender {
     this.isMultiDevice    = new AtomicBoolean(isMultiDevice);
     this.eventListener    = eventListener;
     this.executor         = executor != null ? executor : Executors.newSingleThreadExecutor();
+    this.maxEnvelopeSize  = maxEnvelopeSize;
   }
 
   /**
@@ -234,6 +237,20 @@ public class SignalServiceMessageSender {
   {
     byte[] content = createCallContent(message);
     sendMessage(recipient, getTargetUnidentifiedAccess(unidentifiedAccess), System.currentTimeMillis(), content, false, null);
+  }
+
+  /**
+   * Send an http request on behalf of the calling infrastructure.
+   *
+   * @param requestId Request identifier
+   * @param url Fully qualified URL to request
+   * @param httpMethod Http method to use (e.g., "GET", "POST")
+   * @param headers Optional list of headers to send with request
+   * @param body Optional body to send with request
+   * @return
+   */
+  public CallingResponse makeCallingRequest(long requestId, String url, String httpMethod, List<Pair<String, String>> headers, byte[] body) {
+    return socket.makeCallingRequest(requestId, url, httpMethod, headers, body);
   }
 
   /**
@@ -517,6 +534,7 @@ public class SignalServiceMessageSender {
 
     if      (message.isDeliveryReceipt()) builder.setType(ReceiptMessage.Type.DELIVERY);
     else if (message.isReadReceipt())     builder.setType(ReceiptMessage.Type.READ);
+    else if (message.isViewedReceipt())   builder.setType(ReceiptMessage.Type.VIEWED);
 
     return container.setReceiptMessage(builder).build().toByteArray();
   }
@@ -696,9 +714,13 @@ public class SignalServiceMessageSender {
       builder.setDelete(delete);
     }
 
+    if (message.getGroupCallUpdate().isPresent()) {
+      builder.setGroupCallUpdate(DataMessage.GroupCallUpdate.newBuilder().setEraId(message.getGroupCallUpdate().get().getEraId()));
+    }
+
     builder.setTimestamp(message.getTimestamp());
 
-    return container.setDataMessage(builder).build().toByteArray();
+    return enforceMaxContentSize(container.setDataMessage(builder).build().toByteArray());
   }
 
   private byte[] createCallContent(SignalServiceCallMessage callMessage) {
@@ -770,6 +792,8 @@ public class SignalServiceMessageSender {
       }
     } else if (callMessage.getBusyMessage().isPresent()) {
       builder.setBusy(CallMessage.Busy.newBuilder().setId(callMessage.getBusyMessage().get().getId()));
+    } else if (callMessage.getOpaqueMessage().isPresent()) {
+      builder.setOpaque(CallMessage.Opaque.newBuilder().setData(ByteString.copyFrom(callMessage.getOpaqueMessage().get().getOpaque())));
     }
 
     builder.setMultiRing(callMessage.isMultiRing());
@@ -1252,6 +1276,8 @@ public class SignalServiceMessageSender {
                                               CancelationSignal                  cancelationSignal)
       throws IOException
   {
+    enforceMaxContentSize(content);
+
     long                                   startTime                  = System.currentTimeMillis();
     List<Future<SendMessageResult>>        futureResults              = new LinkedList<>();
     Iterator<SignalServiceAddress>         recipientIterator          = recipients.iterator();
@@ -1316,6 +1342,8 @@ public class SignalServiceMessageSender {
                                         CancelationSignal            cancelationSignal)
       throws UntrustedIdentityException, IOException
   {
+    enforceMaxContentSize(content);
+
     long startTime = System.currentTimeMillis();
 
     for (int i = 0; i < RETRY_COUNT; i++) {
@@ -1580,6 +1608,13 @@ public class SignalServiceMessageSender {
     }
 
     return results;
+  }
+
+  private byte[] enforceMaxContentSize(byte[] content) {
+    if (maxEnvelopeSize > 0 && content.length > maxEnvelopeSize) {
+      throw new ContentTooLargeException(content.length);
+    }
+    return content;
   }
 
   public static interface EventListener {

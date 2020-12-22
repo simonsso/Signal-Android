@@ -79,8 +79,17 @@
   <string name="AttachmentUploadJob_compressing_video_start">Densigo de la videaĵo…</string>
   <!--AudioSlidePlayer-->
   <string name="AudioSlidePlayer_error_playing_audio">Eraro dum ludo de sonaĵo!</string>
-  <!--BlockedContactsActivity-->
-  <string name="BlockedContactsActivity_blocked_contacts">Blokataj kontaktoj</string>
+  <!--BlockedUsersActivity-->
+  <string name="BlockedUsersActivity__blocked_users">Blokataj uzantoj</string>
+  <string name="BlockedUsersActivity__add_blocked_user">Aldoni blokatan uzanton</string>
+  <string name="BlockedUsersActivity__blocked_users_will">Blokitaj kontaktoj ne eblos sendi al vi mesaĝojn aŭ alvoki vin.</string>
+  <string name="BlockedUsersActivity__no_blocked_users">Neniu blokata kontakto</string>
+  <string name="BlockedUsersActivity__block_user">Ĉu bloki la uzanton?</string>
+  <string name="BlockedUserActivity__s_will_not_be_able_to">„%1$s“ ne eblos sendi al vi mesaĝojn aŭ alvoki vin.</string>
+  <string name="BlockedUsersActivity__block">Bloki</string>
+  <string name="BlockedUsersActivity__unblock_user">Ĉu malbloki la uzanton?</string>
+  <string name="BlockedUsersActivity__do_you_want_to_unblock_s">Ĉu vi volas malbloki „%1$s“?</string>
+  <string name="BlockedUsersActivity__unblock">Malbloki</string>
   <!--BlockUnblockDialog-->
   <string name="BlockUnblockDialog_block_and_leave_s">Ĉu bloki kaj forlasi %1$s?</string>
   <string name="BlockUnblockDialog_block_s">Ĉu bloki %1$s?</string>
@@ -126,9 +135,17 @@
   <string name="ClearProfileActivity_remove">Forviŝi</string>
   <string name="ClearProfileActivity_remove_profile_photo">Ĉu forviŝi profilfoton?</string>
   <string name="ClearProfileActivity_remove_group_photo">Ĉu forviŝi grupfoton?</string>
+  <!--ClientDeprecatedActivity-->
+  <string name="ClientDeprecatedActivity_update_signal">Ĝisdatigi Signal-on</string>
+  <string name="ClientDeprecatedActivity_this_version_of_the_app_is_no_longer_supported">Tiu versio de la aplikâjo ne plu estas subtenata. Por plu ricevi kaj sendi mesaĝojn, ĝisdatigu al la lasta versio.</string>
+  <string name="ClientDeprecatedActivity_update">Ĝisdatigi</string>
+  <string name="ClientDeprecatedActivity_dont_update">Ne ĝisdatigi</string>
+  <string name="ClientDeprecatedActivity_warning">Averto</string>
+  <string name="ClientDeprecatedActivity_your_version_of_signal_has_expired_you_can_view_your_message_history">Via versio de Signal senvalidiĝis. Vi povas vidi viajn antaŭajn mesaĝojn, sed vi ne plu povos sendi aŭ ricevi mesaĝojn, krom se vi ĝisdatigas vian version.</string>
   <!--CommunicationActions-->
   <string name="CommunicationActions_no_browser_found">Neniu retumilo trovita.</string>
   <string name="CommunicationActions_no_email_app_found">Neniu retpoŝtilo trovita.</string>
+  <string name="CommunicationActions_send_email">Sendi retpoŝton</string>
   <string name="CommunicationActions_a_cellular_call_is_already_in_progress">Alia alvoko jam estas okazanta.</string>
   <string name="CommunicationActions_start_video_call">Ĉu eki vid-alvokon?</string>
   <string name="CommunicationActions_start_voice_call">Ĉu eki voĉ-alvokon?</string>
@@ -191,15 +208,11 @@
   <string name="ConversationActivity_recipient_is_not_a_valid_sms_or_email_address_exclamation">Ricevonto ne estas valida SMS-numero aŭ retpoŝtadreso!</string>
   <string name="ConversationActivity_message_is_empty_exclamation">Mesaĝo malplenas!</string>
   <string name="ConversationActivity_group_members">Grupanoj</string>
+  <string name="ConversationActivity__tap_here_to_start_a_group_call">Tuŝetu ĉi tie por komenci grupalvokon</string>
   <string name="ConversationActivity_invalid_recipient">Nevalida ricevonto!</string>
   <string name="ConversationActivity_added_to_home_screen">Aldonita al la ĉefekrano</string>
   <string name="ConversationActivity_calls_not_supported">Alvokoj ne subtenataj</string>
   <string name="ConversationActivity_this_device_does_not_appear_to_support_dial_actions">Ĉi tiu aparato ŝajne ne subtenas telefonecajn agojn.</string>
-  <!-- Removed by excludeNonTranslatables <string name="ConversationActivity_leave_group">Ĉu forlasi grupon?</string> -->
-  <!-- Removed by excludeNonTranslatables <string name="ConversationActivity_are_you_sure_you_want_to_leave_this_group">Ĉu vi certas, ke vi volas forlasi ĉi tiun grupon?</string> -->
-  <!-- Removed by excludeNonTranslatables <string name="ConversationActivity_choose_new_admin">Elekti novan administranton</string> -->
-  <!-- Removed by excludeNonTranslatables <string name="ConversationActivity_before_you_leave_you_must_choose_at_least_one_new_admin_for_this_group">Antaŭ ol foriri, vi devas elekti almenaŭ unu novan administraton por tiu ĉi grupo.</string> -->
-  <!-- Removed by excludeNonTranslatables <string name="ConversationActivity_choose_admin">Elektu administranton</string> -->
   <string name="ConversationActivity_transport_insecure_sms">Nesekura SMS</string>
   <string name="ConversationActivity_transport_insecure_mms">Nesekura MMS</string>
   <string name="ConversationActivity_transport_signal">Signal</string>
@@ -235,7 +248,7 @@
   <string name="ConversationActivity_sticker_pack_installed">Glumarkaro instaliĝis</string>
   <string name="ConversationActivity_new_say_it_with_stickers">Nove! Parolu per glumarkoj</string>
   <string name="ConversationActivity_cancel">Nuligi</string>
-  <string name="ConversationActivity_delete_conversation">Ĉu forviŝi konversacion?</string>
+  <string name="ConversationActivity_delete_conversation">Ĉu forviŝi interparolon?</string>
   <string name="ConversationActivity_delete_and_leave_group">Ĉu forigi kaj forlasi la grupon?</string>
   <string name="ConversationActivity_this_conversation_will_be_deleted_from_all_of_your_devices">Tiu interparolo foriĝos el ĉiuj viaj aparatoj.</string>
   <string name="ConversationActivity_you_will_leave_this_group_and_it_will_be_deleted_from_all_of_your_devices">Vi forlasos tiun grupon, kaj ĝi foriĝos el ĉiuj viaj aparatoj.</string>
@@ -244,6 +257,8 @@
   <string name="ConversationActivity__to_call_s_signal_needs_access_to_your_microphone">Por telefoni %1$s, Signal bezonas aliron al via mikrofono</string>
   <string name="ConversationActivity__to_call_s_signal_needs_access_to_your_microphone_and_camera">Por telefoni %1$s, Signal bezonas aliron al via mikrofono kaj fotilo.</string>
   <string name="ConversationActivity__more_options_now_in_group_settings">Pli da elektoj nun en „Grup-agordoj“</string>
+  <string name="ConversationActivity_join">Aniĝi</string>
+  <string name="ConversationActivity_full">Plena</string>
   <!--ConversationAdapter-->
   <plurals name="ConversationAdapter_n_unread_messages">
     <item quantity="one">%d nelegita mesaĝo</item>
@@ -284,7 +299,7 @@
   <string name="ConversationFragment_deleting_messages">Forviŝado de mesaĝoj…</string>
   <string name="ConversationFragment_delete_for_me">Forviŝi nur por mi</string>
   <string name="ConversationFragment_delete_for_everyone">Forviŝi por ĉiuj</string>
-  <string name="ConversationFragment_this_message_will_be_permanently_deleted_for_everyone">Tiu ĉi mesaĝo estos porĉiame forviŝita por ĉiuj en la interparolo. Anoj vidos, ke vi forviŝis mesaĝon.</string>
+  <string name="ConversationFragment_this_message_will_be_deleted_for_everyone_in_the_conversation">Tiu ĉi mesaĝo estos porĉiame forviŝita por ĉiuj en la interparolo, se ili uzas freŝdatan version de Signal. Ili vidos, ke vi forviŝis mesaĝon.</string>
   <string name="ConversationFragment_quoted_message_not_found">Origina mesaĝo ne troveblas</string>
   <string name="ConversationFragment_quoted_message_no_longer_available">Origina mesaĝo ne plu disponeblas</string>
   <string name="ConversationFragment_failed_to_open_message">Malsukceso malfermi la mesaĝon</string>
@@ -293,6 +308,10 @@
   <string name="ConversationFragment_outgoing_view_once_media_files_are_automatically_removed">Nurunufoje videblaj elirantaj aŭdvidaĵoj estas aŭtomate forigitaj post ilia sendado</string>
   <string name="ConversationFragment_you_already_viewed_this_message">Vi jam vidis tiun mesaĝon</string>
   <string name="ConversationFragment__you_can_add_notes_for_yourself_in_this_conversation">Vi povas aldoni notojn al vi mem en tiu interparolo.\nSe via konto estas ligita al aliaj aparatoj, novaj notoj sinkroniĝos.</string>
+  <string name="ConversationFragment__d_group_members_have_the_same_name">%1$d grupanoj havas la saman nomon.</string>
+  <string name="ConversationFragment__tap_to_review">Tuŝeti por kontroli</string>
+  <string name="ConversationFragment__review_requests_carefully">Kontroli la petojn zorgeme</string>
+  <string name="ConversationFragment__signal_found_another_contact_with_the_same_name">Signal trovis plian kontakton kun la sama nomo.</string>
   <!--ConversationListActivity-->
   <string name="ConversationListActivity_there_is_no_browser_installed_on_your_device">Ne estas foliumilo instalata sur via aparato.</string>
   <!--ConversationListFragment-->
@@ -333,6 +352,32 @@
   <string name="CreateProfileActivity_set_up_your_profile">Agordi vian profilon</string>
   <string name="CreateProfileActivity_signal_profiles_are_end_to_end_encrypted">Via profilo estas tutvoje ĉifrita. Via profilo kaj ties ŝanĝoj estos videblaj de viaj kontaktoj, kiam vi komencas aŭ akceptas novajn interparolojn, kaj kiam vi aliĝas al novaj grupoj.</string>
   <string name="CreateProfileActivity_set_avatar_description">Difini la avataron</string>
+  <!--ChooseBackupFragment-->
+  <string name="ChooseBackupFragment__restore_from_backup">Restaŭri el savkopio?</string>
+  <string name="ChooseBackupFragment__restore_your_messages_and_media">Restaŭri viajn mesaĝojn kaj aŭdvidaĵojn el loka savkopio. Se vi ne restaŭras nun, vi ne povos restaŭri poste.</string>
+  <string name="ChooseBackupFragment__icon_content_description">Piktogramo pri restaŭro el savkopio</string>
+  <string name="ChooseBackupFragment__choose_backup">Elekti savkopion</string>
+  <string name="ChooseBackupFragment__learn_more">Scii pli</string>
+  <!--RestoreBackupFragment-->
+  <string name="RestoreBackupFragment__restore_complete">Restaŭro plenumita</string>
+  <string name="RestoreBackupFragment__to_continue_using_backups_please_choose_a_folder">Por plu fari savkopiojn, elektu dosierujon. Estontaj savkopioj konserviĝos en ĉi tiun ejon.</string>
+  <string name="RestoreBackupFragment__choose_folder">Elekti dosierujon</string>
+  <string name="RestoreBackupFragment__not_now">Ne nun</string>
+  <!--BackupsPreferenceFragment-->
+  <string name="BackupsPreferenceFragment__chat_backups">Mesaĝaj savkopioj</string>
+  <string name="BackupsPreferenceFragment__backups_are_encrypted_with_a_passphrase">Savkopioj estas ĉifritaj per pasfrazo, kaj konserviĝas en via aparato.</string>
+  <string name="BackupsPreferenceFragment__create_backup">Krei savkopion</string>
+  <string name="BackupsPreferenceFragment__last_backup">Lasta savkopio: %1$s</string>
+  <string name="BackupsPreferenceFragment__backup_folder">Savkopia dosierujo</string>
+  <string name="BackupsPreferenceFragment__verify_backup_passphrase">Kontrolu la savkopian pasfrazon</string>
+  <string name="BackupsPreferenceFragment__test_your_backup_passphrase">Provu vian savkopian pasfrazon kaj kontrolu ties kongruon</string>
+  <string name="BackupsPreferenceFragment__turn_on">Aktivigi</string>
+  <string name="BackupsPreferenceFragment__turn_off">Malaktivigi</string>
+  <string name="BackupsPreferenceFragment__to_restore_a_backup">Por restaŭri savkopion, instalu novan Signal-on. Malfermu la aplikaĵon kaj tuŝetu „Restaŭri savkopion“, poste elektu dosieron de savkopi. %1$s</string>
+  <string name="BackupsPreferenceFragment__learn_more">Scii pli</string>
+  <string name="BackupsPreferenceFragment__in_progress">Savkopiado…</string>
+  <string name="BackupsPreferenceFragment__d_so_far">%1$d ĝis nun…</string>
+  <string name="BackupsPreferenceFragment_signal_requires_external_storage_permission_in_order_to_create_backups">Signal bezonas la permeson aliri al ekstera konservejo por krei sekurkopiojn, sed ĝi estis porĉiame malakceptita. Bonvolu daŭrigi al la aplikaĵaj agordoj, elekti „Permesoj“, kaj ŝalti „Konservejo“.</string>
   <!--CustomDefaultPreference-->
   <string name="CustomDefaultPreference_using_custom">Uzante propran: %s</string>
   <string name="CustomDefaultPreference_using_default">Uzante defaŭltan: %s</string>
@@ -343,6 +388,7 @@
   <string name="AvatarSelectionBottomSheetDialogFragment__choose_from_gallery">Elekti el la galerio</string>
   <string name="AvatarSelectionBottomSheetDialogFragment__remove_photo">Forviŝi profilfoton</string>
   <string name="AvatarSelectionBottomSheetDialogFragment__taking_a_photo_requires_the_camera_permission">Foti bezonas Fotilo-permeson.</string>
+  <string name="AvatarSelectionBottomSheetDialogFragment__viewing_your_gallery_requires_the_storage_permission">Vido de via galerio bezonas la permeson uzi la „Konservejon“.</string>
   <!--DateUtils-->
   <string name="DateUtils_just_now">Nun</string>
   <string name="DateUtils_minutes_ago">%d min</string>
@@ -368,9 +414,26 @@
   <string name="DeviceListItem_today">Hodiaŭ</string>
   <!--DocumentView-->
   <string name="DocumentView_unnamed_file">Sennoma dosiero</string>
+  <!--DonateMegaphone-->
+  <string name="DonateMegaphone_donate_to_signal">Donaci al Signal</string>
+  <string name="DonateMegaphone_Signal_is_powered_by_people_like_you_show_your_support_today">Signal ekzistas pro la subteno de homoj kiel vi. Montru vian subtenon hodiaŭ!</string>
+  <string name="DonateMegaphone_donate">Donaci</string>
+  <string name="DonateMegaphone_no_thanks">Ne, dankon</string>
+  <!--GroupCallingMegaphone-->
+  <string name="GroupCallingMegaphone__introducing_group_calls">Jen la grupalvokoj</string>
+  <string name="GroupCallingMegaphone__open_a_new_group_to_start">Kreu novtipan grupon por komenci senpagan ĉifritan grupalvokon</string>
   <!--DozeReminder-->
   <string name="DozeReminder_optimize_for_missing_play_services">Optimumigi por mankantaj „Play Services“</string>
   <string name="DozeReminder_this_device_does_not_support_play_services_tap_to_disable_system_battery">Tiu aparato ne subtenas „Play Services“. Tuŝetu por malebligi baterian optimumigon, kiu alie malhelpus al Signal ricevi mesaĝojn dum neaktiva.</string>
+  <!--ExpiredBuildReminder-->
+  <string name="ExpiredBuildReminder_this_version_of_signal_has_expired">Tiu ĉi versio de Signal senvalidiĝis. Ĝisdatigu al la nuna versio por daŭrigi sendi kaj ricevi mesaĝojn.</string>
+  <string name="ExpiredBuildReminder_update_now">Ĝisdatigi nun</string>
+  <!--PendingGroupJoinRequestsReminder-->
+  <plurals name="PendingGroupJoinRequestsReminder_d_pending_member_requests">
+    <item quantity="one">%d pritraktota peto por aniĝi</item>
+    <item quantity="other">%d pritraktotaj petoj por aniĝi</item>
+  </plurals>
+  <string name="PendingGroupJoinRequestsReminder_view">Montri pli</string>
   <!--ShareActivity-->
   <string name="ShareActivity_share_with">Kunhavigi kun</string>
   <string name="ShareActivity_multiple_attachments_are_only_supported">Pluraj kunsendaĵoj nur eblas kun bildoj kaj videaĵoj</string>
@@ -391,6 +454,7 @@
   <string name="AddToGroupActivity_add_to_group">Aldoni al grupo</string>
   <string name="AddToGroupActivity_add_to_groups">Aldoni al grupoj</string>
   <string name="AddToGroupActivity_this_person_cant_be_added_to_legacy_groups">Tiu persono ne aldoneblas al malnovtipaj grupoj.</string>
+  <string name="AddToGroupActivity_add">Aldoni</string>
   <!--ChooseNewAdminActivity-->
   <string name="ChooseNewAdminActivity_choose_new_admin">Elekti novan administranton</string>
   <string name="ChooseNewAdminActivity_done">Farita</string>
@@ -414,6 +478,76 @@
   <string name="GroupManagement_invite_single_user">Vi ne povas aŭtomate aldoni „%1$s“ al tiu grupo.\n\nŜi aŭ li estis invitita kaj ne vidos iujn grupmesaĝojn, antaŭ ol ŝi aŭ li akceptas la inviton.</string>
   <string name="GroupManagement_learn_more">Scii pli</string>
   <string name="GroupManagement_invite_multiple_users">Vi ne povas aŭtomate aldoni tiujn uzantoj al tiu grupo.\n\nIli estis invititaj kaj ne vidos iujn grupmesaĝojn, antaŭ ol ili akceptas la inviton.</string>
+  <!--GroupsV1MigrationLearnMoreBottomSheetDialogFragment-->
+  <string name="GroupsV1MigrationLearnMore_what_are_new_groups">Kio estas novtipaj grupoj?</string>
+  <string name="GroupsV1MigrationLearnMore_new_groups_have_features_like_mentions">Novtipaj grupoj havas trajtojn kiel @menciojn kaj grupadministrantojn, kaj pliajn estontece.</string>
+  <string name="GroupsV1MigrationLearnMore_all_message_history_and_media_has_been_kept">Ĉiuj mesaĝoj kaj aŭdvidaĵoj konserviĝis tiel, kiel ili estis antaŭ la ĝisdatigon.</string>
+  <string name="GroupsV1MigrationLearnMore_you_will_need_to_accept_an_invite_to_join_this_group_again">Vi bezonos akcepti inviton por anigi tiun grupon ree, kaj vi ne ricevos grupmesaĝojn ĝis via akcepto.</string>
+  <plurals name="GroupsV1MigrationLearnMore_these_members_will_need_to_accept_an_invite">
+    <item quantity="one">Tiuj ĉi ano bezonos akcepti inviton por anigi la grupon ree, kaj li aŭ ŝi ne ricevos grupmesaĝojn ĝis ŝia aŭ lia akcepto:</item>
+    <item quantity="other">Tiuj ĉi anoj bezonos akcepti inviton por anigi la grupon ree, kaj ili ne ricevos grupmesaĝojn ĝis ilia akcepto:</item>
+  </plurals>
+  <plurals name="GroupsV1MigrationLearnMore_these_members_were_removed_from_the_group">
+    <item quantity="one">Tiuj ĉi ano foriĝis el la grupo kaj ne povos reanigi, krom se ŝi aŭ li ĝisdatigas:</item>
+    <item quantity="other">Tiuj ĉi anoj foriĝis el la grupo kaj ne povos reanigi, krom se ili ĝisdatigas:</item>
+  </plurals>
+  <!--GroupsV1MigrationInitiationBottomSheetDialogFragment-->
+  <string name="GroupsV1MigrationInitiation_upgrade_to_new_group">Ĝisdatigi al novtipa grupo</string>
+  <string name="GroupsV1MigrationInitiation_upgrade_this_group">Ĝisdatigi tiun ĉi grupon</string>
+  <string name="GroupsV1MigrationInitiation_new_groups_have_features_like_mentions">Novtipaj grupoj havas trajtojn kiel @menciojn kaj grupadministrantojn, kaj pliajn estontece.</string>
+  <string name="GroupsV1MigrationInitiation_all_message_history_and_media_will_be_kept">Ĉiuj mesaĝoj kaj aŭdvidaĵoj konserviĝis tiel, kiel ili estis antaŭ la ĝisdatigon.</string>
+  <string name="GroupsV1MigrationInitiation_encountered_a_network_error">Okazis reta eraro. Reprovu poste.</string>
+  <string name="GroupsV1MigrationInitiation_failed_to_upgrade">Malsukcesa ĝisdatigo.</string>
+  <plurals name="GroupsV1MigrationInitiation_these_members_will_need_to_accept_an_invite">
+    <item quantity="one">Tiuj ĉi ano bezonos akcepti inviton por anigi la grupon ree, kaj li aŭ ŝi ne ricevos grupmesaĝojn ĝis ŝia aŭ lia akcepto:</item>
+    <item quantity="other">Tiuj ĉi anoj bezonos akcepti inviton por anigi la grupon ree, kaj ili ne ricevos grupmesaĝojn ĝis ilia akcepto:</item>
+  </plurals>
+  <plurals name="GroupsV1MigrationInitiation_these_members_are_not_capable_of_joining_new_groups">
+    <item quantity="one">Tiuj ĉi ano ne povas anigi novtipajn grupojn, kaj ŝi aŭ li foriĝos de la grupo:</item>
+    <item quantity="other">Tiuj ĉi anoj ne povas anigi novtipajn grupojn, kaj ili foriĝos de la grupo:</item>
+  </plurals>
+  <!--GroupsV1MigrationInitiationReminder-->
+  <string name="GroupsV1MigrationInitiationReminder_to_access_new_features_like_mentions">Por uzi @menciojn kaj grupadministrantojn, ĝisdatigu tiun ĉi grupon.</string>
+  <string name="GroupsV1MigrationInitiationReminder_not_now">Ne nun</string>
+  <string name="GroupsV1MigrationInitiationReminder_update_group">Aktualigi grupon</string>
+  <!--GroupsV1MigrationSuggestionsReminder-->
+  <plurals name="GroupsV1MigrationSuggestionsReminder_members_couldnt_be_added_to_the_new_group">
+    <item quantity="one">%1$d ano ne povis re-aldoniĝi al la novtipa grupo. Ĉu vi volas aldoni ŝin aŭ lin nun?</item>
+    <item quantity="other">%1$d anoj ne povis re-aldoniĝi al la novtipa grupo. Ĉu vi volas aldoni ilin nun?</item>
+  </plurals>
+  <plurals name="GroupsV1MigrationSuggestionsReminder_add_members">
+    <item quantity="one">Aldoni anon</item>
+    <item quantity="other">Aldoni anojn</item>
+  </plurals>
+  <string name="GroupsV1MigrationSuggestionsReminder_no_thanks">Ne, dankon</string>
+  <!--GroupsV1MigrationSuggestionsDialog-->
+  <plurals name="GroupsV1MigrationSuggestionsDialog_add_members_question">
+    <item quantity="one">Ĉu aldoni anon?</item>
+    <item quantity="other">Ĉu aldoni anojn?</item>
+  </plurals>
+  <plurals name="GroupsV1MigrationSuggestionsDialog_these_members_couldnt_be_automatically_added">
+    <item quantity="one">Tiu ĉi ano ne povis re-aldoniĝi al la novtipa grupo, kiam ĝi estis ĝisdatigita:</item>
+    <item quantity="other">Tiuj ĉi anoj ne povis re-aldoniĝi al la novtipa grupo, kiam ĝi estis ĝisdatigita:</item>
+  </plurals>
+  <plurals name="GroupsV1MigrationSuggestionsDialog_add_members">
+    <item quantity="one">Aldoni anon</item>
+    <item quantity="other">Aldoni anojn</item>
+  </plurals>
+  <plurals name="GroupsV1MigrationSuggestionsDialog_failed_to_add_members_try_again_later">
+    <item quantity="one">Aldono de ano malsukcesis. Reprovu poste.</item>
+    <item quantity="other">Aldono de anoj malsukcesis. Reprovu poste.</item>
+  </plurals>
+  <plurals name="GroupsV1MigrationSuggestionsDialog_cannot_add_members">
+    <item quantity="one">Ano ne sukcese aldoniĝis.</item>
+    <item quantity="other">Anoj ne sukcese aldoniĝis.</item>
+  </plurals>
+  <!--LeaveGroupDialog-->
+  <string name="LeaveGroupDialog_leave_group">Ĉu forlasi grupon?</string>
+  <string name="LeaveGroupDialog_you_will_no_longer_be_able_to_send_or_receive_messages_in_this_group">Vi ne plu povos ricevi aŭ sendi mesaĝojn en tiu grupo.</string>
+  <string name="LeaveGroupDialog_leave">Forlasi</string>
+  <string name="LeaveGroupDialog_choose_new_admin">Elekti novan administranton</string>
+  <string name="LeaveGroupDialog_before_you_leave_you_must_choose_at_least_one_new_admin_for_this_group">Antaŭ ol foriri, vi devas elekti almenaŭ unu novan administraton por tiu ĉi grupo.</string>
+  <string name="LeaveGroupDialog_choose_admin">Elektu administranton</string>
   <!--LinkPreviewsMegaphone-->
   <string name="LinkPreviewsMegaphone_disable">Malŝalti</string>
   <string name="LinkPreviewsMegaphone_preview_any_link">Antaŭrigardi ajnan ligilon</string>
@@ -428,7 +562,7 @@
     <item quantity="other">%1$d anoj</item>
   </plurals>
   <!--PendingMembersActivity-->
-  <string name="PendingMemberInvitesActivity_pending_group_invites">Pritraktotaj grupinvitoj</string>
+  <string name="PendingMembersActivity_pending_group_invites">Pritraktotaj grupinvitoj</string>
   <string name="PendingMembersActivity_requests">Petoj</string>
   <string name="PendingMembersActivity_invites">Invitoj</string>
   <string name="PendingMembersActivity_people_you_invited">Homoj, kiujn vi invitis</string>
@@ -459,17 +593,20 @@
     <item quantity="one">Ĉu aldoni „%1$s“ al „%2$s“?</item>
     <item quantity="other">Ĉu aldoni %3$d anojn al „%2$s“?</item>
   </plurals>
+  <string name="AddMembersActivity__add">Aldoni</string>
   <!--AddGroupDetailsFragment-->
   <string name="AddGroupDetailsFragment__name_this_group">Nomi tiun grupon</string>
   <string name="AddGroupDetailsFragment__create_group">Krei grupon</string>
   <string name="AddGroupDetailsFragment__create">Krei</string>
   <string name="AddGroupDetailsFragment__members">Anoj</string>
   <string name="AddGroupDetailsFragment__group_name_required">Grupnomo (nepra)</string>
+  <string name="AddGroupDetailsFragment__group_name_optional">Grupnomo (malnepra)</string>
   <string name="AddGroupDetailsFragment__this_field_is_required">Tiu kampo nepras.</string>
   <string name="AddGroupDetailsFragment__groups_require_at_least_two_members">Grupoj postulas almenaŭ du anojn.</string>
   <string name="AddGroupDetailsFragment__group_creation_failed">La kreado de la grupo malsukcesis.</string>
   <string name="AddGroupDetailsFragment__try_again_later">Reprovu poste.</string>
   <string name="AddGroupDetailsFragment__youve_selected_a_contact_that_doesnt">Vi elektis kontakton, kiu ne subtenas Signal-grupojn, do tiu ĉi grupo estos MMS-a.</string>
+  <string name="AddGroupDetailsFragment_custom_mms_group_names_and_photos_will_only_be_visible_to_you">Propraj MMS-aj grupaj nomoj kaj fotoj nur videblos de vi.</string>
   <string name="AddGroupDetailsFragment__remove">Forviŝi</string>
   <string name="AddGroupDetailsFragment__sms_contact">SMS-kontakto</string>
   <string name="AddGroupDetailsFragment__remove_s_from_this_group">Ĉu forigi %1$s el tiu grupo?</string>
@@ -477,20 +614,28 @@
     <item quantity="one">%d ano ne povas uzi novtipajn grupojn, do tiu ĉi grupo estos malnovtipa grupo.</item>
     <item quantity="other">%d anoj ne povas uzi novtipajn grupojn, do tiu ĉi grupo estos malnovtipa grupo.</item>
   </plurals>
+  <plurals name="AddGroupDetailsFragment__d_members_do_not_support_new_groups_so_this_group_cannot_be_created">
+    <item quantity="one">%d ano ne povas uzi novtipajn grupojn, do tiu ĉi grupo ne povas esti kreita.</item>
+    <item quantity="other">%d anoj ne povas uzi novtipajn grupojn, do tiu ĉi grupo ne povas esti kreita.</item>
+  </plurals>
   <!--NonGv2MemberDialog-->
   <string name="NonGv2MemberDialog_single_users_are_non_gv2_capable">Malvotipa grupo kreiĝos, ĉar „%1$s“ uzas malnovan version de Signal. Vi povos krei novstilan grupon kun ŝi aŭ li, post kiam ŝi aŭ li ĝisdatigos Signal-on, aŭ se vi forigas ŝin aŭ lin, antaŭ ol krei la grupon.</string>
   <plurals name="NonGv2MemberDialog_d_users_are_non_gv2_capable">
     <item quantity="one">Malvotipa grupo kreiĝos, ĉar %1$d ano uzas malnovan version de Signal. Vi povos krei novstilan grupon kun ili, post kiam ili ĝisdatigos Signal-on, aŭ se vi tuj forigas ilin, antaŭ ol krei la grupon.</item>
     <item quantity="other">Malvotipa grupo kreiĝos, ĉar %1$d anoj uzas malnovan version de Signal. Vi povos krei novstilan grupon kun ili, post kiam ili ĝisdatigos Signal-on, aŭ se vi tuj forigas ilin, antaŭ ol krei la grupon.</item>
   </plurals>
+  <string name="NonGv2MemberDialog_single_users_are_non_gv2_capable_forced_migration">Tiu ĉi grupo ne kreiĝos, ĉar „%1$s“ uzas malnovan version de Signal. Vi devas forigi ŝin aŭ lin, antaŭ ol krei la grupon.</string>
+  <plurals name="NonGv2MemberDialog_d_users_are_non_gv2_capable_forced_migration">
+    <item quantity="one">Tiu ĉi grupo ne kreiĝos, ĉar %1$d ano uzas malnovan version de Signal. Vi devas forigi ŝin aŭ lin, antaŭ ol krei la grupon.</item>
+    <item quantity="other">Tiu ĉi grupo ne kreiĝos, ĉar %1$d anoj uzas malnovan version de Signal. Vi devas forigi ilin, antaŭ ol krei la grupon.</item>
+  </plurals>
   <!--ManageGroupActivity-->
   <string name="ManageGroupActivity_disappearing_messages">Memviŝontaj mesaĝoj</string>
-  <string name="ManageGroupActivity_pending_group_invites">Pritraktotaj grupinvitoj</string>
   <string name="ManageGroupActivity_member_requests_and_invites">Petoj kaj invitoj por aniĝi</string>
   <string name="ManageGroupActivity_add_members">Aldoni anojn</string>
   <string name="ManageGroupActivity_edit_group_info">Modifi grupinformon</string>
-  <!-- Removed by excludeNonTranslatables <string name="ManageGroupActivity_choose_who_can_edit_the_group_name_avatar_and_disappearing_messages">Elekti tiun, kiu povas ŝanĝi la nomon, la foton kaj la agordojn pri la memvisôntaj mesaĝoj de la grupo.</string> -->
-  <!-- Removed by excludeNonTranslatables <string name="ManageGroupActivity_choose_who_can_add_or_invite_new_members">Elekti tiun, kiu povas aldoni aŭ inviti novajn anojn.</string> -->
+  <string name="ManageGroupActivity_who_can_add_new_members">Kiu povas aldoni novajn anojn?</string>
+  <string name="ManageGroupActivity_who_can_edit_this_groups_info">Kiu povas modifi tiun grupinformon?</string>
   <string name="ManageGroupActivity_group_link">Grupligilo</string>
   <string name="ManageGroupActivity_block_group">Bloki la grupon</string>
   <string name="ManageGroupActivity_unblock_group">Malbloki la grupon</string>
@@ -512,6 +657,9 @@
     <item quantity="one">%d ano aldonita.</item>
     <item quantity="other">%d anoj aldonitaj.</item>
   </plurals>
+  <string name="ManageGroupActivity_only_admins_can_enable_or_disable_the_sharable_group_link">Nur administrantoj povas ŝalti aŭ malŝalti kunhaveblan grupligilon.</string>
+  <string name="ManageGroupActivity_only_admins_can_enable_or_disable_the_option_to_approve_new_members">Nur administrantoj povas ŝalti aŭ malŝalti aprobon de novaj anoj.</string>
+  <string name="ManageGroupActivity_only_admins_can_reset_the_sharable_group_link">Nur administrantoj povas restarigi kunhaveblan grupligilon.</string>
   <string name="ManageGroupActivity_you_dont_have_the_rights_to_do_this">Vi ne rajtas fari tion</string>
   <string name="ManageGroupActivity_not_capable">Iu, kiun vi aldonis ne subtenas novajn grupojn kaj bezonas ĝisdatigi sian Signal</string>
   <string name="ManageGroupActivity_failed_to_update_the_group">Malsukceso ĝisdatigi la grupon</string>
@@ -520,7 +668,12 @@
   <string name="ManageGroupActivity_failed_to_update_the_group_due_to_a_network_error_please_retry_later">Malsukceso ĝisdatigi la grupon pro reteraro. Reprovu poste.</string>
   <string name="ManageGroupActivity_edit_name_and_picture">Modifi nomon kaj bildon</string>
   <string name="ManageGroupActivity_legacy_group">Malnovtipaj grupoj</string>
-  <string name="ManageGroupActivity_legacy_group_learn_more">Tiu estas malnovtipa grupo. Por uzi eblon kiel grupadministranton, kreu novtipan grupon.</string>
+  <string name="ManageGroupActivity_legacy_group_learn_more">Tiu estas malnovtipa grupo. Ebloj (kiel grupadministrantoj) nur disponeblas en novtipa grupo.</string>
+  <string name="ManageGroupActivity_legacy_group_upgrade">Tiu estas malnovtipa grupo. Por uzi eblojn (kiel grupadministrantojn kaj @menciojn),</string>
+  <string name="ManageGroupActivity_legacy_group_too_large">Jena malnovtipa grupo ne povas ĝisdatiĝi pro troa grandeco. Maksimuma grupgrando estas %1$d.</string>
+  <string name="ManageGroupActivity_upgrade_this_group">ĝisdatigu tiun ĉi grupon.</string>
+  <string name="ManageGroupActivity_this_is_an_insecure_mms_group">Tio estas nesekura MMS-grupo. Por mesaĝi private, invitu viajn kontaktojn al Signal.</string>
+  <string name="ManageGroupActivity_invite_now">Inviti nun</string>
   <!--GroupMentionSettingDialog-->
   <string name="GroupMentionSettingDialog_notify_me_for_mentions">Sciigi al mi pri mencioj</string>
   <string name="GroupMentionSettingDialog_receive_notifications_when_youre_mentioned_in_muted_chats">Ĉu ricevi sciigoj, kiam oni mencias vin en silentigitaj interparoloj?</string>
@@ -610,9 +763,9 @@
   <!--GroupJoinUpdateRequiredBottomSheetDialogFragment-->
   <string name="GroupJoinUpdateRequiredBottomSheetDialogFragment_group_links_coming_soon">Grupligiloj baldaŭ disponeblos</string>
   <string name="GroupJoinUpdateRequiredBottomSheetDialogFragment_update_signal_to_use_group_links">Ĝisdatigu Signal-on por uzi grupligilojn</string>
-  <string name="GroupJoinUpdateRequiredBottomSheetDialogFragment_coming_soon">Anigi grupon pere de ligilo ankoraŭ ne eblas en Signal. Tio alvenos per baldaŭa ĝisdatigo.</string>
-  <string name="GroupJoinUpdateRequiredBottomSheetDialogFragment_update_message">La versio de Signal, kiun vi uzas ne subtenas kunhaveblajn grupligilojn. Ĝisdatigu al lasta versio por anigi tiun grupon per ligilo.</string>
+  <string name="GroupJoinUpdateRequiredBottomSheetDialogFragment_update_message">La versio de Signal, kiun vi uzas ne subtenas tiun grupligilon. Ĝisdatigu al lasta versio por anigi tiun grupon per ligilo.</string>
   <string name="GroupJoinUpdateRequiredBottomSheetDialogFragment_update_signal">Ĝisdatigi Signal-on</string>
+  <string name="GroupJoinUpdateRequiredBottomSheetDialogFragment_update_linked_device_message">Unu aŭ pli el viaj ligitaj aparatoj uzas version de Signal, kiu ne subtenas kunhaveblajn grupligilojn. Ĝisdatigu Signal-on ĉe viaj ligitaj aparatoj por anigi tiun grupon.</string>
   <string name="GroupJoinUpdateRequiredBottomSheetDialogFragment_group_link_is_not_valid">Grupligilo ne validas</string>
   <!--GV2 Request confirmation dialog-->
   <string name="RequestConfirmationDialog_add_s_to_the_group">Ĉu aldoni „%1$s“ al la grupo?</string>
@@ -745,25 +898,35 @@
   <string name="MediaSendActivity_tap_here_to_make_this_message_disappear_after_it_is_viewed">Tuŝetu ĉi tie por malaperigi tiun mesaĝon post ties lego.</string>
   <!--MediaRepository-->
   <string name="MediaRepository_all_media">Ĉiuj aŭvidaĵoj</string>
+  <string name="MediaRepository__camera">Fotilo</string>
   <!--MessageRecord-->
   <string name="MessageRecord_unknown">Nekonata</string>
   <string name="MessageRecord_message_encrypted_with_a_legacy_protocol_version_that_is_no_longer_supported">Vi ricevis mesaĝon ĉifrita per malnova Signal-a versio, kiu ne plu estas subtenata. Bonvolu peti la sendinton ĝisdatigi al la plej nova versio, kaj resendi la mesaĝon.</string>
   <string name="MessageRecord_left_group">Vi forlasis la grupon.</string>
   <string name="MessageRecord_you_updated_group">Vi ĝisdatigis la grupon.</string>
   <string name="MessageRecord_the_group_was_updated">La grupo estis ĝisdatigita.</string>
-  <string name="MessageRecord_you_called">Vi telefonis</string>
-  <string name="MessageRecord_called_you">Kontakto alvokita</string>
-  <string name="MessageRecord_missed_call">Maltrafita alvoko</string>
+  <string name="MessageRecord_you_called_date">Vi alvokis · %1$s</string>
+  <string name="MessageRecord_missed_audio_call_date">Maltrafita aŭdalvoko · %1$s</string>
+  <string name="MessageRecord_missed_video_call_date">Maltrafita vidalvoko · %1$s</string>
   <string name="MessageRecord_s_updated_group">%s ĝisdatigis la grupon.</string>
-  <string name="MessageRecord_s_called_you">%s telefonis vin</string>
+  <string name="MessageRecord_s_called_you_date">%1$s alvokis vin · %2$s</string>
   <string name="MessageRecord_called_s">Vi alvokis %s</string>
-  <string name="MessageRecord_missed_call_from">Maltrafita alvoko el %s</string>
   <string name="MessageRecord_s_joined_signal">%s estas ĉe Signal!</string>
   <string name="MessageRecord_you_disabled_disappearing_messages">Vi malŝaltis memviŝontajn mesaĝojn.</string>
   <string name="MessageRecord_s_disabled_disappearing_messages">%1$s malŝaltis memviŝontajn mesaĝojn.</string>
   <string name="MessageRecord_you_set_disappearing_message_time_to_s">Vi agordis la malaperon de la memviŝontaj mesaĝoj al %1$s.</string>
   <string name="MessageRecord_s_set_disappearing_message_time_to_s">%1$s agordis la malaperon de la memviŝontaj mesaĝoj al %2$s.</string>
   <string name="MessageRecord_disappearing_message_time_set_to_s">La malapero de la memviŝontaj mesaĝoj agordiĝis al %1$s.</string>
+  <string name="MessageRecord_this_group_was_updated_to_a_new_group">Tiu ĉi grupo ĝisdatiĝis al novtipa grupo.</string>
+  <string name="MessageRecord_you_couldnt_be_added_to_the_new_group_and_have_been_invited_to_join">Vi ne povis re-aldoniĝi al la novtipa grupo kaj vi estis invitita aniĝi.</string>
+  <plurals name="MessageRecord_members_couldnt_be_added_to_the_new_group_and_have_been_invited">
+    <item quantity="one">Unu ano ne povis re-aldoniĝi al la novtipa grupo kaj estis invitita aniĝi.</item>
+    <item quantity="other">%1$s anoj ne povis re-aldoniĝi al la novtipa grupo kaj estis invititaj aniĝi.</item>
+  </plurals>
+  <plurals name="MessageRecord_members_couldnt_be_added_to_the_new_group_and_have_been_removed">
+    <item quantity="one">Unu ano ne povis re-aldoniĝi al la novtipa grupo kaj estis forigita.</item>
+    <item quantity="other">%1$s anoj ne povis re-aldoniĝi al la novtipa grupo kaj estis forigitaj.</item>
+  </plurals>
   <!--Profile change updates-->
   <string name="MessageRecord_changed_their_profile_name_to">%1$s ŝanĝis sian profilnomon al %2$s.</string>
   <string name="MessageRecord_changed_their_profile_name_from_to">%1$s ŝanĝis sian profilnomon de %2$s al %3$s.</string>
@@ -856,6 +1019,12 @@
   <string name="MessageRecord_the_group_link_has_been_turned_on_with_admin_approval_off">Oni ŝaltis grupligilon sen bezono de administranto-aprobo.</string>
   <string name="MessageRecord_the_group_link_has_been_turned_on_with_admin_approval_on">Oni malŝaltis grupligilon kun administranto-aprobo.</string>
   <string name="MessageRecord_the_group_link_has_been_turned_off">La grupligilo malŝaltiĝis.</string>
+  <string name="MessageRecord_you_turned_off_admin_approval_for_the_group_link">Vi malŝaltis la administranto-aprobon pri la grupligilo.</string>
+  <string name="MessageRecord_s_turned_off_admin_approval_for_the_group_link">%1$s malŝaltis la administranto-aprobon pri la grupligilo.</string>
+  <string name="MessageRecord_the_admin_approval_for_the_group_link_has_been_turned_off">Oni malŝaltis la administranto-aprobon pri la grupligilo.</string>
+  <string name="MessageRecord_you_turned_on_admin_approval_for_the_group_link">Vi ŝaltis la administranto-aprobon pri la grupligilo.</string>
+  <string name="MessageRecord_s_turned_on_admin_approval_for_the_group_link">%1$s ŝaltis la administranto-aprobon pri la grupligilo.</string>
+  <string name="MessageRecord_the_admin_approval_for_the_group_link_has_been_turned_on">Oni ŝaltis la administranto-aprobon pri la grupligilo.</string>
   <!--GV2 group link reset-->
   <string name="MessageRecord_you_reset_the_group_link">Vi restarigis la grupligilon.</string>
   <string name="MessageRecord_s_reset_the_group_link">%1$s restarigis la grupligilon.</string>
@@ -884,14 +1053,42 @@
   <string name="MessageRecord_you_marked_your_safety_number_with_s_verified_from_another_device">Vi markis, el alia aparato, vian sekurigan numeron kun %s kiel konfirmita.</string>
   <string name="MessageRecord_you_marked_your_safety_number_with_s_unverified">Vi markis vian sekurigan numeron kun %s kiel nekonfirmita.</string>
   <string name="MessageRecord_you_marked_your_safety_number_with_s_unverified_from_another_device">Vi markis, el alia aparato, vian sekurigan numeron kun %s kiel nekonfirmita.</string>
+  <!--Group Calling update messages-->
+  <string name="MessageRecord_s_started_a_group_call_s">%1$s ekigis grupalvokon · %2$s</string>
+  <string name="MessageRecord_s_is_in_the_group_call_s">%1$s estas en la grupalvoko · %2$s</string>
+  <string name="MessageRecord_you_are_in_the_group_call_s1">Vi estas en la grupalvoko · %1$s</string>
+  <string name="MessageRecord_s_and_s_are_in_the_group_call_s1">%1$s kaj %2$s estas en la grupalvoko · %3$s</string>
+  <string name="MessageRecord_s_s_and_s_are_in_the_group_call_s">%1$s, %2$s kaj %3$s estas en la grupalvoko · %4$s</string>
+  <string name="MessageRecord_group_call_s">Grupalvoko · %1$s</string>
+  <string name="MessageRecord_s_started_a_group_call">%1$s komencis grupalvokon</string>
+  <string name="MessageRecord_s_is_in_the_group_call">%1$s estas en la grupalvoko</string>
+  <string name="MessageRecord_you_are_in_the_group_call">Vi estas en la grupalvoko</string>
+  <string name="MessageRecord_s_and_s_are_in_the_group_call">%1$s kaj %2$s estas en la grupalvoko</string>
+  <string name="MessageRecord_s_s_and_s_are_in_the_group_call">%1$s, %2$s kaj %3$s estas en la grupalvoko</string>
+  <string name="MessageRecord_group_call">Grup-alvoko</string>
+  <string name="MessageRecord_you">Vi</string>
+  <plurals name="MessageRecord_s_s_and_d_others_are_in_the_group_call_s">
+    <item quantity="one">%1$s, %2$s, kaj %3$d aliaj homoj estas en grupvoko · %4$s</item>
+    <item quantity="other">%1$s, %2$s kaj %3$d aliaj estas en la grupalvoko · %4$s</item>
+  </plurals>
+  <plurals name="MessageRecord_s_s_and_d_others_are_in_the_group_call">
+    <item quantity="one">%1$s, %2$s kaj %3$d alia estas en la grupalvoko</item>
+    <item quantity="other">%1$s, %2$s kaj %3$d aliaj estas en la grupalvoko</item>
+  </plurals>
   <!--MessageRequestBottomView-->
   <string name="MessageRequestBottomView_accept">Akcepti</string>
+  <string name="MessageRequestBottomView_continue">Daŭrigi</string>
   <string name="MessageRequestBottomView_delete">Forigi</string>
   <string name="MessageRequestBottomView_block">Bloki</string>
   <string name="MessageRequestBottomView_unblock">Malbloki</string>
   <string name="MessageRequestBottomView_do_you_want_to_let_s_message_you_they_wont_know_youve_seen_their_messages_until_you_accept">Ĉu vi volas, ke %1$s mesaĝu al vi, kaj ke ŝi aŭ li vidu vian nomon kaj foton? Ŝi aŭ li ne scios, ke vi vidis ŝian aŭ lian mesaĝojn ĝis via akcepto.</string>
   <string name="MessageRequestBottomView_do_you_want_to_let_s_message_you_wont_receive_any_messages_until_you_unblock_them">Ĉu vi volas, ke %1$s mesaĝu al vi, kaj ke ŝi aŭ li vidu vian nomon kaj foton? Vi ricevos neniun mesaĝon, se vi ne malblokas ŝin aŭ lin.</string>
+  <string name="MessageRequestBottomView_continue_your_conversation_with_this_group_and_share_your_name_and_photo">Ĉu plu interparoli al tiu grupo kaj kunhavigi vian nomon kaj foton kun la anoj?</string>
+  <string name="MessageRequestBottomView_upgrade_this_group_to_activate_new_features">Ĝisdatigu tiun grupon por uzi novajn funkciojn kiel @menciojn kaj administranton. Anoj, kiuj ne kunhavis ilian nomon aŭ foton kun la grupo estos invititaj anigi.</string>
+  <string name="MessageRequestBottomView_this_legacy_group_can_no_longer_be_used">Jena malnovtipa grupo jam ne povas uziĝi pro troa grandeco. Maksimuma grupgrando estas %1$d.</string>
+  <string name="MessageRequestBottomView_continue_your_conversation_with_s_and_share_your_name_and_photo">Ĉu plu interparoli al %1$s kaj kunhavigi vian nomon kaj foton kun ili?</string>
   <string name="MessageRequestBottomView_do_you_want_to_join_this_group_they_wont_know_youve_seen_their_messages_until_you_accept">Ĉu vi volas aliĝi al tiu grupo kaj kunhavigi vian nomon kaj foton? La grupo ne scios, ke vi vidis ĝiajn mesaĝojn ĝis via akcepto.</string>
+  <string name="MessageRequestBottomView_join_this_group_they_wont_know_youve_seen_their_messages_until_you_accept">Ĉu vi volas anigi al tiu ĉi grupo? Ili ne scios, ke vi vidis iliajn mesaĝojn ĝis via akcepto.</string>
   <string name="MessageRequestBottomView_unblock_this_group_and_share_your_name_and_photo_with_its_members">Ĉu malbloki tiun grupon kaj kunhavigi vian nomon kaj foton kun la anoj? Vi ne ricevos mesaĝojn, se vi ne malblokas ĝin.</string>
   <string name="MessageRequestProfileView_member_of_one_group">Ano de %1$s</string>
   <string name="MessageRequestProfileView_member_of_two_groups">Ano de %1$s kaj %2$s </string>
@@ -936,6 +1133,13 @@
   <string name="ExpirationDialog_disappearing_messages">Memviŝontaj mesaĝoj</string>
   <string name="ExpirationDialog_your_messages_will_not_expire">Viaj mesaĝoj ne senvalidiĝos.</string>
   <string name="ExpirationDialog_your_messages_will_disappear_s_after_they_have_been_seen">Mesaĝoj senditaj kaj ricevitaj en tiu ĉi interparolo malaperos %s post ilia lego.</string>
+  <!--OutdatedBuildReminder-->
+  <string name="OutdatedBuildReminder_update_now">Ĝisdatigi nun</string>
+  <string name="OutdatedBuildReminder_your_version_of_signal_will_expire_today">Tiu versio de Signal senvalidiĝos hodiaŭ. Ĝisdatigu al plej nova versio.</string>
+  <plurals name="OutdatedBuildReminder_your_version_of_signal_will_expire_in_n_days">
+    <item quantity="one">Tiu versio de Signal senvalidiĝos morgaŭ. Ĝisdatigu al plej nova versio.</item>
+    <item quantity="other">Tiu versio de Signal senvalidiĝos post %d tagoj. Ĝisdatigu al plej nova versio.</item>
+  </plurals>
   <!--PassphrasePromptActivity-->
   <string name="PassphrasePromptActivity_enter_passphrase">Entajpu pasfrazon</string>
   <string name="PassphrasePromptActivity_watermark_content_description">Signal-piktogramo</string>
@@ -1013,9 +1217,40 @@
   <string name="WebRtcCallActivity__to_call_s_signal_needs_access_to_your_camera">Por telefoni %1$s, Signal bezonas aliron al via fotilo</string>
   <string name="WebRtcCallActivity__signal_s">Signal %1$s</string>
   <string name="WebRtcCallActivity__calling">Konektado…</string>
+  <string name="WebRtcCallActivity__group_call">Grup-alvoko</string>
   <!--WebRtcCallView-->
   <string name="WebRtcCallView__signal_voice_call">Signal-voĉalvoko…</string>
   <string name="WebRtcCallView__signal_video_call">Signal-vidalvoko…</string>
+  <string name="WebRtcCallView__start_call">Ekalvoki</string>
+  <string name="WebRtcCallView__join_call">Eniri la alvokon</string>
+  <string name="WebRtcCallView__call_is_full">La alvoko plenas</string>
+  <string name="WebRtcCallView__the_maximum_number_of_d_participants_has_been_Reached_for_this_call">La maksimuma nombro de partoprenantoj (%1$d) estas atingita en tiu alvoko. Reprovu poste.</string>
+  <string name="WebRtcCallView__s_group_call">Grupalvoko „%1$s“</string>
+  <string name="WebRtcCallView__view_participants_list">Vidi partoprenantojn</string>
+  <string name="WebRtcCallView__your_video_is_off">Via kamerao estas malŝaltita</string>
+  <string name="WebRtcCallView__connecting">Konekto…</string>
+  <string name="WebRtcCallView__reconnecting">Rekonektado…</string>
+  <string name="WebRtcCallView__joining">Enirado…</string>
+  <string name="WebRtcCallView__disconnected">Nekonektite</string>
+  <string name="WebRtcCallView__no_one_else_is_here">Neniu alia ĉeestas</string>
+  <string name="WebRtcCallView__s_is_in_this_call">%1$s estas en tiu alvoko</string>
+  <string name="WebRtcCallView__s_and_s_are_in_this_call">%1$s kaj %2$s estas en tiu alvoko</string>
+  <plurals name="WebRtcCallView__s_s_and_d_others_are_in_this_call">
+    <item quantity="one">%1$s, %2$s kaj %3$d alia estas en tiu alvoko</item>
+    <item quantity="other">%1$s, %2$s kaj %3$d aliaj estas en tiu alvoko</item>
+  </plurals>
+  <!--CallParticipantsListDialog-->
+  <plurals name="CallParticipantsListDialog_in_this_call_d_people">
+    <item quantity="one">En tiu ĉi alvoko ⋅ %1$d homo</item>
+    <item quantity="other">En tiu ĉi alvoko ⋅ %1$d homoj</item>
+  </plurals>
+  <!--CallParticipantView-->
+  <string name="CallParticipantView__s_is_blocked">%1$s estas blokata.</string>
+  <string name="CallParticipantView__more_info">Pli da informoj</string>
+  <string name="CallParticipantView__you_wont_receive_their_audio_or_video">Vi ne ricevos ilian sonon aŭ videon, kaj ili ne ricevos viajn.</string>
+  <string name="CallParticipantView__cant_receive_audio_video_from_s">Sono kaj video el %1$s ne riceveblas</string>
+  <string name="CallParticipantView__cant_receive_audio_and_video_from_s">Sono kaj video el %1$s ne riceveblas</string>
+  <string name="CallParticipantView__this_may_be_Because_they_have_not_verified_your_safety_number_change">Eble ili ne kontrolis vian ŝanĝon de sekuriga numero, aŭ estas problemo ĉe ilia aparato, aŭ ili blokis vin.</string>
   <!--RegistrationActivity-->
   <string name="RegistrationActivity_select_your_country">Elektu vian landon</string>
   <string name="RegistrationActivity_you_must_specify_your_country_code">Vi devas specifi vian
@@ -1038,6 +1273,7 @@
   <string name="RegistrationActivity_more_information">Plia informo</string>
   <string name="RegistrationActivity_less_information">Malplia informo</string>
   <string name="RegistrationActivity_signal_needs_access_to_your_contacts_and_media_in_order_to_connect_with_friends">Signal bezonas aliri al viaj kontaktoj kaj aŭdvidaĵoj por konekti kun amikoj, interŝanĝi mesaĝojn, kaj fari sekurajn alvokojn.</string>
+  <string name="RegistrationActivity_signal_needs_access_to_your_contacts_in_order_to_connect_with_friends">Signal bezonas aliri al viaj kontaktoj kaj aŭdvidaĵoj por konekti kun amikoj, interŝanĝi mesaĝojn, kaj sekure alvoki.</string>
   <string name="RegistrationActivity_rate_limited_to_service">Vi tro faris neĝustajn provojn por registri tiun numeron. Reprovu poste.</string>
   <string name="RegistrationActivity_unable_to_connect_to_service">Konekto al servo ne eblas. Bv. kontroli retkonekton, kaj provi denove.</string>
   <string name="RegistrationActivity_to_easily_verify_your_phone_number_signal_can_automatically_detect_your_verification_code">Por facile kontroli vian telefonnumeron, Signal povas aŭtomate depreni la validigan kodon, se vi permesas al Signal aliri al viaj SMS-mesaĝoj.</string>
@@ -1152,7 +1388,8 @@ Ricevis mesaĝon pri interŝanĝo de ŝlosiloj por nevalida protokola versio.
   <string name="ThreadRecord_draft">Malneto:</string>
   <string name="ThreadRecord_called">Vi telefonis</string>
   <string name="ThreadRecord_called_you">Telefonis vin</string>
-  <string name="ThreadRecord_missed_call">Maltrafita alvoko</string>
+  <string name="ThreadRecord_missed_audio_call">Maltrafita aŭdalvoko</string>
+  <string name="ThreadRecord_missed_video_call">Maltrafita vidalvoko</string>
   <string name="ThreadRecord_media_message">Aŭdvida mesaĝo</string>
   <string name="ThreadRecord_sticker">Glumarko</string>
   <string name="ThreadRecord_view_once_photo">Nurunufoje videbla foto</string>
@@ -1180,13 +1417,6 @@ Ricevis mesaĝon pri interŝanĝo de ŝlosiloj por nevalida protokola versio.
   <!--UpdateApkReadyListener-->
   <string name="UpdateApkReadyListener_Signal_update">Ĝisdatigo de Signal</string>
   <string name="UpdateApkReadyListener_a_new_version_of_signal_is_available_tap_to_update">Nova versio de Signal disponeblas, tuŝetu por ĝisdatigi</string>
-  <!--UnknownSenderView-->
-  <string name="UnknownSenderView_block_s">Ĉu bloki %s?</string>
-  <string name="UnknownSenderView_blocked_contacts_will_no_longer_be_able_to_send_you_messages_or_call_you">Blokitaj kontaktoj ne plu eblos sendi al vi mesaĝojn aŭ alvoki vin.</string>
-  <string name="UnknownSenderView_block">Bloki</string>
-  <string name="UnknownSenderView_share_profile_with_s">Ĉu kunhavigi profilon kun %s?</string>
-  <string name="UnknownSenderView_the_easiest_way_to_share_your_profile_information_is_to_add_the_sender_to_your_contacts">La plej facila maniero sendi viajn profilinformojn estas per aldono de la sendinto al via kontaktaro. Se tion vi ne volas, vi tamen povas kunhavigi viajn profilinformojn tiumaniere.</string>
-  <string name="UnknownSenderView_share_profile">Kunhavigi profilon</string>
   <!--UntrustedSendDialog-->
   <string name="UntrustedSendDialog_send_message">Ĉu sendi mesaĝon?</string>
   <string name="UntrustedSendDialog_send">Sendi</string>
@@ -1216,6 +1446,7 @@ Ricevis mesaĝon pri interŝanĝo de ŝlosiloj por nevalida protokola versio.
   <string name="VerifyIdentityActivity_no_safety_number_to_compare_was_found_in_the_clipboard">Neniu sekuriga numero komparota troveblis en la tondujo</string>
   <string name="VerifyIdentityActivity_signal_needs_the_camera_permission_in_order_to_scan_a_qr_code_but_it_has_been_permanently_denied">Signal bezonas la Fotilo-permeson por skani rapidrespondan (QR) kodon, sed ĝi estis porĉiame malakceptita. Bonvolu daŭrigi al la aplikaĵaj agordoj, elekti „Permesoj“, kaj ŝalti „Fotilo“.</string>
   <string name="VerifyIdentityActivity_unable_to_scan_qr_code_without_camera_permission">Ne eblas skani rapidrespondan (QR) kodon sen Fotilo-permeso</string>
+  <string name="VerifyIdentityActivity_you_must_first_exchange_messages_in_order_to_view">Vi devas unue interŝanĝi mesaĝojn por vidi la sekurigan numeron de %1$s.</string>
   <!--ViewOnceMessageActivity-->
   <!--AudioView-->
   <!--MessageDisplayHelper-->
@@ -1246,6 +1477,7 @@ Ricevis mesaĝon pri interŝanĝo de ŝlosiloj por nevalida protokola versio.
   <string name="MediaPreviewActivity_media_delete_confirmation_message">Tio daŭre forviŝos ĉi tiun mesaĝon.</string>
   <string name="MediaPreviewActivity_s_to_s">%1$s al %2$s</string>
   <string name="MediaPreviewActivity_media_no_longer_available">Aŭdvidaĵo ne plu disponeblas.</string>
+  <string name="MediaPreviewActivity_cant_find_an_app_able_to_share_this_media">Ne troveblas aplikaĵo, kiu kapablas kunhavigi ĉi tiun aŭdvidaĵon.</string>
   <!--MessageNotifier-->
   <string name="MessageNotifier_d_new_messages_in_d_conversations">%1$d novaj mesaĝoj en %2$d interparoloj</string>
   <string name="MessageNotifier_most_recent_from_s">Plej lasta de: %1$s</string>
@@ -1273,8 +1505,7 @@ Ricevis mesaĝon pri interŝanĝo de ŝlosiloj por nevalida protokola versio.
   <string name="MessageNotifier_reacted_s_to_your_image">Reagis per %1$s al via bildo.</string>
   <string name="MessageNotifier_reacted_s_to_your_file">Reagis per %1$s al via dosiero.</string>
   <string name="MessageNotifier_reacted_s_to_your_audio">Reagis per %1$s al via aŭdaĵo.</string>
-  <string name="MessageNotifier_reacted_s_to_your_view_once_photo">Reagis per %1$s al via nurunufoje videbla bildo.</string>
-  <string name="MessageNotifier_reacted_s_to_your_view_once_video">Reagis per %1$s al via nurunufoje videbla videaĵo.</string>
+  <string name="MessageNotifier_reacted_s_to_your_view_once_media">Reagis per %1$s al via nurunufoje videbla videaĵo.</string>
   <string name="MessageNotifier_reacted_s_to_your_sticker">Reagis per %1$s al via glumarko.</string>
   <string name="MessageNotifier_this_message_was_deleted">Tiu ĉi mesaĝo forviŝiĝis.</string>
   <string name="TurnOffContactJoinedNotificationsActivity__turn_off_contact_joined_signal">Ĉu malŝalti sciigojn pri aliĝo de kontakto al Signal? Vi povos reŝalti ilin ĉe Signal → Agordoj → Sciigoj.</string>
@@ -1288,6 +1519,7 @@ Ricevis mesaĝon pri interŝanĝo de ŝlosiloj por nevalida protokola versio.
   <string name="NotificationChannel_other">Alia</string>
   <string name="NotificationChannel_group_messages">Mesaĝoj</string>
   <string name="NotificationChannel_missing_display_name">Nekonata</string>
+  <string name="NotificationChannel_voice_notes">Voĉaj notoj</string>
   <!--ProfileEditNameFragment-->
   <string name="ProfileEditNameFragment_successfully_set_profile_name">Profilnomo sukcese difinita.</string>
   <string name="ProfileEditNameFragment_encountered_a_network_error">Okazis reta eraro.</string>
@@ -1324,12 +1556,14 @@ Ricevis mesaĝon pri interŝanĝo de ŝlosiloj por nevalida protokola versio.
   <string name="WebRtcCallActivity__answered_on_a_linked_device">Respondita per ligita aparato.</string>
   <string name="WebRtcCallActivity__declined_on_a_linked_device">Malakceptita per ligita aparato.</string>
   <string name="WebRtcCallActivity__busy_on_a_linked_device">Okupita ĉe ligita aparato.</string>
+  <string name="GroupCallSafetyNumberChangeNotification__someone_has_joined_this_call_with_a_safety_number_that_has_changed">Iu eniris tiun ĉi alvokon uzante sekurigan numeron, kiu ŝanĝiĝis.</string>
   <!--WebRtcCallScreen-->
   <string name="WebRtcCallScreen_new_safety_numbers">Via sekuriga numero pro via interparolo kun %1$s ŝanĝiĝis. Tio povas aŭ signifi, ke iu provas interkapti viajn komunikojn, aŭ ke %2$s simple reinstalis Signal-on.</string>
   <string name="WebRtcCallScreen_you_may_wish_to_verify_this_contact">Vi certe volos kontroli vian sekurigan numeron kun ĉi tiu kontakto.</string>
   <string name="WebRtcCallScreen_new_safety_number_title">Nova sekuriga numero</string>
   <string name="WebRtcCallScreen_accept">Akcepti</string>
   <string name="WebRtcCallScreen_end_call">Fini alvokon</string>
+  <string name="WebRtcCallScreen_swipe_up_to_change_views">Ŝovumi supren por ŝanĝi vidojn</string>
   <!--WebRtcCallScreen V2-->
   <string name="WebRtcCallScreen__decline">Malakcepti</string>
   <string name="WebRtcCallScreen__answer">Respondi</string>
@@ -1388,9 +1622,15 @@ Ricevis mesaĝon pri interŝanĝo de ŝlosiloj por nevalida protokola versio.
   <string name="ContactSelectionListFragment_error_retrieving_contacts_check_your_network_connection">Eraro dum ricevo de kontaktoj; bv. kontroli vian retkonekton</string>
   <string name="ContactSelectionListFragment_username_not_found">Uzantnomo ne trovita</string>
   <string name="ContactSelectionListFragment_s_is_not_a_signal_user">„%1$s“ ne estas Signal-uzanto. Kontrolu la uzantnomon kaj reprovu.</string>
-  <string name="ContactSelectionListFragment_okay">Bone</string>
-  <string name="ContactSelectionListFragment_the_group_is_full">La grupo plenas</string>
   <string name="ContactSelectionListFragment_you_do_not_need_to_add_yourself_to_the_group">Vi ne bezonas aldoni vin mem al la grupo</string>
+  <string name="ContactSelectionListFragment_maximum_group_size_reached">Maksimuma grupgrando atingita</string>
+  <string name="ContactSelectionListFragment_signal_groups_can_have_a_maximum_of_d_members">Signal-grupoj povas maksimume enteni %1$d  anojn.</string>
+  <string name="ContactSelectionListFragment_recommended_member_limit_reached">Konsilita limo de anoj atingita</string>
+  <string name="ContactSelectionListFragment_signal_groups_perform_best_with_d_members_or_fewer">Signal-grupoj pli bone funkcias kun maksimume %1$d anoj. Aldono de pliaj anoj okazigos malfruon por sendi aŭ ricevi mesaĝojn.</string>
+  <plurals name="ContactSelectionListFragment_d_members">
+    <item quantity="one">%1$d ano</item>
+    <item quantity="other">%1$d anoj</item>
+  </plurals>
   <!--blocked_contacts_fragment-->
   <string name="blocked_contacts_fragment__no_blocked_contacts">Neniu blokata kontakto</string>
   <!--contact_selection_list_fragment-->
@@ -1429,6 +1669,12 @@ Ricevis mesaĝon pri interŝanĝo de ŝlosiloj por nevalida protokola versio.
   <string name="conversation_item_sent__message_read">Mesaĝo legita</string>
   <!--conversation_item_received-->
   <string name="conversation_item_received__contact_photo_description">Kontakta bildo</string>
+  <!--ConversationUpdateItem-->
+  <string name="ConversationUpdateItem_loading">Ŝargo</string>
+  <string name="ConversationUpdateItem_learn_more">Scii pli</string>
+  <string name="ConversationUpdateItem_join_call">Eniri la alvokon</string>
+  <string name="ConversationUpdateItem_return_to_call">Reiri al la alvoko</string>
+  <string name="ConversationUpdateItem_call_is_full">La alvoko plenas</string>
   <!--audio_view-->
   <string name="audio_view__play_pause_accessibility_description">Ludi … Paŭzigi</string>
   <string name="audio_view__download_accessibility_description">Elŝuti</string>
@@ -1447,6 +1693,9 @@ Ricevis mesaĝon pri interŝanĝo de ŝlosiloj por nevalida protokola versio.
   <string name="safety_number_change_dialog__safety_number_changes">Ŝanĝoj pri la sekuriga numero</string>
   <string name="safety_number_change_dialog__send_anyway">Tamen sendi</string>
   <string name="safety_number_change_dialog__call_anyway">Tamen alvoki</string>
+  <string name="safety_number_change_dialog__join_call">Eniri la alvokon</string>
+  <string name="safety_number_change_dialog__continue_call">Daŭrigi la alvokon</string>
+  <string name="safety_number_change_dialog__leave_call">Forlasi la alvokon</string>
   <string name="safety_number_change_dialog__the_following_people_may_have_reinstalled_or_changed_devices">La jenaj homoj eble restarigis aŭ ŝanĝis iliajn aparatojn. Kontrolu vian sekurigan numeron kun ili por certigi vian privatecon.</string>
   <string name="safety_number_change_dialog__view">Montri pli</string>
   <string name="safety_number_change_dialog__previous_verified">Antaŭe kontrolita</string>
@@ -1553,8 +1802,6 @@ Ricevis mesaĝon pri interŝanĝo de ŝlosiloj por nevalida protokola versio.
     <item quantity="other">%1$s estis aldonitaj al la grupo.</item>
   </plurals>
   <string name="GroupUtil_group_name_is_now">La grupnomo estas nun „%1$s“.</string>
-  <!--profile_group_share_view-->
-  <string name="profile_group_share_view__make_your_profile_name_and_photo_visible_to_this_group">Ĉu vidigi viajn profilajn nomon kaj foton al tiu ĉi grupo?</string>
   <!--prompt_passphrase_activity-->
   <string name="prompt_passphrase_activity__unlock">Malŝlosi</string>
   <!--prompt_mms_activity-->
@@ -1566,6 +1813,7 @@ Ricevis mesaĝon pri interŝanĝo de ŝlosiloj por nevalida protokola versio.
   <string name="CreateProfileActivity_next">Sekva</string>
   <string name="CreateProfileActivity__username">Uzantnomo</string>
   <string name="CreateProfileActivity__create_a_username">Krei uzantnomon</string>
+  <string name="CreateProfileActivity_custom_mms_group_names_and_photos_will_only_be_visible_to_you">Propraj MMS-aj grupaj nomoj kaj fotoj nur videblos de vi.</string>
   <!--EditProfileFragment-->
   <string name="EditProfileFragment__edit_group_name_and_photo">Modifi nomon kaj bildon de la grupo</string>
   <string name="EditProfileFragment__group_name">Nomo de la grupo</string>
@@ -1772,6 +2020,7 @@ Ricevis mesaĝon pri interŝanĝo de ŝlosiloj por nevalida protokola versio.
   <string name="preferences__advanced_pin_settings">Speciala PIN-agordo</string>
   <string name="preferences__free_private_messages_and_calls">Senpagaj privataj mesaĝoj kaj alvokoj al Signal-uzantoj</string>
   <string name="preferences__submit_debug_log">Sendi sencimigan protokolon</string>
+  <string name="preferences__delete_account">Forviŝi konton</string>
   <string name="preferences__support_wifi_calling">Kongrua reĝimo kun „Pervifiaj alvokoj“</string>
   <string name="preferences__enable_if_your_device_supports_sms_mms_delivery_over_wifi">Ebligi tion, se via aparato liveras SMS kaj MMS per vifio (nur ebligi tion, se via aparato uzas „Pervifiajn alvokojn“)</string>
   <string name="preferences__incognito_keyboard">Inkognita klavaro</string>
@@ -1780,7 +2029,7 @@ Ricevis mesaĝon pri interŝanĝo de ŝlosiloj por nevalida protokola versio.
   <string name="preferences__typing_indicators">Tajp-indikiloj</string>
   <string name="preferences__if_typing_indicators_are_disabled_you_wont_be_able_to_see_typing_indicators">Se tajp-indikiloj ne estas ŝaltitaj, vi ne vidos aliulajn tajp-indikilojn.</string>
   <string name="preferences__request_keyboard_to_disable_personalized_learning">Peti al la klavaro malŝalti personan lernadon</string>
-  <string name="preferences_app_protection__blocked_contacts">Blokataj kontaktoj</string>
+  <string name="preferences_app_protection__blocked_users">Blokataj uzantoj</string>
   <string name="preferences_chats__when_using_mobile_data">Kiam uziĝas sendrataj datumoj</string>
   <string name="preferences_chats__when_using_wifi">Kiam uziĝas vifio</string>
   <string name="preferences_chats__when_roaming">Dum retmigrado</string>
@@ -1807,7 +2056,6 @@ Ricevis mesaĝon pri interŝanĝo de ŝlosiloj por nevalida protokola versio.
   <string name="preferences_storage__none">Senlima</string>
   <string name="preferences_storage__s_messages">%1$s mesaĝoj</string>
   <string name="preferences_storage__custom">Elekti</string>
-  <!-- Removed by excludeNonTranslatables <string name="preferences_Storage__custom_conversation_length_limit">Maksimumo de mesaĝoj en interparolo</string> -->
   <string name="preferences_advanced__use_system_emoji">Uzi sisteman emoĝiaron</string>
   <string name="preferences_advanced__disable_signal_built_in_emoji_support">Malebligi emoĝiaron de Signal</string>
   <string name="preferences_advanced__relay_all_calls_through_the_signal_server_to_avoid_revealing_your_ip_address">Trapasigi ĉiujn alvokojn tra la Signal-servilo por eviti sciigi vian IP-adreson al via kontakto. Tio malaltigos la alvokan kvaliton.</string>
@@ -1844,6 +2092,7 @@ Ricevis mesaĝon pri interŝanĝo de ŝlosiloj por nevalida protokola versio.
   <!--****************************************-->
   <!--contact_selection_list-->
   <string name="contact_selection_list__unknown_contact">Nova mesaĝo al…</string>
+  <string name="contact_selection_list__unknown_contact_block">Bloki uzanton</string>
   <string name="contact_selection_list__unknown_contact_add_to_group">Aldoni al grupo</string>
   <!--conversation_callable_insecure-->
   <string name="conversation_callable_insecure__menu_call">Alvoko</string>
@@ -1907,6 +2156,7 @@ Ricevis mesaĝon pri interŝanĝo de ŝlosiloj por nevalida protokola versio.
   <string name="conversation__menu_conversation_settings">Agordoj pri interparolo</string>
   <string name="conversation__menu_add_shortcut">Aldoni al la ĉefekrano</string>
   <string name="conversation__menu_pending_members">Pritraktotaj anojn</string>
+  <string name="conversation__menu_create_bubble">Krei vezikon</string>
   <!--conversation_popup-->
   <string name="conversation_popup__menu_expand_popup">Montri spruĉmenuon</string>
   <!--conversation_callable_insecure-->
@@ -1927,14 +2177,6 @@ Ricevis mesaĝon pri interŝanĝo de ŝlosiloj por nevalida protokola versio.
   <string name="verify_display_fragment_context_menu__copy_to_clipboard">Kopii al tondujo</string>
   <string name="verify_display_fragment_context_menu__compare_with_clipboard">Kompari kun la tondujo</string>
   <!--reminder_header-->
-  <!-- Removed by excludeNonTranslatables <string name="reminder_header_outdated_build">Via Signal-versio estas neĝisdata</string> -->
-  <!-- Removed by excludeNonTranslatables <plurals name="reminder_header_outdated_build_details">
-    <item quantity="one">Via Signal-versio senvalidiĝos post %d tago. Tuŝetu por ĝisdatigi al plej nova versio.</item>
-    <item quantity="other">Via Signal-versio senvalidiĝos post %d tagoj. Tuŝetu por ĝisdatigi al plej nova versio.</item>
-  </plurals> -->
-  <!-- Removed by excludeNonTranslatables <string name="reminder_header_outdated_build_details_today">Via Signal-versio senvalidiĝos hodiaŭ. Tuŝetu por ĝisdatigi al plej nova versio.</string> -->
-  <!-- Removed by excludeNonTranslatables <string name="reminder_header_expired_build">Via Signal-versio senvalidiĝis!</string> -->
-  <!-- Removed by excludeNonTranslatables <string name="reminder_header_expired_build_details">Mesaĝoj ne plu sendiĝos sukcese. Tuŝetu por ĝisdatigi al plej nova versio.</string> -->
   <string name="reminder_header_sms_default_title">Uzi kiel defaŭltan SMS-aplikaĵon</string>
   <string name="reminder_header_sms_default_text">Tuŝetu, por ke Signal estu via defaŭlta SMS-aplikaĵo.</string>
   <string name="reminder_header_sms_import_title">Importi SMS-ojn el la sistemo</string>
@@ -1951,6 +2193,7 @@ Ricevis mesaĝon pri interŝanĝo de ŝlosiloj por nevalida protokola versio.
   <!--media_preview-->
   <string name="media_preview__save_title">Konservi</string>
   <string name="media_preview__forward_title">Plusendi</string>
+  <string name="media_preview__share_title">Kunhavigi</string>
   <string name="media_preview__all_media_title">Ĉiuj aŭvidaĵoj</string>
   <!--media_preview_activity-->
   <string name="media_preview_activity__media_content_description">Aŭdvida antaŭrigardo</string>
@@ -2076,9 +2319,16 @@ Ricevis mesaĝon pri interŝanĝo de ŝlosiloj por nevalida protokola versio.
   <string name="KbsMegaphone__update_pin">Ĝisdatigi PIN-on</string>
   <string name="KbsMegaphone__well_remind_you_later_creating_a_pin">Ni memorigos vin poste. Kreado de PIN nepros post %1$d tagoj.</string>
   <string name="KbsMegaphone__well_remind_you_later_confirming_your_pin">Ni memorigos vin poste. Konfirmado de PIN nepros post %1$d tagoj.</string>
-  <!--Mention Megaphone-->
-  <!-- Removed by excludeNonTranslatables <string name="MentionsMegaphone__introducing_mentions">Jen la @mencioj</string> -->
-  <!-- Removed by excludeNonTranslatables <string name="MentionsMegaphone__get_someones_attention_in_a_group_by_typing">Kaptu ies atenton en novtipa grupo per tajpado de @</string> -->
+  <!--Research Megaphone-->
+  <string name="ResearchMegaphone_tell_signal_what_you_think">Diru al Signal tion, kion vi opinias</string>
+  <string name="ResearchMegaphone_to_make_signal_the_best_messaging_app_on_the_planet">Por ke Signal estu la plej bona mesaĝ-aplikaĵo en la planedo, ni ŝatus havi vian opinion.</string>
+  <string name="ResearchMegaphone_learn_more">Scii pli</string>
+  <string name="ResearchMegaphone_dismiss">Ignori</string>
+  <string name="ResearchMegaphoneDialog_signal_research">Signal-esplorado</string>
+  <string name="ResearchMegaphoneDialog_we_believe_in_privacy"><![CDATA[<p><b>Ni kredas je privateco.</b></p><p>Signal ne spuras vin aŭ ne kolektas viajn datumojn. Por plibonigi Signal-on por ĉiuj, ni uzas la komentojn de la uzantoj, <b>kaj ni ŝatus havi viajn.</b></p><p>Ni faras enketon por kompreni, kiel vi uzas Signal-on. Nia enketo ne kolektas iujn datumojn, kiuj povos identigi vin. Se vi interesiĝas pri dono de pliaj komentoj, vi povos enmeti kontaktinformon.</p><p>Se vi havas kelkajn minutojn kaj komentojn farotajn, ni ŝatus aŭskulti vin.</p>]]></string>
+  <string name="ResearchMegaphoneDialog_take_the_survey">Partorpeni la enketon</string>
+  <string name="ResearchMegaphoneDialog_no_thanks">Ne, dankon</string>
+  <string name="ResearchMegaphoneDialog_the_survey_is_hosted_by_alchemer_at_the_secure_domain">La enketon gastigas „Alchemer“ ĉe la sekura domajno surveys.signalusers.org</string>
   <!--transport_selection_list_item-->
   <string name="transport_selection_list_item__transport_icon">Piktogramo pri sendometodo</string>
   <string name="ConversationListFragment_loading">Ŝargado…</string>
@@ -2094,6 +2344,8 @@ Ricevis mesaĝon pri interŝanĝo de ŝlosiloj por nevalida protokola versio.
   <string name="PushDecryptJob_unlock_to_view_pending_messages">Malŝlosi por vidi pritraktotajn mesaĝojn</string>
   <string name="enter_backup_passphrase_dialog__backup_passphrase">Savkopii pasfrazon</string>
   <string name="backup_enable_dialog__backups_will_be_saved_to_external_storage_and_encrypted_with_the_passphrase_below_you_must_have_this_passphrase_in_order_to_restore_a_backup">Savkopioj konserviĝos al ekstera konservejo kaj ĉifriĝos per la suba pasfrazo. Vi devos havi tiun ĉi pasfrazon por restaŭri savkopion.</string>
+  <string name="backup_enable_dialog__you_must_have_this_passphrase">Vi devas havi tiun ĉi pasfrazon por restaŭri savkopion.</string>
+  <string name="backup_enable_dialog__folder">Dosierujo</string>
   <string name="backup_enable_dialog__i_have_written_down_this_passphrase">Mi skribis tiun ĉi pasfrazon. Sen ĝi, mi ne povos restaŭri savkopion.</string>
   <string name="registration_activity__restore_backup">Restaŭri savkopion</string>
   <string name="registration_activity__skip">Preterpasi</string>
@@ -2119,15 +2371,22 @@ Ricevis mesaĝon pri interŝanĝo de ŝlosiloj por nevalida protokola versio.
   <string name="BackupDialog_delete_backups">Ĉu forviŝi savkopiojn?</string>
   <string name="BackupDialog_disable_and_delete_all_local_backups">Ĉu malŝalti kaj forviŝi ĉiujn lokajn savkopiojn?</string>
   <string name="BackupDialog_delete_backups_statement">Forviŝi savkopiojn</string>
+  <string name="BackupDialog_to_enable_backups_choose_a_folder">Por fari savkopiojn, elektu dosierujon. Savkopioj konserviĝos en ĉi tiun ejon.</string>
+  <string name="BackupDialog_choose_folder">Elekti dosierujon</string>
   <string name="BackupDialog_copied_to_clipboard">Kopiita al tondujo</string>
   <string name="BackupDialog_enter_backup_passphrase_to_verify">Entajpu vian savkopian pasfrazon por kontroli</string>
   <string name="BackupDialog_verify">Kontroli</string>
   <string name="BackupDialog_you_successfully_entered_your_backup_passphrase">Vi sukcese entajpis vian savkopian pasfrazon</string>
   <string name="BackupDialog_passphrase_was_not_correct">La pasfrazo malĝustas</string>
   <string name="ChatsPreferenceFragment_signal_requires_external_storage_permission_in_order_to_create_backups">Signal bezonas la permeson aliri al ekstera konservejo por krei sekurkopiojn, sed ĝi estis porĉiame malakceptita. Bonvolu daŭrigi al la aplikaĵaj agordoj, elekti „Permesoj“, kaj ŝalti „Konservejo“.</string>
-  <string name="ChatsPreferenceFragment_last_backup_s">Lasta savkopiado: %s</string>
+  <string name="ChatsPreferenceFragment_last_backup_s">Lasta savkopio: %s</string>
   <string name="ChatsPreferenceFragment_in_progress">Farata</string>
   <string name="LocalBackupJob_creating_backup">Kreo de savkopio…</string>
+  <string name="LocalBackupJobApi29_backup_failed">Savkopiado malsukcesis</string>
+  <string name="LocalBackupJobApi29_your_backup_directory_has_been_deleted_or_moved">Via savkopia dosierujo foriĝis aŭ moviĝis.</string>
+  <string name="LocalBackupJobApi29_your_backup_file_is_too_large">Via savkopi-dosiero tro grandas por konserviĝi en tiun portilon.</string>
+  <string name="LocalBackupJobApi29_there_is_not_enough_space">Ne plu estas sufiĉa spaco por konservi vian savkopion.</string>
+  <string name="LocalBackupJobApi29_tap_to_manage_backups">Tuŝeti por administri la savkopiadon.</string>
   <string name="ProgressPreference_d_messages_so_far">%d mesaĝoj ĝis nun</string>
   <string name="RegistrationActivity_please_enter_the_verification_code_sent_to_s">Bv. entajpi la kontrolkodon senditan al %s.</string>
   <string name="RegistrationActivity_wrong_number">Erara numero</string>
@@ -2218,8 +2477,8 @@ Ricevis mesaĝon pri interŝanĝo de ŝlosiloj por nevalida protokola versio.
   <string name="RecipientBottomSheet_insecure_voice_call_description">Nesekura voĉ-alvoko</string>
   <string name="RecipientBottomSheet_video_call_description">Vid-alvoko</string>
   <string name="RecipientBottomSheet_remove_s_as_group_admin">Forigi %1$s kiel grupadministranton?</string>
-  <string name="RecipientBottomSheet_s_will_be_able_to_edit_group">%1$s povos modifi tiun grupon kaj ties anojn</string>
-  <!-- Removed by excludeNonTranslatables <string name="RecipientBottomSheet_remove_s_from_s">Ĉu forigi %1$s el „%2$s“?</string> -->
+  <string name="RecipientBottomSheet_s_will_be_able_to_edit_group">„%1$s“ povos modifi tiun grupon kaj ties anojn.</string>
+  <string name="RecipientBottomSheet_remove_s_from_the_group">Ĉu forigi %1$s el tiu grupo?</string>
   <string name="RecipientBottomSheet_remove">Forviŝi</string>
   <string name="RecipientBottomSheet_copied_to_clipboard">Kopiita al tondujo</string>
   <string name="GroupRecipientListItem_admin">Administranto</string>
@@ -2228,10 +2487,10 @@ Ricevis mesaĝon pri interŝanĝo de ŝlosiloj por nevalida protokola versio.
   <!--GroupsLearnMoreBottomSheetDialogFragment-->
   <string name="GroupsLearnMore_legacy_vs_new_groups">Malnovtipaj kaj novtipaj grupoj</string>
   <string name="GroupsLearnMore_what_are_legacy_groups">Kio estas malnovtipaj grupoj?</string>
-  <string name="GroupsLearnMore_paragraph_1">Malnovtipaj grupoj estas grupoj, kiuj ne kongruas kun trajtoj de Novtipaj grupoj kiel administrantoj kaj grupaj ĝisdatigoj.</string>
-  <!-- Removed by excludeNonTranslatables <string name="GroupsLearnMore_how_do_i_use_new_groups">Kiel uzi Novtipajn grupojn?</string> -->
-  <string name="GroupsLearnMore_paragraph_2">Malnovtipaj grupoj ne konverteblas al Novtipaj grupoj, sed vi povas krei novtipan grupon kun la samaj anoj.</string>
-  <string name="GroupsLearnMore_paragraph_3">Por krei novtipan grupon, ĉiuj anoj devas ĝisdatigi ilian Signal-version al la lasta.</string>
+  <string name="GroupsLearnMore_paragraph_1">Malnovtipaj grupoj estas grupoj, kiuj ne kongruas kun trajtoj de novtipaj grupoj kiel administrantoj kaj grupaj ĝisdatigoj.</string>
+  <string name="GroupsLearnMore_can_i_upgrade_a_legacy_group">Ĉu mi povas aliformigi malnovtipan grupon?</string>
+  <string name="GroupsLearnMore_paragraph_2">Malnovtipaj grupoj ankoraŭ ne konverteblas al novtipaj grupoj, sed vi povas krei novtipan grupon kun la samaj anoj, se ili havas la lastan version de Signal.</string>
+  <string name="GroupsLearnMore_paragraph_3">Signal permesos aliformigi malnovtipajn grupojn estonte.</string>
   <!--GroupLinkBottomSheetDialogFragment-->
   <string name="GroupLinkBottomSheet_share_via_signal">Kunhavi per Signal</string>
   <string name="GroupLinkBottomSheet_copy">Kopii</string>
@@ -2239,5 +2498,69 @@ Ricevis mesaĝon pri interŝanĝo de ŝlosiloj por nevalida protokola versio.
   <string name="GroupLinkBottomSheet_share">Kunhavigi</string>
   <string name="GroupLinkBottomSheet_copied_to_clipboard">Kopiita al tondujo</string>
   <string name="GroupLinkBottomSheet_the_link_is_not_currently_active">La ligilo nun ne estas aktiva</string>
+  <!--VoiceNotePlaybackPreparer-->
+  <string name="VoiceNotePlaybackPreparer__could_not_start_playback">Ekludado ne eblis.</string>
+  <!--VoiceNoteMediaDescriptionCompatFactory-->
+  <string name="VoiceNoteMediaDescriptionCompatFactory__voice_message">Voĉa mesaĝo · %1$s</string>
+  <string name="VoiceNoteMediaDescriptionCompatFactory__s_to_s">%1$s al %2$s</string>
+  <!--StorageUtil-->
+  <string name="StorageUtil__s_s">%1$s/%2$s</string>
+  <string name="BlockedUsersActivity__s_has_been_blocked">„%1$s“ estis blokita.</string>
+  <string name="BlockedUsersActivity__failed_to_block_s">Bloko de „%1$s“ malsukcesis</string>
+  <string name="BlockedUsersActivity__s_has_been_unblocked">„%1$s“ estis malblokita.</string>
+  <!--ReviewCardDialogFragment-->
+  <string name="ReviewCardDialogFragment__review_members">Kontroli anojn</string>
+  <string name="ReviewCardDialogFragment__review_request">Kontroli petojn</string>
+  <string name="ReviewCardDialogFragment__d_group_members_have_the_same_name">%1$d grupanoj havas la saman nomon. Vidu la anojn ĉi-sube, kaj elekti tion, kion fari.</string>
+  <string name="ReviewCardDialogFragment__if_youre_not_sure">Se vi ne certas pri tiu, kiu faris la peton, vidu la kontaktojn ĉi-sube, kaj elekti tion, kion fari.</string>
+  <string name="ReviewCardDialogFragment__no_other_groups_in_common">Neniu alia komuna grupo.</string>
+  <string name="ReviewCardDialogFragment__no_groups_in_common">Neniu komuna grupo.</string>
+  <plurals name="ReviewCardDialogFragment__d_other_groups_in_common">
+    <item quantity="one">%d komuna grupo</item>
+    <item quantity="other">%d komunaj grupoj</item>
+  </plurals>
+  <plurals name="ReviewCardDialogFragment__d_groups_in_common">
+    <item quantity="one">%d komuna grupo</item>
+    <item quantity="other">%d komunaj grupoj</item>
+  </plurals>
+  <string name="ReviewCardDialogFragment__remove_s_from_group">Ĉu forigi %1$s el tiu grupo?</string>
+  <string name="ReviewCardDialogFragment__remove">Forviŝi</string>
+  <string name="ReviewCardDialogFragment__failed_to_remove_group_member">Malsukceso forigi la grupanon.</string>
+  <!--ReviewCard-->
+  <string name="ReviewCard__member">Ano</string>
+  <string name="ReviewCard__request">Peto</string>
+  <string name="ReviewCard__your_contact">Via kontakto</string>
+  <string name="ReviewCard__remove_from_group">Forigi el la grupo</string>
+  <string name="ReviewCard__update_contact">Ĝisdatigi kontakton</string>
+  <string name="ReviewCard__block">Bloki</string>
+  <string name="ReviewCard__delete">Forigi</string>
+  <string name="ReviewCard__recently_changed">Ŝanĝis sian profilnomon de %1$s al %2$s</string>
+  <!--CallParticipantsListUpdatePopupWindow-->
+  <string name="CallParticipantsListUpdatePopupWindow__s_joined">%1$s eniris</string>
+  <string name="CallParticipantsListUpdatePopupWindow__s_and_s_joined">%1$s kaj %2$s eniris</string>
+  <string name="CallParticipantsListUpdatePopupWindow__s_s_and_s_joined">%1$s, %2$s kaj %3$s eniris</string>
+  <string name="CallParticipantsListUpdatePopupWindow__s_s_and_d_others_joined">%1$s, %2$s kaj %3$d aliaj eniris</string>
+  <string name="CallParticipantsListUpdatePopupWindow__s_left">%1$s eliris</string>
+  <string name="CallParticipantsListUpdatePopupWindow__s_and_s_left">%1$s kaj %2$s eliris</string>
+  <string name="CallParticipantsListUpdatePopupWindow__s_s_and_s_left">%1$s, %2$s kaj %3$s eliris</string>
+  <string name="CallParticipantsListUpdatePopupWindow__s_s_and_d_others_left">%1$s, %2$s kaj %3$d aliaj eliris</string>
+  <string name="CallParticipantsListUpdatePopupWindow__you_on_another_device">Vi (ĉe alia aparato)</string>
+  <string name="CallParticipantsListUpdatePopupWindow__s_on_another_device">%1$s (ĉe alia aparato)</string>
+  <!--DeleteAccountFragment-->
+  <string name="DeleteAccountFragment__deleting_your_account_will">Konsekvenco de la forviŝado de via konto:</string>
+  <string name="DeleteAccountFragment__enter_your_phone_number">Entajpu vian telefonnumeron</string>
+  <string name="DeleteAccountFragment__delete_account">Forviŝi konton</string>
+  <string name="DeleteAccountFragment__delete_your_account_info_and_profile_photo">Forviŝi vian konton kaj profilfoton</string>
+  <string name="DeleteAccountFragment__delete_all_your_messages">Forviŝado de ĉiuj viajn mesaĝojn</string>
+  <string name="DeleteAccountFragment__no_country_code">Neniu landkodo specifita</string>
+  <string name="DeleteAccountFragment__no_number">Neniu numero specifita</string>
+  <string name="DeleteAccountFragment__the_phone_number">La telefonnumero, kiu vi entajpis ne kongruas kun tiu de via konto.</string>
+  <string name="DeleteAccountFragment__are_you_sure">Ĉu vi certas, ke vi volas forviŝi vian konton?</string>
+  <string name="DeleteAccountFragment__this_will_delete_your_signal_account">Tio forviŝos vian Signal-konton, kaj restarigos la aplikaĵon. La aplikaĵo fermiĝos post la plenumigo de la forviŝado.</string>
+  <string name="DeleteAccountFragment__failed_to_delete_account">Malsukcesis forviŝado de la konto. Ĉu estas retkonekto?</string>
+  <string name="DeleteAccountFragment__failed_to_delete_local_data">Malsukcesis forviŝado de lokaj datumoj. Vi povas mane forviŝi lokajn datumojn en la sistemaj agordoj pri la aplikaĵo.</string>
+  <string name="DeleteAccountFragment__launch_app_settings">Malfermi la aplikaĵajn agordojn</string>
+  <!--DeleteAccountCountryPickerFragment-->
+  <string name="DeleteAccountCountryPickerFragment__search_countries">Serĉi landojn</string>
   <!--EOF-->
 </resources>

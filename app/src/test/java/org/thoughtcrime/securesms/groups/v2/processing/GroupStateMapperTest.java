@@ -2,11 +2,11 @@ package org.thoughtcrime.securesms.groups.v2.processing;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.signal.core.util.logging.Log;
 import org.signal.storageservice.protos.groups.local.DecryptedGroup;
 import org.signal.storageservice.protos.groups.local.DecryptedGroupChange;
 import org.signal.storageservice.protos.groups.local.DecryptedMember;
 import org.signal.storageservice.protos.groups.local.DecryptedString;
-import org.thoughtcrime.securesms.logging.Log;
 import org.thoughtcrime.securesms.testutil.LogRecorder;
 import org.whispersystems.signalservice.api.util.UuidUtil;
 
@@ -437,6 +437,30 @@ public final class GroupStateMapperTest {
     assertThat(advanceGroupStateResult.getProcessedLogEntries(), is(singletonList(new LocalGroupLogEntry(log8.getGroup(), expectedChange))));
     assertNewState(new GlobalGroupState(log8.getGroup(), emptyList()), advanceGroupStateResult.getNewGlobalGroupState());
     assertEquals(log8.getGroup(), advanceGroupStateResult.getNewGlobalGroupState().getLocalState());
+  }
+
+  @Test
+  public void no_actual_change() {
+    DecryptedGroup      currentState = state(0);
+    ServerGroupLogEntry log1         = serverLogEntry(1);
+    ServerGroupLogEntry log2         = new ServerGroupLogEntry(DecryptedGroup.newBuilder(log1.getGroup())
+                                                                             .setRevision(2)
+                                                                             .build(),
+                                                               DecryptedGroupChange.newBuilder()
+                                                                                   .setRevision(2)
+                                                                                   .setEditor(UuidUtil.toByteString(KNOWN_EDITOR))
+                                                                                   .setNewTitle(DecryptedString.newBuilder().setValue(log1.getGroup().getTitle()))
+                                                                                   .build());
+
+    AdvanceGroupStateResult advanceGroupStateResult = GroupStateMapper.partiallyAdvanceGroupState(new GlobalGroupState(currentState, asList(log1, log2)), 2);
+
+    assertThat(advanceGroupStateResult.getProcessedLogEntries(), is(asList(asLocal(log1),
+                                                                           new LocalGroupLogEntry(log2.getGroup(), DecryptedGroupChange.newBuilder()
+                                                                                                                                       .setRevision(2)
+                                                                                                                                       .setEditor(UuidUtil.toByteString(KNOWN_EDITOR))
+                                                                                                                                       .build()))));
+    assertTrue(advanceGroupStateResult.getNewGlobalGroupState().getServerHistory().isEmpty());
+    assertEquals(log2.getGroup(), advanceGroupStateResult.getNewGlobalGroupState().getLocalState());
   }
 
   private static void assertNewState(GlobalGroupState expected, GlobalGroupState actual) {

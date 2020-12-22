@@ -13,7 +13,7 @@
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            android:background="?attr/conversation_list_toolbar_background"
+            android:background="@null"
             android:theme="@style/TextSecure.DarkActionBar.Conversation"
             app:contentInsetStartWithNavigation="0dp"
             app:layout_constraintEnd_toEndOf="parent"
@@ -22,7 +22,33 @@
             app:contentInsetStart="46dp"
             tools:background="#ff007f00">
 
-            <include layout="@layout/conversation_title_view" />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="horizontal">
+
+                <include layout="@layout/conversation_title_view"
+                    android:layout_height="match_parent"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"/>
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/conversation_group_cal_join"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="sans-serif-medium"
+                    android:text="@string/ConversationActivity_join"
+                    android:textAllCaps="false"
+                    android:visibility="gone"
+                    app:backgroundTint="@color/core_white"
+                    app:cornerRadius="1000dp"
+                    app:icon="@drawable/ic_video_solid_18"
+                    app:iconGravity="textStart"
+                    tools:iconTint="@color/core_ultramarine"
+                    tools:textColor="@color/core_ultramarine"
+                    tools:visibility="visible" />
+
+            </LinearLayout>
 
         </androidx.appcompat.widget.Toolbar>
     </com.google.android.material.appbar.AppBarLayout>
@@ -43,11 +69,11 @@
             android:paddingTop="?attr/actionBarSize">
 
             <ViewStub
-                android:id="@+id/group_share_profile_view_stub"
+                android:id="@+id/review_banner_stub"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:inflatedId="@+id/group_share_profile_view"
-                android:layout="@layout/conversation_activity_group_share_profile_stub" />
+                android:inflatedId="@+id/review_banner"
+                android:layout="@layout/review_banner_view" />
 
             <ViewStub
                 android:id="@+id/unverified_banner_stub"

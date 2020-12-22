@@ -3,13 +3,14 @@ package org.thoughtcrime.securesms.components.emoji;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Paint;
-import androidx.annotation.Nullable;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.View;
 
+import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
+
 import org.thoughtcrime.securesms.R;
-import org.thoughtcrime.securesms.util.ResUtil;
 
 public class AsciiEmojiView extends View {
 
@@ -38,7 +39,7 @@ public class AsciiEmojiView extends View {
     float targetFontSize = 0.75f * getHeight() - getPaddingTop() - getPaddingBottom();
 
     paint.setTextSize(targetFontSize);
-    paint.setColor(ResUtil.getColor(getContext(), R.attr.emoji_text_color));
+    paint.setColor(ContextCompat.getColor(getContext(), R.color.signal_inverse_primary));
     paint.setTextAlign(Paint.Align.CENTER);
 
     int xPos = (getWidth() / 2);

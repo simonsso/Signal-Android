@@ -14,12 +14,14 @@ public interface MmsSmsColumns {
   public static final String ADDRESS_DEVICE_ID        = "address_device_id";
   public static final String DELIVERY_RECEIPT_COUNT   = "delivery_receipt_count";
   public static final String READ_RECEIPT_COUNT       = "read_receipt_count";
+  public static final String VIEWED_RECEIPT_COUNT     = "viewed_receipt_count";
   public static final String MISMATCHED_IDENTITIES    = "mismatched_identities";
   public static final String UNIQUE_ROW_ID            = "unique_row_id";
   public static final String SUBSCRIPTION_ID          = "subscription_id";
   public static final String EXPIRES_IN               = "expires_in";
   public static final String EXPIRE_STARTED           = "expire_started";
   public static final String NOTIFIED                 = "notified";
+  public static final String NOTIFIED_TIMESTAMP       = "notified_timestamp";
   public static final String UNIDENTIFIED             = "unidentified";
   public static final String REACTIONS                = "reactions";
   public static final String REACTIONS_UNREAD         = "reactions_unread";
@@ -32,13 +34,18 @@ public interface MmsSmsColumns {
     // Base Types
     protected static final long BASE_TYPE_MASK                     = 0x1F;
 
-    protected static final long INCOMING_CALL_TYPE                 = 1;
-    protected static final long OUTGOING_CALL_TYPE                 = 2;
-    protected static final long MISSED_CALL_TYPE                   = 3;
+    protected static final long INCOMING_AUDIO_CALL_TYPE           = 1;
+    protected static final long OUTGOING_AUDIO_CALL_TYPE           = 2;
+    protected static final long MISSED_AUDIO_CALL_TYPE             = 3;
     protected static final long JOINED_TYPE                        = 4;
     protected static final long UNSUPPORTED_MESSAGE_TYPE           = 5;
     protected static final long INVALID_MESSAGE_TYPE               = 6;
     protected static final long PROFILE_CHANGE_TYPE                = 7;
+    protected static final long MISSED_VIDEO_CALL_TYPE             = 8;
+    protected static final long GV1_MIGRATION_TYPE                 = 9;
+    protected static final long INCOMING_VIDEO_CALL_TYPE           = 10;
+    protected static final long OUTGOING_VIDEO_CALL_TYPE           = 11;
+    protected static final long GROUP_CALL_TYPE                    = 12;
 
     protected static final long BASE_INBOX_TYPE                    = 20;
     protected static final long BASE_OUTBOX_TYPE                   = 21;
@@ -53,7 +60,7 @@ public interface MmsSmsColumns {
                                                             BASE_SENDING_TYPE, BASE_SENT_FAILED_TYPE,
                                                             BASE_PENDING_SECURE_SMS_FALLBACK,
                                                             BASE_PENDING_INSECURE_SMS_FALLBACK,
-                                                            OUTGOING_CALL_TYPE};
+                                                            OUTGOING_AUDIO_CALL_TYPE, OUTGOING_VIDEO_CALL_TYPE};
 
     // Message attributes
     protected static final long MESSAGE_ATTRIBUTE_MASK = 0xE0;
@@ -204,23 +211,45 @@ public interface MmsSmsColumns {
     }
 
     public static boolean isCallLog(long type) {
-      return type == INCOMING_CALL_TYPE || type == OUTGOING_CALL_TYPE || type == MISSED_CALL_TYPE;
+      return isIncomingAudioCall(type) ||
+             isIncomingVideoCall(type) ||
+             isOutgoingAudioCall(type) ||
+             isOutgoingVideoCall(type) ||
+             isMissedAudioCall(type)   ||
+             isMissedVideoCall(type)   ||
+             isGroupCall(type);
     }
 
     public static boolean isExpirationTimerUpdate(long type) {
       return (type & EXPIRATION_TIMER_UPDATE_BIT) != 0;
     }
 
-    public static boolean isIncomingCall(long type) {
-      return type == INCOMING_CALL_TYPE;
+    public static boolean isIncomingAudioCall(long type) {
+      return type == INCOMING_AUDIO_CALL_TYPE;
     }
 
-    public static boolean isOutgoingCall(long type) {
-      return type == OUTGOING_CALL_TYPE;
+    public static boolean isIncomingVideoCall(long type) {
+      return type == INCOMING_VIDEO_CALL_TYPE;
     }
 
-    public static boolean isMissedCall(long type) {
-      return type == MISSED_CALL_TYPE;
+    public static boolean isOutgoingAudioCall(long type) {
+      return type == OUTGOING_AUDIO_CALL_TYPE;
+    }
+
+    public static boolean isOutgoingVideoCall(long type) {
+      return type == OUTGOING_VIDEO_CALL_TYPE;
+    }
+
+    public static boolean isMissedAudioCall(long type) {
+      return type == MISSED_AUDIO_CALL_TYPE;
+    }
+
+    public static boolean isMissedVideoCall(long type) {
+      return type == MISSED_VIDEO_CALL_TYPE;
+    }
+
+    public static boolean isGroupCall(long type) {
+      return type == GROUP_CALL_TYPE;
     }
 
     public static boolean isGroupUpdate(long type) {
@@ -258,6 +287,10 @@ public interface MmsSmsColumns {
 
     public static boolean isProfileChange(long type) {
       return type == PROFILE_CHANGE_TYPE;
+    }
+
+    public static boolean isGroupV1MigrationEvent(long type) {
+      return type == GV1_MIGRATION_TYPE;
     }
 
     public static long translateFromSystemBaseType(long theirType) {

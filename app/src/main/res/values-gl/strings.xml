@@ -78,7 +78,7 @@
   <!--AudioSlidePlayer-->
   <string name="AudioSlidePlayer_error_playing_audio">Erro ao reproducir o audio!</string>
   <!--BlockedContactsActivity-->
-  <string name="BlockedContactsActivity_blocked_contacts">Contactos bloqueados</string>
+  <!-- Removed by excludeNonTranslatables <string name="BlockedContactsActivity_blocked_contacts">Contactos bloqueados</string> -->
   <!--BlockUnblockDialog-->
   <string name="BlockUnblockDialog_block_and_leave_s">Bloquear e abandonar %1$s?</string>
   <string name="BlockUnblockDialog_block_s">Bloquear a %1$s?</string>
@@ -594,13 +594,13 @@
   <string name="MessageRecord_left_group">Abandonaches o grupo.</string>
   <string name="MessageRecord_you_updated_group">Actualizaches o grupo.</string>
   <string name="MessageRecord_the_group_was_updated">O grupo foi actualizado.</string>
-  <string name="MessageRecord_you_called">Chamaches a</string>
-  <string name="MessageRecord_called_you">Contacto chamado</string>
-  <string name="MessageRecord_missed_call">Chamada perdida</string>
+  <!-- Removed by excludeNonTranslatables <string name="MessageRecord_you_called">Chamaches a</string> -->
+  <!-- Removed by excludeNonTranslatables <string name="MessageRecord_called_you">Contacto chamado</string> -->
+  <!-- Removed by excludeNonTranslatables <string name="MessageRecord_missed_call">Chamada perdida</string> -->
   <string name="MessageRecord_s_updated_group">%s actualizou o grupo.</string>
-  <string name="MessageRecord_s_called_you">%s chamoute</string>
+  <!-- Removed by excludeNonTranslatables <string name="MessageRecord_s_called_you">%s chamoute</string> -->
   <string name="MessageRecord_called_s">Chamaches a %s</string>
-  <string name="MessageRecord_missed_call_from">Chamada perdida de %s</string>
+  <!-- Removed by excludeNonTranslatables <string name="MessageRecord_missed_call_from">Chamada perdida de %s</string> -->
   <string name="MessageRecord_s_joined_signal">%s está en Signal!</string>
   <string name="MessageRecord_you_disabled_disappearing_messages">Desactivaches a desaparición das mensaxes.</string>
   <string name="MessageRecord_s_disabled_disappearing_messages">%1$s desactivou a desaparición das mensaxes.</string>
@@ -877,7 +877,7 @@
   <string name="ThreadRecord_draft">Borrador:</string>
   <string name="ThreadRecord_called">Chamaches a</string>
   <string name="ThreadRecord_called_you">Chamoute</string>
-  <string name="ThreadRecord_missed_call">Chamada perdida</string>
+  <!-- Removed by excludeNonTranslatables <string name="ThreadRecord_missed_call">Chamada perdida</string> -->
   <string name="ThreadRecord_media_message">Mensaxe multimedia</string>
   <string name="ThreadRecord_sticker">Adhesivo</string>
   <string name="ThreadRecord_this_message_was_deleted">Eliminouse a mensaxe.</string>
@@ -900,12 +900,12 @@
   <string name="UpdateApkReadyListener_Signal_update">Actualizar Signal</string>
   <string name="UpdateApkReadyListener_a_new_version_of_signal_is_available_tap_to_update">Hai dispoñible unha nova versión de Signal; toca para actualizar</string>
   <!--UnknownSenderView-->
-  <string name="UnknownSenderView_block_s">Bloquear a %s?</string>
-  <string name="UnknownSenderView_blocked_contacts_will_no_longer_be_able_to_send_you_messages_or_call_you">Os contactos  bloqueados non poderán volver chamarte nin enviarche mensaxes.</string>
-  <string name="UnknownSenderView_block">Bloquear</string>
-  <string name="UnknownSenderView_share_profile_with_s">Compartir perfil con %s?</string>
-  <string name="UnknownSenderView_the_easiest_way_to_share_your_profile_information_is_to_add_the_sender_to_your_contacts">O xeito máis fácil de compartir a túa información do perfil é engadindo o remitente aos contactos. Se non o queres facer, podes compartir a información deste modo.</string>
-  <string name="UnknownSenderView_share_profile">Compartir perfil</string>
+  <!-- Removed by excludeNonTranslatables <string name="UnknownSenderView_block_s">Bloquear a %s?</string> -->
+  <!-- Removed by excludeNonTranslatables <string name="UnknownSenderView_blocked_contacts_will_no_longer_be_able_to_send_you_messages_or_call_you">Os contactos  bloqueados non poderán volver chamarte nin enviarche mensaxes.</string> -->
+  <!-- Removed by excludeNonTranslatables <string name="UnknownSenderView_block">Bloquear</string> -->
+  <!-- Removed by excludeNonTranslatables <string name="UnknownSenderView_share_profile_with_s">Compartir perfil con %s?</string> -->
+  <!-- Removed by excludeNonTranslatables <string name="UnknownSenderView_the_easiest_way_to_share_your_profile_information_is_to_add_the_sender_to_your_contacts">O xeito máis fácil de compartir a túa información do perfil é engadindo o remitente aos contactos. Se non o queres facer, podes compartir a información deste modo.</string> -->
+  <!-- Removed by excludeNonTranslatables <string name="UnknownSenderView_share_profile">Compartir perfil</string> -->
   <!--UntrustedSendDialog-->
   <string name="UntrustedSendDialog_send_message">Enviar mensaxe?</string>
   <string name="UntrustedSendDialog_send">Enviar</string>
@@ -1078,7 +1078,7 @@
   <string name="ContactSelectionListFragment_signal_requires_the_contacts_permission_in_order_to_display_your_contacts">Signal require permiso para poder mostrar os teus contactos, pero este foi denegado de forma permanente. Vai aos axustes da aplicación, selecciona \"Permisos\" e activa \"Contactos\".</string>
   <string name="ContactSelectionListFragment_error_retrieving_contacts_check_your_network_connection">Erro ao recuperar os contactos; comproba a túa conexión á rede</string>
   <string name="ContactSelectionListFragment_username_not_found">Nome de usuario non atopado</string>
-  <string name="ContactSelectionListFragment_the_group_is_full">O grupo está cheo</string>
+  <!-- Removed by excludeNonTranslatables <string name="ContactSelectionListFragment_the_group_is_full">O grupo está cheo</string> -->
   <!--blocked_contacts_fragment-->
   <string name="blocked_contacts_fragment__no_blocked_contacts">Ningún contacto bloqueado</string>
   <!--contact_selection_list_fragment-->
@@ -1235,7 +1235,7 @@
   </plurals>
   <string name="GroupUtil_group_name_is_now">Agora o nome do grupo é \'%1$s\'.</string>
   <!--profile_group_share_view-->
-  <string name="profile_group_share_view__make_your_profile_name_and_photo_visible_to_this_group">Queres facer visible o nome e a fotografía do perfil neste grupo?</string>
+  <!-- Removed by excludeNonTranslatables <string name="profile_group_share_view__make_your_profile_name_and_photo_visible_to_this_group">Queres facer visible o nome e a fotografía do perfil neste grupo?</string> -->
   <!--prompt_passphrase_activity-->
   <string name="prompt_passphrase_activity__unlock">Desbloquear</string>
   <!--prompt_mms_activity-->
@@ -1442,7 +1442,7 @@
   <string name="preferences__typing_indicators">Indicador de escritura</string>
   <string name="preferences__if_typing_indicators_are_disabled_you_wont_be_able_to_see_typing_indicators">Se os indicadores de escritura están desactivados non verás cando outras persoas está a escribir.</string>
   <string name="preferences__request_keyboard_to_disable_personalized_learning">Solicitude de teclado para desactivar a aprendizaxe personalizada</string>
-  <string name="preferences_app_protection__blocked_contacts">Contactos bloqueados</string>
+  <!-- Removed by excludeNonTranslatables <string name="preferences_app_protection__blocked_contacts">Contactos bloqueados</string> -->
   <string name="preferences_chats__when_using_mobile_data">Usando datos móbiles</string>
   <string name="preferences_chats__when_using_wifi">Usando conexión wifi</string>
   <string name="preferences_chats__when_roaming">En itinerancia</string>
