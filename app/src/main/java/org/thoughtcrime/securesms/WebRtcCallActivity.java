@@ -81,6 +81,7 @@ public class WebRtcCallActivity extends AppCompatActivity implements SafetyNumbe
   public static final String EXTRA_ENABLE_VIDEO_IF_AVAILABLE = WebRtcCallActivity.class.getCanonicalName() + ".ENABLE_VIDEO_IF_AVAILABLE";
 
   private CallParticipantsListUpdatePopupWindow participantUpdateWindow;
+  private CallParticipantsListDialog            participantsListDialog;
 
   private WebRtcCallView      callScreen;
   private TooltipPopup        videoTooltip;
@@ -196,6 +197,7 @@ public class WebRtcCallActivity extends AppCompatActivity implements SafetyNumbe
               .setAspectRatio(new Rational(9, 16))
               .build();
       enterPictureInPictureMode(params);
+      CallParticipantsListDialog.dismiss(getSupportFragmentManager());
       return true;
     }
     return false;
@@ -241,6 +243,7 @@ public class WebRtcCallActivity extends AppCompatActivity implements SafetyNumbe
     viewModel.getCallParticipantsState().observe(this, callScreen::updateCallParticipants);
     viewModel.getCallParticipantListUpdate().observe(this, participantUpdateWindow::addCallParticipantListUpdate);
     viewModel.getSafetyNumberChangeEvent().observe(this, this::handleSafetyNumberChangeEvent);
+    viewModel.getGroupMembers().observe(this, unused -> updateGroupMembersForGroupCall());
 
     callScreen.getViewTreeObserver().addOnGlobalLayoutListener(() -> {
       CallParticipantsState state = viewModel.getCallParticipantsState().getValue();
@@ -282,6 +285,10 @@ public class WebRtcCallActivity extends AppCompatActivity implements SafetyNumbe
         videoTooltip.dismiss();
         videoTooltip = null;
       }
+    } else if (event instanceof WebRtcCallViewModel.Event.ShowSpeakerViewHint) {
+      callScreen.showSpeakerViewHint();
+    } else if (event instanceof WebRtcCallViewModel.Event.HideSpeakerViewHint) {
+      callScreen.hideSpeakerViewHint();
     } else {
       throw new IllegalArgumentException("Unknown event: " + event);
     }
@@ -503,6 +510,10 @@ public class WebRtcCallActivity extends AppCompatActivity implements SafetyNumbe
         SafetyNumberChangeDialog.showForDuringGroupCall(getSupportFragmentManager(), safetyNumberChangeEvent.getRecipientIds());
       }
     }
+  }
+
+  private void updateGroupMembersForGroupCall() {
+    startService(new Intent(this, WebRtcCallService.class).setAction(WebRtcCallService.ACTION_GROUP_REQUEST_UPDATE_MEMBERS));
   }
 
   @Override

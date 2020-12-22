@@ -8,6 +8,7 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewStub;
 import android.view.animation.Animation;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
@@ -47,6 +48,7 @@ import org.thoughtcrime.securesms.ringrtc.CameraState;
 import org.thoughtcrime.securesms.util.BlurTransformation;
 import org.thoughtcrime.securesms.util.SetUtil;
 import org.thoughtcrime.securesms.util.ViewUtil;
+import org.thoughtcrime.securesms.util.views.Stub;
 import org.webrtc.RendererCommon;
 import org.whispersystems.signalservice.api.messages.calls.HangupMessage;
 
@@ -93,6 +95,8 @@ public class WebRtcCallView extends FrameLayout {
   private Toolbar                       toolbar;
   private MaterialButton                startCall;
   private TextView                      participantCount;
+  private Stub<FrameLayout>             groupCallSpeakerHint;
+  private Stub<View>                    groupCallFullStub;
   private int                           pagerBottomMarginDp;
   private boolean                       controlsVisible = true;
 
@@ -148,6 +152,8 @@ public class WebRtcCallView extends FrameLayout {
     callParticipantsRecycler      = findViewById(R.id.call_screen_participants_recycler);
     toolbar                       = findViewById(R.id.call_screen_toolbar);
     startCall                     = findViewById(R.id.call_screen_start_call_start_call);
+    groupCallSpeakerHint          = new Stub<>(findViewById(R.id.call_screen_group_call_speaker_hint));
+    groupCallFullStub             = new Stub<>(findViewById(R.id.group_call_call_full_view));
 
     View      topGradient            = findViewById(R.id.call_screen_header_gradient);
     View      decline                = findViewById(R.id.call_screen_decline_call);
@@ -251,7 +257,7 @@ public class WebRtcCallView extends FrameLayout {
     List<WebRtcCallParticipantsPage> pages = new ArrayList<>(2);
 
     if (!state.getGridParticipants().isEmpty()) {
-      pages.add(WebRtcCallParticipantsPage.forMultipleParticipants(state.getGridParticipants(), state.isInPipMode()));
+      pages.add(WebRtcCallParticipantsPage.forMultipleParticipants(state.getGridParticipants(), state.getFocusedParticipant(), state.isInPipMode()));
     }
 
     if (state.getFocusedParticipant() != null && state.getAllRemoteParticipants().size() > 1) {
@@ -265,7 +271,7 @@ public class WebRtcCallView extends FrameLayout {
     if (state.getGroupCallState().isNotIdle() && participantCount != null) {
       boolean includeSelf = state.getGroupCallState() == WebRtcViewModel.GroupCallState.CONNECTED_AND_JOINED;
 
-      participantCount.setText(String.valueOf(state.getAllRemoteParticipants().size() + (includeSelf ? 1 : 0)));
+      participantCount.setText(String.valueOf(state.getRemoteDevicesCount() + (includeSelf ? 1 : 0)));
     }
 
     pagerAdapter.submitList(pages);
@@ -417,7 +423,14 @@ public class WebRtcCallView extends FrameLayout {
       visibleViewSet.add(startCallControls);
 
       startCall.setText(webRtcControls.getStartCallButtonText());
-      startCall.setEnabled(true);
+      startCall.setEnabled(webRtcControls.isStartCallEnabled());
+    }
+
+    if (webRtcControls.displayGroupCallFull()) {
+      groupCallFullStub.get().setVisibility(View.VISIBLE);
+      ((TextView) groupCallFullStub.get().findViewById(R.id.group_call_call_full_message)).setText(webRtcControls.getGroupCallFullMessage(getContext()));
+    } else if (groupCallFullStub.resolved()) {
+      groupCallFullStub.get().setVisibility(View.GONE);
     }
 
     MenuItem item = toolbar.getMenu().findItem(R.id.menu_group_call_participants_list);
@@ -501,6 +514,16 @@ public class WebRtcCallView extends FrameLayout {
 
   public @NonNull View getVideoTooltipTarget() {
     return videoToggle;
+  }
+
+  public void showSpeakerViewHint() {
+    groupCallSpeakerHint.get();
+  }
+
+  public void hideSpeakerViewHint() {
+    if (groupCallSpeakerHint.resolved()) {
+      groupCallSpeakerHint.get().setVisibility(View.GONE);
+    }
   }
 
   private void animatePipToLargeRectangle() {

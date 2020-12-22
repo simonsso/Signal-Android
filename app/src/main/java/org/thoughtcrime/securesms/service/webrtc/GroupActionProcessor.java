@@ -62,11 +62,16 @@ public class GroupActionProcessor extends DeviceAwareActionProcessor {
     GroupCall                               groupCall    = currentState.getCallInfoState().requireGroupCall();
     Map<CallParticipantId, CallParticipant> participants = currentState.getCallInfoState().getRemoteCallParticipantsMap();
 
+    LongSparseArray<GroupCall.RemoteDeviceState> remoteDevices = groupCall.getRemoteDeviceStates();
+
+    if (remoteDevices == null) {
+      Log.w(tag, "Unable to update remote devices with null list.");
+      return currentState;
+    }
+
     WebRtcServiceStateBuilder.CallInfoStateBuilder builder = currentState.builder()
                                                                          .changeCallInfoState()
                                                                          .clearParticipantMap();
-
-    LongSparseArray<GroupCall.RemoteDeviceState> remoteDevices = groupCall.getRemoteDeviceStates();
 
     for (int i = 0; i < remoteDevices.size(); i++) {
       GroupCall.RemoteDeviceState device            = remoteDevices.get(remoteDevices.keyAt(i));
@@ -92,8 +97,11 @@ public class GroupActionProcessor extends DeviceAwareActionProcessor {
                                                           Boolean.FALSE.equals(device.getAudioMuted()),
                                                           Boolean.FALSE.equals(device.getVideoMuted()),
                                                           device.getSpeakerTime(),
-                                                          device.getMediaKeysReceived()));
+                                                          device.getMediaKeysReceived(),
+                                                          device.getAddedTime()));
     }
+
+    builder.remoteDevicesCount(remoteDevices.size());
 
     return builder.build();
   }
