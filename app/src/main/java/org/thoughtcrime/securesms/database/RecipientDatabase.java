@@ -41,6 +41,7 @@ import org.thoughtcrime.securesms.recipients.RecipientId;
 import org.thoughtcrime.securesms.storage.StorageSyncHelper;
 import org.thoughtcrime.securesms.storage.StorageSyncHelper.RecordUpdate;
 import org.thoughtcrime.securesms.storage.StorageSyncModels;
+import org.thoughtcrime.securesms.tracing.Trace;
 import org.thoughtcrime.securesms.util.Base64;
 import org.thoughtcrime.securesms.util.Bitmask;
 import org.thoughtcrime.securesms.util.CursorUtil;
@@ -80,6 +81,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
+@Trace
 public class RecipientDatabase extends Database {
 
   private static final String TAG = RecipientDatabase.class.getSimpleName();
@@ -3016,6 +3018,11 @@ public class RecipientDatabase extends Database {
       }
 
       return getCurrent();
+    }
+
+    public int getCount() {
+      if (cursor != null) return cursor.getCount();
+      else                return 0;
     }
 
     public void close() {

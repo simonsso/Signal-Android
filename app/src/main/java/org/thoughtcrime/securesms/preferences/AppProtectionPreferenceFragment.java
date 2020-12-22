@@ -28,11 +28,10 @@ import androidx.preference.Preference;
 
 import com.google.android.material.snackbar.Snackbar;
 
-import org.thoughtcrime.securesms.ApplicationContext;
 import org.thoughtcrime.securesms.ApplicationPreferencesActivity;
-import org.thoughtcrime.securesms.BlockedContactsActivity;
 import org.thoughtcrime.securesms.PassphraseChangeActivity;
 import org.thoughtcrime.securesms.R;
+import org.thoughtcrime.securesms.blocked.BlockedUsersActivity;
 import org.thoughtcrime.securesms.components.SwitchPreferenceCompat;
 import org.thoughtcrime.securesms.contactshare.SimpleTextWatcher;
 import org.thoughtcrime.securesms.crypto.MasterSecretUtil;
@@ -280,7 +279,7 @@ public class AppProtectionPreferenceFragment extends CorrectedPreferenceFragment
   private class BlockedContactsClickListener implements Preference.OnPreferenceClickListener {
     @Override
     public boolean onPreferenceClick(Preference preference) {
-      Intent intent = new Intent(getActivity(), BlockedContactsActivity.class);
+      Intent intent = new Intent(getActivity(), BlockedUsersActivity.class);
       startActivity(intent);
       return true;
     }
@@ -316,7 +315,7 @@ public class AppProtectionPreferenceFragment extends CorrectedPreferenceFragment
                                                                                           SignalStore.settings().isLinkPreviewsEnabled()));
 
         if (!enabled) {
-          ApplicationContext.getInstance(requireContext()).getTypingStatusRepository().clear();
+          ApplicationDependencies.getTypingStatusRepository().clear();
         }
       });
       return true;
@@ -405,7 +404,7 @@ public class AppProtectionPreferenceFragment extends CorrectedPreferenceFragment
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setTitle(R.string.ApplicationPreferencesActivity_disable_passphrase);
         builder.setMessage(R.string.ApplicationPreferencesActivity_this_will_permanently_unlock_signal_and_message_notifications);
-        builder.setIconAttribute(R.attr.dialog_alert_icon);
+        builder.setIcon(R.drawable.ic_warning);
         builder.setPositiveButton(R.string.ApplicationPreferencesActivity_disable, (dialog, which) -> {
           MasterSecretUtil.changeMasterSecretPassphrase(getActivity(),
                                                         KeyCachingService.getMasterSecret(getContext()),

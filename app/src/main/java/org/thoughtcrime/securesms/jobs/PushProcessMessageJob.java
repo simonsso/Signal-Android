@@ -81,6 +81,7 @@ import org.thoughtcrime.securesms.sms.OutgoingEndSessionMessage;
 import org.thoughtcrime.securesms.sms.OutgoingTextMessage;
 import org.thoughtcrime.securesms.stickers.StickerLocator;
 import org.thoughtcrime.securesms.storage.StorageSyncHelper;
+import org.thoughtcrime.securesms.tracing.Trace;
 import org.thoughtcrime.securesms.util.Base64;
 import org.thoughtcrime.securesms.util.GroupUtil;
 import org.thoughtcrime.securesms.util.Hex;
@@ -88,6 +89,7 @@ import org.thoughtcrime.securesms.util.IdentityUtil;
 import org.thoughtcrime.securesms.util.MediaUtil;
 import org.thoughtcrime.securesms.util.RemoteDeleteUtil;
 import org.thoughtcrime.securesms.util.TextSecurePreferences;
+import org.thoughtcrime.securesms.util.Util;
 import org.whispersystems.libsignal.state.SessionStore;
 import org.whispersystems.libsignal.util.Pair;
 import org.whispersystems.libsignal.util.guava.Optional;
@@ -107,6 +109,7 @@ import org.whispersystems.signalservice.api.messages.calls.BusyMessage;
 import org.whispersystems.signalservice.api.messages.calls.HangupMessage;
 import org.whispersystems.signalservice.api.messages.calls.IceUpdateMessage;
 import org.whispersystems.signalservice.api.messages.calls.OfferMessage;
+import org.whispersystems.signalservice.api.messages.calls.OpaqueMessage;
 import org.whispersystems.signalservice.api.messages.calls.SignalServiceCallMessage;
 import org.whispersystems.signalservice.api.messages.multidevice.BlockedListMessage;
 import org.whispersystems.signalservice.api.messages.multidevice.ConfigurationMessage;
@@ -125,6 +128,7 @@ import org.whispersystems.signalservice.api.push.exceptions.PushNetworkException
 import java.io.IOException;
 import java.security.SecureRandom;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
@@ -133,6 +137,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
+@Trace
 public final class PushProcessMessageJob extends BaseJob {
 
   public static final String KEY          = "PushProcessJob";
@@ -419,6 +424,7 @@ public final class PushProcessMessageJob extends BaseJob {
         else if (message.getIceUpdateMessages().isPresent()) handleCallIceUpdateMessage(content, message.getIceUpdateMessages().get());
         else if (message.getHangupMessage().isPresent())     handleCallHangupMessage(content, message.getHangupMessage().get(), smsMessageId);
         else if (message.getBusyMessage().isPresent())       handleCallBusyMessage(content, message.getBusyMessage().get());
+        else if (message.getOpaqueMessage().isPresent())     handleCallOpaqueMessage(content, message.getOpaqueMessage().get());
       } else if (content.getReceiptMessage().isPresent()) {
         SignalServiceReceiptMessage message = content.getReceiptMessage().get();
 
@@ -617,6 +623,27 @@ public final class PushProcessMessageJob extends BaseJob {
           .putExtra(WebRtcCallService.EXTRA_CALL_ID,       message.getId())
           .putExtra(WebRtcCallService.EXTRA_REMOTE_PEER,   remotePeer)
           .putExtra(WebRtcCallService.EXTRA_REMOTE_DEVICE, content.getSenderDevice());
+
+    context.startService(intent);
+  }
+
+  private void handleCallOpaqueMessage(@NonNull SignalServiceContent content,
+                                       @NonNull OpaqueMessage message)
+  {
+    log(TAG, String.valueOf(content.getTimestamp()), "handleCallOpaqueMessage");
+
+    Intent intent = new Intent(context, WebRtcCallService.class);
+
+    long messageAgeSeconds = 0;
+    if (content.getServerReceivedTimestamp() > 0 && content.getServerDeliveredTimestamp() >= content.getServerReceivedTimestamp()) {
+      messageAgeSeconds = (content.getServerDeliveredTimestamp() - content.getServerReceivedTimestamp()) / 1000;
+    }
+
+    intent.setAction(WebRtcCallService.ACTION_RECEIVE_OPAQUE_MESSAGE)
+          .putExtra(WebRtcCallService.EXTRA_OPAQUE_MESSAGE, message.getOpaque())
+          .putExtra(WebRtcCallService.EXTRA_UUID, Recipient.externalHighTrustPush(context, content.getSender()).requireUuid().toString())
+          .putExtra(WebRtcCallService.EXTRA_REMOTE_DEVICE, content.getSenderDevice())
+          .putExtra(WebRtcCallService.EXTRA_MESSAGE_AGE_SECONDS, messageAgeSeconds);
 
     context.startService(intent);
   }
@@ -1515,31 +1542,37 @@ public final class PushProcessMessageJob extends BaseJob {
   private void handleDeliveryReceipt(@NonNull SignalServiceContent content,
                                      @NonNull SignalServiceReceiptMessage message)
   {
-    for (long timestamp : message.getTimestamps()) {
-      log(TAG, String.format("Received encrypted delivery receipt: (XXXXX, %d)", timestamp));
-      DatabaseFactory.getMmsSmsDatabase(context)
-                     .incrementDeliveryReceiptCount(new SyncMessageId(RecipientId.fromHighTrust(content.getSender()), timestamp), System.currentTimeMillis());
-    }
+    log(TAG, "Processing delivery receipts for IDs: " + Util.join(message.getTimestamps(), ", "));
+
+    Recipient           sender  = Recipient.externalHighTrustPush(context, content.getSender());
+    List<SyncMessageId> ids     = Stream.of(message.getTimestamps())
+                                        .map(t -> new SyncMessageId(sender.getId(), t))
+                                        .toList();
+
+    DatabaseFactory.getMmsSmsDatabase(context).incrementDeliveryReceiptCounts(ids, System.currentTimeMillis());
   }
 
   @SuppressLint("DefaultLocale")
   private void handleReadReceipt(@NonNull SignalServiceContent content,
                                  @NonNull SignalServiceReceiptMessage message)
   {
-    if (TextSecurePreferences.isReadReceiptsEnabled(context)) {
-      for (long timestamp : message.getTimestamps()) {
-        log(TAG, String.format("Received encrypted read receipt: (XXXXX, %d)", timestamp));
+    if (!TextSecurePreferences.isReadReceiptsEnabled(context)) {
+      log(TAG, "Ignoring read receipts for IDs: " + Util.join(message.getTimestamps(), ", "));
+      return;
+    }
 
-        Recipient     sender  = Recipient.externalHighTrustPush(context, content.getSender());
-        SyncMessageId id      = new SyncMessageId(sender.getId(), timestamp);
-        boolean       handled = DatabaseFactory.getMmsSmsDatabase(context)
-                                               .incrementReadReceiptCount(id, content.getTimestamp());
+    log(TAG, "Processing read receipts for IDs: " + Util.join(message.getTimestamps(), ", "));
 
-        if (!handled) {
-          warn(TAG, String.valueOf(content.getTimestamp()), "[handleReadReceipt] Could not find matching message! timestamp: " + timestamp + "  author: " + sender.getId());
-          ApplicationDependencies.getEarlyMessageCache().store(sender.getId(), timestamp, content);
-        }
-      }
+    Recipient           sender  = Recipient.externalHighTrustPush(context, content.getSender());
+    List<SyncMessageId> ids     = Stream.of(message.getTimestamps())
+                                        .map(t -> new SyncMessageId(sender.getId(), t))
+                                        .toList();
+
+    Collection<SyncMessageId> unhandled = DatabaseFactory.getMmsSmsDatabase(context).incrementReadReceiptCounts(ids, content.getTimestamp());
+
+    for (SyncMessageId id : unhandled) {
+      warn(TAG, String.valueOf(content.getTimestamp()), "[handleReadReceipt] Could not find matching message! timestamp: " + id.getTimetamp() + "  author: " + sender.getId());
+      ApplicationDependencies.getEarlyMessageCache().store(sender.getId(), id.getTimetamp(), content);
     }
   }
 
@@ -1577,10 +1610,10 @@ public final class PushProcessMessageJob extends BaseJob {
 
     if (typingMessage.isTypingStarted()) {
       Log.d(TAG, "Typing started on thread " + threadId);
-      ApplicationContext.getInstance(context).getTypingStatusRepository().onTypingStarted(context,threadId, author, content.getSenderDevice());
+      ApplicationDependencies.getTypingStatusRepository().onTypingStarted(context,threadId, author, content.getSenderDevice());
     } else {
       Log.d(TAG, "Typing stopped on thread " + threadId);
-      ApplicationContext.getInstance(context).getTypingStatusRepository().onTypingStopped(context, threadId, author, content.getSenderDevice(), false);
+      ApplicationDependencies.getTypingStatusRepository().onTypingStopped(context, threadId, author, content.getSenderDevice(), false);
     }
   }
 
@@ -1801,7 +1834,7 @@ public final class PushProcessMessageJob extends BaseJob {
 
     if (threadId > 0) {
       Log.d(TAG, "Typing stopped on thread " + threadId + " due to an incoming message.");
-      ApplicationContext.getInstance(context).getTypingStatusRepository().onTypingStopped(context, threadId, author, device, true);
+      ApplicationDependencies.getTypingStatusRepository().onTypingStopped(context, threadId, author, device, true);
     }
   }
 

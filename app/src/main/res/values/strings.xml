@@ -97,8 +97,18 @@
     <!-- AudioSlidePlayer -->
     <string name="AudioSlidePlayer_error_playing_audio">Error playing audio!</string>
 
-    <!-- BlockedContactsActivity -->
-    <string name="BlockedContactsActivity_blocked_contacts">Blocked contacts</string>
+    <!-- BlockedUsersActivity -->
+    <string name="BlockedUsersActivity__blocked_users">Blocked users</string>
+    <string name="BlockedUsersActivity__add_blocked_user">Add blocked user</string>
+    <string name="BlockedUsersActivity__blocked_users_will">Blocked users will not be able to call you or send you messages.</string>
+    <string name="BlockedUsersActivity__no_blocked_users">No blocked users</string>
+    <string name="BlockedUsersActivity__block_user">Block user?</string>
+    <string name="BlockedUserActivity__s_will_not_be_able_to">\"%1$s\" will not be able to call you or send you messages.</string>
+    <string name="BlockedUsersActivity__block">Block</string>
+    <string name="BlockedUsersActivity__unblock_user">Unblock user?</string>
+    <string name="BlockedUsersActivity__do_you_want_to_unblock_s">Do you want to unblock \"%1$s\"?</string>
+    <string name="BlockedUsersActivity__unblock">Unblock</string>
+
 
     <!-- BlockUnblockDialog -->
     <string name="BlockUnblockDialog_block_and_leave_s">Block and leave %1$s?</string>
@@ -554,6 +564,39 @@
     <plurals name="GroupsV1MigrationLearnMore_these_members_are_not_capable_of_joining_new_groups">
         <item quantity="one">This member is not capable of joining New Groups, and has been removed from the group:</item>
         <item quantity="other">These members are not capable of joining New Groups, and have been removed from the group:</item>
+    </plurals>
+
+    <!-- GroupsV1MigrationSuggestionsReminder -->
+    <plurals name="GroupsV1MigrationSuggestionsReminder_members_couldnt_be_added_to_the_new_group">
+        <item quantity="one">%1$d member couldn\'t be re-added to the New Group. Do you want to add them now?</item>
+        <item quantity="other">%1$d members couldn\'t be re-added to the New Group. Do you want to add them now?</item>
+    </plurals>
+    <plurals name="GroupsV1MigrationSuggestionsReminder_add_members">
+        <item quantity="one">Add member</item>
+        <item quantity="other">Add members</item>
+    </plurals>
+    <string name="GroupsV1MigrationSuggestionsReminder_not_now">Not now</string>
+
+    <!-- GroupsV1MigrationSuggestionsDialog -->
+    <plurals name="GroupsV1MigrationSuggestionsDialog_add_members_question">
+        <item quantity="one">Add member?</item>
+        <item quantity="other">Add members?</item>
+    </plurals>
+    <plurals name="GroupsV1MigrationSuggestionsDialog_these_members_couldnt_be_automatically_added">
+        <item quantity="one">This member couldn\'t be automatically added to the New Group when it was upgraded:</item>
+        <item quantity="other">These members couldn\'t be automatically added to the New Group when it was upgraded:</item>
+    </plurals>
+    <plurals name="GroupsV1MigrationSuggestionsDialog_add_members">
+        <item quantity="one">Add member</item>
+        <item quantity="other">Add members</item>
+    </plurals>
+    <plurals name="GroupsV1MigrationSuggestionsDialog_failed_to_add_members_try_again_later">
+        <item quantity="one">Failed to add member. Try again later.</item>
+        <item quantity="other">Failed to add members. Try again later.</item>
+    </plurals>
+    <plurals name="GroupsV1MigrationSuggestionsDialog_cannot_add_members">
+        <item quantity="one">Cannot add member.</item>
+        <item quantity="other">Cannot add members.</item>
     </plurals>
 
     <!-- LeaveGroupDialog -->
@@ -1289,9 +1332,23 @@
     <string name="WebRtcCallView__signal_voice_call">Signal voice call…</string>
     <string name="WebRtcCallView__signal_video_call">Signal video call…</string>
     <string name="WebRtcCallView__start_call">Start Call</string>
-    <string name="WebRtcCallView__group_call">Group Call</string>
+    <string name="WebRtcCallView__join_call">Join Call</string>
+    <string name="WebRtcCallView__s_group_call">\"%1$s\" Group Call</string>
     <string name="WebRtcCallView__view_participants_list">View participants</string>
     <string name="WebRtcCallView__your_video_is_off">Your video is off</string>
+    <string name="WebRtcCallView__connecting">Connecting…</string>
+    <string name="WebRtcCallView__reconnecting">Reconnecting…</string>
+    <string name="WebRtcCallView__joining">Joining…</string>
+    <string name="WebRtcCallView__disconnected">Disconnected</string>
+
+    <string name="WebRtcCallView__no_one_else_is_here">No one else is here</string>
+    <string name="WebRtcCallView__s_is_in_this_call">%1$s is in this call</string>
+    <string name="WebRtcCallView__s_and_s_are_in_this_call">%1$s and %2$s are in this call</string>
+
+    <plurals name="WebRtcCallView__s_s_and_d_others_are_in_this_call">
+        <item quantity="one">%1$s, %2$s, and %3$d other are in this call</item>
+        <item quantity="other">%1$s, %2$s, and %3$d others are in this call</item>
+    </plurals>
 
     <!-- CallParticipantsListDialog -->
     <plurals name="CallParticipantsListDialog_in_this_call_d_people">
@@ -2220,7 +2277,7 @@
     <string name="preferences__typing_indicators">Typing indicators</string>
     <string name="preferences__if_typing_indicators_are_disabled_you_wont_be_able_to_see_typing_indicators">If typing indicators are disabled, you won\'t be able to see typing indicators from others.</string>
     <string name="preferences__request_keyboard_to_disable_personalized_learning">Request keyboard to disable personalized learning</string>
-    <string name="preferences_app_protection__blocked_contacts">Blocked contacts</string>
+    <string name="preferences_app_protection__blocked_users">Blocked users</string>
     <string name="preferences_chats__when_using_mobile_data">When using mobile data</string>
     <string name="preferences_chats__when_using_wifi">When using Wi-Fi</string>
     <string name="preferences_chats__when_roaming">When roaming</string>
@@ -2318,6 +2375,7 @@
 
     <!-- contact_selection_list -->
     <string name="contact_selection_list__unknown_contact">New message to…</string>
+    <string name="contact_selection_list__unknown_contact_block">Block user</string>
     <string name="contact_selection_list__unknown_contact_add_to_group">Add to group</string>
 
     <!-- conversation_callable_insecure -->
@@ -2791,6 +2849,9 @@
 
     <!-- StorageUtil -->
     <string name="StorageUtil__s_s">%1$s/%2$s</string>
+    <string name="BlockedUsersActivity__s_has_been_blocked">\"%1$s\" has been blocked.</string>
+    <string name="BlockedUsersActivity__failed_to_block_s">Failed to block \"%1$s\"</string>
+    <string name="BlockedUsersActivity__s_has_been_unblocked">\"%1$s\" has been unblocked.</string>
 
     <!-- ReviewCardDialogFragment -->
     <string name="ReviewCardDialogFragment__review_members">Review Members</string>
