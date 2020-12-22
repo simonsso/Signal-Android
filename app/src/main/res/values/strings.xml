@@ -473,6 +473,13 @@
     <!-- DocumentView -->
     <string name="DocumentView_unnamed_file">Unnamed file</string>
 
+
+    <!-- DonateMegaphone -->
+    <string name="DonateMegaphone_donate_to_signal">Donate to Signal</string>
+    <string name="DonateMegaphone_Signal_is_powered_by_people_like_you_show_your_support_today">Signal is powered by people like you. Show your support today!</string>
+    <string name="DonateMegaphone_donate">Donate</string>
+    <string name="DonateMegaphone_not_now">Not Now</string>
+
     <!-- DozeReminder -->
     <string name="DozeReminder_optimize_for_missing_play_services">Optimize for missing Play Services</string>
     <string name="DozeReminder_this_device_does_not_support_play_services_tap_to_disable_system_battery">This device does not support Play Services. Tap to disable system battery optimizations that prevent Signal from retrieving messages while inactive.</string>
@@ -2379,6 +2386,9 @@
     <string name="preferences__internal_network" translatable="false">Network</string>
     <string name="preferences__internal_force_censorship" translatable="false">Force censorship</string>
     <string name="preferences__internal_force_censorship_description" translatable="false">Force the app to behave as if it is in a country where Signal is censored.</string>
+    <string name="preferences__internal_conversations_and_shortcuts">Conversations and Shortcuts</string>
+    <string name="preferences__internal_delete_all_dynamic_shortcuts">Delete all dynamic shortcuts</string>
+    <string name="preferences__internal_click_to_delete_all_dynamic_shortcuts">Click to delete all dynamic shortcuts</string>
 
     <!-- **************************************** -->
     <!-- menus -->
