@@ -365,7 +365,7 @@ public class MmsDatabase extends MessageDatabase {
   }
 
   @Override
-  public void markAsMissedCall(long id) {
+  public void markAsMissedCall(long id, boolean isVideoOffer) {
     throw new UnsupportedOperationException();
   }
 
@@ -390,7 +390,7 @@ public class MmsDatabase extends MessageDatabase {
   }
 
   @Override
-  public @NonNull Pair<Long, Long> insertMissedCall(@NonNull RecipientId address, long timestamp) {
+  public @NonNull Pair<Long, Long> insertMissedCall(@NonNull RecipientId address, long timestamp, boolean isVideoOffer) {
     throw new UnsupportedOperationException();
   }
 
@@ -411,6 +411,11 @@ public class MmsDatabase extends MessageDatabase {
 
   @Override
   public void insertProfileNameChangeMessages(@NonNull Recipient recipient, @NonNull String newProfileName, @NonNull String previousProfileName) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void insertGroupV1MigrationEvents(@NonNull RecipientId recipientId, long threadId, List<RecipientId> pendingRecipients) {
     throw new UnsupportedOperationException();
   }
 
@@ -588,7 +593,7 @@ public class MmsDatabase extends MessageDatabase {
 
   private long getThreadIdFor(@NonNull IncomingMediaMessage retrieved) {
     if (retrieved.getGroupId() != null) {
-      RecipientId groupRecipientId = DatabaseFactory.getRecipientDatabase(context).getOrInsertFromGroupId(retrieved.getGroupId());
+      RecipientId groupRecipientId = DatabaseFactory.getRecipientDatabase(context).getOrInsertFromPossiblyMigratedGroupId(retrieved.getGroupId());
       Recipient   groupRecipients  = Recipient.resolved(groupRecipientId);
       return DatabaseFactory.getThreadDatabase(context).getThreadIdFor(groupRecipients);
     } else {
@@ -1578,6 +1583,11 @@ public class MmsDatabase extends MessageDatabase {
   }
 
   @Override
+  public List<MessageRecord> getProfileChangeDetailsRecords(long threadId, long afterTimestamp) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
   void deleteThreads(@NonNull Set<Long> threadIds) {
     SQLiteDatabase db = databaseHelper.getWritableDatabase();
     String where      = "";
@@ -1616,23 +1626,6 @@ public class MmsDatabase extends MessageDatabase {
     String         where = THREAD_ID + " NOT IN (SELECT _id FROM " + ThreadDatabase.TABLE_NAME + ")";
 
     db.delete(TABLE_NAME, where, null);
-  }
-
-  @Override
-  public List<MessageRecord> getMessagesInThreadBeforeExclusive(long threadId, long timestamp, long limit) {
-    String   where = TABLE_NAME + "." + MmsSmsColumns.THREAD_ID + " = ? AND " +
-                     TABLE_NAME + "." + getDateReceivedColumnName() + " < ?";
-    String[] args  = SqlUtil.buildArgs(threadId, timestamp);
-
-    try (Reader reader = readerFor(rawQuery(where, args, true, limit))) {
-      List<MessageRecord> results = new ArrayList<>(reader.cursor.getCount());
-
-      while (reader.getNext() != null) {
-        results.add(reader.getCurrent());
-      }
-
-      return results;
-    }
   }
 
   @Override

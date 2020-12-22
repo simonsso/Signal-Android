@@ -234,10 +234,30 @@ public class Recipient {
   /**
    * A version of {@link #external(Context, String)} that should be used when you know the
    * identifier is a groupId.
+   *
+   * Important: This will throw an exception if the groupId you're using could have been migrated.
+   * If you're dealing with inbound data, you should be using
+   * {@link #externalPossiblyMigratedGroup(Context, GroupId)}, or checking the database before
+   * calling this method.
    */
   @WorkerThread
-  public static @NonNull Recipient externalGroup(@NonNull Context context, @NonNull GroupId groupId) {
+  public static @NonNull Recipient externalGroupExact(@NonNull Context context, @NonNull GroupId groupId) {
     return Recipient.resolved(DatabaseFactory.getRecipientDatabase(context).getOrInsertFromGroupId(groupId));
+  }
+
+  /**
+   * Will give you one of:
+   * - The recipient that matches the groupId specified exactly
+   * - The recipient whose V1 ID would map to the provided V2 ID
+   * - The recipient whose V2 ID would be derived from the provided V1 ID
+   * - A newly-created recipient for the provided ID if none of the above match
+   *
+   * Important: You could get back a recipient with a different groupId than the one you provided.
+   * You should be very cautious when using the groupId on the returned recipient.
+   */
+  @WorkerThread
+  public static @NonNull Recipient externalPossiblyMigratedGroup(@NonNull Context context, @NonNull GroupId groupId) {
+    return Recipient.resolved(DatabaseFactory.getRecipientDatabase(context).getOrInsertFromPossiblyMigratedGroupId(groupId));
   }
 
   /**
@@ -398,7 +418,7 @@ public class Recipient {
   public @NonNull String getDisplayName(@NonNull Context context) {
     String name = Util.getFirstNonEmpty(getName(context),
                                         getProfileName().toString(),
-                                        e164,
+                                        PhoneNumberFormatter.prettyPrint(e164),
                                         email,
                                         context.getString(R.string.Recipient_unknown));
 
@@ -408,7 +428,7 @@ public class Recipient {
   public @NonNull String getDisplayNameOrUsername(@NonNull Context context) {
     String name = Util.getFirstNonEmpty(getName(context),
                                         getProfileName().toString(),
-                                        e164,
+                                        PhoneNumberFormatter.prettyPrint(e164),
                                         email,
                                         username,
                                         context.getString(R.string.Recipient_unknown));
@@ -419,7 +439,7 @@ public class Recipient {
   public @NonNull String getMentionDisplayName(@NonNull Context context) {
     String name = Util.getFirstNonEmpty(isSelf ? getProfileName().toString() : getName(context),
                                         isSelf ? getName(context) : getProfileName().toString(),
-                                        e164,
+                                        PhoneNumberFormatter.prettyPrint(e164),
                                         email,
                                         context.getString(R.string.Recipient_unknown));
 

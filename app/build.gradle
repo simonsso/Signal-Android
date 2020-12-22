@@ -15,7 +15,7 @@ buildscript {
         }
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.6.3'
+        classpath 'com.android.tools.build:gradle:4.1.0'
         classpath 'androidx.navigation:navigation-safe-args-gradle-plugin:2.1.0'
         classpath 'com.google.protobuf:protobuf-gradle-plugin:0.8.10'
     }
@@ -80,8 +80,8 @@ protobuf {
     }
 }
 
-def canonicalVersionCode = 732
-def canonicalVersionName = "4.75.8"
+def canonicalVersionCode = 733
+def canonicalVersionName = "4.76.0"
 
 def postFixSize = 10
 def abiPostFix = ['universal'   : 0,
@@ -90,8 +90,10 @@ def abiPostFix = ['universal'   : 0,
                   'x86'         : 3,
                   'x86_64'      : 4]
 
+def keystores = [ 'debug'  : loadKeystoreProperties('keystore.debug.properties') ]
+
 android {
-    flavorDimensions "none"
+    flavorDimensions 'distribution', 'environment'
     compileSdkVersion 29
     buildToolsVersion '29.0.3'
     useLibrary 'org.apache.http.legacy'
@@ -101,11 +103,13 @@ android {
     }
 
     signingConfigs {
-        staging {
-            storeFile file("${project.rootDir}/dev.keystore")
-            storePassword 'android'
-            keyAlias 'staging'
-            keyPassword 'android'
+        if (keystores.debug != null) {
+            debug {
+                storeFile file("${project.rootDir}/${keystores.debug.storeFile}")
+                storePassword keystores.debug.storePassword
+                keyAlias keystores.debug.keyAlias
+                keyPassword keystores.debug.keyPassword
+            }
         }
     }
 
@@ -180,6 +184,10 @@ android {
 
     buildTypes {
         debug {
+            if (keystores['debug'] != null) {
+                signingConfig signingConfigs.debug
+            }
+            isDefault true
             minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android.txt'),
                     'proguard/proguard-firebase-messaging.pro',
@@ -203,10 +211,50 @@ android {
             testProguardFiles 'proguard/proguard-automation.pro',
                     'proguard/proguard.cfg'
         }
-        staging {
+        flipper {
             initWith debug
+            isDefault false
+            minifyEnabled false
+        }
+        release {
+            minifyEnabled true
+            proguardFiles = buildTypes.debug.proguardFiles
+        }
+    }
+
+    productFlavors {
+        play {
+            dimension 'distribution'
+            isDefault true
+            ext.websiteUpdateUrl = "null"
+            buildConfigField "boolean", "PLAY_STORE_DISABLED", "false"
+            buildConfigField "String", "NOPLAY_UPDATE_URL", "$ext.websiteUpdateUrl"
+        }
+
+        website {
+            dimension 'distribution'
+            ext.websiteUpdateUrl = "https://updates.signal.org/android"
+            buildConfigField "boolean", "PLAY_STORE_DISABLED", "true"
+            buildConfigField "String", "NOPLAY_UPDATE_URL", "\"$ext.websiteUpdateUrl\""
+        }
+
+        internal {
+            dimension 'distribution'
+            ext.websiteUpdateUrl = "null"
+            buildConfigField "boolean", "PLAY_STORE_DISABLED", "false"
+            buildConfigField "String", "NOPLAY_UPDATE_URL", "$ext.websiteUpdateUrl"
+        }
+
+        prod {
+            dimension 'environment'
+
+            isDefault true
+        }
+
+        staging {
+            dimension 'environment'
+
             applicationIdSuffix ".staging"
-            signingConfig signingConfigs.staging
 
             buildConfigField "String", "SIGNAL_URL", "\"https://textsecure-service-staging.whispersystems.org\""
             buildConfigField "String", "STORAGE_URL", "\"https://storage-staging.signal.org\""
@@ -221,37 +269,6 @@ android {
             buildConfigField "KbsEnclave[]", "KBS_FALLBACKS", "new KbsEnclave[0]"
             buildConfigField "String", "UNIDENTIFIED_SENDER_TRUST_ROOT", "\"BbqY1DzohE4NUZoVF+L18oUPrK3kILllLEJh2UnPSsEx\""
             buildConfigField "String", "ZKGROUP_SERVER_PUBLIC_PARAMS", "\"ABSY21VckQcbSXVNCGRYJcfWHiAMZmpTtTELcDmxgdFbtp/bWsSxZdMKzfCp8rvIs8ocCU3B37fT3r4Mi5qAemeGeR2X+/YmOGR5ofui7tD5mDQfstAI9i+4WpMtIe8KC3wU5w3Inq3uNWVmoGtpKndsNfwJrCg0Hd9zmObhypUnSkfYn2ooMOOnBpfdanRtrvetZUayDMSC5iSRcXKpdls=\""
-        }
-        flipper {
-            initWith debug
-            minifyEnabled false
-        }
-        release {
-            minifyEnabled true
-            proguardFiles = buildTypes.debug.proguardFiles
-        }
-    }
-
-    productFlavors {
-        play {
-            dimension "none"
-            ext.websiteUpdateUrl = "null"
-            buildConfigField "boolean", "PLAY_STORE_DISABLED", "false"
-            buildConfigField "String", "NOPLAY_UPDATE_URL", "$ext.websiteUpdateUrl"
-        }
-
-        website {
-            dimension "none"
-            ext.websiteUpdateUrl = "https://updates.signal.org/android"
-            buildConfigField "boolean", "PLAY_STORE_DISABLED", "true"
-            buildConfigField "String", "NOPLAY_UPDATE_URL", "\"$ext.websiteUpdateUrl\""
-        }
-
-        internal {
-            dimension "none"
-            ext.websiteUpdateUrl = "null"
-            buildConfigField "boolean", "PLAY_STORE_DISABLED", "false"
-            buildConfigField "String", "NOPLAY_UPDATE_URL", "$ext.websiteUpdateUrl"
         }
     }
 
@@ -404,7 +421,7 @@ dependencies {
 }
 
 dependencyVerification {
-    configuration = '(play|website)(Debug|Release)RuntimeClasspath'
+    configuration = '(play|website)(Prod|Staging)(Debug|Release)RuntimeClasspath'
 }
 
 
@@ -451,13 +468,13 @@ def signProductionRelease = { variant ->
 
 task signProductionPlayRelease {
     doLast {
-        signProductionRelease(android.applicationVariants.find { (it.name == 'playRelease') })
+        signProductionRelease(android.applicationVariants.find { (it.name == 'playProdRelease') })
     }
 }
 
 task signProductionInternalRelease {
     doLast {
-        signProductionRelease(android.applicationVariants.find { (it.name == 'internalRelease') })
+        signProductionRelease(android.applicationVariants.find { (it.name == 'internalProdRelease') })
     }
 }
 
@@ -488,5 +505,16 @@ tasks.withType(Test) {
         showCauses true
         showExceptions true
         showStackTraces true
+    }
+}
+
+def loadKeystoreProperties(filename) {
+    def keystorePropertiesFile = file("${project.rootDir}/${filename}")
+    if (keystorePropertiesFile.exists()) {
+        def keystoreProperties = new Properties()
+        keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+        return keystoreProperties;
+    } else {
+        return null;
     }
 }
