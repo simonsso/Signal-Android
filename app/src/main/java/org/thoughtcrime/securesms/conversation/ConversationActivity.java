@@ -44,6 +44,7 @@ import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
 import android.text.TextWatcher;
+import android.view.Display;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -190,6 +191,7 @@ import org.thoughtcrime.securesms.mediasend.Media;
 import org.thoughtcrime.securesms.mediasend.MediaSendActivity;
 import org.thoughtcrime.securesms.mediasend.MediaSendActivityResult;
 import org.thoughtcrime.securesms.messagedetails.MessageDetailsActivity;
+import org.thoughtcrime.securesms.messagerequests.MessageRequestState;
 import org.thoughtcrime.securesms.messagerequests.MessageRequestViewModel;
 import org.thoughtcrime.securesms.messagerequests.MessageRequestsBottomView;
 import org.thoughtcrime.securesms.mms.AttachmentManager;
@@ -240,6 +242,7 @@ import org.thoughtcrime.securesms.tracing.Trace;
 import org.thoughtcrime.securesms.util.AsynchronousCallback;
 import org.thoughtcrime.securesms.util.Base64;
 import org.thoughtcrime.securesms.util.BitmapUtil;
+import org.thoughtcrime.securesms.util.BubbleUtil;
 import org.thoughtcrime.securesms.util.CharacterCalculator.CharacterState;
 import org.thoughtcrime.securesms.util.CommunicationActions;
 import org.thoughtcrime.securesms.util.ContextUtil;
@@ -319,15 +322,6 @@ public class ConversationActivity extends PassphraseRequiredActivity
 
   private static final String STATE_REACT_WITH_ANY_PAGE = "STATE_REACT_WITH_ANY_PAGE";
 
-  public static final String RECIPIENT_EXTRA                   = "recipient_id";
-  public static final String THREAD_ID_EXTRA                   = "thread_id";
-  public static final String TEXT_EXTRA                        = "draft_text";
-  public static final String MEDIA_EXTRA                       = "media_list";
-  public static final String STICKER_EXTRA                     = "sticker_extra";
-  public static final String BORDERLESS_EXTRA                  = "borderless_extra";
-  public static final String DISTRIBUTION_TYPE_EXTRA           = "distribution_type";
-  public static final String STARTING_POSITION_EXTRA           = "starting_position";
-
   private static final int PICK_GALLERY        = 1;
   private static final int PICK_DOCUMENT       = 2;
   private static final int PICK_AUDIO          = 3;
@@ -397,35 +391,6 @@ public class ConversationActivity extends PassphraseRequiredActivity
   private final DynamicTheme       dynamicTheme    = new DynamicDarkToolbarTheme();
   private final DynamicLanguage    dynamicLanguage = new DynamicLanguage();
 
-  public static @NonNull Intent buildIntent(@NonNull Context context,
-                                            @NonNull RecipientId recipientId,
-                                            long threadId,
-                                            int distributionType,
-                                            int startingPosition)
-  {
-    Intent intent = buildIntent(context, recipientId, threadId);
-    intent.putExtra(ConversationActivity.DISTRIBUTION_TYPE_EXTRA, distributionType);
-    intent.putExtra(ConversationActivity.STARTING_POSITION_EXTRA, startingPosition);
-
-    return intent;
-  }
-
-  public static @NonNull Intent buildIntent(@NonNull Context context,
-                                            @NonNull RecipientId recipientId,
-                                            long threadId)
-  {
-    Intent intent = new Intent(context, ConversationActivity.class);
-    intent.putExtra(ConversationActivity.RECIPIENT_EXTRA, recipientId.serialize());
-    intent.putExtra(ConversationActivity.THREAD_ID_EXTRA, threadId);
-    intent.setAction(Intent.ACTION_DEFAULT);
-
-    return intent;
-  }
-
-  public static @NonNull RecipientId getRecipientId(@NonNull Intent intent) {
-    return RecipientId.from(Objects.requireNonNull(intent.getStringExtra(RECIPIENT_EXTRA)));
-  }
-
   @Override
   protected void onPreCreate() {
     dynamicTheme.onCreate(this);
@@ -434,7 +399,7 @@ public class ConversationActivity extends PassphraseRequiredActivity
 
   @Override
   protected void onCreate(Bundle state, boolean ready) {
-    if (getIntent().getStringExtra(RECIPIENT_EXTRA) == null) {
+    if (ConversationIntents.isInvalid(getIntent())) {
       Log.w(TAG, "[onCreate] Missing recipientId!");
       // TODO [greyson] Navigation
       startActivity(new Intent(this, MainActivity.class));
@@ -442,9 +407,9 @@ public class ConversationActivity extends PassphraseRequiredActivity
       return;
     }
 
-    RecipientId recipientId = getRecipientId(getIntent());
+    ConversationIntents.Args args = ConversationIntents.Args.from(getIntent());
 
-    reportShortcutLaunch(recipientId);
+    reportShortcutLaunch(args.getRecipientId());
     setContentView(R.layout.conversation_activity);
 
     getWindow().getDecorView().setBackgroundResource(R.color.signal_background_primary);
@@ -454,11 +419,11 @@ public class ConversationActivity extends PassphraseRequiredActivity
     initializeReceivers();
     initializeActionBar();
     initializeViews();
-    initializeResources();
+    initializeResources(args);
     initializeLinkPreviewObserver();
     initializeSearchObserver();
     initializeStickerObserver();
-    initializeViewModel();
+    initializeViewModel(args);
     initializeGroupViewModel();
     initializeMentionsViewModel();
     initializeEnabledCheck();
@@ -469,7 +434,7 @@ public class ConversationActivity extends PassphraseRequiredActivity
       public void onSuccess(Boolean result) {
         initializeProfiles();
         initializeGv1Migration();
-        initializeDraft().addListener(new AssertedSuccessListener<Boolean>() {
+        initializeDraft(args).addListener(new AssertedSuccessListener<Boolean>() {
           @Override
           public void onSuccess(Boolean loadedDraft) {
             if (loadedDraft != null && loadedDraft) {
@@ -512,9 +477,7 @@ public class ConversationActivity extends PassphraseRequiredActivity
       silentlySetComposeText("");
     }
 
-    RecipientId recipientId = getRecipientId(intent);
-
-    if (recipientId == null) {
+    if (ConversationIntents.isInvalid(intent)) {
       Log.w(TAG, "[onNewIntent] Missing recipientId!");
       // TODO [greyson] Navigation
       startActivity(new Intent(this, MainActivity.class));
@@ -522,13 +485,16 @@ public class ConversationActivity extends PassphraseRequiredActivity
       return;
     }
 
-    reportShortcutLaunch(recipientId);
     setIntent(intent);
-    initializeResources();
+
+    viewModel.setArgs(ConversationIntents.Args.from(intent));
+
+    reportShortcutLaunch(viewModel.getArgs().getRecipientId());
+    initializeResources(viewModel.getArgs());
     initializeSecurity(recipient.get().isRegistered(), isDefaultSms).addListener(new AssertedSuccessListener<Boolean>() {
       @Override
       public void onSuccess(Boolean result) {
-        initializeDraft();
+        initializeDraft(viewModel.getArgs());
       }
     });
 
@@ -566,15 +532,17 @@ public class ConversationActivity extends PassphraseRequiredActivity
                              .enqueue();
     }
 
-    ApplicationDependencies.getMessageNotifier().setVisibleThread(threadId);
-
+    setVisibleThread(threadId);
     ConversationUtil.pushShortcutForRecipient(getApplicationContext(), recipientSnapshot);
   }
 
   @Override
   protected void onPause() {
     super.onPause();
-    ApplicationDependencies.getMessageNotifier().clearVisibleThread();
+    if (!isInBubble()) {
+      ApplicationDependencies.getMessageNotifier().clearVisibleThread();
+    }
+
     if (isFinishing()) overridePendingTransition(R.anim.fade_scale_in, R.anim.slide_to_end);
     inputPanel.onPause();
 
@@ -753,6 +721,12 @@ public class ConversationActivity extends PassphraseRequiredActivity
     reactWithAnyEmojiStartPage = savedInstanceState.getInt(STATE_REACT_WITH_ANY_PAGE, 0);
   }
 
+  private void setVisibleThread(long threadId) {
+    if (!isInBubble()) {
+      ApplicationDependencies.getMessageNotifier().setVisibleThread(threadId);
+    }
+  }
+
   private void reportShortcutLaunch(@NonNull RecipientId recipientId) {
     if (Build.VERSION.SDK_INT < ConversationUtil.CONVERSATION_SUPPORT_VERSION) {
       return;
@@ -906,6 +880,15 @@ public class ConversationActivity extends PassphraseRequiredActivity
       hideMenuItem(menu, R.id.menu_conversation_settings);
     }
 
+    hideMenuItem(menu, R.id.menu_create_bubble);
+    viewModel.canShowAsBubble().observe(this, canShowAsBubble -> {
+      MenuItem item = menu.findItem(R.id.menu_create_bubble);
+
+      if (item != null) {
+        item.setVisible(canShowAsBubble && !isInBubble());
+      }
+    });
+
     searchViewItem = menu.findItem(R.id.menu_search);
 
     SearchView                     searchView    = (SearchView) searchViewItem.getActionView();
@@ -984,6 +967,7 @@ public class ConversationActivity extends PassphraseRequiredActivity
     case R.id.menu_conversation_settings:     handleConversationSettings();                      return true;
     case R.id.menu_expiring_messages_off:
     case R.id.menu_expiring_messages:         handleSelectMessageExpiration();                   return true;
+    case R.id.menu_create_bubble:             handleCreateBubble();                              return true;
     case android.R.id.home:                   onNavigateUp();                                    return true;
     }
 
@@ -1256,6 +1240,13 @@ public class ConversationActivity extends PassphraseRequiredActivity
 
   }
 
+  private void handleCreateBubble() {
+    ConversationIntents.Args args = viewModel.getArgs();
+
+    BubbleUtil.displayAsBubble(this, args.getRecipientId(), args.getThreadId());
+    finish();
+  }
+
   private static void addIconToHomeScreen(@NonNull Context context,
                                           @NonNull Bitmap bitmap,
                                           @NonNull Recipient recipient)
@@ -1453,16 +1444,16 @@ public class ConversationActivity extends PassphraseRequiredActivity
 
   ///// Initializers
 
-  private ListenableFuture<Boolean> initializeDraft() {
+  private ListenableFuture<Boolean> initializeDraft(@NonNull ConversationIntents.Args args) {
     final SettableFuture<Boolean> result = new SettableFuture<>();
 
-    final CharSequence   draftText        = getIntent().getCharSequenceExtra(TEXT_EXTRA);
+    final CharSequence   draftText        = args.getDraftText();
     final Uri            draftMedia       = getIntent().getData();
     final String         draftContentType = getIntent().getType();
     final MediaType      draftMediaType   = MediaType.from(draftContentType);
-    final List<Media>    mediaList        = getIntent().getParcelableArrayListExtra(MEDIA_EXTRA);
-    final StickerLocator stickerLocator   = getIntent().getParcelableExtra(STICKER_EXTRA);
-    final boolean        borderless       = getIntent().getBooleanExtra(BORDERLESS_EXTRA, false);
+    final List<Media>    mediaList        = args.getMedia();
+    final StickerLocator stickerLocator   = args.getStickerLocator();
+    final boolean        borderless       = args.isBorderless();
 
     if (stickerLocator != null && draftMedia != null) {
       Log.d(TAG, "Handling shared sticker.");
@@ -1969,16 +1960,31 @@ public class ConversationActivity extends PassphraseRequiredActivity
 
     supportActionBar.setDisplayHomeAsUpEnabled(true);
     supportActionBar.setDisplayShowTitleEnabled(false);
+
+    if (isInBubble()) {
+      supportActionBar.setHomeAsUpIndicator(ContextCompat.getDrawable(this, R.drawable.ic_notification));
+      toolbar.setNavigationOnClickListener(unused -> startActivity(new Intent(Intent.ACTION_MAIN).setClass(this, MainActivity.class)));
+    }
   }
 
-  private void initializeResources() {
+  private boolean isInBubble() {
+    if (Build.VERSION.SDK_INT >= ConversationUtil.CONVERSATION_SUPPORT_VERSION) {
+      Display display = getDisplay();
+
+      return display != null && display.getDisplayId() != Display.DEFAULT_DISPLAY;
+    } else {
+      return false;
+    }
+  }
+
+  private void initializeResources(@NonNull ConversationIntents.Args args) {
     if (recipient != null) {
       recipient.removeObservers(this);
     }
 
-    recipient        = Recipient.live(getRecipientId(getIntent()));
-    threadId         = getIntent().getLongExtra(THREAD_ID_EXTRA, -1);
-    distributionType = getIntent().getIntExtra(DISTRIBUTION_TYPE_EXTRA, ThreadDatabase.DistributionTypes.DEFAULT);
+    recipient        = Recipient.live(args.getRecipientId());
+    threadId         = args.getThreadId();
+    distributionType = args.getDistributionType();
     glideRequests    = GlideApp.with(this);
 
     recipient.observe(this, this::onRecipientChanged);
@@ -2048,8 +2054,10 @@ public class ConversationActivity extends PassphraseRequiredActivity
     });
   }
 
-  private void initializeViewModel() {
+  private void initializeViewModel(@NonNull ConversationIntents.Args args) {
     this.viewModel = ViewModelProviders.of(this, new ConversationViewModel.Factory()).get(ConversationViewModel.class);
+
+    this.viewModel.setArgs(args);
   }
 
   private void initializeGroupViewModel() {
@@ -2532,7 +2540,7 @@ public class ConversationActivity extends PassphraseRequiredActivity
 
     if (refreshFragment) {
       fragment.reload(recipient.get(), threadId);
-      ApplicationDependencies.getMessageNotifier().setVisibleThread(threadId);
+      setVisibleThread(threadId);
     }
 
     fragment.scrollToBottom();
@@ -3140,8 +3148,7 @@ public class ConversationActivity extends PassphraseRequiredActivity
     messageRequestBottomView.setGroupV1MigrationContinueListener(v -> GroupsV1MigrationInitiationBottomSheetDialogFragment.showForInitiation(getSupportFragmentManager(), recipient.getId()));
 
     viewModel.getRequestReviewDisplayState().observe(this, this::presentRequestReviewBanner);
-    viewModel.getMessageData().observe(this, this::presentMessageRequestBottomViewTo);
-    viewModel.getMessageRequestDisplayState().observe(this, this::presentMessageRequestDisplayState);
+    viewModel.getMessageData().observe(this, this::presentMessageRequestState);
     viewModel.getFailures().observe(this, this::showGroupChangeErrorToast);
     viewModel.getMessageRequestStatus().observe(this, status -> {
       switch (status) {
@@ -3155,7 +3162,6 @@ public class ConversationActivity extends PassphraseRequiredActivity
           break;
         case ACCEPTED:
           hideMessageRequestBusy();
-          messageRequestBottomView.setVisibility(View.GONE);
           break;
         case DELETED:
         case BLOCKED:
@@ -3426,31 +3432,6 @@ public class ConversationActivity extends PassphraseRequiredActivity
     BlockUnblockDialog.showUnblockFor(this, getLifecycle(), recipient, requestModel::onUnblock);
   }
 
-  private void presentMessageRequestDisplayState(@NonNull MessageRequestViewModel.DisplayState displayState) {
-    if ((getIntent().hasExtra(TEXT_EXTRA) && !Util.isEmpty(getIntent().getStringExtra(TEXT_EXTRA))) ||
-         getIntent().hasExtra(MEDIA_EXTRA)                                                          ||
-         getIntent().hasExtra(STICKER_EXTRA))
-    {
-      Log.d(TAG, "[presentMessageRequestDisplayState] Have extra, so ignoring provided state.");
-      messageRequestBottomView.setVisibility(View.GONE);
-    } else if (isPushGroupV1Conversation() && !isActiveGroup()) {
-      Log.d(TAG, "[presentMessageRequestDisplayState] Inactive push group V1, so ignoring provided state.");
-      messageRequestBottomView.setVisibility(View.GONE);
-    } else {
-      Log.d(TAG, "[presentMessageRequestDisplayState] " + displayState);
-      switch (displayState) {
-        case DISPLAY_MESSAGE_REQUEST:
-          messageRequestBottomView.setVisibility(View.VISIBLE);
-          break;
-        case DISPLAY_NONE:
-          messageRequestBottomView.setVisibility(View.GONE);
-          break;
-      }
-    }
-
-    invalidateOptionsMenu();
-  }
-
   private static void hideMenuItem(@NonNull Menu menu, @IdRes int menuItem) {
     if (menu.findItem(menuItem) != null) {
       menu.findItem(menuItem).setVisible(false);
@@ -3597,10 +3578,28 @@ public class ConversationActivity extends PassphraseRequiredActivity
     }
   }
 
-  private void presentMessageRequestBottomViewTo(@Nullable MessageRequestViewModel.MessageData messageData) {
-    if (messageData == null) return;
+  private void presentMessageRequestState(@Nullable MessageRequestViewModel.MessageData messageData) {
+    if (!Util.isEmpty(viewModel.getArgs().getDraftText()) ||
+        viewModel.getArgs().getMedia() != null            ||
+        viewModel.getArgs().getStickerLocator() != null)
+    {
+      Log.d(TAG, "[presentMessageRequestState] Have extra, so ignoring provided state.");
+      messageRequestBottomView.setVisibility(View.GONE);
+    } else if (isPushGroupV1Conversation() && !isActiveGroup()) {
+      Log.d(TAG, "[presentMessageRequestState] Inactive push group V1, so ignoring provided state.");
+      messageRequestBottomView.setVisibility(View.GONE);
+    } else if (messageData == null) {
+      Log.d(TAG, "[presentMessageRequestState] Null messageData. Ignoring.");
+    } else if (messageData.getMessageState() == MessageRequestState.NONE) {
+      Log.d(TAG, "[presentMessageRequestState] No message request necessary.");
+      messageRequestBottomView.setVisibility(View.GONE);
+    } else {
+      Log.d(TAG, "[presentMessageRequestState] " + messageData.getMessageState());
+      messageRequestBottomView.setMessageData(messageData);
+      messageRequestBottomView.setVisibility(View.VISIBLE);
+    }
 
-    messageRequestBottomView.setMessageData(messageData);
+    invalidateOptionsMenu();
   }
 
   private static class KeyboardImageDetails {

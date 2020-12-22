@@ -16,10 +16,9 @@ buildscript {
         }
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:4.0.2'
+        classpath 'com.android.tools.build:gradle:4.1.1'
         classpath 'androidx.navigation:navigation-safe-args-gradle-plugin:2.1.0'
         classpath 'com.google.protobuf:protobuf-gradle-plugin:0.8.10'
-        classpath 'com.archinamon:android-gradle-aspectj:4.2.0'
     }
 }
 
@@ -27,21 +26,8 @@ apply plugin: 'com.android.application'
 apply plugin: 'com.google.protobuf'
 apply plugin: 'androidx.navigation.safeargs'
 apply plugin: 'witness'
-apply plugin: 'com.archinamon.aspectj-ext'
 apply from: 'translations.gradle'
 apply from: 'witness-verifications.gradle'
-
-if (getGradle().getStartParameter().getTaskRequests().toString().contains("Internal")) {
-    aspectj {
-        includeJar 'sqlcipher'
-        includeAspectsFromJar 'Signal-Android'
-        java = JavaVersion.VERSION_1_8
-    }
-} else if (getGradle().getStartParameter().getTaskRequests().toString().contains("Test")) {
-    aspectj {
-        compileTests = false
-    }
-}
 
 repositories {
     maven {
@@ -365,10 +351,11 @@ dependencies {
 
     implementation project(':libsignal-service')
     implementation 'org.signal:zkgroup-android:0.7.0'
-
+    implementation 'org.whispersystems:signal-client-android:0.1.4'
+    implementation 'com.google.protobuf:protobuf-javalite:3.10.0'
     implementation 'org.signal:argon2:13.1@aar'
 
-    implementation 'org.signal:ringrtc-android:2.8.3'
+    implementation 'org.signal:ringrtc-android:2.8.4'
 
     implementation "me.leolin:ShortcutBadger:1.1.16"
     implementation 'se.emilsjolander:stickylistheaders:2.7.0'
