@@ -4,11 +4,11 @@ import android.content.Context;
 
 import androidx.annotation.NonNull;
 
+import org.signal.core.util.logging.Log;
 import org.thoughtcrime.securesms.groups.BadGroupIdException;
 import org.thoughtcrime.securesms.groups.GroupId;
 import org.thoughtcrime.securesms.jobmanager.Data;
 import org.thoughtcrime.securesms.jobmanager.JobMigration;
-import org.thoughtcrime.securesms.logging.Log;
 import org.thoughtcrime.securesms.recipients.Recipient;
 import org.thoughtcrime.securesms.recipients.RecipientId;
 import org.thoughtcrime.securesms.util.Base64;
@@ -58,7 +58,7 @@ public class PushProcessMessageQueueJobMigration extends JobMigration {
         Log.i(TAG, "Migrating a group message.");
         try {
           GroupId   groupId   = GroupUtil.idFromGroupContext(content.getDataMessage().get().getGroupContext().get());
-          Recipient recipient = Recipient.externalGroup(context, groupId);
+          Recipient recipient = Recipient.externalGroupExact(context, groupId);
 
           suffix = recipient.getId().toQueueKey();
         } catch (BadGroupIdException e) {
@@ -75,7 +75,7 @@ public class PushProcessMessageQueueJobMigration extends JobMigration {
       GroupId exceptionGroup  =  GroupId.parseNullableOrThrow(data.getStringOrDefault("exception_groupId", null));
 
       if (exceptionGroup != null) {
-        suffix = Recipient.externalGroup(context, exceptionGroup).getId().toQueueKey();
+        suffix = Recipient.externalGroupExact(context, exceptionGroup).getId().toQueueKey();
       } else if (exceptionSender != null) {
         suffix = Recipient.external(context, exceptionSender).getId().toQueueKey();
       }

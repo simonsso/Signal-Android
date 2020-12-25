@@ -1,11 +1,10 @@
 package org.thoughtcrime.securesms.jobs;
 
-import android.net.Network;
-
 import androidx.annotation.NonNull;
 
 import com.annimon.stream.Stream;
 
+import org.signal.core.util.logging.Log;
 import org.thoughtcrime.securesms.crypto.UnidentifiedAccessUtil;
 import org.thoughtcrime.securesms.database.DatabaseFactory;
 import org.thoughtcrime.securesms.database.GroupDatabase;
@@ -13,7 +12,6 @@ import org.thoughtcrime.securesms.dependencies.ApplicationDependencies;
 import org.thoughtcrime.securesms.jobmanager.Data;
 import org.thoughtcrime.securesms.jobmanager.Job;
 import org.thoughtcrime.securesms.jobmanager.impl.NetworkConstraint;
-import org.thoughtcrime.securesms.logging.Log;
 import org.thoughtcrime.securesms.recipients.Recipient;
 import org.thoughtcrime.securesms.recipients.RecipientUtil;
 import org.thoughtcrime.securesms.util.TextSecurePreferences;
@@ -104,11 +102,13 @@ public class TypingSendJob extends BaseJob {
       groupId    = Optional.of(recipient.requireGroupId().getDecodedId());
     }
 
-    recipients = Stream.of(recipients).map(Recipient::resolve).toList();
+    recipients = RecipientUtil.getEligibleForSending(Stream.of(recipients)
+                                                           .map(Recipient::resolve)
+                                                           .toList());
 
     SignalServiceMessageSender             messageSender      = ApplicationDependencies.getSignalServiceMessageSender();
-    List<SignalServiceAddress>             addresses          = Stream.of(recipients).map(r -> RecipientUtil.toSignalServiceAddress(context, r)).toList();
-    List<Optional<UnidentifiedAccessPair>> unidentifiedAccess = Stream.of(recipients).map(r -> UnidentifiedAccessUtil.getAccessFor(context, r)).toList();
+    List<SignalServiceAddress>             addresses          = RecipientUtil.toSignalServiceAddressesFromResolved(context, recipients);
+    List<Optional<UnidentifiedAccessPair>> unidentifiedAccess = UnidentifiedAccessUtil.getAccessFor(context, recipients);
     SignalServiceTypingMessage             typingMessage      = new SignalServiceTypingMessage(typing ? Action.STARTED : Action.STOPPED, System.currentTimeMillis(), groupId);
 
     if (isCanceled()) {

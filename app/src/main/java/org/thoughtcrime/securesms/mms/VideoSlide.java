@@ -28,7 +28,6 @@ import org.thoughtcrime.securesms.R;
 import org.thoughtcrime.securesms.attachments.Attachment;
 import org.thoughtcrime.securesms.database.AttachmentDatabase;
 import org.thoughtcrime.securesms.util.MediaUtil;
-import org.thoughtcrime.securesms.util.ResUtil;
 
 public class VideoSlide extends Slide {
 
@@ -37,7 +36,11 @@ public class VideoSlide extends Slide {
   }
 
   public VideoSlide(Context context, Uri uri, long dataSize, @Nullable String caption, @Nullable AttachmentDatabase.TransformProperties transformProperties) {
-    super(context, constructAttachmentFromUri(context, uri, MediaUtil.VIDEO_UNSPECIFIED, dataSize, 0, 0, MediaUtil.hasVideoThumbnail(uri), null, caption, null, null, null, false, false, false, transformProperties));
+    super(context, constructAttachmentFromUri(context, uri, MediaUtil.VIDEO_UNSPECIFIED, dataSize, 0, 0, MediaUtil.hasVideoThumbnail(context, uri), null, caption, null, null, null, false, false, false, transformProperties));
+  }
+
+  public VideoSlide(Context context, Uri uri, long dataSize, int width, int height, @Nullable String caption, @Nullable AttachmentDatabase.TransformProperties transformProperties) {
+    super(context, constructAttachmentFromUri(context, uri, MediaUtil.VIDEO_UNSPECIFIED, dataSize, width, height, MediaUtil.hasVideoThumbnail(context, uri), null, caption, null, null, null, false, false, false, transformProperties));
   }
 
   public VideoSlide(Context context, Attachment attachment) {
@@ -56,7 +59,7 @@ public class VideoSlide extends Slide {
 
   @Override
   public @DrawableRes int getPlaceholderRes(Theme theme) {
-    return ResUtil.getDrawableRes(theme, R.attr.conversation_icon_attach_video);
+    return R.drawable.ic_video;
   }
 
   @Override

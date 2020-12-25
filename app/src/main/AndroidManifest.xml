@@ -3,9 +3,9 @@
           xmlns:tools="http://schemas.android.com/tools"
           package="org.thoughtcrime.securesms">
 
-    <uses-sdk tools:overrideLibrary="androidx.camera.core,androidx.camera.camera2,androidx.camera.lifecycle" />
+    <uses-sdk tools:overrideLibrary="androidx.camera.core,androidx.camera.camera2,androidx.camera.lifecycle,androidx.camera.view" />
 
-    <permission android:name="org.thoughtcrime.securesms.ACCESS_SECRETS"
+    <permission android:name="${applicationId}.ACCESS_SECRETS"
                 android:label="Access to TextSecure Secrets"
                 android:protectionLevel="signature" />
 
@@ -35,8 +35,10 @@
     <uses-permission android:name="android.permission.SEND_SMS"/>
     <uses-permission android:name="android.permission.WRITE_SMS"/>
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    <uses-permission android:name="android.permission.READ_PHONE_NUMBERS" />
 
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+                     android:maxSdkVersion="28" />
 
     <uses-permission android:name="android.permission.CAMERA" />
 
@@ -113,8 +115,8 @@
     <meta-data android:name="google_analytics_adid_collection_enabled" android:value="false" />
     <meta-data android:name="firebase_messaging_auto_init_enabled" android:value="false" />
 
-    <activity android:name="org.thoughtcrime.securesms.WebRtcCallActivity"
-              android:theme="@style/TextSecure.LightTheme.WebRTCCall"
+    <activity android:name=".WebRtcCallActivity"
+              android:theme="@style/TextSecure.DarkTheme.WebRTCCall"
               android:excludeFromRecents="true"
               android:screenOrientation="portrait"
               android:supportsPictureInPicture="true"
@@ -136,7 +138,7 @@
               android:configChanges="touchscreen|keyboard|keyboardHidden|orientation|screenLayout|screenSize">
         <meta-data
             android:name="android.support.PARENT_ACTIVITY"
-            android:value="org.thoughtcrime.securesms.MainActivity" />
+            android:value=".MainActivity" />
     </activity>
 
     <activity android:name=".PromptMmsActivity"
@@ -223,6 +225,23 @@
             <category android:name="android.intent.category.MULTIWINDOW_LAUNCHER" />
         </intent-filter>
 
+        <intent-filter>
+            <action android:name="android.intent.action.VIEW" />
+            <category android:name="android.intent.category.DEFAULT" />
+            <category android:name="android.intent.category.BROWSABLE" />
+            <data android:scheme="sgnl"
+                  android:host="signal.group" />
+        </intent-filter>
+
+        <intent-filter android:autoVerify="true"
+                       tools:targetApi="23">
+            <action android:name="android.intent.action.VIEW" />
+            <category android:name="android.intent.category.DEFAULT" />
+            <category android:name="android.intent.category.BROWSABLE" />
+            <data android:scheme="https"
+                  android:host="signal.group"/>
+        </intent-filter>
+
         <meta-data android:name="com.sec.minimode.icon.portrait.normal"
                    android:resource="@mipmap/ic_launcher" />
         <meta-data android:name="com.sec.minimode.icon.landscape.normal"
@@ -240,6 +259,11 @@
                 android:value="org.thoughtcrime.securesms.MainActivity" />
     </activity>
 
+    <activity android:name=".conversation.BubbleConversationActivity"
+              android:theme="@style/Signal.DayNight"
+              android:allowEmbedded="true"
+              android:resizeableActivity="true" />
+
     <activity android:name=".longmessage.LongMessageActivity" />
 
     <activity android:name=".conversation.ConversationPopupActivity"
@@ -251,13 +275,12 @@
               android:configChanges="touchscreen|keyboard|keyboardHidden|orientation|screenLayout|screenSize" />
 
     <activity android:name=".messagedetails.MessageDetailsActivity"
-              android:label="@string/AndroidManifest__message_details"
               android:windowSoftInputMode="stateHidden"
               android:launchMode="singleTask"
               android:configChanges="touchscreen|keyboard|keyboardHidden|orientation|screenLayout|screenSize"/>
 
-    <activity android:name=".groups.ui.pendingmemberinvites.PendingMemberInvitesActivity"
-              android:configChanges="touchscreen|keyboard|keyboardHidden|orientation|screenLayout|screenSize"
+    <activity android:name=".groups.ui.invitesandrequests.ManagePendingAndRequestingMembersActivity"
+              android:configChanges="touchscreen|keyboard|keyboardHidden|orientation|screenLayout|screenSize|uiMode"
               android:theme="@style/Theme.Signal.DayNight.NoActionBar" />
 
     <activity android:name=".groups.ui.managegroup.ManageGroupActivity"
@@ -350,7 +373,6 @@
                android:configChanges="touchscreen|keyboard|keyboardHidden|orientation|screenLayout|screenSize"/>
 
     <activity android:name=".logsubmit.SubmitDebugLogActivity"
-              android:label="@string/AndroidManifest__log_submit"
               android:windowSoftInputMode="stateHidden"
               android:configChanges="touchscreen|keyboard|keyboardHidden|orientation|screenLayout|screenSize"/>
 
@@ -421,7 +443,7 @@
               android:theme="@style/TextSecure.FullScreenMedia"
               android:configChanges="touchscreen|keyboard|keyboardHidden|orientation|screenLayout|screenSize"/>
 
-    <activity android:name=".BlockedContactsActivity"
+    <activity android:name=".blocked.BlockedUsersActivity"
               android:theme="@style/TextSecure.LightTheme"
               android:configChanges="touchscreen|keyboard|keyboardHidden|orientation|screenLayout|screenSize"/>
 
@@ -443,17 +465,14 @@
             android:windowSoftInputMode="adjustResize"
             android:configChanges="touchscreen|keyboard|keyboardHidden|orientation|screenLayout|screenSize"/>
 
-    <activity android:name=".ClearProfileAvatarActivity"
-            android:theme="@style/Theme.AppCompat.Dialog.Alert"
-            android:configChanges="touchscreen|keyboard|keyboardHidden|orientation|screenLayout|screenSize"
-            android:icon="@drawable/clear_profile_avatar"
-            android:label="@string/AndroidManifest_remove_photo">
+    <activity android:name=".ClearAvatarPromptActivity"
+              android:theme="@style/Theme.AppCompat.Dialog.Alert"
+              android:icon="@drawable/clear_profile_avatar"
+              android:label="@string/AndroidManifest_remove_photo"
+              android:configChanges="touchscreen|keyboard|keyboardHidden|orientation|screenLayout|screenSize"/>
 
-        <intent-filter>
-            <action android:name="org.thoughtcrime.securesms.action.CLEAR_PROFILE_PHOTO"/>
-            <category android:name="android.intent.category.DEFAULT"/>
-        </intent-filter>
-    </activity>
+    <activity android:name=".contacts.TurnOffContactJoinedNotificationsActivity"
+              android:theme="@style/Theme.AppCompat.Dialog.Alert" />
 
     <activity android:name=".messagerequests.MessageRequestMegaphoneActivity"
               android:theme="@style/TextSecure.LightRegistrationTheme"
@@ -507,10 +526,27 @@
     <activity android:name=".groups.ui.chooseadmin.ChooseNewAdminActivity"
               android:configChanges="touchscreen|keyboard|keyboardHidden|orientation|screenLayout|screenSize" />
 
-    <service android:enabled="true" android:name="org.thoughtcrime.securesms.service.WebRtcCallService"/>
+    <activity android:name=".megaphone.ClientDeprecatedActivity"
+              android:theme="@style/Theme.Signal.DayNight.NoActionBar"
+              android:configChanges="touchscreen|keyboard|keyboardHidden|orientation|screenLayout|screenSize|uiMode"
+              android:launchMode="singleTask" />
+
+    <service android:enabled="true" android:name=".service.WebRtcCallService"/>
     <service android:enabled="true" android:name=".service.ApplicationMigrationService"/>
     <service android:enabled="true" android:exported="false" android:name=".service.KeyCachingService"/>
     <service android:enabled="true" android:name=".messages.IncomingMessageObserver$ForegroundService"/>
+
+    <service android:name=".components.voice.VoiceNotePlaybackService">
+        <intent-filter>
+            <action android:name="android.media.browse.MediaBrowserService" />
+        </intent-filter>
+    </service>
+
+    <receiver android:name="androidx.media.session.MediaButtonReceiver" >
+        <intent-filter>
+            <action android:name="android.intent.action.MEDIA_BUTTON" />
+        </intent-filter>
+    </receiver>
 
     <service android:name=".service.QuickResponseService"
              android:permission="android.permission.SEND_RESPOND_VIA_MESSAGE"
@@ -624,18 +660,25 @@
 
     <receiver android:name=".revealable.ViewOnceMessageManager$ViewOnceAlarm" />
 
+    <receiver android:name=".service.TrimThreadsByDateManager$TrimThreadsByDateAlarm" />
+
     <provider android:name=".providers.PartProvider"
               android:grantUriPermissions="true"
               android:exported="false"
-              android:authorities="org.thoughtcrime.provider.securesms" />
+              android:authorities="${applicationId}.part" />
+
+    <provider android:name=".providers.BlobContentProvider"
+              android:authorities="${applicationId}.blob"
+              android:exported="false"
+              android:grantUriPermissions="true" />
 
     <provider android:name=".providers.MmsBodyProvider"
               android:grantUriPermissions="true"
               android:exported="false"
-              android:authorities="org.thoughtcrime.provider.securesms.mms" />
+              android:authorities="${applicationId}.mms" />
 
     <provider android:name="androidx.core.content.FileProvider"
-              android:authorities="org.thoughtcrime.securesms.fileprovider"
+              android:authorities="${applicationId}.fileprovider"
               android:exported="false"
               android:grantUriPermissions="true">
 
@@ -644,23 +687,23 @@
     </provider>
 
     <provider android:name=".database.DatabaseContentProviders$Conversation"
-              android:authorities="org.thoughtcrime.securesms.database.conversation"
+              android:authorities="${applicationId}.database.conversation"
               android:exported="false" />
 
     <provider android:name=".database.DatabaseContentProviders$ConversationList"
-              android:authorities="org.thoughtcrime.securesms.database.conversationlist"
+              android:authorities="${applicationId}.database.conversationlist"
               android:exported="false" />
 
     <provider android:name=".database.DatabaseContentProviders$Attachment"
-              android:authorities="org.thoughtcrime.securesms.database.attachment"
+              android:authorities="${applicationId}.database.attachment"
               android:exported="false" />
 
     <provider android:name=".database.DatabaseContentProviders$Sticker"
-              android:authorities="org.thoughtcrime.securesms.database.sticker"
+              android:authorities="${applicationId}.database.sticker"
               android:exported="false" />
 
     <provider android:name=".database.DatabaseContentProviders$StickerPack"
-              android:authorities="org.thoughtcrime.securesms.database.stickerpack"
+              android:authorities="${applicationId}.database.stickerpack"
               android:exported="false" />
 
     <receiver android:name=".service.BootReceiver">
@@ -752,13 +795,6 @@
     </receiver>
 
     <uses-library android:name="org.apache.http.legacy" android:required="false"/>
-
-    <uses-library android:name="com.sec.android.app.multiwindow" android:required="false"/>
-    <meta-data android:name="com.sec.android.support.multiwindow" android:value="true" />
-    <meta-data android:name="com.sec.android.multiwindow.DEFAULT_SIZE_W" android:value="632.0dip" />
-    <meta-data android:name="com.sec.android.multiwindow.DEFAULT_SIZE_H" android:value="598.0dip" />
-    <meta-data android:name="com.sec.android.multiwindow.MINIMUM_SIZE_W" android:value="632.0dip" />
-    <meta-data android:name="com.sec.android.multiwindow.MINIMUM_SIZE_H" android:value="598.0dip" />
 
 </application>
 </manifest>

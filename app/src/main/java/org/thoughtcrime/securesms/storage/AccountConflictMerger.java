@@ -3,23 +3,18 @@ package org.thoughtcrime.securesms.storage;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.annimon.stream.Stream;
-
-import org.thoughtcrime.securesms.logging.Log;
+import org.signal.core.util.logging.Log;
 import org.whispersystems.libsignal.util.guava.Optional;
-import org.whispersystems.signalservice.api.push.SignalServiceAddress;
 import org.whispersystems.signalservice.api.storage.SignalAccountRecord;
-import org.whispersystems.signalservice.api.storage.SignalContactRecord;
-import org.whispersystems.signalservice.internal.storage.protos.ContactRecord.IdentityState;
+import org.whispersystems.signalservice.api.storage.SignalAccountRecord.PinnedConversation;
+import org.whispersystems.signalservice.internal.storage.protos.AccountRecord;
 
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
-import java.util.UUID;
 
 class AccountConflictMerger implements StorageSyncHelper.ConflictMerger<SignalAccountRecord> {
 
@@ -63,15 +58,20 @@ class AccountConflictMerger implements StorageSyncHelper.ConflictMerger<SignalAc
       familyName = local.getFamilyName().or("");
     }
 
-    String  avatarUrlPath          = remote.getAvatarUrlPath().or(local.getAvatarUrlPath()).or("");
-    byte[]  profileKey             = remote.getProfileKey().or(local.getProfileKey()).orNull();
-    boolean noteToSelfArchived     = remote.isNoteToSelfArchived();
-    boolean readReceipts           = remote.isReadReceiptsEnabled();
-    boolean typingIndicators       = remote.isTypingIndicatorsEnabled();
-    boolean sealedSenderIndicators = remote.isSealedSenderIndicatorsEnabled();
-    boolean linkPreviews           = remote.isLinkPreviewsEnabled();
-    boolean matchesRemote          = doParamsMatch(remote, givenName, familyName, avatarUrlPath, profileKey, noteToSelfArchived, readReceipts, typingIndicators, sealedSenderIndicators, linkPreviews);
-    boolean matchesLocal           = doParamsMatch(local, givenName, familyName, avatarUrlPath, profileKey, noteToSelfArchived, readReceipts, typingIndicators, sealedSenderIndicators, linkPreviews);
+    byte[]                               unknownFields          = remote.serializeUnknownFields();
+    String                               avatarUrlPath          = remote.getAvatarUrlPath().or(local.getAvatarUrlPath()).or("");
+    byte[]                               profileKey             = remote.getProfileKey().or(local.getProfileKey()).orNull();
+    boolean                              noteToSelfArchived     = remote.isNoteToSelfArchived();
+    boolean                              noteToSelfForcedUnread = remote.isNoteToSelfForcedUnread();
+    boolean                              readReceipts           = remote.isReadReceiptsEnabled();
+    boolean                              typingIndicators       = remote.isTypingIndicatorsEnabled();
+    boolean                              sealedSenderIndicators = remote.isSealedSenderIndicatorsEnabled();
+    boolean                              linkPreviews           = remote.isLinkPreviewsEnabled();
+    boolean                              unlisted               = remote.isPhoneNumberUnlisted();
+    List<PinnedConversation>             pinnedConversations    = remote.getPinnedConversations();
+    AccountRecord.PhoneNumberSharingMode phoneNumberSharingMode = remote.getPhoneNumberSharingMode();
+    boolean                              matchesRemote          = doParamsMatch(remote, unknownFields, givenName, familyName, avatarUrlPath, profileKey, noteToSelfArchived, noteToSelfForcedUnread, readReceipts, typingIndicators, sealedSenderIndicators, linkPreviews, phoneNumberSharingMode, unlisted, pinnedConversations);
+    boolean                              matchesLocal           = doParamsMatch(local, unknownFields, givenName, familyName, avatarUrlPath, profileKey, noteToSelfArchived, noteToSelfForcedUnread, readReceipts, typingIndicators, sealedSenderIndicators, linkPreviews, phoneNumberSharingMode, unlisted, pinnedConversations);
 
     if (matchesRemote) {
       return remote;
@@ -79,38 +79,54 @@ class AccountConflictMerger implements StorageSyncHelper.ConflictMerger<SignalAc
       return local;
     } else {
       return new SignalAccountRecord.Builder(keyGenerator.generate())
+                                    .setUnknownFields(unknownFields)
                                     .setGivenName(givenName)
                                     .setFamilyName(familyName)
                                     .setAvatarUrlPath(avatarUrlPath)
                                     .setProfileKey(profileKey)
                                     .setNoteToSelfArchived(noteToSelfArchived)
+                                    .setNoteToSelfForcedUnread(noteToSelfForcedUnread)
                                     .setReadReceiptsEnabled(readReceipts)
                                     .setTypingIndicatorsEnabled(typingIndicators)
                                     .setSealedSenderIndicatorsEnabled(sealedSenderIndicators)
                                     .setLinkPreviewsEnabled(linkPreviews)
+                                    .setUnlistedPhoneNumber(unlisted)
+                                    .setPhoneNumberSharingMode(phoneNumberSharingMode)
+                                    .setUnlistedPhoneNumber(unlisted)
+                                    .setPinnedConversations(pinnedConversations)
                                     .build();
     }
   }
 
   private static boolean doParamsMatch(@NonNull SignalAccountRecord contact,
+                                       @Nullable byte[] unknownFields,
                                        @NonNull String givenName,
                                        @NonNull String familyName,
                                        @NonNull String avatarUrlPath,
                                        @Nullable byte[] profileKey,
                                        boolean noteToSelfArchived,
+                                       boolean noteToSelfForcedUnread,
                                        boolean readReceipts,
                                        boolean typingIndicators,
                                        boolean sealedSenderIndicators,
-                                       boolean linkPreviewsEnabled)
+                                       boolean linkPreviewsEnabled,
+                                       AccountRecord.PhoneNumberSharingMode phoneNumberSharingMode,
+                                       boolean unlistedPhoneNumber,
+                                       @NonNull List<PinnedConversation> pinnedConversations)
   {
-    return Objects.equals(contact.getGivenName().or(""), givenName)            &&
+    return Arrays.equals(contact.serializeUnknownFields(), unknownFields)      &&
+           Objects.equals(contact.getGivenName().or(""), givenName)            &&
            Objects.equals(contact.getFamilyName().or(""), familyName)          &&
            Objects.equals(contact.getAvatarUrlPath().or(""), avatarUrlPath)    &&
            Arrays.equals(contact.getProfileKey().orNull(), profileKey)         &&
            contact.isNoteToSelfArchived() == noteToSelfArchived                &&
+           contact.isNoteToSelfForcedUnread() == noteToSelfForcedUnread        &&
            contact.isReadReceiptsEnabled() == readReceipts                     &&
            contact.isTypingIndicatorsEnabled() == typingIndicators             &&
            contact.isSealedSenderIndicatorsEnabled() == sealedSenderIndicators &&
-           contact.isLinkPreviewsEnabled() == linkPreviewsEnabled;
+           contact.isLinkPreviewsEnabled() == linkPreviewsEnabled              &&
+           contact.getPhoneNumberSharingMode() == phoneNumberSharingMode       &&
+           contact.isPhoneNumberUnlisted() == unlistedPhoneNumber              &&
+           Objects.equals(contact.getPinnedConversations(), pinnedConversations);
   }
 }

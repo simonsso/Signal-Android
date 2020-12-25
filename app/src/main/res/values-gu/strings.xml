@@ -73,7 +73,7 @@
   <!--AudioSlidePlayer-->
   <string name="AudioSlidePlayer_error_playing_audio">ઓડિયો વગાડતા ભૂલ! </string>
   <!--BlockedContactsActivity-->
-  <string name="BlockedContactsActivity_blocked_contacts">અવરોધિત સંપર્કો</string>
+  <!-- Removed by excludeNonTranslatables <string name="BlockedContactsActivity_blocked_contacts">અવરોધિત સંપર્કો</string> -->
   <!--BlockUnblockDialog-->
   <string name="BlockUnblockDialog_group_members_will_be_able_to_add_you">ગ્રુપના સભ્યો તમને આ ગ્રુપમાં ફરીથી ઉમેરવામાં સમર્થ હશે.</string>
   <string name="BlockUnblockDialog_unblock">અનાવરોધિત કરો</string>
@@ -172,8 +172,8 @@
   <string name="ConversationActivity_added_to_home_screen">હોમ સ્ક્રીન પર ઉમેર્યું</string>
   <string name="ConversationActivity_calls_not_supported">કોલ્સ ઉપલબ્ધ નથી </string>
   <string name="ConversationActivity_this_device_does_not_appear_to_support_dial_actions">આ ડિવાઇસ ડાયલ ક્રિયાઓ માટે ઉપયુક્ત નથી.</string>
-  <string name="ConversationActivity_leave_group">ગ્રુપ છોડવુ છે?</string>
-  <string name="ConversationActivity_are_you_sure_you_want_to_leave_this_group">શું તમે ખરેખર આ ગ્રુપ ને છોડવા માંગો છો?</string>
+  <!-- Removed by excludeNonTranslatables <string name="ConversationActivity_leave_group">ગ્રુપ છોડવુ છે?</string> -->
+  <!-- Removed by excludeNonTranslatables <string name="ConversationActivity_are_you_sure_you_want_to_leave_this_group">શું તમે ખરેખર આ ગ્રુપ ને છોડવા માંગો છો?</string> -->
   <string name="ConversationActivity_transport_insecure_sms">અસુરક્ષિત SMS</string>
   <string name="ConversationActivity_transport_insecure_mms">અસુરક્ષિત MMS</string>
   <string name="ConversationActivity_transport_signal">Signal</string>
@@ -513,13 +513,13 @@
   <string name="MessageRecord_message_encrypted_with_a_legacy_protocol_version_that_is_no_longer_supported">Signal ના જૂના વર્ઝન નો ઉપયોગ કરીને એન્ક્રિપ્ટ થયેલ મેસેજ મળ્યો જે હવે સપોર્ટેડ નથી. કૃપા કરીને મોકલનારને સૌથી તાજેતરનાં વર્ઝન પર અપડેટ કરવા અને મેસેજ ને ફરીથી મોકલવા માટે કહો.</string>
   <string name="MessageRecord_left_group">તમે ગ્રુપ છોડી દીધું છે.</string>
   <string name="MessageRecord_you_updated_group">તમે ગ્રુપ ને અપડેટ કર્યું.</string>
-  <string name="MessageRecord_you_called">તમે કૉલ કરેલો</string>
-  <string name="MessageRecord_called_you">સંપર્કને કૉલ કરેલો</string>
-  <string name="MessageRecord_missed_call">મિસ કૉલ</string>
+  <!-- Removed by excludeNonTranslatables <string name="MessageRecord_you_called">તમે કૉલ કરેલો</string> -->
+  <!-- Removed by excludeNonTranslatables <string name="MessageRecord_called_you">સંપર્કને કૉલ કરેલો</string> -->
+  <!-- Removed by excludeNonTranslatables <string name="MessageRecord_missed_call">મિસ કૉલ</string> -->
   <string name="MessageRecord_s_updated_group">%s ગ્રુપ અપડેટ કર્યુ.</string>
-  <string name="MessageRecord_s_called_you">%sએ કૉલ કરેલો</string>
+  <!-- Removed by excludeNonTranslatables <string name="MessageRecord_s_called_you">%sએ કૉલ કરેલો</string> -->
   <string name="MessageRecord_called_s">%s ને કૉલ કરેલો</string>
-  <string name="MessageRecord_missed_call_from">%s દ્વારા મિસ કૉલ</string>
+  <!-- Removed by excludeNonTranslatables <string name="MessageRecord_missed_call_from">%s દ્વારા મિસ કૉલ</string> -->
   <string name="MessageRecord_s_joined_signal">%s Signal પર છે!</string>
   <string name="MessageRecord_you_disabled_disappearing_messages">તમે અદૃશ્ય થઈ રહેલા મેસેજ ને અક્ષમ કર્યા.</string>
   <string name="MessageRecord_s_disabled_disappearing_messages">%1$s અદૃશ્ય થઈ રહેલા મેસેજ અક્ષમ કરો.</string>
@@ -538,7 +538,7 @@
   <!--GV2 invitations-->
   <string name="MessageRecord_you_were_invited_to_the_group">તમને ગ્રુપમાં આમંત્રણ અપાયું હતું.</string>
   <!--GV2 invitation revokes-->
-  <string name="MessageRecord_your_invitation_to_the_group_was_revoked">ગ્રુપ માટે તમારું આમંત્રણ રદ કરવામાં આવ્યું હતું.</string>
+  <!-- Removed by excludeNonTranslatables <string name="MessageRecord_your_invitation_to_the_group_was_revoked">ગ્રુપ માટે તમારું આમંત્રણ રદ કરવામાં આવ્યું હતું.</string> -->
   <!--GV2 invitation acceptance-->
   <!--GV2 title change-->
   <!--GV2 avatar change-->
@@ -558,10 +558,10 @@
   <string name="MessageRequestProfileView_member_of_one_group">%1$s ના સભ્ય</string>
   <string name="MessageRequestProfileView_member_of_two_groups">%1$s અને %2$s ના સભ્ય</string>
   <string name="MessageRequestProfileView_member_of_many_groups">%1$s, %2$sઅને %3$s ના સભ્ય</string>
-  <plurals name="MessageRequestProfileView_member_of_others">
+  <!-- Removed by excludeNonTranslatables <plurals name="MessageRequestProfileView_member_of_others">
     <item quantity="one">%d અન્ય</item>
     <item quantity="other">%dઅન્ય</item>
-  </plurals>
+  </plurals> -->
   <!--PassphraseChangeActivity-->
   <string name="PassphraseChangeActivity_passphrases_dont_match_exclamation">પાસફ્રેઝ મેળ ખાતા નથી!</string>
   <string name="PassphraseChangeActivity_incorrect_old_passphrase_exclamation">ખોટો જૂનો પાસફ્રેઝ!</string>
@@ -758,7 +758,7 @@
   <string name="ThreadRecord_draft">ડ્રાફ્ટ:</string>
   <string name="ThreadRecord_called">તમે કૉલ કરેલો</string>
   <string name="ThreadRecord_called_you">તમને કૉલ કર્યો</string>
-  <string name="ThreadRecord_missed_call">મિસ કૉલ</string>
+  <!-- Removed by excludeNonTranslatables <string name="ThreadRecord_missed_call">મિસ કૉલ</string> -->
   <string name="ThreadRecord_media_message">મીડિયા મેસેજ</string>
   <string name="ThreadRecord_sticker">સ્ટીકર</string>
   <string name="ThreadRecord_view_once_photo">એકવાર ફોટો જુઓ</string>
@@ -784,12 +784,12 @@
   <string name="UpdateApkReadyListener_Signal_update">Signal અપડેટ</string>
   <string name="UpdateApkReadyListener_a_new_version_of_signal_is_available_tap_to_update">Signalનું નવું વર્ઝન ઉપલબ્ધ છે, અપડેટ કરવા માટે ટેપ કરો</string>
   <!--UnknownSenderView-->
-  <string name="UnknownSenderView_block_s">%s અવરોધિત કરો?</string>
-  <string name="UnknownSenderView_blocked_contacts_will_no_longer_be_able_to_send_you_messages_or_call_you">અવરોધિત સંપર્કો હવે તમને મેસેજ મોકલવા અથવા કૉલ કરવામાં સમર્થ રહેશે નહીં.</string>
-  <string name="UnknownSenderView_block">અવરોધિત કરો</string>
-  <string name="UnknownSenderView_share_profile_with_s">%s સાથે પ્રોફાઇલ શેર કરવી છે?</string>
-  <string name="UnknownSenderView_the_easiest_way_to_share_your_profile_information_is_to_add_the_sender_to_your_contacts">તમારી પ્રોફાઇલ માહિતી શેર કરવાનો સૌથી સહેલો રસ્તો એ છે કે તમારા સંપર્કોમાં મોકલનારને ઉમેરવો. જો તમે ઇચ્છતા નથી, તો તમે હજી પણ તમારી પ્રોફાઇલ માહિતી આ રીતે શેર કરી શકો છો.</string>
-  <string name="UnknownSenderView_share_profile">પ્રોફાઇલ શેર કરો</string>
+  <!-- Removed by excludeNonTranslatables <string name="UnknownSenderView_block_s">%s અવરોધિત કરો?</string> -->
+  <!-- Removed by excludeNonTranslatables <string name="UnknownSenderView_blocked_contacts_will_no_longer_be_able_to_send_you_messages_or_call_you">અવરોધિત સંપર્કો હવે તમને મેસેજ મોકલવા અથવા કૉલ કરવામાં સમર્થ રહેશે નહીં.</string> -->
+  <!-- Removed by excludeNonTranslatables <string name="UnknownSenderView_block">અવરોધિત કરો</string> -->
+  <!-- Removed by excludeNonTranslatables <string name="UnknownSenderView_share_profile_with_s">%s સાથે પ્રોફાઇલ શેર કરવી છે?</string> -->
+  <!-- Removed by excludeNonTranslatables <string name="UnknownSenderView_the_easiest_way_to_share_your_profile_information_is_to_add_the_sender_to_your_contacts">તમારી પ્રોફાઇલ માહિતી શેર કરવાનો સૌથી સહેલો રસ્તો એ છે કે તમારા સંપર્કોમાં મોકલનારને ઉમેરવો. જો તમે ઇચ્છતા નથી, તો તમે હજી પણ તમારી પ્રોફાઇલ માહિતી આ રીતે શેર કરી શકો છો.</string> -->
+  <!-- Removed by excludeNonTranslatables <string name="UnknownSenderView_share_profile">પ્રોફાઇલ શેર કરો</string> -->
   <!--UntrustedSendDialog-->
   <string name="UntrustedSendDialog_send_message">મેસેજ મોકલો?</string>
   <string name="UntrustedSendDialog_send">મોકલો</string>
@@ -798,7 +798,7 @@
   <string name="UnverifiedSendDialog_send">મોકલો</string>
   <!--UsernameEditFragment-->
   <string name="UsernameEditFragment_username">વપરાશકર્તા નામ</string>
-  <string name="UsernameEditFragment_submit">સબમિટ કરો</string>
+  <!-- Removed by excludeNonTranslatables <string name="UsernameEditFragment_submit">સબમિટ કરો</string> -->
   <string name="UsernameEditFragment_delete">કાઢી નાખો </string>
   <string name="UsernameEditFragment_successfully_set_username">સફળતાપૂર્વક વપરાશકર્તા નામ સેટ કરો.</string>
   <string name="UsernameEditFragment_successfully_removed_username">સફળતાપૂર્વક વપરાશકર્તા નામ દૂર કર્યું.</string>
@@ -808,7 +808,7 @@
   <string name="UsernameEditFragment_usernames_cannot_begin_with_a_number">વપરાશકર્તાનામ સંખ્યા સાથે શરૂ થઈ શકતા નથી.</string>
   <string name="UsernameEditFragment_username_is_invalid">વપરાશકર્તા નામ અમાન્ય છે.</string>
   <string name="UsernameEditFragment_usernames_must_be_between_a_and_b_characters">વપરાશકર્તાનામો %1$d અને %2$d અક્ષરોની વચ્ચે હોવા જોઈએ.</string>
-  <string name="UsernameEditFragment_other_signal_users_can_send_message_requests_to_your_unique_username">અન્ય Signal વપરાશકર્તાઓ તમારા ફોન નંબરને જાણ્યા વિના તમારા અનન્ય વપરાશકર્તા નામ પર મેસેજ વિનંતીઓ મોકલી શકે છે. વપરાશકર્તા નામ પસંદ કરવું એ વૈકલ્પિક છે.</string>
+  <!-- Removed by excludeNonTranslatables <string name="UsernameEditFragment_other_signal_users_can_send_message_requests_to_your_unique_username">અન્ય Signal વપરાશકર્તાઓ તમારા ફોન નંબરને જાણ્યા વિના તમારા અનન્ય વપરાશકર્તા નામ પર મેસેજ વિનંતીઓ મોકલી શકે છે. વપરાશકર્તા નામ પસંદ કરવું એ વૈકલ્પિક છે.</string> -->
   <!--VerifyIdentityActivity-->
   <string name="VerifyIdentityActivity_your_contact_is_running_an_old_version_of_signal">તમારો સંપર્ક Signal નું જૂનું વર્ઝન ચલાવી રહ્યું છે. કૃપા કરીને તમારો સલામતી નંબર ચકાસતા પહેલા અપડેટ કરવા માટે કહો.</string>
   <string name="VerifyIdentityActivity_your_contact_is_running_a_newer_version_of_Signal">તમારો સંપર્ક અસંગત QR કોડ ફોર્મેટ સાથે Signalનું નવું વર્ઝન ચલાવી રહ્યું છે. કૃપા કરીને તુલના કરવા માટે અપડેટ કરો.</string>
@@ -830,7 +830,7 @@
   <!--MuteDialog-->
   <string name="MuteDialog_mute_notifications">સૂચનાઓ મ્યૂટ કરો</string>
   <!--OutdatedBuildReminder-->
-  <string name="OutdatedBuildReminder_no_web_browser_installed">કોઈ વેબ બ્રાઉઝર ઇન્સ્ટોલ કરેલું નથી!</string>
+  <!-- Removed by excludeNonTranslatables <string name="OutdatedBuildReminder_no_web_browser_installed">કોઈ વેબ બ્રાઉઝર ઇન્સ્ટોલ કરેલું નથી!</string> -->
   <!--ApplicationMigrationService-->
   <string name="ApplicationMigrationService_import_in_progress">ઇમ્પોર્ટ ચાલુ છે</string>
   <string name="ApplicationMigrationService_importing_text_messages">ટેક્સ્ટ મેસેજ ઇમ્પોર્ટ કરી રહ્યું છે</string>
@@ -876,8 +876,8 @@
   <string name="MessageNotifier_reacted_s_to_your_image">તમારી છબી પર %1$s પ્રતિક્રિયા આપી.</string>
   <string name="MessageNotifier_reacted_s_to_your_file">તમારી ફાઇલ પર %1$s ની પ્રતિક્રિયા આપી.</string>
   <string name="MessageNotifier_reacted_s_to_your_audio">તમારા ઓડિયો પર %1$sપર પ્રતિક્રિયા આપી.</string>
-  <string name="MessageNotifier_reacted_s_to_your_view_once_photo">તમારા વ્યુ-એકવાર ફોટા પર %1$s પર પ્રતિક્રિયા આપી.</string>
-  <string name="MessageNotifier_reacted_s_to_your_view_once_video">તમારી વ્યુ-એકવાર વિડિયો પર %1$s પ્રતિક્રિયા આપી.</string>
+  <!-- Removed by excludeNonTranslatables <string name="MessageNotifier_reacted_s_to_your_view_once_photo">તમારા વ્યુ-એકવાર ફોટા પર %1$s પર પ્રતિક્રિયા આપી.</string> -->
+  <!-- Removed by excludeNonTranslatables <string name="MessageNotifier_reacted_s_to_your_view_once_video">તમારી વ્યુ-એકવાર વિડિયો પર %1$s પ્રતિક્રિયા આપી.</string> -->
   <string name="MessageNotifier_reacted_s_to_your_sticker">તમારા સ્ટીકર પર %1$s પ્રતિક્રિયા આપી.</string>
   <string name="MessageNotifier_this_message_was_deleted">આ મેસેજ કાઢી નાખ્યો હતો.</string>
   <!--Notification Channels-->
@@ -983,7 +983,7 @@
   <string name="ContactSelectionListFragment_error_retrieving_contacts_check_your_network_connection">કૃપા કરીને એપ્લિકેશન સેટિંગ્સ મેનૂ પર ચાલુ રાખો, \"પરવાનગી\" પસંદ કરો અને \"સંપર્કો\" ને સક્ષમ કરો.</string>
   <string name="ContactSelectionListFragment_username_not_found">વપરાશકર્તા નામ મળ્યું નથી</string>
   <string name="ContactSelectionListFragment_s_is_not_a_signal_user">\"%1$s\" Signal વપરાશકર્તા નથી. કૃપા કરીને વપરાશકર્તા નામ તપાસો અને ફરીથી પ્રયાસ કરો.</string>
-  <string name="ContactSelectionListFragment_okay">બરાબર</string>
+  <!-- Removed by excludeNonTranslatables <string name="ContactSelectionListFragment_okay">બરાબર</string> -->
   <!--blocked_contacts_fragment-->
   <string name="blocked_contacts_fragment__no_blocked_contacts">કોઈ અવરોધિત સંપર્કો નથી</string>
   <!--contact_selection_list_fragment-->
@@ -1134,7 +1134,7 @@
   </plurals>
   <string name="GroupUtil_group_name_is_now">ગ્રુપ નું નામ હવે \'%1$s\' છે.</string>
   <!--profile_group_share_view-->
-  <string name="profile_group_share_view__make_your_profile_name_and_photo_visible_to_this_group">આ ગ્રુપ માટે તમારું પ્રોફાઇલ નામ અને ફોટો દૃશ્યક્ષમ બનાવો?</string>
+  <!-- Removed by excludeNonTranslatables <string name="profile_group_share_view__make_your_profile_name_and_photo_visible_to_this_group">આ ગ્રુપ માટે તમારું પ્રોફાઇલ નામ અને ફોટો દૃશ્યક્ષમ બનાવો?</string> -->
   <!--prompt_passphrase_activity-->
   <string name="prompt_passphrase_activity__unlock">અનલૉક</string>
   <!--prompt_mms_activity-->
@@ -1241,8 +1241,8 @@
   <string name="preferences__use_signal_for_viewing_and_storing_all_incoming_multimedia_messages">બધા આવતા મલ્ટિમીડિયા મેસેજ માટે Signal નો ઉપયોગ કરો</string>
   <string name="preferences__pref_enter_sends_title">કી મોકલો દાખલ કરો</string>
   <string name="preferences__pressing_the_enter_key_will_send_text_messages">એન્ટર કી દબાવવાથી ટેક્સ્ટ મેસેજ મોકલાશે</string>
-  <string name="preferences__send_link_previews">લિંક પ્રિવ્યુ મોકલો</string>
-  <string name="preferences__previews_are_supported_for">પ્રિવ્યુ નો Imgur, Instagram, Pinterest, Reddit અને YouTube લિંક્સ માટે સપોર્ટેડ છે</string>
+  <!-- Removed by excludeNonTranslatables <string name="preferences__send_link_previews">લિંક પ્રિવ્યુ મોકલો</string> -->
+  <!-- Removed by excludeNonTranslatables <string name="preferences__previews_are_supported_for">પ્રિવ્યુ નો Imgur, Instagram, Pinterest, Reddit અને YouTube લિંક્સ માટે સપોર્ટેડ છે</string> -->
   <string name="preferences__choose_identity">ઓળખ પસંદ કરો</string>
   <string name="preferences__choose_your_contact_entry_from_the_contacts_list">સંપર્કોની સૂચિમાંથી તમારી સંપર્ક એન્ટ્રી પસંદ કરો.</string>
   <string name="preferences__change_passphrase">પાસફ્રેઝ બદલો</string>
@@ -1292,13 +1292,13 @@
   <string name="preferences__mmsc_password">MMSC પાસવર્ડ</string>
   <string name="preferences__sms_delivery_reports">SMS ડિલિવરી અહેવાલો</string>
   <string name="preferences__request_a_delivery_report_for_each_sms_message_you_send">તમે મોકલો છો તે દરેક SMS મેસેજ માટે ડિલિવરી રિપોર્ટની વિનંતી કરો</string>
-  <string name="preferences__automatically_delete_older_messages_once_a_conversation_exceeds_a_specified_length">એકવાર સંવાદ ની ઉલ્લેખિત લંબાઈથી વધુ થઈ જાય ત્યારે જૂના મેસેજ આપમેળે કાઢી નાખો</string>
-  <string name="preferences__delete_old_messages">જૂના મેસેજ કાઢી નાખો</string>
+  <!-- Removed by excludeNonTranslatables <string name="preferences__automatically_delete_older_messages_once_a_conversation_exceeds_a_specified_length">એકવાર સંવાદ ની ઉલ્લેખિત લંબાઈથી વધુ થઈ જાય ત્યારે જૂના મેસેજ આપમેળે કાઢી નાખો</string> -->
+  <!-- Removed by excludeNonTranslatables <string name="preferences__delete_old_messages">જૂના મેસેજ કાઢી નાખો</string> -->
   <string name="preferences__chats">ચેટ અને મીડિયા</string>
   <string name="preferences__storage">સ્ટોરેજ</string>
   <string name="preferences__conversation_length_limit">સંવાદ ની લંબાઈ મર્યાદા</string>
-  <string name="preferences__trim_all_conversations_now">બધા સંવાદ ને હવે ટ્રિમ કરો</string>
-  <string name="preferences__scan_through_all_conversations_and_enforce_conversation_length_limits">બધા સંવાદ દ્વારા સ્કેન કરો અને સંવાદ ની લંબાઈ મર્યાદા લાગુ કરો</string>
+  <!-- Removed by excludeNonTranslatables <string name="preferences__trim_all_conversations_now">બધા સંવાદ ને હવે ટ્રિમ કરો</string> -->
+  <!-- Removed by excludeNonTranslatables <string name="preferences__scan_through_all_conversations_and_enforce_conversation_length_limits">બધા સંવાદ દ્વારા સ્કેન કરો અને સંવાદ ની લંબાઈ મર્યાદા લાગુ કરો</string> -->
   <string name="preferences__linked_devices">લિંક થયેલ ડિવાઇસ</string>
   <string name="preferences__light_theme">લાઈટ</string>
   <string name="preferences__dark_theme">ડાર્ક</string>
@@ -1317,12 +1317,12 @@
   <string name="preferences__typing_indicators">ટાઇપિંગ સૂચકો</string>
   <string name="preferences__if_typing_indicators_are_disabled_you_wont_be_able_to_see_typing_indicators">જો ટાઇપિંગ સૂચકો અક્ષમ છે, તો તમે અન્ય લોકો તરફથી ટાઇપિંગ સૂચકો જોશો નહીં.</string>
   <string name="preferences__request_keyboard_to_disable_personalized_learning">વ્યક્તિગત કરેલ શિક્ષણને અક્ષમ કરવા માટે કીબોર્ડની વિનંતી કરો</string>
-  <string name="preferences_app_protection__blocked_contacts">અવરોધિત સંપર્કો</string>
+  <!-- Removed by excludeNonTranslatables <string name="preferences_app_protection__blocked_contacts">અવરોધિત સંપર્કો</string> -->
   <string name="preferences_chats__when_using_mobile_data">મોબાઇલ ડેટાનો ઉપયોગ કરતી વખતે</string>
   <string name="preferences_chats__when_using_wifi">Wi-Fi નો ઉપયોગ કરતી વખતે</string>
   <string name="preferences_chats__when_roaming">રોમિંગ કરતી વખતે</string>
   <string name="preferences_chats__media_auto_download">મીડિયા સ્વત:ડાઉનલોડ</string>
-  <string name="preferences_chats__message_trimming">મેસેજ સુવ્યવસ્થિત</string>
+  <!-- Removed by excludeNonTranslatables <string name="preferences_chats__message_trimming">મેસેજ સુવ્યવસ્થિત</string> -->
   <string name="preferences_storage__storage_usage">સ્ટોરેજ વપરાશ</string>
   <string name="preferences_storage__photos">ફોટા</string>
   <string name="preferences_storage__videos">વિડિયો</string>
@@ -1432,14 +1432,14 @@
   <string name="verify_display_fragment_context_menu__copy_to_clipboard">ક્લિપબોર્ડ પર કૉપી કરેલું</string>
   <string name="verify_display_fragment_context_menu__compare_with_clipboard">ક્લિપબોર્ડ સાથે તુલના કરો</string>
   <!--reminder_header-->
-  <string name="reminder_header_outdated_build">તમારું Signal નું વર્ઝન જૂનું છે</string>
-  <plurals name="reminder_header_outdated_build_details">
+  <!-- Removed by excludeNonTranslatables <string name="reminder_header_outdated_build">તમારું Signal નું વર્ઝન જૂનું છે</string> -->
+  <!-- Removed by excludeNonTranslatables <plurals name="reminder_header_outdated_build_details">
     <item quantity="one">તમારું Signal નું વર્ઝન %d દિવસો સમાપ્ત થશે. સૌથી તાજેતરના વર્ઝન પર અપડેટ કરવા માટે ટેપ કરો.</item>
     <item quantity="other">તમારું Signal નું વર્ઝન%d દિવસોમાં સમાપ્ત થશે. સૌથી તાજેતરના વર્ઝન પર અપડેટ કરવા માટે ટેપ કરો.</item>
-  </plurals>
-  <string name="reminder_header_outdated_build_details_today">તમારું Signal નું વર્ઝન આજે સમાપ્ત થશે. સૌથી તાજેતરના વર્ઝન પર અપડેટ કરવા માટે ટેપ કરો.</string>
-  <string name="reminder_header_expired_build">તમારું Signal નું વર્ઝન સમાપ્ત થઈ ગયું છે!</string>
-  <string name="reminder_header_expired_build_details">મેસેજ હવે સફળતાપૂર્વક મોકલશે નહીં. સૌથી તાજેતરના વર્ઝન પર અપડેટ કરવા માટે ટેપ કરો.</string>
+  </plurals> -->
+  <!-- Removed by excludeNonTranslatables <string name="reminder_header_outdated_build_details_today">તમારું Signal નું વર્ઝન આજે સમાપ્ત થશે. સૌથી તાજેતરના વર્ઝન પર અપડેટ કરવા માટે ટેપ કરો.</string> -->
+  <!-- Removed by excludeNonTranslatables <string name="reminder_header_expired_build">તમારું Signal નું વર્ઝન સમાપ્ત થઈ ગયું છે!</string> -->
+  <!-- Removed by excludeNonTranslatables <string name="reminder_header_expired_build_details">મેસેજ હવે સફળતાપૂર્વક મોકલશે નહીં. સૌથી તાજેતરના વર્ઝન પર અપડેટ કરવા માટે ટેપ કરો.</string> -->
   <string name="reminder_header_sms_default_title">ડિફોલ્ટ SMS એપ્લિકેશન તરીકે ઉપયોગ કરો</string>
   <string name="reminder_header_sms_default_text">તમારી ડિફોલ્ટ SMS એપ્લિકેશન Signal બનાવવા માટે ટેપ કરો.</string>
   <string name="reminder_header_sms_import_title">સિસ્ટમ SMS ઇમ્પોર્ટ કરો</string>

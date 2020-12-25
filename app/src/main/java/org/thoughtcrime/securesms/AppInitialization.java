@@ -4,12 +4,12 @@ import android.content.Context;
 
 import androidx.annotation.NonNull;
 
+import org.signal.core.util.logging.Log;
 import org.thoughtcrime.securesms.dependencies.ApplicationDependencies;
 import org.thoughtcrime.securesms.insights.InsightsOptOut;
 import org.thoughtcrime.securesms.jobmanager.JobManager;
 import org.thoughtcrime.securesms.jobs.StickerPackDownloadJob;
 import org.thoughtcrime.securesms.keyvalue.SignalStore;
-import org.thoughtcrime.securesms.logging.Log;
 import org.thoughtcrime.securesms.migrations.ApplicationMigrations;
 import org.thoughtcrime.securesms.stickers.BlessedPacks;
 import org.thoughtcrime.securesms.util.TextSecurePreferences;
@@ -34,6 +34,11 @@ public final class AppInitialization {
     TextSecurePreferences.setJobManagerVersion(context, JobManager.CURRENT_VERSION);
     TextSecurePreferences.setLastExperienceVersionCode(context, Util.getCanonicalVersionCode());
     TextSecurePreferences.setHasSeenStickerIntroTooltip(context, true);
+    TextSecurePreferences.setPasswordDisabled(context, true);
+    TextSecurePreferences.setLastExperienceVersionCode(context, Util.getCanonicalVersionCode());
+    TextSecurePreferences.setReadReceiptsEnabled(context, true);
+    TextSecurePreferences.setTypingIndicatorsEnabled(context, true);
+    TextSecurePreferences.setHasSeenWelcomeScreen(context, false);
     ApplicationDependencies.getMegaphoneRepository().onFirstEverAppLaunch();
     SignalStore.onFirstEverAppLaunch();
     ApplicationDependencies.getJobManager().add(StickerPackDownloadJob.forInstall(BlessedPacks.ZOZO.getPackId(), BlessedPacks.ZOZO.getPackKey(), false));

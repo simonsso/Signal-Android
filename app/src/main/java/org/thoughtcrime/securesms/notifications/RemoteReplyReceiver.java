@@ -23,10 +23,11 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+
 import androidx.core.app.RemoteInput;
 
 import org.thoughtcrime.securesms.database.DatabaseFactory;
-import org.thoughtcrime.securesms.database.MessagingDatabase.MarkedMessageInfo;
+import org.thoughtcrime.securesms.database.MessageDatabase.MarkedMessageInfo;
 import org.thoughtcrime.securesms.dependencies.ApplicationDependencies;
 import org.thoughtcrime.securesms.mms.OutgoingMediaMessage;
 import org.thoughtcrime.securesms.recipients.Recipient;
@@ -77,7 +78,20 @@ public class RemoteReplyReceiver extends BroadcastReceiver {
 
           switch (replyMethod) {
             case GroupMessage: {
-              OutgoingMediaMessage reply = new OutgoingMediaMessage(recipient, responseText.toString(), new LinkedList<>(), System.currentTimeMillis(), subscriptionId, expiresIn, false, 0, null, Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), Collections.emptyList());
+              OutgoingMediaMessage reply = new OutgoingMediaMessage(recipient,
+                                                                    responseText.toString(),
+                                                                    new LinkedList<>(),
+                                                                    System.currentTimeMillis(),
+                                                                    subscriptionId,
+                                                                    expiresIn,
+                                                                    false,
+                                                                    0,
+                                                                    null,
+                                                                    Collections.emptyList(),
+                                                                    Collections.emptyList(),
+                                                                    Collections.emptyList(),
+                                                                    Collections.emptyList(),
+                                                                    Collections.emptyList());
               threadId = MessageSender.send(context, reply, -1, false, null);
               break;
             }

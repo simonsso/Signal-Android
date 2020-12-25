@@ -8,6 +8,8 @@ import androidx.annotation.WorkerThread;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
+import org.signal.core.util.concurrent.SignalExecutors;
+import org.thoughtcrime.securesms.conversation.ConversationMessage.ConversationMessageFactory;
 import org.thoughtcrime.securesms.database.DatabaseFactory;
 import org.thoughtcrime.securesms.database.GroupDatabase;
 import org.thoughtcrime.securesms.database.GroupReceiptDatabase;
@@ -16,7 +18,6 @@ import org.thoughtcrime.securesms.database.documents.NetworkFailure;
 import org.thoughtcrime.securesms.database.model.MessageRecord;
 import org.thoughtcrime.securesms.dependencies.ApplicationDependencies;
 import org.thoughtcrime.securesms.recipients.Recipient;
-import org.thoughtcrime.securesms.util.concurrent.SignalExecutors;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -86,7 +87,7 @@ final class MessageDetailsRepository {
       }
     }
 
-    return new MessageDetails(messageRecord, recipients);
+    return new MessageDetails(ConversationMessageFactory.createWithUnresolvedData(context, messageRecord), recipients);
   }
 
   private @Nullable NetworkFailure getNetworkFailure(MessageRecord messageRecord, Recipient recipient) {

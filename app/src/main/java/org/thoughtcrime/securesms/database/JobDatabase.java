@@ -3,21 +3,22 @@ package org.thoughtcrime.securesms.database;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
+
 import androidx.annotation.NonNull;
 
 import com.annimon.stream.Stream;
-
-import net.sqlcipher.database.SQLiteDatabase;
 
 import org.thoughtcrime.securesms.database.helpers.SQLCipherOpenHelper;
 import org.thoughtcrime.securesms.jobmanager.persistence.ConstraintSpec;
 import org.thoughtcrime.securesms.jobmanager.persistence.DependencySpec;
 import org.thoughtcrime.securesms.jobmanager.persistence.FullSpec;
 import org.thoughtcrime.securesms.jobmanager.persistence.JobSpec;
+import org.thoughtcrime.securesms.tracing.Trace;
 
 import java.util.LinkedList;
 import java.util.List;
 
+@Trace
 public class JobDatabase extends Database {
 
   public static String JOBS_TABLE_NAME         = "job_spec";
@@ -176,7 +177,7 @@ public class JobDatabase extends Database {
               values.put(Jobs.RUN_ATTEMPT, job.getRunAttempt());
               values.put(Jobs.MAX_ATTEMPTS, job.getMaxAttempts());
               values.put(Jobs.MAX_BACKOFF, job.getMaxBackoff());
-              values.put(Jobs.MAX_INSTANCES, job.getMaxInstances());
+              values.put(Jobs.MAX_INSTANCES, job.getMaxInstancesForFactory());
               values.put(Jobs.LIFESPAN, job.getLifespan());
               values.put(Jobs.SERIALIZED_DATA, job.getSerializedData());
               values.put(Jobs.SERIALIZED_INPUT_DATA, job.getSerializedInputData());
@@ -253,7 +254,7 @@ public class JobDatabase extends Database {
     contentValues.put(Jobs.RUN_ATTEMPT, job.getRunAttempt());
     contentValues.put(Jobs.MAX_ATTEMPTS, job.getMaxAttempts());
     contentValues.put(Jobs.MAX_BACKOFF, job.getMaxBackoff());
-    contentValues.put(Jobs.MAX_INSTANCES, job.getMaxInstances());
+    contentValues.put(Jobs.MAX_INSTANCES, job.getMaxInstancesForFactory());
     contentValues.put(Jobs.LIFESPAN, job.getLifespan());
     contentValues.put(Jobs.SERIALIZED_DATA, job.getSerializedData());
     contentValues.put(Jobs.SERIALIZED_INPUT_DATA, job.getSerializedInputData());

@@ -10,11 +10,11 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.WorkerThread;
 
+import org.signal.core.util.logging.Log;
 import org.thoughtcrime.securesms.ApplicationContext;
 import org.thoughtcrime.securesms.database.AttachmentDatabase;
 import org.thoughtcrime.securesms.database.DatabaseFactory;
-import org.thoughtcrime.securesms.database.MmsDatabase;
-import org.thoughtcrime.securesms.logging.Log;
+import org.thoughtcrime.securesms.database.MessageDatabase;
 import org.thoughtcrime.securesms.service.TimedEventManager;
 
 /**
@@ -24,7 +24,7 @@ public class ViewOnceMessageManager extends TimedEventManager<ViewOnceExpiration
 
   private static final String TAG = Log.tag(ViewOnceMessageManager.class);
 
-  private final MmsDatabase        mmsDatabase;
+  private final MessageDatabase    mmsDatabase;
   private final AttachmentDatabase attachmentDatabase;
 
   public ViewOnceMessageManager(@NonNull Application application) {

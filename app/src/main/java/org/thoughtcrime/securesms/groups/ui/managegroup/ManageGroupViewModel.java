@@ -22,44 +22,48 @@ import org.thoughtcrime.securesms.ExpirationDialog;
 import org.thoughtcrime.securesms.R;
 import org.thoughtcrime.securesms.contacts.ContactsCursorLoader;
 import org.thoughtcrime.securesms.database.MediaDatabase;
+import org.thoughtcrime.securesms.database.MentionUtil;
 import org.thoughtcrime.securesms.database.loaders.MediaLoader;
 import org.thoughtcrime.securesms.database.loaders.ThreadMediaLoader;
 import org.thoughtcrime.securesms.groups.GroupAccessControl;
 import org.thoughtcrime.securesms.groups.GroupId;
 import org.thoughtcrime.securesms.groups.LiveGroup;
+import org.thoughtcrime.securesms.groups.SelectionLimits;
 import org.thoughtcrime.securesms.groups.ui.GroupChangeFailureReason;
 import org.thoughtcrime.securesms.groups.ui.GroupErrors;
+import org.thoughtcrime.securesms.groups.ui.GroupLimitDialog;
 import org.thoughtcrime.securesms.groups.ui.GroupMemberEntry;
 import org.thoughtcrime.securesms.groups.ui.addmembers.AddMembersActivity;
+import org.thoughtcrime.securesms.groups.ui.managegroup.dialogs.GroupMentionSettingDialog;
+import org.thoughtcrime.securesms.groups.v2.GroupLinkUrlAndStatus;
 import org.thoughtcrime.securesms.notifications.NotificationChannels;
 import org.thoughtcrime.securesms.recipients.Recipient;
 import org.thoughtcrime.securesms.recipients.RecipientId;
 import org.thoughtcrime.securesms.recipients.RecipientUtil;
+import org.thoughtcrime.securesms.util.AsynchronousCallback;
 import org.thoughtcrime.securesms.util.DefaultValueLiveData;
 import org.thoughtcrime.securesms.util.ExpirationUtil;
 import org.thoughtcrime.securesms.util.FeatureFlags;
-import org.thoughtcrime.securesms.util.SingleLiveEvent;
 import org.thoughtcrime.securesms.util.Util;
 import org.thoughtcrime.securesms.util.livedata.LiveDataUtil;
 import org.thoughtcrime.securesms.util.views.SimpleProgressDialog;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class ManageGroupViewModel extends ViewModel {
 
-  private static final int MAX_COLLAPSED_MEMBERS = 5;
+  private static final int MAX_UNCOLLAPSED_MEMBERS = 6;
+  private static final int SHOW_COLLAPSED_MEMBERS  = 5;
 
   private final Context                                     context;
   private final ManageGroupRepository                       manageGroupRepository;
-  private final SingleLiveEvent<SnackbarEvent>              snackbarEvents            = new SingleLiveEvent<>();
-  private final SingleLiveEvent<InvitedDialogEvent>         invitedDialogEvents       = new SingleLiveEvent<>();
   private final LiveData<String>                            title;
   private final LiveData<Boolean>                           isAdmin;
   private final LiveData<Boolean>                           canEditGroupAttributes;
   private final LiveData<Boolean>                           canAddMembers;
   private final LiveData<List<GroupMemberEntry.FullMember>> members;
   private final LiveData<Integer>                           pendingMemberCount;
+  private final LiveData<Integer>                           pendingAndRequestingCount;
   private final LiveData<String>                            disappearingMessageTimer;
   private final LiveData<String>                            memberCountSummary;
   private final LiveData<String>                            fullMemberCountSummary;
@@ -74,28 +78,32 @@ public class ManageGroupViewModel extends ViewModel {
   private final LiveData<Boolean>                           canLeaveGroup;
   private final LiveData<Boolean>                           canBlockGroup;
   private final LiveData<Boolean>                           showLegacyIndicator;
+  private final LiveData<String>                            mentionSetting;
+  private final LiveData<Boolean>                           groupLinkOn;
+  private final LiveData<GroupInfoMessage>                  groupInfoMessage;
 
-  private ManageGroupViewModel(@NonNull Context context, @NonNull ManageGroupRepository manageGroupRepository) {
+  private ManageGroupViewModel(@NonNull Context context, @NonNull GroupId groupId, @NonNull ManageGroupRepository manageGroupRepository) {
     this.context               = context;
     this.manageGroupRepository = manageGroupRepository;
 
-    manageGroupRepository.getGroupState(this::groupStateLoaded);
+    manageGroupRepository.getGroupState(groupId, this::groupStateLoaded);
 
-    GroupId   groupId   = manageGroupRepository.getGroupId();
     LiveGroup liveGroup = new LiveGroup(groupId);
 
     this.title                     = Transformations.map(liveGroup.getTitle(),
                                                          title -> TextUtils.isEmpty(title) ? context.getString(R.string.Recipient_unknown)
                                                                                            : title);
+    this.groupRecipient            = liveGroup.getGroupRecipient();
     this.isAdmin                   = liveGroup.isSelfAdmin();
     this.canCollapseMemberList     = LiveDataUtil.combineLatest(memberListCollapseState,
-                                                                Transformations.map(liveGroup.getFullMembers(), m -> m.size() > MAX_COLLAPSED_MEMBERS),
+                                                                Transformations.map(liveGroup.getFullMembers(), m -> m.size() > MAX_UNCOLLAPSED_MEMBERS),
                                                                 (state, hasEnoughMembers) -> state != CollapseState.OPEN && hasEnoughMembers);
     this.members                   = LiveDataUtil.combineLatest(liveGroup.getFullMembers(),
                                                                 memberListCollapseState,
                                                                 ManageGroupViewModel::filterMemberList);
     this.pendingMemberCount        = liveGroup.getPendingMemberCount();
-    this.showLegacyIndicator       = new MutableLiveData<>(groupId.isV1() && FeatureFlags.groupsV2create());
+    this.pendingAndRequestingCount = liveGroup.getPendingAndRequestingMemberCount();
+    this.showLegacyIndicator       = Transformations.map(groupRecipient, recipient -> recipient.requireGroupId().isV1());
     this.memberCountSummary        = LiveDataUtil.combineLatest(liveGroup.getMembershipCountDescription(context.getResources()),
                                                                 this.showLegacyIndicator,
                                                                 (description, legacy) -> legacy ? String.format("%s · %s", description, context.getString(R.string.ManageGroupActivity_legacy_group))
@@ -106,13 +114,31 @@ public class ManageGroupViewModel extends ViewModel {
     this.disappearingMessageTimer  = Transformations.map(liveGroup.getExpireMessages(), expiration -> ExpirationUtil.getExpirationDisplayValue(context, expiration));
     this.canEditGroupAttributes    = liveGroup.selfCanEditGroupAttributes();
     this.canAddMembers             = liveGroup.selfCanAddMembers();
-    this.groupRecipient            = liveGroup.getGroupRecipient();
     this.muteState                 = Transformations.map(this.groupRecipient,
                                                          recipient -> new MuteState(recipient.getMuteUntil(), recipient.isMuted()));
     this.hasCustomNotifications    = Transformations.map(this.groupRecipient,
                                                          recipient -> recipient.getNotificationChannel() != null || !NotificationChannels.supported());
     this.canLeaveGroup             = liveGroup.isActive();
     this.canBlockGroup             = Transformations.map(this.groupRecipient, recipient -> !recipient.isBlocked());
+    this.mentionSetting            = Transformations.distinctUntilChanged(Transformations.map(this.groupRecipient,
+                                                                                              recipient -> MentionUtil.getMentionSettingDisplayValue(context, recipient.getMentionSetting())));
+    this.groupLinkOn               = Transformations.map(liveGroup.getGroupLink(), GroupLinkUrlAndStatus::isEnabled);
+    this.groupInfoMessage          = Transformations.map(this.groupRecipient,
+                                                         recipient -> {
+                                                           boolean showLegacyInfo = recipient.requireGroupId().isV1();
+
+                                                           if (showLegacyInfo && FeatureFlags.groupsV1ManualMigration() && recipient.getParticipants().size() > FeatureFlags.groupLimits().getHardLimit()) {
+                                                             return GroupInfoMessage.LEGACY_GROUP_TOO_LARGE;
+                                                           } else if (showLegacyInfo && FeatureFlags.groupsV1ManualMigration()) {
+                                                             return GroupInfoMessage.LEGACY_GROUP_UPGRADE;
+                                                           } else if (showLegacyInfo) {
+                                                             return GroupInfoMessage.LEGACY_GROUP_LEARN_MORE;
+                                                           } else if (groupId.isMms()) {
+                                                             return GroupInfoMessage.MMS_WARNING;
+                                                           } else {
+                                                             return GroupInfoMessage.NONE;
+                                                           }
+                                                         });
   }
 
   @WorkerThread
@@ -130,16 +156,16 @@ public class ManageGroupViewModel extends ViewModel {
     return pendingMemberCount;
   }
 
+  LiveData<Integer> getPendingAndRequestingCount() {
+    return pendingAndRequestingCount;
+  }
+
   LiveData<String> getMemberCountSummary() {
     return memberCountSummary;
   }
 
   LiveData<String> getFullMemberCountSummary() {
     return fullMemberCountSummary;
-  }
-
-  LiveData<Boolean> getShowLegacyIndicator() {
-    return showLegacyIndicator;
   }
 
   LiveData<Recipient> getGroupRecipient() {
@@ -186,14 +212,6 @@ public class ManageGroupViewModel extends ViewModel {
     return hasCustomNotifications;
   }
 
-  SingleLiveEvent<SnackbarEvent> getSnackbarEvents() {
-    return snackbarEvents;
-  }
-
-  SingleLiveEvent<InvitedDialogEvent> getInvitedDialogEvents() {
-    return invitedDialogEvents;
-  }
-
   LiveData<Boolean> getCanCollapseMemberList() {
     return canCollapseMemberList;
   }
@@ -206,77 +224,92 @@ public class ManageGroupViewModel extends ViewModel {
     return canLeaveGroup;
   }
 
+  LiveData<String> getMentionSetting() {
+    return mentionSetting;
+  }
+
+  LiveData<Boolean> getGroupLinkOn() {
+    return groupLinkOn;
+  }
+
+  LiveData<GroupInfoMessage> getGroupInfoMessage() {
+    return groupInfoMessage;
+  }
+
   void handleExpirationSelection() {
-    manageGroupRepository.getRecipient(groupRecipient ->
+    manageGroupRepository.getRecipient(getGroupId(),
+                                       groupRecipient ->
                                          ExpirationDialog.show(context,
                                                                groupRecipient.getExpireMessages(),
-                                                               expirationTime -> manageGroupRepository.setExpiration(expirationTime, this::showErrorToast)));
+                                                               expirationTime -> manageGroupRepository.setExpiration(getGroupId(), expirationTime, this::showErrorToast)));
   }
 
   void applyMembershipRightsChange(@NonNull GroupAccessControl newRights) {
-    manageGroupRepository.applyMembershipRightsChange(newRights, this::showErrorToast);
+    manageGroupRepository.applyMembershipRightsChange(getGroupId(), newRights, this::showErrorToast);
   }
 
   void applyAttributesRightsChange(@NonNull GroupAccessControl newRights) {
-    manageGroupRepository.applyAttributesRightsChange(newRights, this::showErrorToast);
+    manageGroupRepository.applyAttributesRightsChange(getGroupId(), newRights, this::showErrorToast);
   }
 
   void blockAndLeave(@NonNull FragmentActivity activity) {
-    manageGroupRepository.getRecipient(recipient -> BlockUnblockDialog.showBlockFor(activity,
+    manageGroupRepository.getRecipient(getGroupId(),
+                                       recipient -> BlockUnblockDialog.showBlockFor(activity,
                                                                                     activity.getLifecycle(),
                                                                                     recipient,
                                                                                     this::onBlockAndLeaveConfirmed));
   }
 
   void unblock(@NonNull FragmentActivity activity) {
-    manageGroupRepository.getRecipient(recipient -> BlockUnblockDialog.showUnblockFor(activity, activity.getLifecycle(), recipient,
+    manageGroupRepository.getRecipient(getGroupId(),
+                                       recipient -> BlockUnblockDialog.showUnblockFor(activity, activity.getLifecycle(), recipient,
                                        () -> RecipientUtil.unblock(context, recipient)));
   }
 
-  void onAddMembers(List<RecipientId> selected) {
-    manageGroupRepository.addMembers(selected, this::showAddSuccess, this::showErrorToast);
+  void onAddMembers(@NonNull List<RecipientId> selected,
+                    @NonNull AsynchronousCallback.MainThread<AddMembersResult, GroupChangeFailureReason> callback)
+  {
+    manageGroupRepository.addMembers(getGroupId(), selected, callback.toWorkerCallback());
   }
 
   void setMuteUntil(long muteUntil) {
-    manageGroupRepository.setMuteUntil(muteUntil);
+    manageGroupRepository.setMuteUntil(getGroupId(), muteUntil);
   }
 
   void clearMuteUntil() {
-    manageGroupRepository.setMuteUntil(0);
+    manageGroupRepository.setMuteUntil(getGroupId(), 0);
   }
 
   void revealCollapsedMembers() {
     memberListCollapseState.setValue(CollapseState.OPEN);
   }
 
+  void handleMentionNotificationSelection() {
+    manageGroupRepository.getRecipient(getGroupId(), r -> GroupMentionSettingDialog.show(context, r.getMentionSetting(), setting -> manageGroupRepository.setMentionSetting(getGroupId(), setting)));
+  }
+
   private void onBlockAndLeaveConfirmed() {
     SimpleProgressDialog.DismissibleDialog dismissibleDialog = SimpleProgressDialog.showDelayed(context);
 
-    manageGroupRepository.blockAndLeaveGroup(e -> {
+    manageGroupRepository.blockAndLeaveGroup(getGroupId(),
+                                             e -> {
                                                dismissibleDialog.dismiss();
                                                showErrorToast(e);
                                              },
                                              dismissibleDialog::dismiss);
   }
 
+  private @NonNull GroupId getGroupId() {
+    return groupRecipient.getValue().requireGroupId();
+  }
+
   private static @NonNull List<GroupMemberEntry.FullMember> filterMemberList(@NonNull List<GroupMemberEntry.FullMember> members,
                                                                              @NonNull CollapseState collapseState)
   {
-    if (collapseState == CollapseState.COLLAPSED && members.size() > MAX_COLLAPSED_MEMBERS) {
-      return members.subList(0, MAX_COLLAPSED_MEMBERS);
+    if (collapseState == CollapseState.COLLAPSED && members.size() > MAX_UNCOLLAPSED_MEMBERS) {
+      return members.subList(0, SHOW_COLLAPSED_MEMBERS);
     } else {
       return members;
-    }
-  }
-
-  @WorkerThread
-  private void showAddSuccess(int numberOfMembersAdded, @NonNull List<RecipientId> newInvitedMembers) {
-    if (!newInvitedMembers.isEmpty()) {
-      invitedDialogEvents.postValue(new InvitedDialogEvent(Recipient.resolvedList(newInvitedMembers)));
-    }
-
-    if (numberOfMembersAdded > 0) {
-      snackbarEvents.postValue(new SnackbarEvent(numberOfMembersAdded));
     }
   }
 
@@ -286,19 +319,37 @@ public class ManageGroupViewModel extends ViewModel {
   }
 
   public void onAddMembersClick(@NonNull Fragment fragment, int resultCode) {
-    manageGroupRepository.getGroupCapacity(capacity -> {
-      int remainingCapacity = capacity.getTotalCapacity();
+    manageGroupRepository.getGroupCapacity(getGroupId(), capacity -> {
+      int remainingCapacity = capacity.getRemainingCapacity();
       if (remainingCapacity <= 0) {
-        Toast.makeText(fragment.requireContext(), R.string.ContactSelectionListFragment_the_group_is_full, Toast.LENGTH_SHORT).show();
+        GroupLimitDialog.showHardLimitMessage(fragment.requireContext());
       } else {
         Intent intent = new Intent(fragment.requireActivity(), AddMembersActivity.class);
-        intent.putExtra(AddMembersActivity.GROUP_ID, manageGroupRepository.getGroupId().toString());
+        intent.putExtra(AddMembersActivity.GROUP_ID, getGroupId().toString());
         intent.putExtra(ContactSelectionListFragment.DISPLAY_MODE, ContactsCursorLoader.DisplayMode.FLAG_PUSH);
-        intent.putExtra(ContactSelectionListFragment.TOTAL_CAPACITY, remainingCapacity);
-        intent.putParcelableArrayListExtra(ContactSelectionListFragment.CURRENT_SELECTION, new ArrayList<>(capacity.getMembers()));
+        intent.putExtra(ContactSelectionListFragment.SELECTION_LIMITS, new SelectionLimits(capacity.getSelectionWarning(), capacity.getSelectionLimit()));
+        intent.putParcelableArrayListExtra(ContactSelectionListFragment.CURRENT_SELECTION, capacity.getMembersWithoutSelf());
         fragment.startActivityForResult(intent, resultCode);
       }
     });
+  }
+
+  static final class AddMembersResult {
+    private final int             numberOfMembersAdded;
+    private final List<Recipient> newInvitedMembers;
+
+    AddMembersResult(int numberOfMembersAdded, @NonNull List<Recipient> newInvitedMembers) {
+      this.numberOfMembersAdded = numberOfMembersAdded;
+      this.newInvitedMembers    = newInvitedMembers;
+    }
+
+    int getNumberOfMembersAdded() {
+      return numberOfMembersAdded;
+    }
+
+    List<Recipient> getNewInvitedMembers() {
+      return newInvitedMembers;
+    }
   }
 
   static final class GroupViewState {
@@ -346,29 +397,12 @@ public class ManageGroupViewModel extends ViewModel {
     }
   }
 
-  static final class SnackbarEvent {
-    private final int numberOfMembersAdded;
-
-    private SnackbarEvent(int numberOfMembersAdded) {
-      this.numberOfMembersAdded = numberOfMembersAdded;
-    }
-
-    public int getNumberOfMembersAdded() {
-      return numberOfMembersAdded;
-    }
-  }
-
-  static final class InvitedDialogEvent {
-
-    private final List<Recipient> newInvitedMembers;
-
-    private InvitedDialogEvent(@NonNull List<Recipient> newInvitedMembers) {
-      this.newInvitedMembers = newInvitedMembers;
-    }
-
-    public @NonNull List<Recipient> getNewInvitedMembers() {
-      return newInvitedMembers;
-    }
+  enum GroupInfoMessage {
+    NONE,
+    LEGACY_GROUP_LEARN_MORE,
+    LEGACY_GROUP_UPGRADE,
+    LEGACY_GROUP_TOO_LARGE,
+    MMS_WARNING
   }
 
   private enum CollapseState {
@@ -392,7 +426,7 @@ public class ManageGroupViewModel extends ViewModel {
     @Override
     public @NonNull <T extends ViewModel> T create(@NonNull Class<T> modelClass) {
       //noinspection unchecked
-      return (T) new ManageGroupViewModel(context, new ManageGroupRepository(context.getApplicationContext(), groupId));
+      return (T) new ManageGroupViewModel(context, groupId, new ManageGroupRepository(context.getApplicationContext()));
     }
   }
 }

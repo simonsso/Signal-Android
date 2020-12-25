@@ -4,14 +4,9 @@ import android.content.Context;
 
 import androidx.annotation.NonNull;
 
-import net.sqlcipher.database.SQLiteDatabase;
-
-import org.thoughtcrime.securesms.dependencies.ApplicationDependencies;
 import org.thoughtcrime.securesms.recipients.RecipientId;
 import org.whispersystems.libsignal.util.guava.Optional;
 
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -64,7 +59,7 @@ class RemappedRecords {
    */
   void addThread(@NonNull Context context, long oldId, long newId) {
     ensureInTransaction(context);
-    ensureRecipientMapIsPopulated(context);
+    ensureThreadMapIsPopulated(context);
     threadMap.put(oldId, newId);
     DatabaseFactory.getRemappedRecordsDatabase(context).addThreadMapping(oldId, newId);
   }

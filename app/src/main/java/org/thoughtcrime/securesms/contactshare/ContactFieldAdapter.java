@@ -2,15 +2,16 @@ package org.thoughtcrime.securesms.contactshare;
 
 import android.content.Context;
 import android.net.Uri;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.annimon.stream.Stream;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
@@ -23,7 +24,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-import static org.thoughtcrime.securesms.contactshare.Contact.*;
+import static org.thoughtcrime.securesms.contactshare.Contact.Avatar;
+import static org.thoughtcrime.securesms.contactshare.Contact.Email;
+import static org.thoughtcrime.securesms.contactshare.Contact.PostalAddress;
 
 class ContactFieldAdapter extends RecyclerView.Adapter<ContactFieldAdapter.ContactFieldViewHolder> {
 
@@ -215,7 +218,7 @@ class ContactFieldAdapter extends RecyclerView.Adapter<ContactFieldAdapter.Conta
     Field(@NonNull Avatar avatar) {
       this.value      = "";
       this.iconResId  = R.drawable.baseline_account_circle_white_24;
-      this.iconUri    = avatar.getAttachment() != null ? avatar.getAttachment().getDataUri() : null;
+      this.iconUri    = avatar.getAttachment() != null ? avatar.getAttachment().getUri() : null;
       this.maxLines   = 1;
       this.selectable = avatar;
       this.label      = "";

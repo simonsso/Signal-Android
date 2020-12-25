@@ -77,7 +77,7 @@
   <!--AudioSlidePlayer-->
   <string name="AudioSlidePlayer_error_playing_audio">Tharla botún ag seinm na fuaime!</string>
   <!--BlockedContactsActivity-->
-  <string name="BlockedContactsActivity_blocked_contacts">Teagmhálaithe le bac orthu</string>
+  <!-- Removed by excludeNonTranslatables <string name="BlockedContactsActivity_blocked_contacts">Teagmhálaithe le bac orthu</string> -->
   <!--BucketedThreadMedia-->
   <string name="BucketedThreadMedia_Today">Inniu</string>
   <string name="BucketedThreadMedia_Yesterday">Inné</string>
@@ -157,8 +157,8 @@
   <string name="ConversationActivity_added_to_home_screen">Cuireadh leis an scáileán baile é</string>
   <string name="ConversationActivity_calls_not_supported">Ní thugtar tacaíocht do ghlaonna</string>
   <string name="ConversationActivity_this_device_does_not_appear_to_support_dial_actions">Tá an dealramh ar an ngléas seo nach dtacaíonn sé le gníomhartha dialála.</string>
-  <string name="ConversationActivity_leave_group">Fág an bhaicle?</string>
-  <string name="ConversationActivity_are_you_sure_you_want_to_leave_this_group">An bhfuil tú cinnte gur mian leat an bhaicle seo a fhágáil?</string>
+  <!-- Removed by excludeNonTranslatables <string name="ConversationActivity_leave_group">Fág an bhaicle?</string> -->
+  <!-- Removed by excludeNonTranslatables <string name="ConversationActivity_are_you_sure_you_want_to_leave_this_group">An bhfuil tú cinnte gur mian leat an bhaicle seo a fhágáil?</string> -->
   <string name="ConversationActivity_transport_insecure_sms">SMS easlán</string>
   <string name="ConversationActivity_transport_insecure_mms">MMS easlán</string>
   <string name="ConversationActivity_transport_signal">Signal</string>
@@ -397,13 +397,13 @@
   <string name="MessageRecord_message_encrypted_with_a_legacy_protocol_version_that_is_no_longer_supported">Fuair teachtaireacht cripithe ón seanleagan Signal nach bhfuil taca go bhfóill. Fiafraigh an seoltóir an leagan is déanaí a úsáid agus an teachtaireacht a athsheoladh.</string>
   <string name="MessageRecord_left_group">D\'fhág tú an bhaicle.</string>
   <string name="MessageRecord_you_updated_group">Nuashonraigh tú an bhaicle</string>
-  <string name="MessageRecord_you_called">Ghlaoigh tú air</string>
-  <string name="MessageRecord_called_you">Ghlaoigh teagmhálaí</string>
-  <string name="MessageRecord_missed_call">Glao caillte</string>
+  <!-- Removed by excludeNonTranslatables <string name="MessageRecord_you_called">Ghlaoigh tú air</string> -->
+  <!-- Removed by excludeNonTranslatables <string name="MessageRecord_called_you">Ghlaoigh teagmhálaí</string> -->
+  <!-- Removed by excludeNonTranslatables <string name="MessageRecord_missed_call">Glao caillte</string> -->
   <string name="MessageRecord_s_updated_group">Nuashonraigh %s an bhaicle</string>
-  <string name="MessageRecord_s_called_you">Chuir %s glaoch ort</string>
+  <!-- Removed by excludeNonTranslatables <string name="MessageRecord_s_called_you">Chuir %s glaoch ort</string> -->
   <string name="MessageRecord_called_s">Ghlaoigh tú %s</string>
-  <string name="MessageRecord_missed_call_from">Glao caillte ó %s</string>
+  <!-- Removed by excludeNonTranslatables <string name="MessageRecord_missed_call_from">Glao caillte ó %s</string> -->
   <string name="MessageRecord_s_joined_signal">Tá %s ar Signal!</string>
   <string name="MessageRecord_your_safety_number_with_s_has_changed">D\'athraíodh do uimhir shábhála le %s.</string>
   <string name="MessageRecord_you_marked_your_safety_number_with_s_verified">Dheimhnigh tú do uimhir shábhála le %s.</string>
@@ -549,7 +549,7 @@ a shonrú</string>
   <string name="ThreadRecord_draft">Dréacht:</string>
   <string name="ThreadRecord_called">Ghlaoigh tú air</string>
   <string name="ThreadRecord_called_you">Ghlaoigh siad ort</string>
-  <string name="ThreadRecord_missed_call">Glao caillte</string>
+  <!-- Removed by excludeNonTranslatables <string name="ThreadRecord_missed_call">Glao caillte</string> -->
   <string name="ThreadRecord_media_message">Teachtaireacht mheán</string>
   <string name="ThreadRecord_sticker">Greamán</string>
   <string name="ThreadRecord_s_is_on_signal">Tá %s ar Signal! </string>
@@ -560,12 +560,12 @@ a shonrú</string>
   <string name="UpdateApkReadyListener_Signal_update">Nuashonrú Signal</string>
   <string name="UpdateApkReadyListener_a_new_version_of_signal_is_available_tap_to_update">Tá leagan nua de Signal ar fáil, cnag chun é a nuashonrú</string>
   <!--UnknownSenderView-->
-  <string name="UnknownSenderView_block_s">Cuir bac ar %s?</string>
-  <string name="UnknownSenderView_blocked_contacts_will_no_longer_be_able_to_send_you_messages_or_call_you">Ní féidir teagmháláithe bacáilte teachtaireachtaí a sheoladh chugat no tú a ghlaoigh.</string>
-  <string name="UnknownSenderView_block">Cuir bac air</string>
-  <string name="UnknownSenderView_share_profile_with_s">Comhroinn do phróifíl le %s?</string>
-  <string name="UnknownSenderView_the_easiest_way_to_share_your_profile_information_is_to_add_the_sender_to_your_contacts">An slí is easca do eolas próifíle a chomhroinn ná an seoltóir a chuir le do theaghmháláithe. Mura miste leat, is féidir do eolas próifíle a chomhroinn trí an slí seo.</string>
-  <string name="UnknownSenderView_share_profile">Comhroinn do phróifíl?</string>
+  <!-- Removed by excludeNonTranslatables <string name="UnknownSenderView_block_s">Cuir bac ar %s?</string> -->
+  <!-- Removed by excludeNonTranslatables <string name="UnknownSenderView_blocked_contacts_will_no_longer_be_able_to_send_you_messages_or_call_you">Ní féidir teagmháláithe bacáilte teachtaireachtaí a sheoladh chugat no tú a ghlaoigh.</string> -->
+  <!-- Removed by excludeNonTranslatables <string name="UnknownSenderView_block">Cuir bac air</string> -->
+  <!-- Removed by excludeNonTranslatables <string name="UnknownSenderView_share_profile_with_s">Comhroinn do phróifíl le %s?</string> -->
+  <!-- Removed by excludeNonTranslatables <string name="UnknownSenderView_the_easiest_way_to_share_your_profile_information_is_to_add_the_sender_to_your_contacts">An slí is easca do eolas próifíle a chomhroinn ná an seoltóir a chuir le do theaghmháláithe. Mura miste leat, is féidir do eolas próifíle a chomhroinn trí an slí seo.</string> -->
+  <!-- Removed by excludeNonTranslatables <string name="UnknownSenderView_share_profile">Comhroinn do phróifíl?</string> -->
   <!--UntrustedSendDialog-->
   <string name="UntrustedSendDialog_send_message">Seol an teachtaireacht?</string>
   <string name="UntrustedSendDialog_send">Seol</string>
@@ -591,7 +591,7 @@ a shonrú</string>
   <!--MuteDialog-->
   <string name="MuteDialog_mute_notifications">Balbhaigh fógraí</string>
   <!--OutdatedBuildReminder-->
-  <string name="OutdatedBuildReminder_no_web_browser_installed">Níl aon líonleitheoir suiteáilte.</string>
+  <!-- Removed by excludeNonTranslatables <string name="OutdatedBuildReminder_no_web_browser_installed">Níl aon líonleitheoir suiteáilte.</string> -->
   <!--ApplicationMigrationService-->
   <string name="ApplicationMigrationService_import_in_progress">Tabhairt isteach ar siúl</string>
   <string name="ApplicationMigrationService_importing_text_messages">Ag tabhairt teachtaireachtaí téasc isteach</string>
@@ -820,7 +820,7 @@ a shonrú</string>
   <!--GroupUtil-->
   <string name="GroupUtil_group_name_is_now">Is é \'%1$s\' ainm na baicle anois.</string>
   <!--profile_group_share_view-->
-  <string name="profile_group_share_view__make_your_profile_name_and_photo_visible_to_this_group">Cuir do ainm agus do ghrianghraf próifíl le fáil don mbaicle seo?</string>
+  <!-- Removed by excludeNonTranslatables <string name="profile_group_share_view__make_your_profile_name_and_photo_visible_to_this_group">Cuir do ainm agus do ghrianghraf próifíl le fáil don mbaicle seo?</string> -->
   <!--prompt_passphrase_activity-->
   <string name="prompt_passphrase_activity__unlock">Bain an glas de</string>
   <!--prompt_mms_activity-->
@@ -957,11 +957,11 @@ a shonrú</string>
   <string name="preferences__privacy">Príobháideachas</string>
   <string name="preferences__mmsc_url">MMSC URL</string>
   <string name="preferences__mmsc_password">Focal faire MMSC</string>
-  <string name="preferences__delete_old_messages">Scrios seanteachtaireachtaí</string>
+  <!-- Removed by excludeNonTranslatables <string name="preferences__delete_old_messages">Scrios seanteachtaireachtaí</string> -->
   <string name="preferences__chats">Comhráite agus meáin</string>
   <string name="preferences__conversation_length_limit">Fadtheorainn comhrá</string>
-  <string name="preferences__trim_all_conversations_now">Bearr gach comhrá anois</string>
-  <string name="preferences__scan_through_all_conversations_and_enforce_conversation_length_limits">Scan trí gach comhrá agus fadtheorainn a chuir i bhfeidhm</string>
+  <!-- Removed by excludeNonTranslatables <string name="preferences__trim_all_conversations_now">Bearr gach comhrá anois</string> -->
+  <!-- Removed by excludeNonTranslatables <string name="preferences__scan_through_all_conversations_and_enforce_conversation_length_limits">Scan trí gach comhrá agus fadtheorainn a chuir i bhfeidhm</string> -->
   <string name="preferences__linked_devices">Gléasanna nasctha</string>
   <string name="preferences__light_theme">Geal</string>
   <string name="preferences__dark_theme">Dorcha</string>
@@ -976,12 +976,12 @@ a shonrú</string>
   <string name="preferences__if_read_receipts_are_disabled_you_wont_be_able_to_see_read_receipts">Má tá adhmálacha léamh díchumasaithe, ní féidir leat adhmálacha léamh ó dhaoine else a fheiceáil.</string>
   <string name="preferences__typing_indicators">Leideoirí clóscríobh</string>
   <string name="preferences__if_typing_indicators_are_disabled_you_wont_be_able_to_see_typing_indicators">Má múchtar leideoirí clóscríobh, ní bheifear in ann leideoirí clóscríobh ó daoine eile a fheiscint.</string>
-  <string name="preferences_app_protection__blocked_contacts">Teagmhálaithe le bac orthu</string>
+  <!-- Removed by excludeNonTranslatables <string name="preferences_app_protection__blocked_contacts">Teagmhálaithe le bac orthu</string> -->
   <string name="preferences_chats__when_using_mobile_data">Nuair atá feidhm á baint as sonraí soghluaiste</string>
   <string name="preferences_chats__when_using_wifi">Nuair atá feidhm á baint as Wi-Fi</string>
   <string name="preferences_chats__when_roaming">Nuair atá tú ag fánaíocht</string>
   <string name="preferences_chats__media_auto_download">Íosluchtaigh go huathoibríoch meáin</string>
-  <string name="preferences_chats__message_trimming">Bearradh teachtaireachta</string>
+  <!-- Removed by excludeNonTranslatables <string name="preferences_chats__message_trimming">Bearradh teachtaireachta</string> -->
   <string name="preferences_advanced__use_system_emoji">Bain feidhm as emoji an chórais</string>
   <string name="preferences_advanced__always_relay_calls">Cuir glaonna ar aghaidh i gcónaí</string>
   <string name="preferences_app_protection__app_access">Riochtain aipe</string>
@@ -1071,10 +1071,10 @@ a shonrú</string>
   <string name="verify_display_fragment_context_menu__copy_to_clipboard">Macasamhlaigh chuig an ghearrthaisce</string>
   <string name="verify_display_fragment_context_menu__compare_with_clipboard">Cuir i gcomórtas leis an ngearrthaisce</string>
   <!--reminder_header-->
-  <string name="reminder_header_outdated_build">Tá an leagan de Signal a bhfuil agat seanda</string>
-  <string name="reminder_header_outdated_build_details_today">Rachaidh do leagan Signal as bhfeidhm inniu. Cnag chun é a nuashonrú chuig an leagan is deanaí.</string>
-  <string name="reminder_header_expired_build">Tá an leagan de Signal atá agat as feidhm!</string>
-  <string name="reminder_header_expired_build_details">Ní sheolfar go rathúil teachtaireachtaí a thuilleadh. Cnag chun é a nuashonrú chuig an leagan is déanaí.</string>
+  <!-- Removed by excludeNonTranslatables <string name="reminder_header_outdated_build">Tá an leagan de Signal a bhfuil agat seanda</string> -->
+  <!-- Removed by excludeNonTranslatables <string name="reminder_header_outdated_build_details_today">Rachaidh do leagan Signal as bhfeidhm inniu. Cnag chun é a nuashonrú chuig an leagan is deanaí.</string> -->
+  <!-- Removed by excludeNonTranslatables <string name="reminder_header_expired_build">Tá an leagan de Signal atá agat as feidhm!</string> -->
+  <!-- Removed by excludeNonTranslatables <string name="reminder_header_expired_build_details">Ní sheolfar go rathúil teachtaireachtaí a thuilleadh. Cnag chun é a nuashonrú chuig an leagan is déanaí.</string> -->
   <string name="reminder_header_sms_default_title">Úsáid mar aip SMS réamhshocrú</string>
   <string name="reminder_header_sms_default_text">Cnag chun Signal a úsáid mar aip SMS réamhshocrú</string>
   <string name="reminder_header_sms_import_title">Tabhair isteach SMS an chórais</string>

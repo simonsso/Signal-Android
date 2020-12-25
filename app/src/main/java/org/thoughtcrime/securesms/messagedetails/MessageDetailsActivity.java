@@ -3,7 +3,6 @@ package org.thoughtcrime.securesms.messagedetails;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.ColorDrawable;
-import android.os.Build;
 import android.os.Bundle;
 import android.view.MenuItem;
 
@@ -23,6 +22,7 @@ import org.thoughtcrime.securesms.mms.GlideRequests;
 import org.thoughtcrime.securesms.recipients.RecipientId;
 import org.thoughtcrime.securesms.util.DynamicDarkActionBarTheme;
 import org.thoughtcrime.securesms.util.DynamicTheme;
+import org.thoughtcrime.securesms.util.WindowUtil;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -91,7 +91,7 @@ public final class MessageDetailsActivity extends PassphraseRequiredActivity {
 
   private void initializeList() {
     RecyclerView list = findViewById(R.id.message_details_list);
-    adapter           = new MessageDetailsAdapter(glideRequests);
+    adapter           = new MessageDetailsAdapter(this, glideRequests);
 
     list.setAdapter(adapter);
     list.setItemAnimator(null);
@@ -114,8 +114,8 @@ public final class MessageDetailsActivity extends PassphraseRequiredActivity {
   }
 
   private void initializeActionBar() {
-    assert getSupportActionBar() != null;
-    getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+    requireSupportActionBar().setDisplayHomeAsUpEnabled(true);
+    requireSupportActionBar().setTitle(R.string.AndroidManifest__message_details);
 
     viewModel.getRecipientColor().observe(this, this::setActionBarColor);
   }
@@ -124,17 +124,15 @@ public final class MessageDetailsActivity extends PassphraseRequiredActivity {
     assert getSupportActionBar() != null;
     getSupportActionBar().setBackgroundDrawable(new ColorDrawable(color.toActionBarColor(this)));
 
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-      getWindow().setStatusBarColor(color.toStatusBarColor(this));
-    }
+    WindowUtil.setStatusBarColor(getWindow(), color.toStatusBarColor(this));
   }
 
   private List<MessageDetailsViewState<?>> convertToRows(MessageDetails details) {
     List<MessageDetailsViewState<?>> list = new ArrayList<>();
 
-    list.add(new MessageDetailsViewState<>(details.getMessageRecord(), MessageDetailsViewState.MESSAGE_HEADER));
+    list.add(new MessageDetailsViewState<>(details.getConversationMessage(), MessageDetailsViewState.MESSAGE_HEADER));
 
-    if (details.getMessageRecord().isOutgoing()) {
+    if (details.getConversationMessage().getMessageRecord().isOutgoing()) {
       addRecipients(list, RecipientHeader.NOT_SENT, details.getNotSent());
       addRecipients(list, RecipientHeader.READ, details.getRead());
       addRecipients(list, RecipientHeader.DELIVERED, details.getDelivered());

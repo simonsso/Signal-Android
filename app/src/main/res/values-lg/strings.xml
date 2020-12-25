@@ -42,7 +42,7 @@
   <!--AudioSlidePlayer-->
   <string name="AudioSlidePlayer_error_playing_audio">Ensobi mukuzanya edoboozi</string>
   <!--BlockedContactsActivity-->
-  <string name="BlockedContactsActivity_blocked_contacts">kuziyiza contacts</string>
+  <!-- Removed by excludeNonTranslatables <string name="BlockedContactsActivity_blocked_contacts">kuziyiza contacts</string> -->
   <!--BucketedThreadMedia-->
   <string name="BucketedThreadMedia_Today">Leero</string>
   <!--CallScreen-->
@@ -82,8 +82,8 @@
   <string name="ConversationActivity_calls_not_supported">Amasimu agakubwa tegawagiddwa</string>
   <string name="ConversationActivity_this_device_does_not_appear_to_support_dial_actions">Kino ekyuma tekirabika kuwanirira ebikubidwa
 a</string>
-  <string name="ConversationActivity_leave_group">Vva mu kibinja?</string>
-  <string name="ConversationActivity_are_you_sure_you_want_to_leave_this_group">Okakasa oyagala kuva mu kibija kino?</string>
+  <!-- Removed by excludeNonTranslatables <string name="ConversationActivity_leave_group">Vva mu kibinja?</string> -->
+  <!-- Removed by excludeNonTranslatables <string name="ConversationActivity_are_you_sure_you_want_to_leave_this_group">Okakasa oyagala kuva mu kibija kino?</string> -->
   <string name="ConversationActivity_transport_insecure_sms">Obubaka obutalina bukuumi</string>
   <string name="ConversationActivity_transport_insecure_mms">MMS terina bukumi</string>
   <string name="ConversationActivity_transport_signal">Signal</string>
@@ -248,11 +248,11 @@ a</string>
   <!--MessageRecord-->
   <string name="MessageRecord_message_encrypted_with_a_legacy_protocol_version_that_is_no_longer_supported">Ofuny obubaka obubuabuzidwa nga bakozesa vazoni ya signal etakyaakola. wattu saba asindise okuza obujja  signal ye  era addemu asindike obubaka</string>
   <string name="MessageRecord_left_group">Ovudemu mu kibinja.</string>
-  <string name="MessageRecord_you_called">wakubye</string>
-  <string name="MessageRecord_missed_call">missed call</string>
-  <string name="MessageRecord_s_called_you">%s yakkubiddeko</string>
+  <!-- Removed by excludeNonTranslatables <string name="MessageRecord_you_called">wakubye</string> -->
+  <!-- Removed by excludeNonTranslatables <string name="MessageRecord_missed_call">missed call</string> -->
+  <!-- Removed by excludeNonTranslatables <string name="MessageRecord_s_called_you">%s yakkubiddeko</string> -->
   <string name="MessageRecord_called_s">Wakubidde %s</string>
-  <string name="MessageRecord_missed_call_from">Wasubiddwa essimu okuva %s</string>
+  <!-- Removed by excludeNonTranslatables <string name="MessageRecord_missed_call_from">Wasubiddwa essimu okuva %s</string> -->
   <!--PassphraseChangeActivity-->
   <string name="PassphraseChangeActivity_passphrases_dont_match_exclamation">Passiwaddi nga yabigaambo ne namba tefanana</string>
   <string name="PassphraseChangeActivity_incorrect_old_passphrase_exclamation">Passiwaddi y\'ebigaambo ne namba sintufu</string>
@@ -346,12 +346,12 @@ gy\'olonze (%s) sintuufu.</string>
   <string name="ThreadRecord_draft">Ekyakolabwako</string>
   <string name="ThreadRecord_called">wakubye</string>
   <string name="ThreadRecord_called_you">yakubidde</string>
-  <string name="ThreadRecord_missed_call">missed call</string>
+  <!-- Removed by excludeNonTranslatables <string name="ThreadRecord_missed_call">missed call</string> -->
   <string name="ThreadRecord_media_message">obubaka bwemikutu</string>
   <string name="ThreadRecord_disappearing_message_time_updated_to_s">Message yakusanguka mu dakiika %s</string>
   <!--UpdateApkReadyListener-->
   <!--UnknownSenderView-->
-  <string name="UnknownSenderView_block">Zziyiiza</string>
+  <!-- Removed by excludeNonTranslatables <string name="UnknownSenderView_block">Zziyiiza</string> -->
   <!--UntrustedSendDialog-->
   <!--UnverifiedSendDialog-->
   <!--VerifyIdentityActivity-->
@@ -632,12 +632,12 @@ gy\'olonze (%s) sintuufu.</string>
   <string name="preferences__mmsc_password">mmsc passiwadi</string>
   <string name="preferences__sms_delivery_reports">oekiraga mnti obubaka butuuse</string>
   <string name="preferences__request_a_delivery_report_for_each_sms_message_you_send">saba ekiraga nti bulu bubaka bwowereza butuuse</string>
-  <string name="preferences__automatically_delete_older_messages_once_a_conversation_exceeds_a_specified_length">buterevu sagula obubaka mu mboozi kasita buyitirira</string>
-  <string name="preferences__delete_old_messages">sagula obubaka obukadde</string>
+  <!-- Removed by excludeNonTranslatables <string name="preferences__automatically_delete_older_messages_once_a_conversation_exceeds_a_specified_length">buterevu sagula obubaka mu mboozi kasita buyitirira</string> -->
+  <!-- Removed by excludeNonTranslatables <string name="preferences__delete_old_messages">sagula obubaka obukadde</string> -->
   <string name="preferences__chats">emboozi nebifannyi,vidiyo</string>
   <string name="preferences__conversation_length_limit">Ekkomo ku mboozi</string>
-  <string name="preferences__trim_all_conversations_now">sala ku mboozi zona kati</string>
-  <string name="preferences__scan_through_all_conversations_and_enforce_conversation_length_limits">yita mu mboozi zonna otekeko ekkomo ku buwanvu bwazo.</string>
+  <!-- Removed by excludeNonTranslatables <string name="preferences__trim_all_conversations_now">sala ku mboozi zona kati</string> -->
+  <!-- Removed by excludeNonTranslatables <string name="preferences__scan_through_all_conversations_and_enforce_conversation_length_limits">yita mu mboozi zonna otekeko ekkomo ku buwanvu bwazo.</string> -->
   <string name="preferences__linked_devices">Abyampuliziganya ebikwataganye
 </string>
   <string name="preferences__light_theme">Ekitangaala</string>
@@ -651,12 +651,12 @@ gy\'olonze (%s) sintuufu.</string>
   <string name="preferences__submit_debug_log">Waayo olukalala bili kibaddewo</string>
   <string name="preferences__support_wifi_calling">\'WiFi Calling\' compatibility mode</string>
   <string name="preferences__enable_if_your_device_supports_sms_mms_delivery_over_wifi">Enable if your device uses SMS/MMS delivery over WiFi (only enable when \'WiFi Calling\' is enabled on your device)</string>
-  <string name="preferences_app_protection__blocked_contacts">Kuziyiza contact</string>
+  <!-- Removed by excludeNonTranslatables <string name="preferences_app_protection__blocked_contacts">Kuziyiza contact</string> -->
   <string name="preferences_chats__when_using_mobile_data">Bwoba okozesa dat we ssimu</string>
   <string name="preferences_chats__when_using_wifi">Bwoba okozesa WI-Fi</string>
   <string name="preferences_chats__when_roaming">Bwoba ku roaming</string>
   <string name="preferences_chats__media_auto_download">buterevu ebifananyi ne video bye gyayo</string>
-  <string name="preferences_chats__message_trimming">Okuyimpaya obubaka</string>
+  <!-- Removed by excludeNonTranslatables <string name="preferences_chats__message_trimming">Okuyimpaya obubaka</string> -->
   <string name="preferences_advanced__use_system_emoji">Kozesa system emoji</string>
   <string name="preferences_advanced__disable_signal_built_in_emoji_support">Gyako emoji support eyazimbibwa mu Signal</string>
   <!--****************************************-->
@@ -723,10 +723,10 @@ gy\'olonze (%s) sintuufu.</string>
   <string name="verify_display_fragment_context_menu__copy_to_clipboard">copinga ku clipbodi</string>
   <string name="verify_display_fragment_context_menu__compare_with_clipboard">geraageranya ne kilipuboodi</string>
   <!--reminder_header-->
-  <string name="reminder_header_outdated_build">Version yo eya Signal ya yitako dda</string>
-  <string name="reminder_header_outdated_build_details_today">Version yo eya Sgnal ya kugwako leero.Nyiga ode ku version empya kweyo</string>
-  <string name="reminder_header_expired_build">Version ya Signal yo yagwaako!</string>
-  <string name="reminder_header_expired_build_details">Obubaka tebujjakusobla kwewereza bukungi.konakookufuna  vazoni empya</string>
+  <!-- Removed by excludeNonTranslatables <string name="reminder_header_outdated_build">Version yo eya Signal ya yitako dda</string> -->
+  <!-- Removed by excludeNonTranslatables <string name="reminder_header_outdated_build_details_today">Version yo eya Sgnal ya kugwako leero.Nyiga ode ku version empya kweyo</string> -->
+  <!-- Removed by excludeNonTranslatables <string name="reminder_header_expired_build">Version ya Signal yo yagwaako!</string> -->
+  <!-- Removed by excludeNonTranslatables <string name="reminder_header_expired_build_details">Obubaka tebujjakusobla kwewereza bukungi.konakookufuna  vazoni empya</string> -->
   <string name="reminder_header_sms_default_title">gikozese nga app yo gyofunirako obubaka</string>
   <string name="reminder_header_sms_default_text">konako okuffula Signal app yo gyofunirako obubaka</string>
   <string name="reminder_header_sms_import_title">Yingiza system SMS</string>

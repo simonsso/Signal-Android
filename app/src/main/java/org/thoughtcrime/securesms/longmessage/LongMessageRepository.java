@@ -3,19 +3,22 @@ package org.thoughtcrime.securesms.longmessage;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.WorkerThread;
 
+import org.signal.core.util.StreamUtil;
+import org.signal.core.util.concurrent.SignalExecutors;
+import org.signal.core.util.logging.Log;
+import org.thoughtcrime.securesms.conversation.ConversationMessage.ConversationMessageFactory;
 import org.thoughtcrime.securesms.database.DatabaseFactory;
+import org.thoughtcrime.securesms.database.MessageDatabase;
 import org.thoughtcrime.securesms.database.MmsDatabase;
 import org.thoughtcrime.securesms.database.SmsDatabase;
 import org.thoughtcrime.securesms.database.model.MessageRecord;
 import org.thoughtcrime.securesms.database.model.MmsMessageRecord;
-import org.thoughtcrime.securesms.logging.Log;
 import org.thoughtcrime.securesms.mms.PartAuthority;
 import org.thoughtcrime.securesms.mms.TextSlide;
-import org.thoughtcrime.securesms.util.Util;
-import org.thoughtcrime.securesms.util.concurrent.SignalExecutors;
 import org.whispersystems.libsignal.util.guava.Optional;
 
 import java.io.IOException;
@@ -25,8 +28,8 @@ class LongMessageRepository {
 
   private final static String TAG = LongMessageRepository.class.getSimpleName();
 
-  private final MmsDatabase mmsDatabase;
-  private final SmsDatabase smsDatabase;
+  private final MessageDatabase mmsDatabase;
+  private final MessageDatabase smsDatabase;
 
   LongMessageRepository(@NonNull Context context) {
     this.mmsDatabase = DatabaseFactory.getMmsDatabase(context);
@@ -38,22 +41,22 @@ class LongMessageRepository {
       if (isMms) {
         callback.onComplete(getMmsLongMessage(context, mmsDatabase, messageId));
       } else {
-        callback.onComplete(getSmsLongMessage(smsDatabase, messageId));
+        callback.onComplete(getSmsLongMessage(context, smsDatabase, messageId));
       }
     });
   }
 
   @WorkerThread
-  private Optional<LongMessage> getMmsLongMessage(@NonNull Context context, @NonNull MmsDatabase mmsDatabase, long messageId) {
+  private Optional<LongMessage> getMmsLongMessage(@NonNull Context context, @NonNull MessageDatabase mmsDatabase, long messageId) {
     Optional<MmsMessageRecord> record = getMmsMessage(mmsDatabase, messageId);
 
     if (record.isPresent()) {
       TextSlide textSlide = record.get().getSlideDeck().getTextSlide();
 
       if (textSlide != null && textSlide.getUri() != null) {
-        return Optional.of(new LongMessage(record.get(), readFullBody(context, textSlide.getUri())));
+        return Optional.of(new LongMessage(ConversationMessageFactory.createWithUnresolvedData(context, record.get()), readFullBody(context, textSlide.getUri())));
       } else {
-        return Optional.of(new LongMessage(record.get(), ""));
+        return Optional.of(new LongMessage(ConversationMessageFactory.createWithUnresolvedData(context, record.get()), ""));
       }
     } else {
       return Optional.absent();
@@ -61,11 +64,11 @@ class LongMessageRepository {
   }
 
   @WorkerThread
-  private Optional<LongMessage> getSmsLongMessage(@NonNull SmsDatabase smsDatabase, long messageId) {
+  private Optional<LongMessage> getSmsLongMessage(@NonNull Context context, @NonNull MessageDatabase smsDatabase, long messageId) {
     Optional<MessageRecord> record = getSmsMessage(smsDatabase, messageId);
 
     if (record.isPresent()) {
-      return Optional.of(new LongMessage(record.get(), ""));
+      return Optional.of(new LongMessage(ConversationMessageFactory.createWithUnresolvedData(context, record.get()), ""));
     } else {
       return Optional.absent();
     }
@@ -73,22 +76,22 @@ class LongMessageRepository {
 
 
   @WorkerThread
-  private Optional<MmsMessageRecord> getMmsMessage(@NonNull MmsDatabase mmsDatabase, long messageId) {
-    try (Cursor cursor = mmsDatabase.getMessage(messageId)) {
-      return Optional.fromNullable((MmsMessageRecord) mmsDatabase.readerFor(cursor).getNext());
+  private Optional<MmsMessageRecord> getMmsMessage(@NonNull MessageDatabase mmsDatabase, long messageId) {
+    try (Cursor cursor = mmsDatabase.getMessageCursor(messageId)) {
+      return Optional.fromNullable((MmsMessageRecord) MmsDatabase.readerFor(cursor).getNext());
     }
   }
 
   @WorkerThread
-  private Optional<MessageRecord> getSmsMessage(@NonNull SmsDatabase smsDatabase, long messageId) {
+  private Optional<MessageRecord> getSmsMessage(@NonNull MessageDatabase smsDatabase, long messageId) {
     try (Cursor cursor = smsDatabase.getMessageCursor(messageId)) {
-      return Optional.fromNullable(smsDatabase.readerFor(cursor).getNext());
+      return Optional.fromNullable(SmsDatabase.readerFor(cursor).getNext());
     }
   }
 
   private String readFullBody(@NonNull Context context, @NonNull Uri uri) {
     try (InputStream stream = PartAuthority.getAttachmentStream(context, uri)) {
-      return Util.readFullyAsString(stream);
+      return StreamUtil.readFullyAsString(stream);
     } catch (IOException e) {
       Log.w(TAG, "Failed to read full text body.", e);
       return "";

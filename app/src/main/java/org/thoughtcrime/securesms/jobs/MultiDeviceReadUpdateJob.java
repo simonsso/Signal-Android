@@ -5,24 +5,24 @@ import androidx.annotation.NonNull;
 import com.annimon.stream.Stream;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import org.signal.core.util.logging.Log;
+import org.thoughtcrime.securesms.crypto.UnidentifiedAccessUtil;
+import org.thoughtcrime.securesms.database.MessageDatabase.SyncMessageId;
 import org.thoughtcrime.securesms.dependencies.ApplicationDependencies;
 import org.thoughtcrime.securesms.jobmanager.Data;
 import org.thoughtcrime.securesms.jobmanager.Job;
+import org.thoughtcrime.securesms.jobmanager.JobManager;
 import org.thoughtcrime.securesms.jobmanager.impl.NetworkConstraint;
-import org.thoughtcrime.securesms.logging.Log;
-
-import org.thoughtcrime.securesms.crypto.UnidentifiedAccessUtil;
-import org.thoughtcrime.securesms.database.MessagingDatabase.SyncMessageId;
 import org.thoughtcrime.securesms.recipients.Recipient;
 import org.thoughtcrime.securesms.recipients.RecipientId;
 import org.thoughtcrime.securesms.recipients.RecipientUtil;
 import org.thoughtcrime.securesms.util.JsonUtils;
 import org.thoughtcrime.securesms.util.TextSecurePreferences;
+import org.thoughtcrime.securesms.util.Util;
 import org.whispersystems.signalservice.api.SignalServiceMessageSender;
 import org.whispersystems.signalservice.api.crypto.UntrustedIdentityException;
 import org.whispersystems.signalservice.api.messages.multidevice.ReadMessage;
 import org.whispersystems.signalservice.api.messages.multidevice.SignalServiceSyncMessage;
-import org.whispersystems.signalservice.api.push.SignalServiceAddress;
 import org.whispersystems.signalservice.api.push.exceptions.PushNetworkException;
 
 import java.io.IOException;
@@ -41,13 +41,13 @@ public class MultiDeviceReadUpdateJob extends BaseJob {
 
   private List<SerializableSyncMessageId> messageIds;
 
-  public MultiDeviceReadUpdateJob(List<SyncMessageId> messageIds) {
+  private MultiDeviceReadUpdateJob(List<SyncMessageId> messageIds) {
     this(new Job.Parameters.Builder()
                            .addConstraint(NetworkConstraint.KEY)
                            .setLifespan(TimeUnit.DAYS.toMillis(1))
                            .setMaxAttempts(Parameters.UNLIMITED)
                            .build(),
-         messageIds);
+         SendReadReceiptJob.ensureSize(messageIds, SendReadReceiptJob.MAX_TIMESTAMPS));
   }
 
   private MultiDeviceReadUpdateJob(@NonNull Job.Parameters parameters, @NonNull List<SyncMessageId> messageIds) {
@@ -57,6 +57,23 @@ public class MultiDeviceReadUpdateJob extends BaseJob {
 
     for (SyncMessageId messageId : messageIds) {
       this.messageIds.add(new SerializableSyncMessageId(messageId.getRecipientId().serialize(), messageId.getTimetamp()));
+    }
+  }
+
+  /**
+   * Enqueues all the necessary jobs for read receipts, ensuring that they're all within the
+   * maximum size.
+   */
+  public static void enqueue(@NonNull List<SyncMessageId> messageIds) {
+    JobManager                jobManager      = ApplicationDependencies.getJobManager();
+    List<List<SyncMessageId>> messageIdChunks = Util.chunk(messageIds, SendReadReceiptJob.MAX_TIMESTAMPS);
+
+    if (messageIdChunks.size() > 1) {
+      Log.w(TAG, "Large receipt count! Had to break into multiple chunks. Total count: " + messageIds.size());
+    }
+
+    for (List<SyncMessageId> chunk : messageIdChunks) {
+      jobManager.add(new MultiDeviceReadUpdateJob(chunk));
     }
   }
 
@@ -91,7 +108,9 @@ public class MultiDeviceReadUpdateJob extends BaseJob {
 
     for (SerializableSyncMessageId messageId : messageIds) {
       Recipient recipient = Recipient.resolved(RecipientId.from(messageId.recipientId));
-      readMessages.add(new ReadMessage(RecipientUtil.toSignalServiceAddress(context, recipient), messageId.timestamp));
+      if (!recipient.isGroup()) {
+        readMessages.add(new ReadMessage(RecipientUtil.toSignalServiceAddress(context, recipient), messageId.timestamp));
+      }
     }
 
     SignalServiceMessageSender messageSender = ApplicationDependencies.getSignalServiceMessageSender();

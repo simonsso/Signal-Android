@@ -69,7 +69,7 @@
   <!--AudioSlidePlayer-->
   <string name="AudioSlidePlayer_error_playing_audio">Ralat memainkan audio!</string>
   <!--BlockedContactsActivity-->
-  <string name="BlockedContactsActivity_blocked_contacts">Kenalan disekat</string>
+  <!-- Removed by excludeNonTranslatables <string name="BlockedContactsActivity_blocked_contacts">Kenalan disekat</string> -->
   <!--BlockUnblockDialog-->
   <string name="BlockUnblockDialog_group_members_will_be_able_to_add_you">Ahli-ahli kumpulan akan dapat menambah anda kepada kumpulan ini lagi.</string>
   <string name="BlockUnblockDialog_you_will_be_able_to_call_and_message_each_other">Anda akan dapat menghantar mesej dan membuat panggilan satu sama lain.</string>
@@ -167,8 +167,8 @@
   <string name="ConversationActivity_added_to_home_screen">Ditambah ke skrin utama</string>
   <string name="ConversationActivity_calls_not_supported">Panggilan tidak disokong</string>
   <string name="ConversationActivity_this_device_does_not_appear_to_support_dial_actions">Peranti ini tidak menyokong tindakan dail.</string>
-  <string name="ConversationActivity_leave_group">Keluar kumpulan?</string>
-  <string name="ConversationActivity_are_you_sure_you_want_to_leave_this_group">Adakah anda pasti mahu keluar daripada kumpulan ini?</string>
+  <!-- Removed by excludeNonTranslatables <string name="ConversationActivity_leave_group">Keluar kumpulan?</string> -->
+  <!-- Removed by excludeNonTranslatables <string name="ConversationActivity_are_you_sure_you_want_to_leave_this_group">Adakah anda pasti mahu keluar daripada kumpulan ini?</string> -->
   <string name="ConversationActivity_transport_insecure_sms">SMS yang tidak selamat</string>
   <string name="ConversationActivity_transport_insecure_mms">MMS yang tidak selamat</string>
   <string name="ConversationActivity_transport_signal">Signal</string>
@@ -442,13 +442,13 @@
   <string name="MessageRecord_message_encrypted_with_a_legacy_protocol_version_that_is_no_longer_supported">Signal versi lama sudah tidak menyokong penerimaan mesej yang disulitkan. Sila minta penghantar untuk mengemas kini kepada versi yang terbaru dan hantar semula mesej. </string>
   <string name="MessageRecord_left_group">Anda telah meninggalkan kumpulan.</string>
   <string name="MessageRecord_you_updated_group">Anda telah mengemas kini kumpulan.</string>
-  <string name="MessageRecord_you_called">Anda memanggil</string>
-  <string name="MessageRecord_called_you">Kenalan dipanggil</string>
-  <string name="MessageRecord_missed_call">Panggilan tidak dijawab</string>
+  <!-- Removed by excludeNonTranslatables <string name="MessageRecord_you_called">Anda memanggil</string> -->
+  <!-- Removed by excludeNonTranslatables <string name="MessageRecord_called_you">Kenalan dipanggil</string> -->
+  <!-- Removed by excludeNonTranslatables <string name="MessageRecord_missed_call">Panggilan tidak dijawab</string> -->
   <string name="MessageRecord_s_updated_group">%s telah mengemas kini kumpulan.</string>
-  <string name="MessageRecord_s_called_you">%s memanggil anda</string>
+  <!-- Removed by excludeNonTranslatables <string name="MessageRecord_s_called_you">%s memanggil anda</string> -->
   <string name="MessageRecord_called_s">Memanggil %s</string>
-  <string name="MessageRecord_missed_call_from">Panggilan tidak dijawab daripada %s</string>
+  <!-- Removed by excludeNonTranslatables <string name="MessageRecord_missed_call_from">Panggilan tidak dijawab daripada %s</string> -->
   <string name="MessageRecord_s_joined_signal">%s ada di Signal!</string>
   <string name="MessageRecord_you_disabled_disappearing_messages">Anda telah menyahdayakan mesej hilang.</string>
   <string name="MessageRecord_s_disabled_disappearing_messages">%1$s telah menyahdayakan mesej hilang.</string>
@@ -662,7 +662,7 @@ Menerima mesej pertukaran kunci untuk versi protokol yang tidak sah.</string>
   <string name="ThreadRecord_draft">Draf:</string>
   <string name="ThreadRecord_called">Anda memanggil</string>
   <string name="ThreadRecord_called_you">Memanggil anda</string>
-  <string name="ThreadRecord_missed_call">Panggilan tidak dijawab</string>
+  <!-- Removed by excludeNonTranslatables <string name="ThreadRecord_missed_call">Panggilan tidak dijawab</string> -->
   <string name="ThreadRecord_media_message">Mesej media</string>
   <string name="ThreadRecord_sticker">Pelekat</string>
   <string name="ThreadRecord_view_once_photo">Foto lihat sekali</string>
@@ -682,12 +682,12 @@ Menerima mesej pertukaran kunci untuk versi protokol yang tidak sah.</string>
   <string name="UpdateApkReadyListener_Signal_update">Kemas kini Signal</string>
   <string name="UpdateApkReadyListener_a_new_version_of_signal_is_available_tap_to_update">Versi baru Signal tersedia, ketik untuk kemas kini</string>
   <!--UnknownSenderView-->
-  <string name="UnknownSenderView_block_s">Sekat %s ?</string>
-  <string name="UnknownSenderView_blocked_contacts_will_no_longer_be_able_to_send_you_messages_or_call_you">Kenalan yang disekat tidak akan dapat menghantar mesej kepada anda atau menghubungi anda.</string>
-  <string name="UnknownSenderView_block">Sekat</string>
-  <string name="UnknownSenderView_share_profile_with_s">Kongsikan profil dengan %s?</string>
-  <string name="UnknownSenderView_the_easiest_way_to_share_your_profile_information_is_to_add_the_sender_to_your_contacts">Cara paling mudah untuk berkongsi maklumat profil anda adalah untuk menambah penghantar ke kenalan anda. Sekiranya anda tidak mahu, anda masih boleh berkongsi maklumat profil anda dengan cara ini.</string>
-  <string name="UnknownSenderView_share_profile">Kongsikan profil</string>
+  <!-- Removed by excludeNonTranslatables <string name="UnknownSenderView_block_s">Sekat %s ?</string> -->
+  <!-- Removed by excludeNonTranslatables <string name="UnknownSenderView_blocked_contacts_will_no_longer_be_able_to_send_you_messages_or_call_you">Kenalan yang disekat tidak akan dapat menghantar mesej kepada anda atau menghubungi anda.</string> -->
+  <!-- Removed by excludeNonTranslatables <string name="UnknownSenderView_block">Sekat</string> -->
+  <!-- Removed by excludeNonTranslatables <string name="UnknownSenderView_share_profile_with_s">Kongsikan profil dengan %s?</string> -->
+  <!-- Removed by excludeNonTranslatables <string name="UnknownSenderView_the_easiest_way_to_share_your_profile_information_is_to_add_the_sender_to_your_contacts">Cara paling mudah untuk berkongsi maklumat profil anda adalah untuk menambah penghantar ke kenalan anda. Sekiranya anda tidak mahu, anda masih boleh berkongsi maklumat profil anda dengan cara ini.</string> -->
+  <!-- Removed by excludeNonTranslatables <string name="UnknownSenderView_share_profile">Kongsikan profil</string> -->
   <!--UntrustedSendDialog-->
   <string name="UntrustedSendDialog_send_message">Hantar mesej?</string>
   <string name="UntrustedSendDialog_send">Hantar</string>
@@ -696,7 +696,7 @@ Menerima mesej pertukaran kunci untuk versi protokol yang tidak sah.</string>
   <string name="UnverifiedSendDialog_send">Hantar</string>
   <!--UsernameEditFragment-->
   <string name="UsernameEditFragment_username">Nama Pengguna</string>
-  <string name="UsernameEditFragment_submit">Hantar</string>
+  <!-- Removed by excludeNonTranslatables <string name="UsernameEditFragment_submit">Hantar</string> -->
   <string name="UsernameEditFragment_delete">Padam</string>
   <!--VerifyIdentityActivity-->
   <string name="VerifyIdentityActivity_your_contact_is_running_an_old_version_of_signal">Kenalan anda sedang menjalankan versi Signal yang lama. Sila minta mereka kemas kini sebelum mengesahkan nombor keselamatan anda.</string>
@@ -718,7 +718,7 @@ Menerima mesej pertukaran kunci untuk versi protokol yang tidak sah.</string>
   <!--MuteDialog-->
   <string name="MuteDialog_mute_notifications">Bisukan pemberitahuan</string>
   <!--OutdatedBuildReminder-->
-  <string name="OutdatedBuildReminder_no_web_browser_installed">Tiada pelayar web dipasang!</string>
+  <!-- Removed by excludeNonTranslatables <string name="OutdatedBuildReminder_no_web_browser_installed">Tiada pelayar web dipasang!</string> -->
   <!--ApplicationMigrationService-->
   <string name="ApplicationMigrationService_import_in_progress">Import sedang berjalan</string>
   <string name="ApplicationMigrationService_importing_text_messages">Mesej teks sedang diimport</string>
@@ -849,7 +849,7 @@ Menerima mesej pertukaran kunci untuk versi protokol yang tidak sah.</string>
   <!--ContactSelectionListFragment-->
   <string name="ContactSelectionListFragment_signal_requires_the_contacts_permission_in_order_to_display_your_contacts">Signal memerlukan kebenaran Kenalan untuk memaparkan kenalan anda, tetapi telah ditolak secara kekal. Sila terus ke menu tetapan aplikasi, pilih \"Kebenaran\", dan dayakan \"Kenalan\".</string>
   <string name="ContactSelectionListFragment_error_retrieving_contacts_check_your_network_connection">Ralat mengambil kenalan, semak sambungan rangkaian anda</string>
-  <string name="ContactSelectionListFragment_okay">Okay</string>
+  <!-- Removed by excludeNonTranslatables <string name="ContactSelectionListFragment_okay">Okay</string> -->
   <!--blocked_contacts_fragment-->
   <string name="blocked_contacts_fragment__no_blocked_contacts">Tiada kenalan disekat</string>
   <!--contact_selection_list_fragment-->
@@ -991,7 +991,7 @@ Menerima mesej pertukaran kunci untuk versi protokol yang tidak sah.</string>
   </plurals>
   <string name="GroupUtil_group_name_is_now">\'%1$s\' kini nama kumpulan.</string>
   <!--profile_group_share_view-->
-  <string name="profile_group_share_view__make_your_profile_name_and_photo_visible_to_this_group">Jadikan nama profil dan foto boleh dilihat oleh kumpulan ini?</string>
+  <!-- Removed by excludeNonTranslatables <string name="profile_group_share_view__make_your_profile_name_and_photo_visible_to_this_group">Jadikan nama profil dan foto boleh dilihat oleh kumpulan ini?</string> -->
   <!--prompt_passphrase_activity-->
   <string name="prompt_passphrase_activity__unlock">Buka kunci</string>
   <!--prompt_mms_activity-->
@@ -1104,8 +1104,8 @@ Menerima mesej pertukaran kunci untuk versi protokol yang tidak sah.</string>
   <string name="preferences__use_signal_for_viewing_and_storing_all_incoming_multimedia_messages">Gunakan Signal untuk semua mesej multimedia masuk</string>
   <string name="preferences__pref_enter_sends_title">Kekunci enter menghantar</string>
   <string name="preferences__pressing_the_enter_key_will_send_text_messages">Tekan kekunci enter akan menghantar mesej teks</string>
-  <string name="preferences__send_link_previews">Menghantar pratonton pautan </string>
-  <string name="preferences__previews_are_supported_for">Pratonton menyokong untuk pautan Imgur, Instagram, Pinterest, Reddit, dan YouTube</string>
+  <!-- Removed by excludeNonTranslatables <string name="preferences__send_link_previews">Menghantar pratonton pautan </string> -->
+  <!-- Removed by excludeNonTranslatables <string name="preferences__previews_are_supported_for">Pratonton menyokong untuk pautan Imgur, Instagram, Pinterest, Reddit, dan YouTube</string> -->
   <string name="preferences__choose_identity">Pilih identiti</string>
   <string name="preferences__choose_your_contact_entry_from_the_contacts_list">Pilih entri kenalan anda daripada senarai kenalan.</string>
   <string name="preferences__change_passphrase">Tukar frasa laluan</string>
@@ -1155,12 +1155,12 @@ Menerima mesej pertukaran kunci untuk versi protokol yang tidak sah.</string>
   <string name="preferences__mmsc_password">Kata Laluan MMSC</string>
   <string name="preferences__sms_delivery_reports">Laporan hantaran SMS</string>
   <string name="preferences__request_a_delivery_report_for_each_sms_message_you_send">Minta laporan penghantaran untuk setiap mesej SMS yang anda hantar</string>
-  <string name="preferences__automatically_delete_older_messages_once_a_conversation_exceeds_a_specified_length">Memadam mesej lama apabila perbualan melebihi panjang yang ditentukan secara automatik</string>
-  <string name="preferences__delete_old_messages">Padam mesej lama</string>
+  <!-- Removed by excludeNonTranslatables <string name="preferences__automatically_delete_older_messages_once_a_conversation_exceeds_a_specified_length">Memadam mesej lama apabila perbualan melebihi panjang yang ditentukan secara automatik</string> -->
+  <!-- Removed by excludeNonTranslatables <string name="preferences__delete_old_messages">Padam mesej lama</string> -->
   <string name="preferences__chats">Sembang dan media</string>
   <string name="preferences__conversation_length_limit">Had panjang perbualan</string>
-  <string name="preferences__trim_all_conversations_now">Potong semua perbualan sekarang</string>
-  <string name="preferences__scan_through_all_conversations_and_enforce_conversation_length_limits">Mengimbas semua perbualan dan melaksanakan had panjang perbualan</string>
+  <!-- Removed by excludeNonTranslatables <string name="preferences__trim_all_conversations_now">Potong semua perbualan sekarang</string> -->
+  <!-- Removed by excludeNonTranslatables <string name="preferences__scan_through_all_conversations_and_enforce_conversation_length_limits">Mengimbas semua perbualan dan melaksanakan had panjang perbualan</string> -->
   <string name="preferences__linked_devices">Peranti dipaut</string>
   <string name="preferences__light_theme">Cerah</string>
   <string name="preferences__dark_theme">Gelap</string>
@@ -1179,12 +1179,12 @@ Menerima mesej pertukaran kunci untuk versi protokol yang tidak sah.</string>
   <string name="preferences__typing_indicators">Penunjuk menaip</string>
   <string name="preferences__if_typing_indicators_are_disabled_you_wont_be_able_to_see_typing_indicators">Jika penunjuk menaip dinyahdayakan, anda tidak akan dapat melihat penunjuk menaip dari orang lain.</string>
   <string name="preferences__request_keyboard_to_disable_personalized_learning">Meminta papan kekunci untuk menyahdayakan pembelajaran peribadi</string>
-  <string name="preferences_app_protection__blocked_contacts">Kenalan disekat</string>
+  <!-- Removed by excludeNonTranslatables <string name="preferences_app_protection__blocked_contacts">Kenalan disekat</string> -->
   <string name="preferences_chats__when_using_mobile_data">Semasa mengguna data mudah alih</string>
   <string name="preferences_chats__when_using_wifi">Semasa mengguna WI-Fi</string>
   <string name="preferences_chats__when_roaming">Semasa perayauan</string>
   <string name="preferences_chats__media_auto_download">Memuat turun media secara automatik</string>
-  <string name="preferences_chats__message_trimming">Memotong mesej</string>
+  <!-- Removed by excludeNonTranslatables <string name="preferences_chats__message_trimming">Memotong mesej</string> -->
   <string name="preferences_storage__audio">Audio</string>
   <string name="preferences_advanced__use_system_emoji">Mengguna emoji sistem</string>
   <string name="preferences_advanced__disable_signal_built_in_emoji_support">Menyahdayakan sokongan emoji terbina dalam Signal</string>
@@ -1285,13 +1285,13 @@ Menerima mesej pertukaran kunci untuk versi protokol yang tidak sah.</string>
   <string name="verify_display_fragment_context_menu__copy_to_clipboard">Salin ke papan klip</string>
   <string name="verify_display_fragment_context_menu__compare_with_clipboard">Bandingkan dengan papan klip</string>
   <!--reminder_header-->
-  <string name="reminder_header_outdated_build">Versi Signal anda telah lapuk</string>
-  <plurals name="reminder_header_outdated_build_details">
+  <!-- Removed by excludeNonTranslatables <string name="reminder_header_outdated_build">Versi Signal anda telah lapuk</string> -->
+  <!-- Removed by excludeNonTranslatables <plurals name="reminder_header_outdated_build_details">
     <item quantity="other">Versi Signal anda akan tamat tempoh dalam %d hari. Ketik untuk kemas kini ke versi terbaru.</item>
-  </plurals>
-  <string name="reminder_header_outdated_build_details_today">Versi Signal anda akan tamat tempoh pada hari ini. Ketik untuk kemas kini ke versi terbaru.</string>
-  <string name="reminder_header_expired_build">Versi Signal anda telah tamat tempoh!</string>
-  <string name="reminder_header_expired_build_details">Mesej tidak akan berjaya dihantar lagi. Ketik untuk kemas kini ke versi yang terbaru.</string>
+  </plurals> -->
+  <!-- Removed by excludeNonTranslatables <string name="reminder_header_outdated_build_details_today">Versi Signal anda akan tamat tempoh pada hari ini. Ketik untuk kemas kini ke versi terbaru.</string> -->
+  <!-- Removed by excludeNonTranslatables <string name="reminder_header_expired_build">Versi Signal anda telah tamat tempoh!</string> -->
+  <!-- Removed by excludeNonTranslatables <string name="reminder_header_expired_build_details">Mesej tidak akan berjaya dihantar lagi. Ketik untuk kemas kini ke versi yang terbaru.</string> -->
   <string name="reminder_header_sms_default_title">Guna sebagai aplikasi SMS lalai</string>
   <string name="reminder_header_sms_default_text">Ketik untuk menjadikan Signal sebagai aplikasi SMS lalai anda.</string>
   <string name="reminder_header_sms_import_title">Import SMS sistem</string>

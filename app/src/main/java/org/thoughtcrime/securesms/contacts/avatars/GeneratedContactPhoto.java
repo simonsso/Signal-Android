@@ -5,16 +5,17 @@ import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.LayerDrawable;
-import androidx.annotation.NonNull;
+import android.text.TextUtils;
+
 import androidx.annotation.DrawableRes;
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.content.res.AppCompatResources;
-import android.text.TextUtils;
 
 import com.amulyakhare.textdrawable.TextDrawable;
 
 import org.thoughtcrime.securesms.R;
-import org.thoughtcrime.securesms.util.ThemeUtil;
+import org.thoughtcrime.securesms.util.ContextUtil;
 import org.thoughtcrime.securesms.util.ViewUtil;
 
 import java.util.regex.Pattern;
@@ -26,10 +27,18 @@ public class GeneratedContactPhoto implements FallbackContactPhoto {
 
   private final String name;
   private final int    fallbackResId;
+  private final int    targetSize;
+  private final int    fontSize;
 
   public GeneratedContactPhoto(@NonNull String name, @DrawableRes int fallbackResId) {
+    this(name, fallbackResId, -1, ViewUtil.dpToPx(24));
+  }
+
+  public GeneratedContactPhoto(@NonNull String name, @DrawableRes int fallbackResId, int targetSize, int fontSize) {
     this.name          = name;
     this.fallbackResId = fallbackResId;
+    this.targetSize    = targetSize;
+    this.fontSize      = fontSize;
   }
 
   @Override
@@ -39,7 +48,10 @@ public class GeneratedContactPhoto implements FallbackContactPhoto {
 
   @Override
   public Drawable asDrawable(Context context, int color, boolean inverted) {
-    int targetSize = context.getResources().getDimensionPixelSize(R.dimen.contact_photo_target_size);
+    int targetSize = this.targetSize != -1
+                     ? this.targetSize
+                     : context.getResources().getDimensionPixelSize(R.dimen.contact_photo_target_size);
+
     String character = getAbbreviation(name);
 
     if (!TextUtils.isEmpty(character)) {
@@ -48,22 +60,29 @@ public class GeneratedContactPhoto implements FallbackContactPhoto {
                                   .width(targetSize)
                                   .height(targetSize)
                                   .useFont(TYPEFACE)
-                                  .fontSize(ViewUtil.dpToPx(context, 24))
+                                  .fontSize(fontSize)
                                   .textColor(inverted ? color : Color.WHITE)
                                   .endConfig()
                                   .buildRound(character, inverted ? Color.WHITE : color);
 
-      Drawable gradient = context.getResources().getDrawable(ThemeUtil.isDarkTheme(context) ? R.drawable.avatar_gradient_dark
-                                                                                            : R.drawable.avatar_gradient_light);
+      Drawable gradient = ContextUtil.requireDrawable(context, R.drawable.avatar_gradient);
       return new LayerDrawable(new Drawable[] { base, gradient });
     }
 
-    return new ResourceContactPhoto(fallbackResId).asDrawable(context, color, inverted);
+    return newFallbackDrawable(context, color, inverted);
   }
 
   @Override
   public Drawable asSmallDrawable(Context context, int color, boolean inverted) {
     return asDrawable(context, color, inverted);
+  }
+
+  protected @DrawableRes int getFallbackResId() {
+    return fallbackResId;
+  }
+
+  protected Drawable newFallbackDrawable(@NonNull Context context, int color, boolean inverted) {
+    return new ResourceContactPhoto(fallbackResId).asDrawable(context, color, inverted);
   }
 
   private @Nullable String getAbbreviation(String name) {

@@ -7,25 +7,26 @@ import androidx.annotation.WorkerThread;
 
 import com.annimon.stream.Stream;
 
+import org.signal.core.util.logging.Log;
 import org.thoughtcrime.securesms.ApplicationContext;
 import org.thoughtcrime.securesms.attachments.Attachment;
 import org.thoughtcrime.securesms.crypto.UnidentifiedAccessUtil;
 import org.thoughtcrime.securesms.database.DatabaseFactory;
-import org.thoughtcrime.securesms.database.MessagingDatabase.SyncMessageId;
-import org.thoughtcrime.securesms.database.MmsDatabase;
+import org.thoughtcrime.securesms.database.MessageDatabase;
+import org.thoughtcrime.securesms.database.MessageDatabase.SyncMessageId;
 import org.thoughtcrime.securesms.database.NoSuchMessageException;
 import org.thoughtcrime.securesms.database.RecipientDatabase.UnidentifiedAccessMode;
 import org.thoughtcrime.securesms.dependencies.ApplicationDependencies;
 import org.thoughtcrime.securesms.jobmanager.Data;
 import org.thoughtcrime.securesms.jobmanager.Job;
 import org.thoughtcrime.securesms.jobmanager.JobManager;
-import org.thoughtcrime.securesms.logging.Log;
 import org.thoughtcrime.securesms.mms.MmsException;
 import org.thoughtcrime.securesms.mms.OutgoingMediaMessage;
 import org.thoughtcrime.securesms.recipients.Recipient;
 import org.thoughtcrime.securesms.recipients.RecipientId;
 import org.thoughtcrime.securesms.recipients.RecipientUtil;
 import org.thoughtcrime.securesms.service.ExpiringMessageManager;
+import org.thoughtcrime.securesms.tracing.Trace;
 import org.thoughtcrime.securesms.transport.InsecureFallbackApprovalException;
 import org.thoughtcrime.securesms.transport.RetryLaterException;
 import org.thoughtcrime.securesms.transport.UndeliverableMessageException;
@@ -48,6 +49,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Set;
 
+@Trace
 public class PushMediaSendJob extends PushSendJob {
 
   public static final String KEY = "PushMediaSendJob";
@@ -74,7 +76,7 @@ public class PushMediaSendJob extends PushSendJob {
         throw new AssertionError();
       }
 
-      MmsDatabase          database            = DatabaseFactory.getMmsDatabase(context);
+      MessageDatabase      database            = DatabaseFactory.getMmsDatabase(context);
       OutgoingMediaMessage message             = database.getOutgoingMessage(messageId);
       Set<String>          attachmentUploadIds = enqueueCompressingAndUploadAttachmentsChains(jobManager, message);
 
@@ -108,16 +110,16 @@ public class PushMediaSendJob extends PushSendJob {
              UndeliverableMessageException
   {
     ExpiringMessageManager expirationManager = ApplicationContext.getInstance(context).getExpiringMessageManager();
-    MmsDatabase            database          = DatabaseFactory.getMmsDatabase(context);
+    MessageDatabase        database          = DatabaseFactory.getMmsDatabase(context);
     OutgoingMediaMessage   message           = database.getOutgoingMessage(messageId);
 
     if (database.isSent(messageId)) {
-      warn(TAG, "Message " + messageId + " was already sent. Ignoring.");
+      warn(TAG, String.valueOf(message.getSentTimeMillis()), "Message " + messageId + " was already sent. Ignoring.");
       return;
     }
 
     try {
-      log(TAG, "Sending message: " + messageId);
+      log(TAG, String.valueOf(message.getSentTimeMillis()), "Sending message: " + messageId);
 
       RecipientUtil.shareProfileIfFirstSecureMessage(context, message.getRecipient());
 
@@ -131,20 +133,21 @@ public class PushMediaSendJob extends PushSendJob {
       markAttachmentsUploaded(messageId, message.getAttachments());
       database.markUnidentified(messageId, unidentified);
 
-      if (recipient.isLocalNumber()) {
+      if (recipient.isSelf()) {
         SyncMessageId id = new SyncMessageId(recipient.getId(), message.getSentTimeMillis());
         DatabaseFactory.getMmsSmsDatabase(context).incrementDeliveryReceiptCount(id, System.currentTimeMillis());
         DatabaseFactory.getMmsSmsDatabase(context).incrementReadReceiptCount(id, System.currentTimeMillis());
+        DatabaseFactory.getMmsSmsDatabase(context).incrementViewedReceiptCount(id, System.currentTimeMillis());
       }
 
       if (unidentified && accessMode == UnidentifiedAccessMode.UNKNOWN && profileKey == null) {
-        log(TAG, "Marking recipient as UD-unrestricted following a UD send.");
+        log(TAG, String.valueOf(message.getSentTimeMillis()), "Marking recipient as UD-unrestricted following a UD send.");
         DatabaseFactory.getRecipientDatabase(context).setUnidentifiedAccessMode(recipient.getId(), UnidentifiedAccessMode.UNRESTRICTED);
       } else if (unidentified && accessMode == UnidentifiedAccessMode.UNKNOWN) {
-        log(TAG, "Marking recipient as UD-enabled following a UD send.");
+        log(TAG, String.valueOf(message.getSentTimeMillis()), "Marking recipient as UD-enabled following a UD send.");
         DatabaseFactory.getRecipientDatabase(context).setUnidentifiedAccessMode(recipient.getId(), UnidentifiedAccessMode.ENABLED);
       } else if (!unidentified && accessMode != UnidentifiedAccessMode.DISABLED) {
-        log(TAG, "Marking recipient as UD-disabled following a non-UD send.");
+        log(TAG, String.valueOf(message.getSentTimeMillis()), "Marking recipient as UD-disabled following a non-UD send.");
         DatabaseFactory.getRecipientDatabase(context).setUnidentifiedAccessMode(recipient.getId(), UnidentifiedAccessMode.DISABLED);
       }
 
@@ -157,7 +160,7 @@ public class PushMediaSendJob extends PushSendJob {
         DatabaseFactory.getAttachmentDatabase(context).deleteAttachmentFilesForViewOnceMessage(messageId);
       }
 
-      log(TAG, "Sent message: " + messageId);
+      log(TAG, String.valueOf(message.getSentTimeMillis()), "Sent message: " + messageId);
 
     } catch (InsecureFallbackApprovalException ifae) {
       warn(TAG, "Failure", ifae);
@@ -198,7 +201,7 @@ public class PushMediaSendJob extends PushSendJob {
 
       Recipient                                  messageRecipient   = message.getRecipient().fresh();
       SignalServiceMessageSender                 messageSender      = ApplicationDependencies.getSignalServiceMessageSender();
-      SignalServiceAddress                       address            = getPushAddress(messageRecipient);
+      SignalServiceAddress                       address            = RecipientUtil.toSignalServiceAddress(context, messageRecipient);
       List<Attachment>                           attachments        = Stream.of(message.getAttachments()).filterNot(Attachment::isSticker).toList();
       List<SignalServiceAttachment>              serviceAttachments = getAttachmentPointersFor(attachments);
       Optional<byte[]>                           profileKey         = getProfileKey(messageRecipient);
@@ -230,13 +233,13 @@ public class PushMediaSendJob extends PushSendJob {
         return messageSender.sendMessage(address, UnidentifiedAccessUtil.getAccessFor(context, messageRecipient), mediaMessage).getSuccess().isUnidentified();
       }
     } catch (UnregisteredUserException e) {
-      warn(TAG, e);
+      warn(TAG, String.valueOf(message.getSentTimeMillis()), e);
       throw new InsecureFallbackApprovalException(e);
     } catch (FileNotFoundException e) {
-      warn(TAG, e);
+      warn(TAG, String.valueOf(message.getSentTimeMillis()), e);
       throw new UndeliverableMessageException(e);
     } catch (IOException e) {
-      warn(TAG, e);
+      warn(TAG, String.valueOf(message.getSentTimeMillis()), e);
       throw new RetryLaterException(e);
     }
   }

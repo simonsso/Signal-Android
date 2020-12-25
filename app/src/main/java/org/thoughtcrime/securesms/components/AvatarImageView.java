@@ -19,6 +19,7 @@ import org.thoughtcrime.securesms.R;
 import org.thoughtcrime.securesms.color.MaterialColor;
 import org.thoughtcrime.securesms.contacts.avatars.ContactColors;
 import org.thoughtcrime.securesms.contacts.avatars.ContactPhoto;
+import org.thoughtcrime.securesms.contacts.avatars.ProfileContactPhoto;
 import org.thoughtcrime.securesms.contacts.avatars.ResourceContactPhoto;
 import org.thoughtcrime.securesms.groups.ui.managegroup.ManageGroupActivity;
 import org.thoughtcrime.securesms.mms.GlideApp;
@@ -28,6 +29,7 @@ import org.thoughtcrime.securesms.recipients.ui.bottomsheet.RecipientBottomSheet
 import org.thoughtcrime.securesms.recipients.ui.managerecipient.ManageRecipientActivity;
 import org.thoughtcrime.securesms.util.AvatarUtil;
 import org.thoughtcrime.securesms.util.ThemeUtil;
+import org.thoughtcrime.securesms.util.Util;
 
 import java.util.Objects;
 
@@ -116,7 +118,7 @@ public final class AvatarImageView extends AppCompatImageView {
    * Shows self as the actual profile picture.
    */
   public void setRecipient(@NonNull Recipient recipient) {
-    if (recipient.isLocalNumber()) {
+    if (recipient.isSelf()) {
       setAvatar(GlideApp.with(this), null, false);
       AvatarUtil.loadIconIntoImageView(recipient, this);
     } else {
@@ -131,9 +133,23 @@ public final class AvatarImageView extends AppCompatImageView {
     setAvatar(GlideApp.with(this), recipient, false);
   }
 
+  /**
+   * Shows self as the profile avatar.
+   */
+  public void setAvatarUsingProfile(@Nullable Recipient recipient) {
+    setAvatar(GlideApp.with(this), recipient, false, true);
+  }
+
   public void setAvatar(@NonNull GlideRequests requestManager, @Nullable Recipient recipient, boolean quickContactEnabled) {
+    setAvatar(requestManager, recipient, quickContactEnabled, false);
+  }
+
+  public void setAvatar(@NonNull GlideRequests requestManager, @Nullable Recipient recipient, boolean quickContactEnabled, boolean useSelfProfileAvatar) {
     if (recipient != null) {
-      RecipientContactPhoto photo = new RecipientContactPhoto(recipient);
+      RecipientContactPhoto photo = (recipient.isSelf() && useSelfProfileAvatar) ? new RecipientContactPhoto(recipient,
+                                                                                                             new ProfileContactPhoto(Recipient.self(),
+                                                                                                                                     Recipient.self().getProfileAvatar()))
+                                                                                 : new RecipientContactPhoto(recipient);
 
       if (!photo.equals(recipientContactPhoto)) {
         requestManager.clear(this);
@@ -193,6 +209,23 @@ public final class AvatarImageView extends AppCompatImageView {
     }
   }
 
+  public void setImageBytesForGroup(@Nullable byte[] avatarBytes,
+                                    @Nullable Recipient.FallbackPhotoProvider fallbackPhotoProvider,
+                                    @NonNull MaterialColor color)
+  {
+    Drawable fallback = Util.firstNonNull(fallbackPhotoProvider, Recipient.DEFAULT_FALLBACK_PHOTO_PROVIDER)
+                            .getPhotoForGroup()
+                            .asDrawable(getContext(), color.toAvatarColor(getContext()));
+
+    GlideApp.with(this)
+            .load(avatarBytes)
+            .fallback(fallback)
+            .error(fallback)
+            .diskCacheStrategy(DiskCacheStrategy.ALL)
+            .circleCrop()
+            .into(this);
+  }
+
   private static class RecipientContactPhoto {
 
     private final @NonNull  Recipient    recipient;
@@ -200,9 +233,13 @@ public final class AvatarImageView extends AppCompatImageView {
     private final           boolean      ready;
 
     RecipientContactPhoto(@NonNull Recipient recipient) {
+      this(recipient, recipient.getContactPhoto());
+    }
+
+    RecipientContactPhoto(@NonNull Recipient recipient, @Nullable ContactPhoto contactPhoto) {
       this.recipient    = recipient;
       this.ready        = !recipient.isResolving();
-      this.contactPhoto = recipient.getContactPhoto();
+      this.contactPhoto = contactPhoto;
     }
 
     public boolean equals(@Nullable RecipientContactPhoto other) {

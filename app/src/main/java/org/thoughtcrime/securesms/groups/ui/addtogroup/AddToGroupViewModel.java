@@ -6,13 +6,13 @@ import androidx.annotation.NonNull;
 import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
 
+import org.signal.core.util.concurrent.SignalExecutors;
 import org.thoughtcrime.securesms.R;
 import org.thoughtcrime.securesms.dependencies.ApplicationDependencies;
 import org.thoughtcrime.securesms.groups.ui.GroupErrors;
 import org.thoughtcrime.securesms.recipients.Recipient;
 import org.thoughtcrime.securesms.recipients.RecipientId;
 import org.thoughtcrime.securesms.util.SingleLiveEvent;
-import org.thoughtcrime.securesms.util.concurrent.SignalExecutors;
 
 import java.util.List;
 import java.util.Objects;
@@ -39,13 +39,18 @@ public final class AddToGroupViewModel extends ViewModel {
       events.postValue(new Event.CloseEvent());
     } else if (groupRecipientIds.size() == 1) {
       SignalExecutors.BOUNDED.execute(() -> {
+        Recipient recipient      = Recipient.resolved(recipientId);
         Recipient groupRecipient = Recipient.resolved(groupRecipientIds.get(0));
-        String    recipientName  = Recipient.resolved(recipientId).getDisplayName(context);
+        String    recipientName  = recipient.getDisplayName(context);
         String    groupName      = groupRecipient.getDisplayName(context);
 
-        events.postValue(new Event.AddToSingleGroupConfirmationEvent(context.getResources().getString(R.string.AddToGroupActivity_add_member),
-                                                                     context.getResources().getString(R.string.AddToGroupActivity_add_s_to_s, recipientName, groupName),
-                                                                     groupRecipient, recipientName, groupName));
+        if (groupRecipient.getGroupId().get().isV1() && !recipient.hasE164()) {
+          events.postValue(new Event.LegacyGroupDenialEvent());
+        } else {
+          events.postValue(new Event.AddToSingleGroupConfirmationEvent(context.getResources().getString(R.string.AddToGroupActivity_add_member),
+                                                                       context.getResources().getString(R.string.AddToGroupActivity_add_s_to_s, recipientName, groupName),
+                                                                       groupRecipient, recipientName, groupName));
+        }
       });
     } else {
       throw new AssertionError("Does not support multi-select");
@@ -106,6 +111,9 @@ public final class AddToGroupViewModel extends ViewModel {
       String getMessage() {
         return message;
       }
+    }
+
+    static class LegacyGroupDenialEvent extends Event {
     }
   }
 

@@ -1,121 +1,103 @@
 package org.thoughtcrime.securesms.conversation;
 
 import android.content.Context;
-import android.database.ContentObserver;
 
 import androidx.annotation.NonNull;
-import androidx.paging.DataSource;
-import androidx.paging.PositionalDataSource;
+import androidx.annotation.Nullable;
 
-import org.thoughtcrime.securesms.database.DatabaseContentProviders;
+import com.annimon.stream.Stream;
+
+import org.signal.core.util.logging.Log;
+import org.signal.paging.PagedDataSource;
+import org.thoughtcrime.securesms.conversation.ConversationMessage.ConversationMessageFactory;
 import org.thoughtcrime.securesms.database.DatabaseFactory;
 import org.thoughtcrime.securesms.database.MmsSmsDatabase;
+import org.thoughtcrime.securesms.database.model.Mention;
 import org.thoughtcrime.securesms.database.model.MessageRecord;
-import org.thoughtcrime.securesms.logging.Log;
-import org.thoughtcrime.securesms.util.Util;
-import org.thoughtcrime.securesms.util.concurrent.SignalExecutors;
-import org.thoughtcrime.securesms.util.paging.Invalidator;
-import org.thoughtcrime.securesms.util.paging.SizeFixResult;
+import org.thoughtcrime.securesms.tracing.Trace;
+import org.thoughtcrime.securesms.util.Stopwatch;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
-import java.util.concurrent.Executor;
+import java.util.Map;
 
 /**
  * Core data source for loading an individual conversation.
  */
-class ConversationDataSource extends PositionalDataSource<MessageRecord> {
+@Trace
+class ConversationDataSource implements PagedDataSource<ConversationMessage> {
 
   private static final String TAG = Log.tag(ConversationDataSource.class);
-
-  public static final Executor EXECUTOR = SignalExecutors.newFixedLifoThreadExecutor("signal-conversation", 1, 1);
 
   private final Context             context;
   private final long                threadId;
 
-  private ConversationDataSource(@NonNull Context context,
-                                 long threadId,
-                                 @NonNull Invalidator invalidator)
-  {
-    this.context            = context;
-    this.threadId           = threadId;
-
-    ContentObserver contentObserver = new ContentObserver(null) {
-      @Override
-      public void onChange(boolean selfChange) {
-        invalidate();
-        context.getContentResolver().unregisterContentObserver(this);
-      }
-    };
-
-    invalidator.observe(() -> {
-      invalidate();
-      context.getContentResolver().unregisterContentObserver(contentObserver);
-    });
-
-    context.getContentResolver().registerContentObserver(DatabaseContentProviders.Conversation.getUriForThread(threadId), true, contentObserver);
+  ConversationDataSource(@NonNull Context context, long threadId) {
+    this.context  = context;
+    this.threadId = threadId;
   }
 
   @Override
-  public void loadInitial(@NonNull LoadInitialParams params, @NonNull LoadInitialCallback<MessageRecord> callback) {
-    long start = System.currentTimeMillis();
+  public int size() {
+    long startTime = System.currentTimeMillis();
+    int  size      = DatabaseFactory.getMmsSmsDatabase(context).getConversationCount(threadId);
 
-    MmsSmsDatabase      db             = DatabaseFactory.getMmsSmsDatabase(context);
-    List<MessageRecord> records        = new ArrayList<>(params.requestedLoadSize);
-    int                 totalCount     = db.getConversationCount(threadId);
-    int                 effectiveCount = params.requestedStartPosition;
+    Log.d(TAG, "size() for thread " + threadId + ": " + (System.currentTimeMillis() - startTime) + " ms");
 
-    try (MmsSmsDatabase.Reader reader = db.readerFor(db.getConversation(threadId, params.requestedStartPosition, params.requestedLoadSize))) {
-      MessageRecord record;
-      while ((record = reader.getNext()) != null && effectiveCount < totalCount && !isInvalid()) {
-        records.add(record);
-        effectiveCount++;
-      }
-    }
-
-    if (!isInvalid()) {
-      SizeFixResult<MessageRecord> result = SizeFixResult.ensureMultipleOfPageSize(records, params.requestedStartPosition, params.pageSize, totalCount);
-
-      callback.onResult(result.getItems(), params.requestedStartPosition, result.getTotal());
-    }
-
-    Log.d(TAG, "[Initial Load] " + (System.currentTimeMillis() - start) + " ms | thread: " + threadId + ", start: " + params.requestedStartPosition + ", size: " + params.requestedLoadSize + (isInvalid() ? " -- invalidated" : ""));
+    return size;
   }
 
   @Override
-  public void loadRange(@NonNull LoadRangeParams params, @NonNull LoadRangeCallback<MessageRecord> callback) {
-    long start = System.currentTimeMillis();
+  public @NonNull List<ConversationMessage> load(int start, int length, @NonNull CancellationSignal cancellationSignal) {
+    Stopwatch           stopwatch     = new Stopwatch("load(" + start + ", " + length + "), thread " + threadId);
+    MmsSmsDatabase      db            = DatabaseFactory.getMmsSmsDatabase(context);
+    List<MessageRecord> records       = new ArrayList<>(length);
+    MentionHelper       mentionHelper = new MentionHelper();
 
-    MmsSmsDatabase      db      = DatabaseFactory.getMmsSmsDatabase(context);
-    List<MessageRecord> records = new ArrayList<>(params.loadSize);
-
-    try (MmsSmsDatabase.Reader reader = db.readerFor(db.getConversation(threadId, params.startPosition, params.loadSize))) {
+    try (MmsSmsDatabase.Reader reader = db.readerFor(db.getConversation(threadId, start, length))) {
       MessageRecord record;
-      while ((record = reader.getNext()) != null && !isInvalid()) {
+      while ((record = reader.getNext()) != null && !cancellationSignal.isCanceled()) {
         records.add(record);
+        mentionHelper.add(record);
       }
     }
 
-    callback.onResult(records);
+    stopwatch.split("messages");
 
-    Log.d(TAG, "[Update] " + (System.currentTimeMillis() - start) + " ms | thread: " + threadId + ", start: " + params.startPosition + ", size: " + params.loadSize + (isInvalid() ? " -- invalidated" : ""));
+    mentionHelper.fetchMentions(context);
+
+    stopwatch.split("mentions");
+
+    List<ConversationMessage> messages = Stream.of(records)
+                                               .map(m -> ConversationMessageFactory.createWithUnresolvedData(context, m, mentionHelper.getMentions(m.getId())))
+                                               .toList();
+
+    stopwatch.split("conversion");
+    stopwatch.stop(TAG);
+
+    return messages;
   }
 
-  static class Factory extends DataSource.Factory<Integer, MessageRecord> {
+  private static class MentionHelper {
 
-    private final Context             context;
-    private final long                threadId;
-    private final Invalidator         invalidator;
+    private Collection<Long>         messageIds          = new LinkedList<>();
+    private Map<Long, List<Mention>> messageIdToMentions = new HashMap<>();
 
-    Factory(Context context, long threadId, @NonNull Invalidator invalidator) {
-      this.context     = context;
-      this.threadId    = threadId;
-      this.invalidator = invalidator;
+    void add(MessageRecord record) {
+      if (record.isMms()) {
+        messageIds.add(record.getId());
+      }
     }
 
-    @Override
-    public @NonNull DataSource<Integer, MessageRecord> create() {
-      return new ConversationDataSource(context, threadId, invalidator);
+    void fetchMentions(Context context) {
+      messageIdToMentions = DatabaseFactory.getMentionDatabase(context).getMentionsForMessages(messageIds);
+    }
+
+    @Nullable List<Mention> getMentions(long id) {
+      return messageIdToMentions.get(id);
     }
   }
 }

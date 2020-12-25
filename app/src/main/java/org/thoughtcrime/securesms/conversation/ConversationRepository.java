@@ -1,16 +1,21 @@
 package org.thoughtcrime.securesms.conversation;
 
 import android.content.Context;
+import android.os.Build;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.WorkerThread;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
+import org.signal.core.util.concurrent.SignalExecutors;
 import org.thoughtcrime.securesms.database.DatabaseFactory;
 import org.thoughtcrime.securesms.database.ThreadDatabase;
 import org.thoughtcrime.securesms.dependencies.ApplicationDependencies;
+import org.thoughtcrime.securesms.recipients.Recipient;
 import org.thoughtcrime.securesms.recipients.RecipientUtil;
-import org.thoughtcrime.securesms.util.concurrent.SignalExecutors;
+import org.thoughtcrime.securesms.util.BubbleUtil;
+import org.thoughtcrime.securesms.util.ConversationUtil;
 
 import java.util.concurrent.Executor;
 
@@ -34,6 +39,17 @@ class ConversationRepository {
     return liveData;
   }
 
+  @WorkerThread
+  boolean canShowAsBubble(long threadId) {
+    if (Build.VERSION.SDK_INT >= ConversationUtil.CONVERSATION_SUPPORT_VERSION) {
+      Recipient recipient = DatabaseFactory.getThreadDatabase(context).getRecipientForThreadId(threadId);
+
+      return recipient != null && BubbleUtil.canBubble(context, recipient.getId(), threadId);
+    } else {
+      return false;
+    }
+  }
+
   private @NonNull ConversationData getConversationDataInternal(long threadId, int jumpToPosition) {
     ThreadDatabase.ConversationMetadata metadata   = DatabaseFactory.getThreadDatabase(context).getConversationMetadata(threadId);
     int                                 threadSize = DatabaseFactory.getMmsSmsDatabase(context).getConversationCount(threadId);
@@ -44,8 +60,7 @@ class ConversationRepository {
     long    lastScrolled         = metadata.getLastScrolled();
     int     lastScrolledPosition = 0;
 
-    boolean isMessageRequestAccepted     = RecipientUtil.isMessageRequestAccepted(context, threadId);
-    boolean hasPreMessageRequestMessages = RecipientUtil.isPreMessageRequestThread(context, threadId);
+    boolean isMessageRequestAccepted = RecipientUtil.isMessageRequestAccepted(context, threadId);
 
     if (lastSeen > 0) {
       lastSeenPosition = DatabaseFactory.getMmsSmsDatabase(context).getMessagePositionOnOrAfterTimestamp(threadId, lastSeen);
@@ -59,6 +74,6 @@ class ConversationRepository {
       lastScrolledPosition = DatabaseFactory.getMmsSmsDatabase(context).getMessagePositionOnOrAfterTimestamp(threadId, lastScrolled);
     }
 
-    return new ConversationData(threadId, lastSeen, lastSeenPosition, lastScrolledPosition, hasSent, isMessageRequestAccepted, hasPreMessageRequestMessages, jumpToPosition, threadSize);
+    return new ConversationData(threadId, lastSeen, lastSeenPosition, lastScrolledPosition, hasSent, isMessageRequestAccepted, jumpToPosition, threadSize);
   }
 }

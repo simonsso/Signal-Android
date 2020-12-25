@@ -1,7 +1,13 @@
 package org.thoughtcrime.securesms.jobs;
 
-import androidx.annotation.NonNull;
+import android.content.Context;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
+import org.signal.core.util.StreamUtil;
+import org.signal.core.util.logging.Log;
+import org.signal.zkgroup.groups.GroupMasterKey;
 import org.signal.zkgroup.groups.GroupSecretParams;
 import org.thoughtcrime.securesms.database.DatabaseFactory;
 import org.thoughtcrime.securesms.database.GroupDatabase;
@@ -11,10 +17,8 @@ import org.thoughtcrime.securesms.groups.GroupId;
 import org.thoughtcrime.securesms.jobmanager.Data;
 import org.thoughtcrime.securesms.jobmanager.Job;
 import org.thoughtcrime.securesms.jobmanager.impl.NetworkConstraint;
-import org.thoughtcrime.securesms.logging.Log;
 import org.thoughtcrime.securesms.profiles.AvatarHelper;
 import org.thoughtcrime.securesms.util.ByteUnit;
-import org.thoughtcrime.securesms.util.Util;
 import org.whispersystems.libsignal.util.guava.Optional;
 import org.whispersystems.signalservice.api.SignalServiceMessageReceiver;
 import org.whispersystems.signalservice.api.groupsv2.GroupsV2Operations;
@@ -88,32 +92,43 @@ public final class AvatarGroupsV2DownloadJob extends BaseJob {
       }
 
       Log.i(TAG, "Downloading new avatar for group " + groupId);
+      byte[] decryptedAvatar = downloadGroupAvatarBytes(context, record.get().requireV2GroupProperties().getGroupMasterKey(), cdnKey);
 
-      attachment = File.createTempFile("avatar", "gv2", context.getCacheDir());
-      attachment.deleteOnExit();
-
-      SignalServiceMessageReceiver receiver      = ApplicationDependencies.getSignalServiceMessageReceiver();
-      byte[]                       encryptedData;
-
-      try (FileInputStream inputStream = receiver.retrieveGroupsV2ProfileAvatar(cdnKey, attachment, AVATAR_DOWNLOAD_FAIL_SAFE_MAX_SIZE)) {
-
-        encryptedData = new byte[(int) attachment.length()];
-
-        Util.readFully(inputStream, encryptedData);
-
-        GroupsV2Operations                 operations        = ApplicationDependencies.getGroupsV2Operations();
-        GroupSecretParams                  groupSecretParams = GroupSecretParams.deriveFromMasterKey(record.get().requireV2GroupProperties().getGroupMasterKey());
-        GroupsV2Operations.GroupOperations groupOperations   = operations.forGroup(groupSecretParams);
-        byte[]                             decryptedAvatar   = groupOperations.decryptAvatar(encryptedData);
-
-        AvatarHelper.setAvatar(context, record.get().getRecipientId(), decryptedAvatar != null ? new ByteArrayInputStream(decryptedAvatar) : null);
-        database.onAvatarUpdated(groupId, true);
-      }
+      AvatarHelper.setAvatar(context, record.get().getRecipientId(), decryptedAvatar != null ? new ByteArrayInputStream(decryptedAvatar) : null);
+      database.onAvatarUpdated(groupId, true);
 
     } catch (NonSuccessfulResponseCodeException e) {
       Log.w(TAG, e);
+    }
+  }
+
+  public static @Nullable byte[] downloadGroupAvatarBytes(@NonNull Context context,
+                                                          @NonNull GroupMasterKey groupMasterKey,
+                                                          @NonNull String cdnKey)
+      throws IOException
+  {
+    if (cdnKey.length() == 0) {
+      return null;
+    }
+
+    GroupSecretParams groupSecretParams = GroupSecretParams.deriveFromMasterKey(groupMasterKey);
+    File              attachment        = File.createTempFile("avatar", "gv2", context.getCacheDir());
+    attachment.deleteOnExit();
+
+    SignalServiceMessageReceiver receiver      = ApplicationDependencies.getSignalServiceMessageReceiver();
+    byte[]                       encryptedData;
+
+    try (FileInputStream inputStream = receiver.retrieveGroupsV2ProfileAvatar(cdnKey, attachment, AVATAR_DOWNLOAD_FAIL_SAFE_MAX_SIZE)) {
+      encryptedData = new byte[(int) attachment.length()];
+
+      StreamUtil.readFully(inputStream, encryptedData);
+
+      GroupsV2Operations                 operations      = ApplicationDependencies.getGroupsV2Operations();
+      GroupsV2Operations.GroupOperations groupOperations = operations.forGroup(groupSecretParams);
+
+      return groupOperations.decryptAvatar(encryptedData);
     } finally {
-      if (attachment != null && attachment.exists())
+      if (attachment.exists())
         if (!attachment.delete()) {
           Log.w(TAG, "Unable to delete temp avatar file");
         }

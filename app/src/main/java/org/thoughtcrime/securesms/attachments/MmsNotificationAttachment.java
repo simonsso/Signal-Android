@@ -2,6 +2,7 @@ package org.thoughtcrime.securesms.attachments;
 
 
 import android.net.Uri;
+
 import androidx.annotation.Nullable;
 
 import org.thoughtcrime.securesms.database.AttachmentDatabase;
@@ -15,13 +16,7 @@ public class MmsNotificationAttachment extends Attachment {
 
   @Nullable
   @Override
-  public Uri getDataUri() {
-    return null;
-  }
-
-  @Nullable
-  @Override
-  public Uri getThumbnailUri() {
+  public Uri getUri() {
     return null;
   }
 

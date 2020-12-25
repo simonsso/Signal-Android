@@ -9,7 +9,6 @@ package org.whispersystems.signalservice.api;
 
 import com.google.protobuf.ByteString;
 
-import org.signal.zkgroup.VerificationFailedException;
 import org.signal.zkgroup.profiles.ProfileKey;
 import org.signal.zkgroup.profiles.ProfileKeyCredential;
 import org.whispersystems.libsignal.IdentityKey;
@@ -30,7 +29,6 @@ import org.whispersystems.signalservice.api.kbs.MasterKey;
 import org.whispersystems.signalservice.api.messages.calls.TurnServerInfo;
 import org.whispersystems.signalservice.api.messages.multidevice.DeviceInfo;
 import org.whispersystems.signalservice.api.profiles.ProfileAndCredential;
-import org.whispersystems.signalservice.api.profiles.SignalServiceProfile;
 import org.whispersystems.signalservice.api.profiles.SignalServiceProfileWrite;
 import org.whispersystems.signalservice.api.push.ContactTokenDetails;
 import org.whispersystems.signalservice.api.push.SignedPreKeyEntity;
@@ -56,6 +54,7 @@ import org.whispersystems.signalservice.internal.contacts.crypto.Unauthenticated
 import org.whispersystems.signalservice.internal.contacts.entities.DiscoveryRequest;
 import org.whispersystems.signalservice.internal.contacts.entities.DiscoveryResponse;
 import org.whispersystems.signalservice.internal.crypto.ProvisioningCipher;
+import org.whispersystems.signalservice.api.account.AccountAttributes;
 import org.whispersystems.signalservice.internal.push.ProfileAvatarData;
 import org.whispersystems.signalservice.internal.push.PushServiceSocket;
 import org.whispersystems.signalservice.internal.push.RemoteAttestationUtil;
@@ -80,13 +79,10 @@ import java.security.KeyStore;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SignatureException;
-import java.sql.Time;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -148,8 +144,8 @@ public class SignalServiceAccountManager {
     return this.pushServiceSocket.getSenderCertificate();
   }
 
-  public byte[] getSenderCertificateLegacy() throws IOException {
-    return this.pushServiceSocket.getSenderCertificateLegacy();
+  public byte[] getSenderCertificateForPhoneNumberPrivacy() throws IOException {
+    return this.pushServiceSocket.getUuidOnlySenderCertificate();
   }
 
   /**
@@ -169,10 +165,11 @@ public class SignalServiceAccountManager {
 
   public KeyBackupService getKeyBackupService(KeyStore iasKeyStore,
                                               String enclaveName,
+                                              byte[] serviceId,
                                               String mrenclave,
                                               int tries)
   {
-    return new KeyBackupService(iasKeyStore, enclaveName, mrenclave, pushServiceSocket, tries);
+    return new KeyBackupService(iasKeyStore, enclaveName, serviceId, mrenclave, pushServiceSocket, tries);
   }
 
   /**
@@ -247,7 +244,8 @@ public class SignalServiceAccountManager {
   public VerifyAccountResponse verifyAccountWithCode(String verificationCode, String signalingKey, int signalProtocolRegistrationId, boolean fetchesMessages,
                                                      String pin, String registrationLock,
                                                      byte[] unidentifiedAccessKey, boolean unrestrictedUnidentifiedAccess,
-                                                     SignalServiceProfile.Capabilities capabilities)
+                                                     AccountAttributes.Capabilities capabilities,
+                                                     boolean discoverableByPhoneNumber)
       throws IOException
   {
     return this.pushServiceSocket.verifyAccountCode(verificationCode, signalingKey,
@@ -256,7 +254,8 @@ public class SignalServiceAccountManager {
                                                     pin, registrationLock,
                                                     unidentifiedAccessKey,
                                                     unrestrictedUnidentifiedAccess,
-                                                    capabilities);
+                                                    capabilities,
+                                                    discoverableByPhoneNumber);
   }
 
   /**
@@ -275,13 +274,15 @@ public class SignalServiceAccountManager {
   public void setAccountAttributes(String signalingKey, int signalProtocolRegistrationId, boolean fetchesMessages,
                                    String pin, String registrationLock,
                                    byte[] unidentifiedAccessKey, boolean unrestrictedUnidentifiedAccess,
-                                   SignalServiceProfile.Capabilities capabilities)
+                                   AccountAttributes.Capabilities capabilities,
+                                   boolean discoverableByPhoneNumber)
       throws IOException
   {
     this.pushServiceSocket.setAccountAttributes(signalingKey, signalProtocolRegistrationId, fetchesMessages,
                                                 pin, registrationLock,
                                                 unidentifiedAccessKey, unrestrictedUnidentifiedAccess,
-                                                capabilities);
+                                                capabilities,
+                                                discoverableByPhoneNumber);
   }
 
   /**
@@ -365,8 +366,12 @@ public class SignalServiceAccountManager {
   }
 
   public Map<String, UUID> getRegisteredUsers(KeyStore iasKeyStore, Set<String> e164numbers, String mrenclave)
-      throws IOException, Quote.InvalidQuoteFormatException, UnauthenticatedQuoteException, SignatureException, UnauthenticatedResponseException
+      throws IOException, Quote.InvalidQuoteFormatException, UnauthenticatedQuoteException, SignatureException, UnauthenticatedResponseException, InvalidKeyException
   {
+    if (e164numbers.isEmpty()) {
+      return Collections.emptyMap();
+    }
+
     try {
       String                         authorization = this.pushServiceSocket.getContactDiscoveryAuthorization();
       Map<String, RemoteAttestation> attestations  = RemoteAttestationUtil.getAndVerifyMultiRemoteAttestation(pushServiceSocket,
@@ -464,10 +469,6 @@ public class SignalServiceAccountManager {
 
     String       authToken = this.pushServiceSocket.getStorageAuth();
     StorageItems items     = this.pushServiceSocket.readStorageItems(authToken, operation.build());
-
-    if (items.getItemsCount() != storageKeys.size()) {
-      Log.w(TAG, "Failed to find all remote keys! Requested: " + storageKeys.size() + ", Found: " + items.getItemsCount());
-    }
 
     for (StorageItem item : items.getItemsList()) {
       Integer type = typeMap.get(item.getKey());
@@ -679,6 +680,10 @@ public class SignalServiceAccountManager {
 
   public void deleteUsername() throws IOException {
     this.pushServiceSocket.deleteUsername();
+  }
+
+  public void deleteAccount() throws IOException {
+    this.pushServiceSocket.deleteAccount();
   }
 
   public void setSoTimeoutMillis(long soTimeoutMillis) {

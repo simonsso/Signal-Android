@@ -7,20 +7,19 @@ import android.content.Intent;
 import android.os.AsyncTask;
 
 import androidx.annotation.NonNull;
-import androidx.core.app.NotificationManagerCompat;
 
 import com.annimon.stream.Collectors;
 import com.annimon.stream.Stream;
 
+import org.signal.core.util.logging.Log;
 import org.thoughtcrime.securesms.ApplicationContext;
 import org.thoughtcrime.securesms.database.DatabaseFactory;
-import org.thoughtcrime.securesms.database.MessagingDatabase.ExpirationInfo;
-import org.thoughtcrime.securesms.database.MessagingDatabase.MarkedMessageInfo;
-import org.thoughtcrime.securesms.database.MessagingDatabase.SyncMessageId;
+import org.thoughtcrime.securesms.database.MessageDatabase.ExpirationInfo;
+import org.thoughtcrime.securesms.database.MessageDatabase.MarkedMessageInfo;
+import org.thoughtcrime.securesms.database.MessageDatabase.SyncMessageId;
 import org.thoughtcrime.securesms.dependencies.ApplicationDependencies;
 import org.thoughtcrime.securesms.jobs.MultiDeviceReadUpdateJob;
 import org.thoughtcrime.securesms.jobs.SendReadReceiptJob;
-import org.thoughtcrime.securesms.logging.Log;
 import org.thoughtcrime.securesms.recipients.RecipientId;
 import org.thoughtcrime.securesms.service.ExpiringMessageManager;
 
@@ -44,7 +43,7 @@ public class MarkReadReceiver extends BroadcastReceiver {
     final long[] threadIds = intent.getLongArrayExtra(THREAD_IDS_EXTRA);
 
     if (threadIds != null) {
-      NotificationManagerCompat.from(context).cancel(intent.getIntExtra(NOTIFICATION_ID_EXTRA, -1));
+      NotificationCancellationHelper.cancelLegacy(context, intent.getIntExtra(NOTIFICATION_ID_EXTRA, -1));
 
       new AsyncTask<Void, Void, Void>() {
         @Override
@@ -86,7 +85,7 @@ public class MarkReadReceiver extends BroadcastReceiver {
 
     scheduleDeletion(context, smsExpirationInfo, mmsExpirationInfo);
 
-    ApplicationDependencies.getJobManager().add(new MultiDeviceReadUpdateJob(syncMessageIds));
+    MultiDeviceReadUpdateJob.enqueue(syncMessageIds);
 
     Map<Long, List<MarkedMessageInfo>> threadToInfo = Stream.of(markedReadMessages)
                                                             .collect(Collectors.groupingBy(MarkedMessageInfo::getThreadId));
@@ -99,7 +98,7 @@ public class MarkReadReceiver extends BroadcastReceiver {
       Stream.of(idMapForThread).forEach(entry -> {
         List<Long> timestamps = Stream.of(entry.getValue()).map(SyncMessageId::getTimetamp).toList();
 
-        ApplicationDependencies.getJobManager().add(new SendReadReceiptJob(threadToInfoEntry.getKey(), entry.getKey(), timestamps));
+        SendReadReceiptJob.enqueue(threadToInfoEntry.getKey(), entry.getKey(), timestamps);
       });
     });
   }

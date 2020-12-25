@@ -6,15 +6,14 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.WorkerThread;
 
-import org.signal.zkgroup.VerificationFailedException;
 import org.signal.zkgroup.profiles.ProfileKey;
 import org.thoughtcrime.securesms.crypto.ProfileKeyUtil;
 import org.thoughtcrime.securesms.crypto.UnidentifiedAccessUtil;
+import org.thoughtcrime.securesms.database.RecipientDatabase;
 import org.thoughtcrime.securesms.dependencies.ApplicationDependencies;
-import org.thoughtcrime.securesms.logging.Log;
+import org.thoughtcrime.securesms.messages.IncomingMessageObserver;
 import org.thoughtcrime.securesms.recipients.Recipient;
 import org.thoughtcrime.securesms.recipients.RecipientUtil;
-import org.thoughtcrime.securesms.messages.IncomingMessageObserver;
 import org.whispersystems.libsignal.util.guava.Optional;
 import org.whispersystems.signalservice.api.SignalServiceMessagePipe;
 import org.whispersystems.signalservice.api.SignalServiceMessageReceiver;
@@ -25,7 +24,6 @@ import org.whispersystems.signalservice.api.crypto.UnidentifiedAccessPair;
 import org.whispersystems.signalservice.api.profiles.ProfileAndCredential;
 import org.whispersystems.signalservice.api.profiles.SignalServiceProfile;
 import org.whispersystems.signalservice.api.push.SignalServiceAddress;
-import org.whispersystems.signalservice.api.push.exceptions.NonSuccessfulResponseCodeException;
 import org.whispersystems.signalservice.api.push.exceptions.NotFoundException;
 import org.whispersystems.signalservice.api.push.exceptions.PushNetworkException;
 import org.whispersystems.signalservice.internal.util.concurrent.CascadingFuture;
@@ -56,6 +54,8 @@ public final class ProfileUtil {
     } catch (ExecutionException e) {
       if (e.getCause() instanceof PushNetworkException) {
         throw (PushNetworkException) e.getCause();
+      } else if (e.getCause() instanceof NotFoundException) {
+        throw (NotFoundException) e.getCause();
       } else {
         throw new IOException(e);
       }
@@ -68,7 +68,7 @@ public final class ProfileUtil {
                                                                                 @NonNull Recipient recipient,
                                                                                 @NonNull SignalServiceProfile.RequestType requestType)
   {
-    SignalServiceAddress         address            = RecipientUtil.toSignalServiceAddress(context, recipient);
+    SignalServiceAddress         address            = toSignalServiceAddress(context, recipient);
     Optional<UnidentifiedAccess> unidentifiedAccess = getUnidentifiedAccess(context, recipient);
     Optional<ProfileKey>         profileKey         = ProfileKeyUtil.profileKeyOptional(recipient.getProfileKey());
 
@@ -123,12 +123,20 @@ public final class ProfileUtil {
   }
 
   private static Optional<UnidentifiedAccess> getUnidentifiedAccess(@NonNull Context context, @NonNull Recipient recipient) {
-    Optional<UnidentifiedAccessPair> unidentifiedAccess = UnidentifiedAccessUtil.getAccessFor(context, recipient);
+    Optional<UnidentifiedAccessPair> unidentifiedAccess = UnidentifiedAccessUtil.getAccessFor(context, recipient, false);
 
     if (unidentifiedAccess.isPresent()) {
       return unidentifiedAccess.get().getTargetUnidentifiedAccess();
     }
 
     return Optional.absent();
+  }
+
+  private static @NonNull SignalServiceAddress toSignalServiceAddress(@NonNull Context context, @NonNull Recipient recipient) {
+    if (recipient.getRegistered() == RecipientDatabase.RegisteredState.NOT_REGISTERED) {
+      return new SignalServiceAddress(recipient.getUuid().orNull(), recipient.getE164().orNull());
+    } else {
+      return RecipientUtil.toSignalServiceAddressBestEffort(context, recipient);
+    }
   }
 }

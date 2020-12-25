@@ -17,30 +17,36 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.view.ActionMode;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
+import androidx.lifecycle.Observer;
 import androidx.loader.app.LoaderManager;
 import androidx.loader.content.Loader;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.codewaves.stickyheadergrid.StickyHeaderGridLayoutManager;
 
+import org.signal.core.util.logging.Log;
 import org.thoughtcrime.securesms.MediaPreviewActivity;
 import org.thoughtcrime.securesms.R;
 import org.thoughtcrime.securesms.attachments.DatabaseAttachment;
+import org.thoughtcrime.securesms.components.voice.VoiceNoteMediaController;
+import org.thoughtcrime.securesms.components.voice.VoiceNotePlaybackState;
 import org.thoughtcrime.securesms.database.MediaDatabase;
 import org.thoughtcrime.securesms.database.loaders.GroupedThreadMediaLoader;
 import org.thoughtcrime.securesms.database.loaders.MediaLoader;
-import org.thoughtcrime.securesms.logging.Log;
 import org.thoughtcrime.securesms.mms.GlideApp;
 import org.thoughtcrime.securesms.mms.PartAuthority;
 import org.thoughtcrime.securesms.util.MediaUtil;
 import org.thoughtcrime.securesms.util.Util;
+import org.thoughtcrime.securesms.util.WindowUtil;
 
 public final class MediaOverviewPageFragment extends Fragment
   implements MediaGalleryAllAdapter.ItemClickListener,
+             MediaGalleryAllAdapter.AudioItemListener,
              LoaderManager.LoaderCallbacks<GroupedThreadMediaLoader.GroupedThreadMedia>
 {
 
@@ -61,6 +67,7 @@ public final class MediaOverviewPageFragment extends Fragment
   private       boolean                       detail;
   private       MediaGalleryAllAdapter        adapter;
   private       GridMode                      gridMode;
+  private       VoiceNoteMediaController      voiceNoteMediaController;
 
   public static @NonNull Fragment newInstance(long threadId,
                                               @NonNull MediaLoader.MediaType mediaType,
@@ -92,6 +99,13 @@ public final class MediaOverviewPageFragment extends Fragment
   }
 
   @Override
+  public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+    super.onActivityCreated(savedInstanceState);
+
+    voiceNoteMediaController = new VoiceNoteMediaController((AppCompatActivity) requireActivity());
+  }
+
+  @Override
   public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
     Context context = requireContext();
     View    view    = inflater.inflate(R.layout.media_overview_page_fragment, container, false);
@@ -103,6 +117,7 @@ public final class MediaOverviewPageFragment extends Fragment
     this.adapter = new MediaGalleryAllAdapter(context,
                                               GlideApp.with(this),
                                               new GroupedThreadMediaLoader.EmptyGroupedThreadMedia(),
+                                              this,
                                               this,
                                               sorting.isRelatedToFileSize(),
                                               threadId == MediaDatabase.ALL_THREADS);
@@ -181,15 +196,6 @@ public final class MediaOverviewPageFragment extends Fragment
   }
 
   @Override
-  public void onPause() {
-    super.onPause();
-    int childCount = recyclerView.getChildCount();
-    for (int i = 0; i < childCount; i++) {
-      adapter.pause(recyclerView.getChildViewHolder(recyclerView.getChildAt(i)));
-    }
-  }
-
-  @Override
   public void onDestroy() {
     super.onDestroy();
     int childCount = recyclerView.getChildCount();
@@ -210,7 +216,7 @@ public final class MediaOverviewPageFragment extends Fragment
   }
 
   private void handleMediaPreviewClick(@NonNull MediaDatabase.MediaRecord mediaRecord) {
-    if (mediaRecord.getAttachment().getDataUri() == null) {
+    if (mediaRecord.getAttachment().getUri() == null) {
       return;
     }
 
@@ -231,7 +237,7 @@ public final class MediaOverviewPageFragment extends Fragment
       intent.putExtra(MediaPreviewActivity.SHOW_THREAD_EXTRA, threadId == MediaDatabase.ALL_THREADS);
       intent.putExtra(MediaPreviewActivity.SORTING_EXTRA, sorting.ordinal());
 
-      intent.setDataAndType(mediaRecord.getAttachment().getDataUri(), mediaRecord.getContentType());
+      intent.setDataAndType(mediaRecord.getAttachment().getUri(), mediaRecord.getContentType());
       context.startActivity(intent);
     } else {
       if (!MediaUtil.isAudio(attachment)) {
@@ -241,7 +247,7 @@ public final class MediaOverviewPageFragment extends Fragment
   }
 
   private static void showFileExternally(@NonNull Context context, @NonNull MediaDatabase.MediaRecord mediaRecord) {
-      Uri uri = mediaRecord.getAttachment().getDataUri();
+      Uri uri = mediaRecord.getAttachment().getUri();
 
       Intent intent = new Intent(Intent.ACTION_VIEW);
       intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
@@ -305,6 +311,36 @@ public final class MediaOverviewPageFragment extends Fragment
     ((MediaOverviewActivity) activity).onEnterMultiSelect();
   }
 
+  @Override
+  public void onPlay(@NonNull Uri audioUri, double progress, long messageId) {
+    voiceNoteMediaController.startSinglePlayback(audioUri, messageId, progress);
+  }
+
+  @Override
+  public void onPause(@NonNull Uri audioUri) {
+    voiceNoteMediaController.pausePlayback(audioUri);
+  }
+
+  @Override
+  public void onSeekTo(@NonNull Uri audioUri, double progress) {
+    voiceNoteMediaController.seekToPosition(audioUri, progress);
+  }
+
+  @Override
+  public void onStopAndReset(@NonNull Uri audioUri) {
+    voiceNoteMediaController.stopPlaybackAndReset(audioUri);
+  }
+
+  @Override
+  public void registerPlaybackStateObserver(@NonNull Observer<VoiceNotePlaybackState> observer) {
+    voiceNoteMediaController.getVoiceNotePlaybackState().observe(getViewLifecycleOwner(), observer);
+  }
+
+  @Override
+  public void unregisterPlaybackStateObserver(@NonNull Observer<VoiceNotePlaybackState> observer) {
+    voiceNoteMediaController.getVoiceNotePlaybackState().removeObserver(observer);
+  }
+
   private class ActionModeCallback implements ActionMode.Callback {
 
     private int originalStatusBarColor;
@@ -317,7 +353,7 @@ public final class MediaOverviewPageFragment extends Fragment
       if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
         Window window = requireActivity().getWindow();
         originalStatusBarColor = window.getStatusBarColor();
-        window.setStatusBarColor(getResources().getColor(R.color.action_mode_status_bar));
+        WindowUtil.setStatusBarColor(requireActivity().getWindow(), getResources().getColor(R.color.action_mode_status_bar));
       }
       return true;
     }
@@ -355,9 +391,7 @@ public final class MediaOverviewPageFragment extends Fragment
 
       ((MediaOverviewActivity) activity).onExitMultiSelect();
 
-      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-        activity.getWindow().setStatusBarColor(originalStatusBarColor);
-      }
+      WindowUtil.setStatusBarColor(requireActivity().getWindow(), originalStatusBarColor);
     }
   }
 

@@ -8,6 +8,7 @@ import androidx.annotation.WorkerThread;
 
 import com.annimon.stream.Stream;
 
+import org.signal.core.util.logging.Log;
 import org.thoughtcrime.securesms.contacts.sync.DirectoryHelper;
 import org.thoughtcrime.securesms.database.DatabaseFactory;
 import org.thoughtcrime.securesms.database.RecipientDatabase.RegisteredState;
@@ -17,18 +18,17 @@ import org.thoughtcrime.securesms.groups.GroupChangeBusyException;
 import org.thoughtcrime.securesms.groups.GroupChangeException;
 import org.thoughtcrime.securesms.groups.GroupChangeFailedException;
 import org.thoughtcrime.securesms.groups.GroupManager;
-import org.thoughtcrime.securesms.jobs.DirectoryRefreshJob;
 import org.thoughtcrime.securesms.jobs.MultiDeviceBlockedUpdateJob;
 import org.thoughtcrime.securesms.jobs.MultiDeviceMessageRequestResponseJob;
 import org.thoughtcrime.securesms.jobs.RotateProfileKeyJob;
 import org.thoughtcrime.securesms.keyvalue.SignalStore;
-import org.thoughtcrime.securesms.logging.Log;
 import org.thoughtcrime.securesms.storage.StorageSyncHelper;
-import org.thoughtcrime.securesms.util.FeatureFlags;
 import org.whispersystems.libsignal.util.guava.Optional;
 import org.whispersystems.signalservice.api.push.SignalServiceAddress;
 
 import java.io.IOException;
+import java.util.Collection;
+import java.util.List;
 
 public class RecipientUtil {
 
@@ -37,34 +37,87 @@ public class RecipientUtil {
   /**
    * This method will do it's best to craft a fully-populated {@link SignalServiceAddress} based on
    * the provided recipient. This includes performing a possible network request if no UUID is
-   * available.
+   * available. If the request to get a UUID fails, the exception is swallowed an an E164-only
+   * recipient is returned.
    */
   @WorkerThread
-  public static @NonNull SignalServiceAddress toSignalServiceAddress(@NonNull Context context, @NonNull Recipient recipient) {
+  public static @NonNull SignalServiceAddress toSignalServiceAddressBestEffort(@NonNull Context context, @NonNull Recipient recipient) {
+    try {
+      return toSignalServiceAddress(context, recipient);
+    } catch (IOException e) {
+      Log.w(TAG, "Failed to populate address!", e);
+      return new SignalServiceAddress(recipient.getUuid().orNull(), recipient.getE164().orNull());
+    }
+  }
+
+  /**
+   * This method will do it's best to craft a fully-populated {@link SignalServiceAddress} based on
+   * the provided recipient. This includes performing a possible network request if no UUID is
+   * available. If the request to get a UUID fails, an IOException is thrown.
+   */
+  @WorkerThread
+  public static @NonNull SignalServiceAddress toSignalServiceAddress(@NonNull Context context, @NonNull Recipient recipient)
+      throws IOException
+  {
     recipient = recipient.resolve();
 
     if (!recipient.getUuid().isPresent() && !recipient.getE164().isPresent()) {
       throw new AssertionError(recipient.getId() + " - No UUID or phone number!");
     }
 
-    if (FeatureFlags.cds() && !recipient.getUuid().isPresent()) {
+    if (!recipient.getUuid().isPresent()) {
       Log.i(TAG, recipient.getId() + " is missing a UUID...");
-      try {
-        RegisteredState state = DirectoryHelper.refreshDirectoryFor(context, recipient, false);
-        recipient = Recipient.resolved(recipient.getId());
-        Log.i(TAG, "Successfully performed a UUID fetch for " + recipient.getId() + ". Registered: " + state);
-      } catch (IOException e) {
-        Log.w(TAG, "Failed to fetch a UUID for " + recipient.getId() + ". Scheduling a future fetch and building an address without one.");
-        ApplicationDependencies.getJobManager().add(new DirectoryRefreshJob(recipient, false));
-      }
+      RegisteredState state = DirectoryHelper.refreshDirectoryFor(context, recipient, false);
+
+      recipient = Recipient.resolved(recipient.getId());
+      Log.i(TAG, "Successfully performed a UUID fetch for " + recipient.getId() + ". Registered: " + state);
     }
 
     return new SignalServiceAddress(Optional.fromNullable(recipient.getUuid().orNull()), Optional.fromNullable(recipient.resolve().getE164().orNull()));
   }
 
+  public static @NonNull List<SignalServiceAddress> toSignalServiceAddresses(@NonNull Context context, @NonNull List<RecipientId> recipients)
+      throws IOException
+  {
+    return toSignalServiceAddressesFromResolved(context, Recipient.resolvedList(recipients));
+  }
+
+  public static @NonNull List<SignalServiceAddress> toSignalServiceAddressesFromResolved(@NonNull Context context, @NonNull List<Recipient> recipients)
+      throws IOException
+  {
+    ensureUuidsAreAvailable(context, recipients);
+
+    return Stream.of(recipients)
+                 .map(Recipient::resolve)
+                 .map(r -> new SignalServiceAddress(r.getUuid().orNull(), r.getE164().orNull()))
+                 .toList();
+  }
+
+  public static boolean ensureUuidsAreAvailable(@NonNull Context context, @NonNull Collection<Recipient> recipients)
+      throws IOException
+  {
+    List<Recipient> recipientsWithoutUuids = Stream.of(recipients)
+                                                   .map(Recipient::resolve)
+                                                   .filterNot(Recipient::hasUuid)
+                                                   .toList();
+
+    if (recipientsWithoutUuids.size() > 0) {
+      DirectoryHelper.refreshDirectoryFor(context, recipientsWithoutUuids, false);
+      return true;
+    } else {
+      return false;
+    }
+  }
+
   public static boolean isBlockable(@NonNull Recipient recipient) {
     Recipient resolved = recipient.resolve();
     return resolved.isPushGroup() || resolved.hasServiceIdentifier();
+  }
+
+  public static List<Recipient> getEligibleForSending(@NonNull List<Recipient> recipients) {
+    return Stream.of(recipients)
+                 .filter(r -> r.getRegistered() != RegisteredState.NOT_REGISTERED)
+                 .toList();
   }
 
   /**
@@ -121,6 +174,7 @@ public class RecipientUtil {
     }
 
     DatabaseFactory.getRecipientDatabase(context).setBlocked(recipient.getId(), false);
+    DatabaseFactory.getRecipientDatabase(context).setProfileSharing(recipient.getId(), true);
     ApplicationDependencies.getJobManager().add(new MultiDeviceBlockedUpdateJob());
     StorageSyncHelper.scheduleSyncForDataChange();
     ApplicationDependencies.getJobManager().add(MultiDeviceMessageRequestResponseJob.forAccept(recipient.getId()));
@@ -163,6 +217,20 @@ public class RecipientUtil {
   }
 
   /**
+   * Like {@link #isMessageRequestAccepted(Context, long)} but with fewer checks around messages so it
+   * is more likely to return false.
+   */
+  @WorkerThread
+  public static boolean isCallRequestAccepted(@NonNull Context context, @Nullable Recipient threadRecipient) {
+    if (threadRecipient == null) {
+      return true;
+    }
+
+    long threadId = DatabaseFactory.getThreadDatabase(context).getThreadIdFor(threadRecipient);
+    return isCallRequestAccepted(context, threadId, threadRecipient);
+  }
+
+  /**
    * @return True if a conversation existed before we enabled message requests, otherwise false.
    */
   @WorkerThread
@@ -173,7 +241,7 @@ public class RecipientUtil {
 
   @WorkerThread
   public static void shareProfileIfFirstSecureMessage(@NonNull Context context, @NonNull Recipient recipient) {
-    long threadId = DatabaseFactory.getThreadDatabase(context).getThreadIdIfExistsFor(recipient);
+    long threadId = DatabaseFactory.getThreadDatabase(context).getThreadIdIfExistsFor(recipient.getId());
 
     if (isPreMessageRequestThread(context, threadId)) {
       return;
@@ -187,15 +255,16 @@ public class RecipientUtil {
   }
 
   public static boolean isLegacyProfileSharingAccepted(@NonNull Recipient threadRecipient) {
-    return threadRecipient.isLocalNumber()    ||
+    return threadRecipient.isSelf()           ||
            threadRecipient.isProfileSharing() ||
            threadRecipient.isSystemContact()  ||
-           !threadRecipient.isRegistered();
+           !threadRecipient.isRegistered()    ||
+           threadRecipient.isForceSmsSelection();
   }
 
   @WorkerThread
   private static boolean isMessageRequestAccepted(@NonNull Context context, long threadId, @NonNull Recipient threadRecipient) {
-    return threadRecipient.isLocalNumber()                       ||
+    return threadRecipient.isSelf()                              ||
            threadRecipient.isProfileSharing()                    ||
            threadRecipient.isSystemContact()                     ||
            threadRecipient.isForceSmsSelection()                 ||
@@ -206,7 +275,15 @@ public class RecipientUtil {
   }
 
   @WorkerThread
-  private static boolean hasSentMessageInThread(@NonNull Context context, long threadId) {
+  private static boolean isCallRequestAccepted(@NonNull Context context, long threadId, @NonNull Recipient threadRecipient) {
+    return threadRecipient.isProfileSharing()            ||
+           threadRecipient.isSystemContact()             ||
+           hasSentMessageInThread(context, threadId)     ||
+           isPreMessageRequestThread(context, threadId);
+  }
+
+  @WorkerThread
+  public static boolean hasSentMessageInThread(@NonNull Context context, long threadId) {
     return DatabaseFactory.getMmsSmsDatabase(context).getOutgoingSecureConversationCount(threadId) != 0;
   }
 

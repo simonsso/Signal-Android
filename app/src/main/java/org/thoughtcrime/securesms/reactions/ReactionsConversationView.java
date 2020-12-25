@@ -11,6 +11,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 
 import com.annimon.stream.Stream;
 
@@ -19,7 +20,6 @@ import org.thoughtcrime.securesms.components.emoji.EmojiUtil;
 import org.thoughtcrime.securesms.database.model.ReactionRecord;
 import org.thoughtcrime.securesms.recipients.Recipient;
 import org.thoughtcrime.securesms.recipients.RecipientId;
-import org.thoughtcrime.securesms.util.ThemeUtil;
 import org.thoughtcrime.securesms.util.ViewUtil;
 
 import java.util.ArrayList;
@@ -158,10 +158,10 @@ public class ReactionsConversationView extends LinearLayout {
     }
 
     if (reaction.userWasSender) {
-      root.setBackground(ThemeUtil.getThemedDrawable(context, R.attr.reactions_pill_selected_background));
-      countView.setTextColor(ThemeUtil.getThemedColor(context, R.attr.reactions_pill_selected_text_color));
+      root.setBackground(ContextCompat.getDrawable(context, R.drawable.reaction_pill_background_selected));
+      countView.setTextColor(ContextCompat.getColor(context, R.color.reactions_pill_selected_text_color));
     } else {
-      root.setBackground(ThemeUtil.getThemedDrawable(context, R.attr.reactions_pill_background));
+      root.setBackground(ContextCompat.getDrawable(context, R.drawable.reaction_pill_background));
     }
 
     return root;

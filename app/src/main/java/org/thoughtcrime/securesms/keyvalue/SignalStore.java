@@ -1,11 +1,10 @@
 package org.thoughtcrime.securesms.keyvalue;
 
 import androidx.annotation.NonNull;
-import androidx.lifecycle.OnLifecycleEvent;
 import androidx.preference.PreferenceDataStore;
 
 import org.thoughtcrime.securesms.dependencies.ApplicationDependencies;
-import org.thoughtcrime.securesms.logging.SignalUncaughtExceptionHandler;
+import org.thoughtcrime.securesms.util.SignalUncaughtExceptionHandler;
 
 /**
  * Simple, encrypted key-value store.
@@ -14,28 +13,36 @@ public final class SignalStore {
 
   private static final SignalStore INSTANCE = new SignalStore();
 
-  private final KeyValueStore        store;
-  private final KbsValues            kbsValues;
-  private final RegistrationValues   registrationValues;
-  private final PinValues            pinValues;
-  private final RemoteConfigValues   remoteConfigValues;
-  private final StorageServiceValues storageServiceValues;
-  private final UiHints              uiHints;
-  private final TooltipValues        tooltipValues;
-  private final MiscellaneousValues  misc;
-  private final InternalValues       internalValues;
+  private final KeyValueStore            store;
+  private final KbsValues                kbsValues;
+  private final RegistrationValues       registrationValues;
+  private final PinValues                pinValues;
+  private final RemoteConfigValues       remoteConfigValues;
+  private final StorageServiceValues     storageServiceValues;
+  private final UiHints                  uiHints;
+  private final TooltipValues            tooltipValues;
+  private final MiscellaneousValues      misc;
+  private final InternalValues           internalValues;
+  private final EmojiValues              emojiValues;
+  private final SettingsValues           settingsValues;
+  private final CertificateValues        certificateValues;
+  private final PhoneNumberPrivacyValues phoneNumberPrivacyValues;
 
   private SignalStore() {
-    this.store                = ApplicationDependencies.getKeyValueStore();
-    this.kbsValues            = new KbsValues(store);
-    this.registrationValues   = new RegistrationValues(store);
-    this.pinValues            = new PinValues(store);
-    this.remoteConfigValues   = new RemoteConfigValues(store);
-    this.storageServiceValues = new StorageServiceValues(store);
-    this.uiHints              = new UiHints(store);
-    this.tooltipValues        = new TooltipValues(store);
-    this.misc                 = new MiscellaneousValues(store);
-    this.internalValues       = new InternalValues(store);
+    this.store                    = new KeyValueStore(ApplicationDependencies.getApplication());
+    this.kbsValues                = new KbsValues(store);
+    this.registrationValues       = new RegistrationValues(store);
+    this.pinValues                = new PinValues(store);
+    this.remoteConfigValues       = new RemoteConfigValues(store);
+    this.storageServiceValues     = new StorageServiceValues(store);
+    this.uiHints                  = new UiHints(store);
+    this.tooltipValues            = new TooltipValues(store);
+    this.misc                     = new MiscellaneousValues(store);
+    this.internalValues           = new InternalValues(store);
+    this.emojiValues              = new EmojiValues(store);
+    this.settingsValues           = new SettingsValues(store);
+    this.certificateValues        = new CertificateValues(store);
+    this.phoneNumberPrivacyValues = new PhoneNumberPrivacyValues(store);
   }
 
   public static void onFirstEverAppLaunch() {
@@ -48,6 +55,9 @@ public final class SignalStore {
     tooltips().onFirstEverAppLaunch();
     misc().onFirstEverAppLaunch();
     internalValues().onFirstEverAppLaunch();
+    settings().onFirstEverAppLaunch();
+    certificateValues().onFirstEverAppLaunch();
+    phoneNumberPrivacy().onFirstEverAppLaunch();
   }
 
   public static @NonNull KbsValues kbsValues() {
@@ -84,6 +94,22 @@ public final class SignalStore {
 
   public static @NonNull InternalValues internalValues() {
     return INSTANCE.internalValues;
+  }
+
+  public static @NonNull EmojiValues emojiValues() {
+    return INSTANCE.emojiValues;
+  }
+
+  public static @NonNull SettingsValues settings() {
+    return INSTANCE.settingsValues;
+  }
+
+  public static @NonNull CertificateValues certificateValues() {
+    return INSTANCE.certificateValues;
+  }
+
+  public static @NonNull PhoneNumberPrivacyValues phoneNumberPrivacy() {
+    return INSTANCE.phoneNumberPrivacyValues;
   }
 
   public static @NonNull GroupsV2AuthorizationSignalStoreCache groupsV2AuthorizationCache() {

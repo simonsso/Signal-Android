@@ -70,7 +70,7 @@
   <!--AudioSlidePlayer-->
   <string name="AudioSlidePlayer_error_playing_audio">Enten masalah kala muter suwanten!</string>
   <!--BlockedContactsActivity-->
-  <string name="BlockedContactsActivity_blocked_contacts">Kontak ingkang dipunblokir</string>
+  <!-- Removed by excludeNonTranslatables <string name="BlockedContactsActivity_blocked_contacts">Kontak ingkang dipunblokir</string> -->
   <!--BlockUnblockDialog-->
   <string name="BlockUnblockDialog_group_members_will_be_able_to_add_you">Anggota grup bakal saged minggahaken sampeyan datheng grup niki malih.</string>
   <string name="BlockUnblockDialog_unblock">Uculaken blokiranipun</string>
@@ -170,9 +170,9 @@
   <string name="ConversationActivity_added_to_home_screen">Dipunminggahaken dhateng laman ngajeng</string>
   <string name="ConversationActivity_calls_not_supported">Telepon mboten dipundukung</string>
   <string name="ConversationActivity_this_device_does_not_appear_to_support_dial_actions">Pirantos niki kadosipun mboten ndukung tumindak kangge nelepon.</string>
-  <string name="ConversationActivity_leave_group">Medal saking grup?</string>
-  <string name="ConversationActivity_are_you_sure_you_want_to_leave_this_group">Sampeyan sampun mantep badhe medal saking grup niki?</string>
-  <string name="ConversationActivity_choose_new_admin">Pileh admin enggal</string>
+  <!-- Removed by excludeNonTranslatables <string name="ConversationActivity_leave_group">Medal saking grup?</string> -->
+  <!-- Removed by excludeNonTranslatables <string name="ConversationActivity_are_you_sure_you_want_to_leave_this_group">Sampeyan sampun mantep badhe medal saking grup niki?</string> -->
+  <!-- Removed by excludeNonTranslatables <string name="ConversationActivity_choose_new_admin">Pileh admin enggal</string> -->
   <string name="ConversationActivity_transport_insecure_sms">SMS ingkang Mboten Aman</string>
   <string name="ConversationActivity_transport_insecure_mms">MMS ingkang Mboten Aman</string>
   <string name="ConversationActivity_transport_signal">Signal</string>
@@ -239,7 +239,7 @@
   <string name="ConversationFragment_sms">SMS</string>
   <string name="ConversationFragment_deleting">Taksih mbrusaki</string>
   <string name="ConversationFragment_deleting_messages">Taksih mbrusaki pesen…</string>
-  <string name="ConversationFragment_this_message_will_be_permanently_deleted_for_everyone">Pesen niki bakal dibrusak kangge piyambak sedaya ing obrolan niki sacara permanen Anggota sedaya bakal saged ningali menawi sampeyan mbrusaki pesen.</string>
+  <!-- Removed by excludeNonTranslatables <string name="ConversationFragment_this_message_will_be_permanently_deleted_for_everyone">Pesen niki bakal dibrusak kangge piyambak sedaya ing obrolan niki sacara permanen Anggota sedaya bakal saged ningali menawi sampeyan mbrusaki pesen.</string> -->
   <string name="ConversationFragment_quoted_message_not_found">Pesen asli mboten saged kepanggih</string>
   <string name="ConversationFragment_quoted_message_no_longer_available">Pesen asli sampun mboten enten malih</string>
   <string name="ConversationFragment_failed_to_open_message">Gagal mbikak pesen</string>
@@ -273,6 +273,7 @@
   <!--ConversationTitleView-->
   <string name="ConversationTitleView_verified">Dipunverifikasi</string>
   <string name="ConversationTitleView_you">Sampeyan</string>
+  <!--CreateGroupActivity-->
   <!--CreateProfileActivity-->
   <string name="CreateProfileActivity__profile">Profil</string>
   <string name="CreateProfileActivity_error_setting_profile_photo">Enten masalah kala masang foto profil</string>
@@ -502,13 +503,13 @@
   <string name="MessageRecord_message_encrypted_with_a_legacy_protocol_version_that_is_no_longer_supported">Nampi pesen ingkang dipunenkripsi ngginakaken versi dangunipun Signal ingkang mboten dipundukung malih. Cobi tedhakaken pangirim supados ngenggalaken Signal dados versi paling enggal, lajeng kirimaken malih pesen kasebut.</string>
   <string name="MessageRecord_left_group">Sampeyan sampun medal saking grup.</string>
   <string name="MessageRecord_you_updated_group">Sampeyan nembe ngenggalaken grup.</string>
-  <string name="MessageRecord_you_called">Sampeyan nembe nelepon</string>
-  <string name="MessageRecord_called_you">Kontak nembe nelepon</string>
-  <string name="MessageRecord_missed_call">Telepon ingkang mboten dipunangkat</string>
+  <!-- Removed by excludeNonTranslatables <string name="MessageRecord_you_called">Sampeyan nembe nelepon</string> -->
+  <!-- Removed by excludeNonTranslatables <string name="MessageRecord_called_you">Kontak nembe nelepon</string> -->
+  <!-- Removed by excludeNonTranslatables <string name="MessageRecord_missed_call">Telepon ingkang mboten dipunangkat</string> -->
   <string name="MessageRecord_s_updated_group">%s nembe ngenggalaken grup.</string>
-  <string name="MessageRecord_s_called_you">%s nembe nelepon sampeyan</string>
+  <!-- Removed by excludeNonTranslatables <string name="MessageRecord_s_called_you">%s nembe nelepon sampeyan</string> -->
   <string name="MessageRecord_called_s">Nembe nelepon %s</string>
-  <string name="MessageRecord_missed_call_from">Telepon ingkang mboten dipunangkat saking %s</string>
+  <!-- Removed by excludeNonTranslatables <string name="MessageRecord_missed_call_from">Telepon ingkang mboten dipunangkat saking %s</string> -->
   <string name="MessageRecord_s_joined_signal">Enten %s ing Signal!</string>
   <string name="MessageRecord_you_disabled_disappearing_messages">Sampeyan ngenonaktifaken pesen ngical.</string>
   <string name="MessageRecord_s_disabled_disappearing_messages">%1$s ngenonaktifaken pesen ngical.</string>
@@ -527,7 +528,7 @@
   <!--GV2 invitations-->
   <string name="MessageRecord_you_were_invited_to_the_group">Sampeyan diajak mlebet grup.</string>
   <!--GV2 invitation revokes-->
-  <string name="MessageRecord_your_invitation_to_the_group_was_revoked">Ajakan mlebet grup kangge sampeyan disandekaken.</string>
+  <!-- Removed by excludeNonTranslatables <string name="MessageRecord_your_invitation_to_the_group_was_revoked">Ajakan mlebet grup kangge sampeyan disandekaken.</string> -->
   <!--GV2 invitation acceptance-->
   <!--GV2 title change-->
   <!--GV2 avatar change-->
@@ -547,9 +548,9 @@
   <string name="MessageRequestProfileView_member_of_one_group">Anggota ing %1$s</string>
   <string name="MessageRequestProfileView_member_of_two_groups">Anggota ing %1$s lan %2$s</string>
   <string name="MessageRequestProfileView_member_of_many_groups">Anggota ing %1$s, %2$s, lan %3$s</string>
-  <plurals name="MessageRequestProfileView_member_of_others">
+  <!-- Removed by excludeNonTranslatables <plurals name="MessageRequestProfileView_member_of_others">
     <item quantity="other">%d bentenipun</item>
-  </plurals>
+  </plurals> -->
   <!--PassphraseChangeActivity-->
   <string name="PassphraseChangeActivity_passphrases_dont_match_exclamation">Tembung sandi mboten gathuk!</string>
   <string name="PassphraseChangeActivity_incorrect_old_passphrase_exclamation">Tembung sandi ingkang dangu klintu!</string>
@@ -751,7 +752,7 @@
   <string name="ThreadRecord_draft">Draf:</string>
   <string name="ThreadRecord_called">Sampeyan nelepon</string>
   <string name="ThreadRecord_called_you">Nelepon sampeyan</string>
-  <string name="ThreadRecord_missed_call">Telepon ingkang mboten dipunangkat</string>
+  <!-- Removed by excludeNonTranslatables <string name="ThreadRecord_missed_call">Telepon ingkang mboten dipunangkat</string> -->
   <string name="ThreadRecord_media_message">Pesen media</string>
   <string name="ThreadRecord_sticker">Stiker</string>
   <string name="ThreadRecord_view_once_photo">Foto ingkang saged ditingali pisan mawon</string>
@@ -778,12 +779,12 @@
   <string name="UpdateApkReadyListener_Signal_update">Pangenggalan Signal</string>
   <string name="UpdateApkReadyListener_a_new_version_of_signal_is_available_tap_to_update">Versi Signal ingkang enggal sampun enten, tutul kangge ngenggalaken</string>
   <!--UnknownSenderView-->
-  <string name="UnknownSenderView_block_s">Blokir %s?</string>
-  <string name="UnknownSenderView_blocked_contacts_will_no_longer_be_able_to_send_you_messages_or_call_you">Kontak ingkang dipunblokir bakalan mboten saged nelepon utawi ngirimaken pesen kangge sampeyan.</string>
-  <string name="UnknownSenderView_block">Blokir</string>
-  <string name="UnknownSenderView_share_profile_with_s">Unjukaken profil kaliyan %s?</string>
-  <string name="UnknownSenderView_the_easiest_way_to_share_your_profile_information_is_to_add_the_sender_to_your_contacts">Cara paling gampil kangge ngunjukaken informasi profil sampeyan yaiku kangge minggahaken pangirim dhateng kontak. Menawi sampeyan mboten kersa, sampeyan taksih saged ngunjukaken informasi profil ngginakaken cara niki.</string>
-  <string name="UnknownSenderView_share_profile">Unjukaken profil</string>
+  <!-- Removed by excludeNonTranslatables <string name="UnknownSenderView_block_s">Blokir %s?</string> -->
+  <!-- Removed by excludeNonTranslatables <string name="UnknownSenderView_blocked_contacts_will_no_longer_be_able_to_send_you_messages_or_call_you">Kontak ingkang dipunblokir bakalan mboten saged nelepon utawi ngirimaken pesen kangge sampeyan.</string> -->
+  <!-- Removed by excludeNonTranslatables <string name="UnknownSenderView_block">Blokir</string> -->
+  <!-- Removed by excludeNonTranslatables <string name="UnknownSenderView_share_profile_with_s">Unjukaken profil kaliyan %s?</string> -->
+  <!-- Removed by excludeNonTranslatables <string name="UnknownSenderView_the_easiest_way_to_share_your_profile_information_is_to_add_the_sender_to_your_contacts">Cara paling gampil kangge ngunjukaken informasi profil sampeyan yaiku kangge minggahaken pangirim dhateng kontak. Menawi sampeyan mboten kersa, sampeyan taksih saged ngunjukaken informasi profil ngginakaken cara niki.</string> -->
+  <!-- Removed by excludeNonTranslatables <string name="UnknownSenderView_share_profile">Unjukaken profil</string> -->
   <!--UntrustedSendDialog-->
   <string name="UntrustedSendDialog_send_message">Kirimaken pesen?</string>
   <string name="UntrustedSendDialog_send">Kirimaken</string>
@@ -792,7 +793,7 @@
   <string name="UnverifiedSendDialog_send">Kirimaken</string>
   <!--UsernameEditFragment-->
   <string name="UsernameEditFragment_username">Nami panggina</string>
-  <string name="UsernameEditFragment_submit">Ajengaken</string>
+  <!-- Removed by excludeNonTranslatables <string name="UsernameEditFragment_submit">Ajengaken</string> -->
   <string name="UsernameEditFragment_delete">Brusak</string>
   <string name="UsernameEditFragment_successfully_set_username">Kedadosan netapaken nami panggina.</string>
   <string name="UsernameEditFragment_successfully_removed_username">Kedadosan mbrusak nami panggina.</string>
@@ -802,7 +803,7 @@
   <string name="UsernameEditFragment_usernames_cannot_begin_with_a_number">Nami panggina mboten saged diawiti nomer.</string>
   <string name="UsernameEditFragment_username_is_invalid">Nami panggina mboten valid.</string>
   <string name="UsernameEditFragment_usernames_must_be_between_a_and_b_characters">Panjangipun nami panggina wajib antawis %1$d lan %2$d karakter.</string>
-  <string name="UsernameEditFragment_other_signal_users_can_send_message_requests_to_your_unique_username">Panggina Signal bentenipun saged ngirimaken panedha pesen dhateng nami pengguna unik sampeyan tanpa betah nyumerepi nomer telepon sampeyan. Ngginaken nami panggina ngrupikaken prakawis ingkang mboten wajib.</string>
+  <!-- Removed by excludeNonTranslatables <string name="UsernameEditFragment_other_signal_users_can_send_message_requests_to_your_unique_username">Panggina Signal bentenipun saged ngirimaken panedha pesen dhateng nami pengguna unik sampeyan tanpa betah nyumerepi nomer telepon sampeyan. Ngginaken nami panggina ngrupikaken prakawis ingkang mboten wajib.</string> -->
   <!--VerifyIdentityActivity-->
   <string name="VerifyIdentityActivity_your_contact_is_running_an_old_version_of_signal">Kontak sampeyan ngginakaken versi dangunipun Signal. Tedhakaken supados ngenggalaken saderengipun ngeverifikasi nomer keamanan.</string>
   <string name="VerifyIdentityActivity_your_contact_is_running_a_newer_version_of_Signal">Kontak sampeyan ngginakaken versi enggalipun Signal kaliyan format kode QR ingkang mboten gathuk. Cobi enggalaken supados gathuk.</string>
@@ -824,7 +825,7 @@
   <!--MuteDialog-->
   <string name="MuteDialog_mute_notifications">Bisuaken prungon</string>
   <!--OutdatedBuildReminder-->
-  <string name="OutdatedBuildReminder_no_web_browser_installed">Mboten enten browser web ingkang dipunpasang!</string>
+  <!-- Removed by excludeNonTranslatables <string name="OutdatedBuildReminder_no_web_browser_installed">Mboten enten browser web ingkang dipunpasang!</string> -->
   <!--ApplicationMigrationService-->
   <string name="ApplicationMigrationService_import_in_progress">Impor taksih dipuntumindakaken</string>
   <string name="ApplicationMigrationService_importing_text_messages">Taksih ngimpor pesen teks</string>
@@ -870,8 +871,8 @@
   <string name="MessageNotifier_reacted_s_to_your_image">Nganggepi gambar sampeyan kangge %1$s.</string>
   <string name="MessageNotifier_reacted_s_to_your_file">Nganggepi file sampeyan kangge %1$s.</string>
   <string name="MessageNotifier_reacted_s_to_your_audio">Nganggepi suwanten sampeyan kangge %1$s.</string>
-  <string name="MessageNotifier_reacted_s_to_your_view_once_photo">Nganggepi foto sampeyan ingkang saged ditingali sepisan mawon kangge %1$s.</string>
-  <string name="MessageNotifier_reacted_s_to_your_view_once_video">Nganggepi video sampeyan ingkang saged ditingali sepisan mawon kangge %1$s.</string>
+  <!-- Removed by excludeNonTranslatables <string name="MessageNotifier_reacted_s_to_your_view_once_photo">Nganggepi foto sampeyan ingkang saged ditingali sepisan mawon kangge %1$s.</string> -->
+  <!-- Removed by excludeNonTranslatables <string name="MessageNotifier_reacted_s_to_your_view_once_video">Nganggepi video sampeyan ingkang saged ditingali sepisan mawon kangge %1$s.</string> -->
   <string name="MessageNotifier_reacted_s_to_your_sticker">Nganggepi stiker sampeyan kangge %1$s.</string>
   <string name="MessageNotifier_this_message_was_deleted">Pesen niki sampun dibrusak</string>
   <!--Notification Channels-->
@@ -976,7 +977,7 @@
   <string name="ContactSelectionListFragment_error_retrieving_contacts_check_your_network_connection">Enten masalah kala nampi kontak, priksa sambetan jaringan</string>
   <string name="ContactSelectionListFragment_username_not_found">Nami panggina mboten saged kepanggih</string>
   <string name="ContactSelectionListFragment_s_is_not_a_signal_user">\"%1$s\" sanes panggina Signal. Priksa nami panggina lan cobi malih.</string>
-  <string name="ContactSelectionListFragment_okay">Oke</string>
+  <!-- Removed by excludeNonTranslatables <string name="ContactSelectionListFragment_okay">Oke</string> -->
   <!--blocked_contacts_fragment-->
   <string name="blocked_contacts_fragment__no_blocked_contacts">Mboten enten kontak ingkang dipunblokir</string>
   <!--contact_selection_list_fragment-->
@@ -1121,7 +1122,7 @@
   </plurals>
   <string name="GroupUtil_group_name_is_now">Sakmenika nami grup dados \'%1$s\'.</string>
   <!--profile_group_share_view-->
-  <string name="profile_group_share_view__make_your_profile_name_and_photo_visible_to_this_group">Sagedaken supados foto lan nami profik ditingali grup niki?</string>
+  <!-- Removed by excludeNonTranslatables <string name="profile_group_share_view__make_your_profile_name_and_photo_visible_to_this_group">Sagedaken supados foto lan nami profik ditingali grup niki?</string> -->
   <!--prompt_passphrase_activity-->
   <string name="prompt_passphrase_activity__unlock">Bikak kunci</string>
   <!--prompt_mms_activity-->
@@ -1231,8 +1232,8 @@
   <string name="preferences__use_signal_for_viewing_and_storing_all_incoming_multimedia_messages">Ginakaken Signal kangge sedaya pesen multimedia ingkang mlebet</string>
   <string name="preferences__pref_enter_sends_title">Tombol Enter bakal ngirimaken</string>
   <string name="preferences__pressing_the_enter_key_will_send_text_messages">Menet tombol Enter bakal ngirimaken pesen</string>
-  <string name="preferences__send_link_previews">Kirimaken gambar awal tautan</string>
-  <string name="preferences__previews_are_supported_for">Gambar awal dipundukung kangge tautan Imgur, Instagram, Pinterest, Reddit, lan YouTube</string>
+  <!-- Removed by excludeNonTranslatables <string name="preferences__send_link_previews">Kirimaken gambar awal tautan</string> -->
+  <!-- Removed by excludeNonTranslatables <string name="preferences__previews_are_supported_for">Gambar awal dipundukung kangge tautan Imgur, Instagram, Pinterest, Reddit, lan YouTube</string> -->
   <string name="preferences__choose_identity">Pileh identitas</string>
   <string name="preferences__choose_your_contact_entry_from_the_contacts_list">Pileh entri kontak saking daftar kontak.</string>
   <string name="preferences__change_passphrase">Gantos tembung sandi</string>
@@ -1282,13 +1283,13 @@
   <string name="preferences__mmsc_password">Sandi MMSC</string>
   <string name="preferences__sms_delivery_reports">Laporan pangiriman SMS</string>
   <string name="preferences__request_a_delivery_report_for_each_sms_message_you_send">Tedhaken laporan kangge saben SMS ingkang dipunkirimaken</string>
-  <string name="preferences__automatically_delete_older_messages_once_a_conversation_exceeds_a_specified_length">Brusak pesen ingkang dangu sacara otomatis kala obrolan sampun langkung wates ingkang dipuntetapaken</string>
-  <string name="preferences__delete_old_messages">Brusak pesen-pesen dangu</string>
+  <!-- Removed by excludeNonTranslatables <string name="preferences__automatically_delete_older_messages_once_a_conversation_exceeds_a_specified_length">Brusak pesen ingkang dangu sacara otomatis kala obrolan sampun langkung wates ingkang dipuntetapaken</string> -->
+  <!-- Removed by excludeNonTranslatables <string name="preferences__delete_old_messages">Brusak pesen-pesen dangu</string> -->
   <string name="preferences__chats">Obrolan lan media</string>
   <string name="preferences__storage">Penyimpenan</string>
   <string name="preferences__conversation_length_limit">Wates panjangipun obrolan</string>
-  <string name="preferences__trim_all_conversations_now">Kirangi sedaya obrolan sakmenika</string>
-  <string name="preferences__scan_through_all_conversations_and_enforce_conversation_length_limits">Scan sedaya obrolan lan tumindakaken wates panjang obrolan</string>
+  <!-- Removed by excludeNonTranslatables <string name="preferences__trim_all_conversations_now">Kirangi sedaya obrolan sakmenika</string> -->
+  <!-- Removed by excludeNonTranslatables <string name="preferences__scan_through_all_conversations_and_enforce_conversation_length_limits">Scan sedaya obrolan lan tumindakaken wates panjang obrolan</string> -->
   <string name="preferences__linked_devices">Pirantos ingkang dipuntautaken</string>
   <string name="preferences__light_theme">Pajar</string>
   <string name="preferences__dark_theme">Peteng</string>
@@ -1307,12 +1308,12 @@
   <string name="preferences__typing_indicators">Indikator ketikan</string>
   <string name="preferences__if_typing_indicators_are_disabled_you_wont_be_able_to_see_typing_indicators">Menawi indikator ketikan mboten dipunaktifaken, sampeyan mboten saged ningali indikator ketikan saking tiyang benten.</string>
   <string name="preferences__request_keyboard_to_disable_personalized_learning">Sagedaken keyboard ngenonaktifaken panyinaon ingkang dipunpersonalisasi</string>
-  <string name="preferences_app_protection__blocked_contacts">Kontak ingkang dipunblokir</string>
+  <!-- Removed by excludeNonTranslatables <string name="preferences_app_protection__blocked_contacts">Kontak ingkang dipunblokir</string> -->
   <string name="preferences_chats__when_using_mobile_data">Kala ngginakaken data seluler</string>
   <string name="preferences_chats__when_using_wifi">Kala ngginakaken Wi-Fi</string>
   <string name="preferences_chats__when_roaming">Kala roaming</string>
   <string name="preferences_chats__media_auto_download">Pangunduhan media sacara otomatis</string>
-  <string name="preferences_chats__message_trimming">Pangirangan pesen</string>
+  <!-- Removed by excludeNonTranslatables <string name="preferences_chats__message_trimming">Pangirangan pesen</string> -->
   <string name="preferences_storage__storage_usage">Pangginaan penyimpenan</string>
   <string name="preferences_storage__photos">Foto</string>
   <string name="preferences_storage__videos">Video</string>
@@ -1422,13 +1423,13 @@
   <string name="verify_display_fragment_context_menu__copy_to_clipboard">Salin dhateng clipboard</string>
   <string name="verify_display_fragment_context_menu__compare_with_clipboard">Bandingaken kaliyan clipboard</string>
   <!--reminder_header-->
-  <string name="reminder_header_outdated_build">Versi Signal sampeyan sampun dangu</string>
-  <plurals name="reminder_header_outdated_build_details">
+  <!-- Removed by excludeNonTranslatables <string name="reminder_header_outdated_build">Versi Signal sampeyan sampun dangu</string> -->
+  <!-- Removed by excludeNonTranslatables <plurals name="reminder_header_outdated_build_details">
     <item quantity="other">Versi Signal sampeyan bakal kedaluwaran saksampune %d dinten. Tutul kangge ngenggalaken dados versi paling enggal.</item>
-  </plurals>
-  <string name="reminder_header_outdated_build_details_today">Versi Signal sampeyan bakal kedaluwarsa dinten niki. Tutul kangge ngenggalaken dados versi paling enggal.</string>
-  <string name="reminder_header_expired_build">Versi Signal sampeyan sampun kedaluwarsa!</string>
-  <string name="reminder_header_expired_build_details">Pesen bakalan mboten saged dipunkirimaken sacara leres. Tutul kangge ngenggalaken dados versi paling enggal.</string>
+  </plurals> -->
+  <!-- Removed by excludeNonTranslatables <string name="reminder_header_outdated_build_details_today">Versi Signal sampeyan bakal kedaluwarsa dinten niki. Tutul kangge ngenggalaken dados versi paling enggal.</string> -->
+  <!-- Removed by excludeNonTranslatables <string name="reminder_header_expired_build">Versi Signal sampeyan sampun kedaluwarsa!</string> -->
+  <!-- Removed by excludeNonTranslatables <string name="reminder_header_expired_build_details">Pesen bakalan mboten saged dipunkirimaken sacara leres. Tutul kangge ngenggalaken dados versi paling enggal.</string> -->
   <string name="reminder_header_sms_default_title">Ginakaken dados aplikasi SMS default</string>
   <string name="reminder_header_sms_default_text">Tutul kangge ngginakaken Signal dados aplikasi SMS default.</string>
   <string name="reminder_header_sms_import_title">Impor SMS sistem</string>

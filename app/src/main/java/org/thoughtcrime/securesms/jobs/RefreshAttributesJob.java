@@ -4,6 +4,7 @@ import android.text.TextUtils;
 
 import androidx.annotation.NonNull;
 
+import org.signal.core.util.logging.Log;
 import org.thoughtcrime.securesms.AppCapabilities;
 import org.thoughtcrime.securesms.crypto.ProfileKeyUtil;
 import org.thoughtcrime.securesms.dependencies.ApplicationDependencies;
@@ -12,11 +13,10 @@ import org.thoughtcrime.securesms.jobmanager.Job;
 import org.thoughtcrime.securesms.jobmanager.impl.NetworkConstraint;
 import org.thoughtcrime.securesms.keyvalue.KbsValues;
 import org.thoughtcrime.securesms.keyvalue.SignalStore;
-import org.thoughtcrime.securesms.logging.Log;
 import org.thoughtcrime.securesms.util.TextSecurePreferences;
 import org.whispersystems.signalservice.api.SignalServiceAccountManager;
+import org.whispersystems.signalservice.api.account.AccountAttributes;
 import org.whispersystems.signalservice.api.crypto.UnidentifiedAccess;
-import org.whispersystems.signalservice.api.profiles.SignalServiceProfile;
 import org.whispersystems.signalservice.api.push.exceptions.NetworkFailureException;
 
 import java.io.IOException;
@@ -31,7 +31,7 @@ public class RefreshAttributesJob extends BaseJob {
     this(new Job.Parameters.Builder()
                            .addConstraint(NetworkConstraint.KEY)
                            .setQueue("RefreshAttributesJob")
-                           .setMaxInstances(2)
+                           .setMaxInstancesForFactory(2)
                            .build());
   }
 
@@ -71,18 +71,25 @@ public class RefreshAttributesJob extends BaseJob {
       registrationLockV1 = TextSecurePreferences.getDeprecatedV1RegistrationLockPin(context);
     }
 
-    SignalServiceProfile.Capabilities capabilities = AppCapabilities.getCapabilities(kbsValues.hasPin() && !kbsValues.hasOptedOut());
+    boolean phoneNumberDiscoverable = SignalStore.phoneNumberPrivacy().getPhoneNumberListingMode().isDiscoverable();
+
+    AccountAttributes.Capabilities capabilities = AppCapabilities.getCapabilities(kbsValues.hasPin() && !kbsValues.hasOptedOut());
     Log.i(TAG, "Calling setAccountAttributes() reglockV1? " + !TextUtils.isEmpty(registrationLockV1) + ", reglockV2? " + !TextUtils.isEmpty(registrationLockV2) + ", pin? " + kbsValues.hasPin() +
+               "\n    Phone number discoverable : " + phoneNumberDiscoverable +
                "\n  Capabilities:" +
                "\n    Storage? " + capabilities.isStorage() +
                "\n    GV2? " + capabilities.isGv2() +
-               "\n    UUID? " + capabilities.isUuid())  ;
+               "\n    GV1 Migration? " + capabilities.isGv1Migration() +
+               "\n    UUID? " + capabilities.isUuid());
 
     SignalServiceAccountManager signalAccountManager = ApplicationDependencies.getSignalServiceAccountManager();
     signalAccountManager.setAccountAttributes(null, registrationId, fetchesMessages,
                                               registrationLockV1, registrationLockV2,
                                               unidentifiedAccessKey, universalUnidentifiedAccess,
-                                              capabilities);
+                                              capabilities,
+                                              phoneNumberDiscoverable);
+
+    ApplicationDependencies.getJobManager().add(new RefreshOwnProfileJob());
   }
 
   @Override

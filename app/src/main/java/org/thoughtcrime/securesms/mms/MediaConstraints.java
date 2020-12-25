@@ -7,8 +7,8 @@ import android.util.Pair;
 
 import androidx.annotation.NonNull;
 
+import org.signal.core.util.logging.Log;
 import org.thoughtcrime.securesms.attachments.Attachment;
-import org.thoughtcrime.securesms.logging.Log;
 import org.thoughtcrime.securesms.util.BitmapDecodingException;
 import org.thoughtcrime.securesms.util.BitmapUtil;
 import org.thoughtcrime.securesms.util.MediaUtil;
@@ -48,8 +48,8 @@ public abstract class MediaConstraints {
 
   public boolean isSatisfied(@NonNull Context context, @NonNull Attachment attachment) {
     try {
-      return (MediaUtil.isGif(attachment)    && attachment.getSize() <= getGifMaxSize(context)   && isWithinBounds(context, attachment.getDataUri())) ||
-             (MediaUtil.isImage(attachment)  && attachment.getSize() <= getImageMaxSize(context) && isWithinBounds(context, attachment.getDataUri())) ||
+      return (MediaUtil.isGif(attachment)    && attachment.getSize() <= getGifMaxSize(context)   && isWithinBounds(context, attachment.getUri())) ||
+             (MediaUtil.isImage(attachment)  && attachment.getSize() <= getImageMaxSize(context) && isWithinBounds(context, attachment.getUri())) ||
              (MediaUtil.isAudio(attachment)  && attachment.getSize() <= getAudioMaxSize(context)) ||
              (MediaUtil.isVideo(attachment)  && attachment.getSize() <= getVideoMaxSize(context)) ||
              (MediaUtil.isFile(attachment) && attachment.getSize() <= getDocumentMaxSize(context));

@@ -1,14 +1,16 @@
 package org.thoughtcrime.securesms.stickers;
 
 import android.content.Context;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.PopupWindow;
 import android.widget.TextView;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 
 import org.thoughtcrime.securesms.R;
 import org.thoughtcrime.securesms.mms.GlideRequests;
@@ -37,6 +39,7 @@ final class StickerPreviewPopup extends PopupWindow {
   void presentSticker(@NonNull Object stickerGlideModel, @Nullable String emoji) {
     emojiText.setText(emoji);
     glideRequests.load(stickerGlideModel)
+                 .diskCacheStrategy(DiskCacheStrategy.NONE)
                  .into(image);
   }
 }

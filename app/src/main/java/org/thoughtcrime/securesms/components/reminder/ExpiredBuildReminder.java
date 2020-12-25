@@ -1,33 +1,26 @@
 package org.thoughtcrime.securesms.components.reminder;
 
 import android.content.Context;
-import android.content.Intent;
-import android.net.Uri;
-import org.thoughtcrime.securesms.logging.Log;
-import android.widget.Toast;
+
+import androidx.annotation.NonNull;
 
 import org.thoughtcrime.securesms.R;
-import org.thoughtcrime.securesms.util.Util;
+import org.thoughtcrime.securesms.keyvalue.SignalStore;
+import org.thoughtcrime.securesms.util.PlayStoreUtil;
 
+import java.util.List;
+
+/**
+ * Showed when a build has fully expired (either via the compile-time constant, or remote
+ * deprecation).
+ */
 public class ExpiredBuildReminder extends Reminder {
-  @SuppressWarnings("unused")
-  private static final String TAG = ExpiredBuildReminder.class.getSimpleName();
 
   public ExpiredBuildReminder(final Context context) {
-    super(context.getString(R.string.reminder_header_expired_build),
-          context.getString(R.string.reminder_header_expired_build_details));
-    setOkListener(v -> {
-      try {
-        context.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=" + context.getPackageName())));
-      } catch (android.content.ActivityNotFoundException anfe) {
-        try {
-          context.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://play.google.com/store/apps/details?id=" + context.getPackageName())));
-        } catch (android.content.ActivityNotFoundException anfe2) {
-          Log.w(TAG, anfe2);
-          Toast.makeText(context, R.string.OutdatedBuildReminder_no_web_browser_installed, Toast.LENGTH_SHORT).show();
-        }
-      }
-    });
+    super(null, context.getString(R.string.ExpiredBuildReminder_this_version_of_signal_has_expired));
+
+    setOkListener(v -> PlayStoreUtil.openPlayStoreOrOurApkDownloadPage(context));
+    addAction(new Action(context.getString(R.string.ExpiredBuildReminder_update_now), R.id.reminder_action_update_now));
   }
 
   @Override
@@ -35,8 +28,17 @@ public class ExpiredBuildReminder extends Reminder {
     return false;
   }
 
-  public static boolean isEligible() {
-    return Util.getDaysTillBuildExpiry() <= 0;
+  @Override
+  public List<Action> getActions() {
+    return super.getActions();
   }
 
+  @Override
+  public @NonNull Importance getImportance() {
+    return Importance.TERMINAL;
+  }
+
+  public static boolean isEligible() {
+    return SignalStore.misc().isClientDeprecated();
+  }
 }

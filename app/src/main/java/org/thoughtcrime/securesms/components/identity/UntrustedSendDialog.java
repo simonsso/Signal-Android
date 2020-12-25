@@ -4,6 +4,7 @@ package org.thoughtcrime.securesms.components.identity;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.AsyncTask;
+
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 
@@ -31,7 +32,7 @@ public class UntrustedSendDialog extends AlertDialog.Builder implements DialogIn
     this.resendListener   = resendListener;
 
     setTitle(R.string.UntrustedSendDialog_send_message);
-    setIconAttribute(R.attr.dialog_alert_icon);
+    setIcon(R.drawable.ic_warning);
     setMessage(message);
     setPositiveButton(R.string.UntrustedSendDialog_send, this);
     setNegativeButton(android.R.string.cancel, null);

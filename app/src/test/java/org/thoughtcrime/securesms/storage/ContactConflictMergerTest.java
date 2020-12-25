@@ -1,7 +1,7 @@
 package org.thoughtcrime.securesms.storage;
 
 import org.junit.Test;
-import org.thoughtcrime.securesms.logging.Log;
+import org.signal.core.util.logging.Log;
 import org.thoughtcrime.securesms.recipients.Recipient;
 import org.thoughtcrime.securesms.storage.StorageSyncHelper.KeyGenerator;
 import org.whispersystems.libsignal.util.guava.Optional;
@@ -44,7 +44,7 @@ public class ContactConflictMergerTest {
   }
 
   @Test
-  public void merge_alwaysPreferRemote_exceptProfileSharingIsEitherOr() {
+  public void merge_alwaysPreferRemote() {
     SignalContactRecord remote = new SignalContactRecord.Builder(byteArray(1), new SignalServiceAddress(UUID_A, E164_A))
                                                         .setBlocked(true)
                                                         .setIdentityKey(byteArray(2))
@@ -55,6 +55,7 @@ public class ContactConflictMergerTest {
                                                         .setUsername("username A")
                                                         .setProfileSharingEnabled(false)
                                                         .setArchived(false)
+                                                        .setForcedUnread(false)
                                                         .build();
     SignalContactRecord local  = new SignalContactRecord.Builder(byteArray(2), new SignalServiceAddress(UUID_B, E164_B))
                                                         .setBlocked(false)
@@ -66,6 +67,7 @@ public class ContactConflictMergerTest {
                                                         .setUsername("username B")
                                                         .setProfileSharingEnabled(true)
                                                         .setArchived(true)
+                                                        .setForcedUnread(true)
                                                         .build();
 
     SignalContactRecord merged = new ContactConflictMerger(Collections.singletonList(local), SELF).merge(remote, local, mock(KeyGenerator.class));
@@ -79,8 +81,9 @@ public class ContactConflictMergerTest {
     assertEquals("AFirst", merged.getGivenName().get());
     assertEquals("ALast", merged.getFamilyName().get());
     assertEquals("username A", merged.getUsername().get());
-    assertTrue(merged.isProfileSharingEnabled());
+    assertFalse(merged.isProfileSharingEnabled());
     assertFalse(merged.isArchived());
+    assertFalse(merged.isForcedUnread());
   }
 
   @Test

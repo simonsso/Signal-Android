@@ -37,9 +37,13 @@ import com.google.android.material.snackbar.Snackbar;
 import org.thoughtcrime.securesms.R;
 import org.thoughtcrime.securesms.components.registration.PulsingFloatingActionButton;
 import org.thoughtcrime.securesms.database.DatabaseFactory;
+import org.thoughtcrime.securesms.tracing.Trace;
 import org.thoughtcrime.securesms.util.task.SnackbarAsyncTask;
 
+import java.util.Set;
 
+
+@Trace
 public class ConversationListArchiveFragment extends ConversationListFragment implements ActionMode.Callback
 {
   private RecyclerView                list;
@@ -107,23 +111,27 @@ public class ConversationListArchiveFragment extends ConversationListFragment im
   }
 
   @Override
-  protected void archiveThread(long threadId) {
-    DatabaseFactory.getThreadDatabase(getActivity()).unarchiveConversation(threadId);
+  @WorkerThread
+  protected void archiveThreads(Set<Long> threadIds) {
+    DatabaseFactory.getThreadDatabase(getActivity()).setArchived(threadIds, false);
   }
 
+  @Override
   @WorkerThread
-  protected void reverseArchiveThread(long threadId) {
-    DatabaseFactory.getThreadDatabase(getActivity()).archiveConversation(threadId);
+  protected void reverseArchiveThreads(Set<Long> threadIds) {
+    DatabaseFactory.getThreadDatabase(getActivity()).setArchived(threadIds, true);
   }
 
   @SuppressLint("StaticFieldLeak")
   @Override
   protected void onItemSwiped(long threadId, int unreadCount) {
-    new SnackbarAsyncTask<Long>(getView(),
-        getResources().getQuantityString(R.plurals.ConversationListFragment_moved_conversations_to_inbox, 1, 1),
-        getString(R.string.ConversationListFragment_undo),
-        getResources().getColor(R.color.amber_500),
-        Snackbar.LENGTH_LONG, false)
+    new SnackbarAsyncTask<Long>(getViewLifecycleOwner().getLifecycle(),
+                                requireView(),
+                                getResources().getQuantityString(R.plurals.ConversationListFragment_moved_conversations_to_inbox, 1, 1),
+                                getString(R.string.ConversationListFragment_undo),
+                                getResources().getColor(R.color.amber_500),
+                                Snackbar.LENGTH_LONG,
+                                false)
     {
       @Override
       protected void executeAction(@Nullable Long parameter) {

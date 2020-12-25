@@ -1,10 +1,10 @@
 package org.thoughtcrime.securesms.attachments;
 
 import android.net.Uri;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import org.thoughtcrime.securesms.audio.AudioHash;
 import org.thoughtcrime.securesms.blurhash.BlurHash;
 import org.thoughtcrime.securesms.database.AttachmentDatabase;
 import org.thoughtcrime.securesms.stickers.StickerLocator;
@@ -42,16 +42,9 @@ public class PointerAttachment extends Attachment {
 
   @Nullable
   @Override
-  public Uri getDataUri() {
+  public Uri getUri() {
     return null;
   }
-
-  @Nullable
-  @Override
-  public Uri getThumbnailUri() {
-    return null;
-  }
-
 
   public static List<Attachment> forPointers(Optional<List<SignalServiceAttachment>> pointers) {
     List<Attachment> results = new LinkedList<>();

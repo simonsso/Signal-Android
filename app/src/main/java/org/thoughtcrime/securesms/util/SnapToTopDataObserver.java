@@ -6,6 +6,8 @@ import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import org.signal.core.util.logging.Log;
+
 import java.util.Objects;
 
 /**
@@ -20,18 +22,28 @@ import java.util.Objects;
  */
 public class SnapToTopDataObserver extends RecyclerView.AdapterDataObserver {
 
+  private static final String TAG = Log.tag(SnapToTopDataObserver.class);
+
   private final RecyclerView           recyclerView;
   private final LinearLayoutManager    layoutManager;
   private final Deferred               deferred;
   private final ScrollRequestValidator scrollRequestValidator;
+  private final ScrollToTop            scrollToTop;
+
+  public SnapToTopDataObserver(@NonNull RecyclerView recyclerView) {
+    this(recyclerView, null, null);
+  }
 
   public SnapToTopDataObserver(@NonNull RecyclerView recyclerView,
-                               @Nullable ScrollRequestValidator scrollRequestValidator)
+                               @Nullable ScrollRequestValidator scrollRequestValidator,
+                               @Nullable ScrollToTop scrollToTop)
   {
     this.recyclerView           = recyclerView;
     this.layoutManager          = (LinearLayoutManager) recyclerView.getLayoutManager();
     this.deferred               = new Deferred();
     this.scrollRequestValidator = scrollRequestValidator;
+    this.scrollToTop            = scrollToTop == null ? () -> layoutManager.scrollToPosition(0)
+                                                      : scrollToTop;
   }
 
   /**
@@ -75,13 +87,19 @@ public class SnapToTopDataObserver extends RecyclerView.AdapterDataObserver {
     Objects.requireNonNull(scrollRequestValidator, "Cannot request positions when SnapToTopObserver was initialized without a validator.");
 
     if (!scrollRequestValidator.isPositionStillValid(position)) {
+      Log.d(TAG, "requestScrollPositionInternal(" + position + ") Invalid");
       onInvalidPosition.run();
     } else if (scrollRequestValidator.isItemAtPositionLoaded(position)) {
-        onPerformScroll.onPerformScroll(layoutManager, position);
-        onScrollRequestComplete.run();
+      Log.d(TAG, "requestScrollPositionInternal(" + position + ") Scrolling");
+      onPerformScroll.onPerformScroll(layoutManager, position);
+      onScrollRequestComplete.run();
     } else {
+      Log.d(TAG, "requestScrollPositionInternal(" + position + ") Deferring");
       deferred.setDeferred(true);
-      deferred.defer(() -> requestScrollPositionInternal(position, onPerformScroll, onScrollRequestComplete, onInvalidPosition));
+      deferred.defer(() -> {
+        Log.d(TAG, "requestScrollPositionInternal(" + position + ") Executing deferred");
+        requestScrollPositionInternal(position, onPerformScroll, onScrollRequestComplete, onInvalidPosition);
+      });
     }
   }
 
@@ -103,12 +121,14 @@ public class SnapToTopDataObserver extends RecyclerView.AdapterDataObserver {
 
     if (newItemPosition != 0                                            ||
         recyclerView.getScrollState() != RecyclerView.SCROLL_STATE_IDLE ||
-        recyclerView.canScrollVertically(layoutManager.getReverseLayout() ? 1 : -1)) {
+        recyclerView.canScrollVertically(layoutManager.getReverseLayout() ? 1 : -1))
+    {
       return;
     }
 
     if (layoutManager.findFirstVisibleItemPosition() == 0) {
-      layoutManager.scrollToPosition(0);
+      Log.d(TAG, "Scrolling to top.");
+      scrollToTop.scrollToTop();
     }
   }
 
@@ -142,6 +162,13 @@ public class SnapToTopDataObserver extends RecyclerView.AdapterDataObserver {
      * @param position      The position to scroll to.
      */
     void onPerformScroll(@NonNull LinearLayoutManager layoutManager, int position);
+  }
+
+  /**
+   * Method Object for scrolling to the top of a view, in case special handling is desired.
+   */
+  public interface ScrollToTop {
+    void scrollToTop();
   }
 
   public final class ScrollRequestBuilder {

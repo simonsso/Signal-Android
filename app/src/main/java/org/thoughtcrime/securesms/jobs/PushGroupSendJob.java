@@ -10,14 +10,17 @@ import com.annimon.stream.Collectors;
 import com.annimon.stream.Stream;
 import com.google.protobuf.ByteString;
 
+import org.signal.core.util.logging.Log;
 import org.thoughtcrime.securesms.ApplicationContext;
 import org.thoughtcrime.securesms.attachments.Attachment;
 import org.thoughtcrime.securesms.crypto.UnidentifiedAccessUtil;
 import org.thoughtcrime.securesms.database.DatabaseFactory;
 import org.thoughtcrime.securesms.database.GroupDatabase;
+import org.thoughtcrime.securesms.database.GroupReceiptDatabase;
 import org.thoughtcrime.securesms.database.GroupReceiptDatabase.GroupReceiptInfo;
-import org.thoughtcrime.securesms.database.MmsDatabase;
+import org.thoughtcrime.securesms.database.MessageDatabase;
 import org.thoughtcrime.securesms.database.NoSuchMessageException;
+import org.thoughtcrime.securesms.database.RecipientDatabase;
 import org.thoughtcrime.securesms.database.documents.IdentityKeyMismatch;
 import org.thoughtcrime.securesms.database.documents.NetworkFailure;
 import org.thoughtcrime.securesms.dependencies.ApplicationDependencies;
@@ -27,7 +30,6 @@ import org.thoughtcrime.securesms.jobmanager.Job;
 import org.thoughtcrime.securesms.jobmanager.JobLogger;
 import org.thoughtcrime.securesms.jobmanager.JobManager;
 import org.thoughtcrime.securesms.jobmanager.impl.NetworkConstraint;
-import org.thoughtcrime.securesms.logging.Log;
 import org.thoughtcrime.securesms.mms.MessageGroupContext;
 import org.thoughtcrime.securesms.mms.MmsException;
 import org.thoughtcrime.securesms.mms.OutgoingGroupUpdateMessage;
@@ -35,8 +37,10 @@ import org.thoughtcrime.securesms.mms.OutgoingMediaMessage;
 import org.thoughtcrime.securesms.recipients.Recipient;
 import org.thoughtcrime.securesms.recipients.RecipientId;
 import org.thoughtcrime.securesms.recipients.RecipientUtil;
+import org.thoughtcrime.securesms.tracing.Trace;
 import org.thoughtcrime.securesms.transport.RetryLaterException;
 import org.thoughtcrime.securesms.transport.UndeliverableMessageException;
+import org.thoughtcrime.securesms.util.FeatureFlags;
 import org.thoughtcrime.securesms.util.GroupUtil;
 import org.whispersystems.libsignal.util.Pair;
 import org.whispersystems.libsignal.util.guava.Optional;
@@ -52,7 +56,6 @@ import org.whispersystems.signalservice.api.messages.SignalServiceGroup;
 import org.whispersystems.signalservice.api.messages.SignalServiceGroupV2;
 import org.whispersystems.signalservice.api.messages.shared.SharedContact;
 import org.whispersystems.signalservice.api.push.SignalServiceAddress;
-import org.whispersystems.signalservice.api.util.UuidUtil;
 import org.whispersystems.signalservice.internal.push.SignalServiceProtos.GroupContext;
 import org.whispersystems.signalservice.internal.push.SignalServiceProtos.GroupContextV2;
 
@@ -65,7 +68,8 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
-public class PushGroupSendJob extends PushSendJob {
+@Trace
+public final class PushGroupSendJob extends PushSendJob {
 
   public static final String KEY = "PushGroupSendJob";
 
@@ -74,8 +78,8 @@ public class PushGroupSendJob extends PushSendJob {
   private static final String KEY_MESSAGE_ID       = "message_id";
   private static final String KEY_FILTER_RECIPIENT = "filter_recipient";
 
-  private long        messageId;
-  private RecipientId filterRecipient;
+  private final long        messageId;
+  private final RecipientId filterRecipient;
 
   public PushGroupSendJob(long messageId, @NonNull RecipientId destination, @Nullable RecipientId filterRecipient, boolean hasMedia) {
     this(new Job.Parameters.Builder()
@@ -108,7 +112,7 @@ public class PushGroupSendJob extends PushSendJob {
         throw new AssertionError("Not a group!");
       }
 
-      MmsDatabase          database            = DatabaseFactory.getMmsDatabase(context);
+      MessageDatabase      database            = DatabaseFactory.getMmsDatabase(context);
       OutgoingMediaMessage message             = database.getOutgoingMessage(messageId);
       Set<String>          attachmentUploadIds = enqueueCompressingAndUploadAttachmentsChains(jobManager, message);
 
@@ -150,7 +154,7 @@ public class PushGroupSendJob extends PushSendJob {
   public void onPushSend()
       throws IOException, MmsException, NoSuchMessageException,  RetryLaterException
   {
-    MmsDatabase               database                   = DatabaseFactory.getMmsDatabase(context);
+    MessageDatabase           database                   = DatabaseFactory.getMmsDatabase(context);
     OutgoingMediaMessage      message                    = database.getOutgoingMessage(messageId);
     List<NetworkFailure>      existingNetworkFailures    = message.getNetworkFailures();
     List<IdentityKeyMismatch> existingIdentityMismatches = message.getIdentityKeyMismatches();
@@ -159,7 +163,7 @@ public class PushGroupSendJob extends PushSendJob {
     ApplicationDependencies.getJobManager().cancelAllInQueue(TypingSendJob.getQueue(threadId));
 
     if (database.isSent(messageId)) {
-      log(TAG, "Message " + messageId + " was already sent. Ignoring.");
+      log(TAG, String.valueOf(message.getSentTimeMillis()),  "Message " + messageId + " was already sent. Ignoring.");
       return;
     }
 
@@ -169,8 +173,12 @@ public class PushGroupSendJob extends PushSendJob {
       throw new MmsException("Message recipient isn't a group!");
     }
 
+    if (groupRecipient.isPushV1Group() && FeatureFlags.groupsV1ForcedMigration()) {
+      throw new MmsException("No GV1 messages can be sent anymore!");
+    }
+
     try {
-      log(TAG, "Sending message: " + messageId);
+      log(TAG, String.valueOf(message.getSentTimeMillis()), "Sending message: " + messageId);
 
       if (!groupRecipient.resolve().isProfileSharing() && !database.isGroupQuitMessage(messageId)) {
         RecipientUtil.shareProfileIfFirstSecureMessage(context, groupRecipient);
@@ -194,7 +202,13 @@ public class PushGroupSendJob extends PushSendJob {
       List<Pair<RecipientId, Boolean>> successUnidentifiedStatus = Stream.of(successes).map(result -> new Pair<>(findId(result.getAddress(), idByE164, idByUuid), result.getSuccess().isUnidentified())).toList();
       Set<RecipientId>                 successIds                = Stream.of(successUnidentifiedStatus).map(Pair::first).collect(Collectors.toSet());
       List<NetworkFailure>             resolvedNetworkFailures   = Stream.of(existingNetworkFailures).filter(failure -> successIds.contains(failure.getRecipientId(context))).toList();
-      List<IdentityKeyMismatch>        resolvedIdentityFailures = Stream.of(existingIdentityMismatches).filter(failure -> successIds.contains(failure.getRecipientId(context))).toList();
+      List<IdentityKeyMismatch>        resolvedIdentityFailures  = Stream.of(existingIdentityMismatches).filter(failure -> successIds.contains(failure.getRecipientId(context))).toList();
+      List<Recipient>                  unregisteredRecipients    = Stream.of(results).filter(SendMessageResult::isUnregisteredFailure).map(result -> Recipient.externalPush(context, result.getAddress())).toList();
+
+      RecipientDatabase recipientDatabase = DatabaseFactory.getRecipientDatabase(context);
+      for (Recipient unregistered : unregisteredRecipients) {
+        recipientDatabase.markUnregistered(unregistered.getId());
+      }
 
       for (NetworkFailure resolvedFailure : resolvedNetworkFailures) {
         database.removeFailure(messageId, resolvedFailure);
@@ -237,11 +251,14 @@ public class PushGroupSendJob extends PushSendJob {
         database.markAsSentFailed(messageId);
         notifyMediaMessageDeliveryFailed(context, messageId);
 
-        List<RecipientId>  mismatchRecipientIds = Stream.of(identityMismatches).map(mismatch -> mismatch.getRecipientId(context)).toList();
+        Set<RecipientId> mismatchRecipientIds = Stream.of(identityMismatches)
+                                                      .map(mismatch -> mismatch.getRecipientId(context))
+                                                      .collect(Collectors.toSet());
+
         RetrieveProfileJob.enqueue(mismatchRecipientIds);
       }
     } catch (UntrustedIdentityException | UndeliverableMessageException e) {
-      warn(TAG, e);
+      warn(TAG, String.valueOf(message.getSentTimeMillis()), e);
       database.markAsSentFailed(messageId);
       notifyMediaMessageDeliveryFailed(context, messageId);
     }
@@ -283,14 +300,14 @@ public class PushGroupSendJob extends PushSendJob {
     Optional<SignalServiceDataMessage.Sticker> sticker            = getStickerFor(message);
     List<SharedContact>                        sharedContacts     = getSharedContactsFor(message);
     List<Preview>                              previews           = getPreviewsFor(message);
-    List<SignalServiceAddress>                 addresses          = Stream.of(destinations).map(this::getPushAddress).toList();
+    List<SignalServiceDataMessage.Mention>     mentions           = getMentionsFor(message.getMentions());
+    List<SignalServiceAddress>                 addresses          = RecipientUtil.toSignalServiceAddressesFromResolved(context, destinations);
     List<Attachment>                           attachments        = Stream.of(message.getAttachments()).filterNot(Attachment::isSticker).toList();
     List<SignalServiceAttachment>              attachmentPointers = getAttachmentPointersFor(attachments);
-    boolean                                    isRecipientUpdate  = destinations.size() != DatabaseFactory.getGroupReceiptDatabase(context).getGroupReceiptInfo(messageId).size();
+    boolean                                    isRecipientUpdate  = Stream.of(DatabaseFactory.getGroupReceiptDatabase(context).getGroupReceiptInfo(messageId))
+                                                                          .anyMatch(info -> info.getStatus() > GroupReceiptDatabase.STATUS_UNDELIVERED);
 
-    List<Optional<UnidentifiedAccessPair>> unidentifiedAccess = Stream.of(destinations)
-                                                                      .map(recipient -> UnidentifiedAccessUtil.getAccessFor(context, recipient))
-                                                                      .toList();
+    List<Optional<UnidentifiedAccessPair>> unidentifiedAccess = UnidentifiedAccessUtil.getAccessFor(context, destinations);
 
     if (message.isGroup()) {
       OutgoingGroupUpdateMessage groupMessage = (OutgoingGroupUpdateMessage) message;
@@ -320,8 +337,8 @@ public class PushGroupSendJob extends PushSendJob {
         GroupContext               groupContext     = properties.getGroupContext();
         SignalServiceAttachment    avatar           = attachmentPointers.isEmpty() ? null : attachmentPointers.get(0);
         SignalServiceGroup.Type    type             = properties.isQuit() ? SignalServiceGroup.Type.QUIT : SignalServiceGroup.Type.UPDATE;
-        List<SignalServiceAddress> members          = Stream.of(groupContext.getMembersList())
-                                                            .map(m -> new SignalServiceAddress(UuidUtil.parseOrNull(m.getUuid()), m.getE164()))
+        List<SignalServiceAddress> members          = Stream.of(groupContext.getMembersE164List())
+                                                            .map(e164 -> new SignalServiceAddress(null, e164))
                                                             .toList();
         SignalServiceGroup         group            = new SignalServiceGroup(type, groupId.getDecodedId(), groupContext.getName(), members, avatar);
         SignalServiceDataMessage   groupDataMessage = SignalServiceDataMessage.newBuilder()
@@ -349,6 +366,7 @@ public class PushGroupSendJob extends PushSendJob {
                                                      .withSticker(sticker.orNull())
                                                      .withSharedContacts(sharedContacts)
                                                      .withPreviews(previews)
+                                                     .withMentions(mentions)
                                                      .build();
 
       Log.i(TAG, JobLogger.format(this, "Beginning message send."));
@@ -360,7 +378,10 @@ public class PushGroupSendJob extends PushSendJob {
     List<GroupReceiptInfo> destinations = DatabaseFactory.getGroupReceiptDatabase(context).getGroupReceiptInfo(messageId);
 
     if (!destinations.isEmpty()) {
-      return Stream.of(destinations).map(GroupReceiptInfo::getRecipientId).map(Recipient::resolved).toList();
+        return RecipientUtil.getEligibleForSending(Stream.of(destinations)
+                                                         .map(GroupReceiptInfo::getRecipientId)
+                                                         .map(Recipient::resolved)
+                                                         .toList());
     }
 
     List<Recipient> members = Stream.of(DatabaseFactory.getGroupDatabase(context)
@@ -371,8 +392,8 @@ public class PushGroupSendJob extends PushSendJob {
     if (members.size() > 0) {
       Log.w(TAG, "No destinations found for group message " + groupId + " using current group membership");
     }
-    
-    return members;
+
+    return RecipientUtil.getEligibleForSending(members);
   }
 
   public static class Factory implements Job.Factory<PushGroupSendJob> {

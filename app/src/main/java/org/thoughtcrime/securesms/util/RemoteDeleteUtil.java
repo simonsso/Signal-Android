@@ -18,12 +18,18 @@ public final class RemoteDeleteUtil {
   private RemoteDeleteUtil() {}
 
   public static boolean isValidReceive(@NonNull MessageRecord targetMessage, @NonNull Recipient deleteSender, long deleteServerTimestamp) {
-    boolean isValidSender = (deleteSender.isLocalNumber() && targetMessage.isOutgoing()) ||
-                            (!deleteSender.isLocalNumber() && !targetMessage.isOutgoing());
+    boolean isValidIncomingOutgoing = (deleteSender.isSelf() && targetMessage.isOutgoing()) ||
+                                      (!deleteSender.isSelf() && !targetMessage.isOutgoing());
 
-    return isValidSender &&
-           targetMessage.getIndividualRecipient().equals(deleteSender) &&
-           (deleteServerTimestamp - targetMessage.getServerTimestamp()) < RECEIVE_THRESHOLD;
+    boolean isValidSender = targetMessage.getIndividualRecipient().equals(deleteSender) ||
+                            deleteSender.isSelf() && targetMessage.isOutgoing();
+
+    long messageTimestamp = deleteSender.isSelf() && targetMessage.isOutgoing() ? targetMessage.getDateSent()
+                                                                                : targetMessage.getServerTimestamp();
+
+    return isValidIncomingOutgoing &&
+           isValidSender           &&
+           (deleteServerTimestamp - messageTimestamp) < RECEIVE_THRESHOLD;
   }
 
   public static boolean isValidSend(@NonNull Collection<MessageRecord> targetMessages, long currentTime) {
@@ -32,12 +38,12 @@ public final class RemoteDeleteUtil {
   }
 
   private static boolean isValidSend(MessageRecord message, long currentTime) {
-    return message.isOutgoing()                                                          &&
+    return !message.isUpdate()                                                           &&
+           message.isOutgoing()                                                          &&
            message.isPush()                                                              &&
            (!message.getRecipient().isGroup() || message.getRecipient().isActiveGroup()) &&
-           !message.getRecipient().isLocalNumber()                                       &&
+           !message.getRecipient().isSelf()                                              &&
            !message.isRemoteDelete()                                                     &&
-           !message.isPending()                                                          &&
            (currentTime - message.getDateSent()) < SEND_THRESHOLD;
   }
 }

@@ -3,10 +3,11 @@ package org.thoughtcrime.securesms.util;
 import android.content.Context;
 import android.os.PowerManager;
 import android.os.PowerManager.WakeLock;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import org.thoughtcrime.securesms.logging.Log;
+import org.signal.core.util.logging.Log;
 
 public class WakeLockUtil {
 
@@ -39,7 +40,6 @@ public class WakeLockUtil {
       WakeLock     wakeLock     = powerManager.newWakeLock(lockType, tag);
 
       wakeLock.acquire(timeout);
-      Log.d(TAG, "Acquired wakelock with tag: " + tag);
 
       return wakeLock;
     } catch (Exception e) {
@@ -58,7 +58,6 @@ public class WakeLockUtil {
         Log.d(TAG, "Wakelock was null. Skipping. Tag: " + tag);
       } else if (wakeLock.isHeld()) {
         wakeLock.release();
-        Log.d(TAG, "Released wakelock with tag: " + tag);
       } else {
         Log.d(TAG, "Wakelock wasn't held at time of release: " + tag);
       }

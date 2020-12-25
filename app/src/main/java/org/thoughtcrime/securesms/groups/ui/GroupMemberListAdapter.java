@@ -30,6 +30,7 @@ final class GroupMemberListAdapter extends LifecycleRecyclerAdapter<GroupMemberL
   private static final int OWN_INVITE_PENDING         = 1;
   private static final int OTHER_INVITE_PENDING_COUNT = 2;
   private static final int NEW_GROUP_CANDIDATE        = 3;
+  private static final int REQUESTING_MEMBER          = 4;
 
   private final List<GroupMemberEntry>  data                    = new ArrayList<>();
   private final Set<GroupMemberEntry>   selection               = new HashSet<>();
@@ -101,6 +102,14 @@ final class GroupMemberListAdapter extends LifecycleRecyclerAdapter<GroupMemberL
                                              recipientClickListener,
                                              recipientLongClickListener,
                                              selectionChangeListener);
+      case REQUESTING_MEMBER:
+        return new RequestingMemberViewHolder(LayoutInflater.from(parent.getContext())
+                                                           .inflate(R.layout.group_recipient_requesting_list_item, parent, false),
+                                              recipientClickListener,
+                                              recipientLongClickListener,
+                                              adminActionsListener,
+                                              selectionChangeListener);
+
       default:
         throw new AssertionError();
     }
@@ -140,6 +149,8 @@ final class GroupMemberListAdapter extends LifecycleRecyclerAdapter<GroupMemberL
       return OTHER_INVITE_PENDING_COUNT;
     } else if (groupMemberEntry instanceof GroupMemberEntry.NewGroupCandidate) {
       return NEW_GROUP_CANDIDATE;
+    } else if (groupMemberEntry instanceof GroupMemberEntry.RequestingMember) {
+      return REQUESTING_MEMBER;
     }
 
     throw new AssertionError();
@@ -159,7 +170,7 @@ final class GroupMemberListAdapter extends LifecycleRecyclerAdapter<GroupMemberL
               final PopupMenuView              popupMenu;
               final View                       popupMenuContainer;
               final ProgressBar                busyProgress;
-              final View                       admin;
+    @Nullable final View                       admin;
               final SelectionChangeListener    selectionChangeListener;
     @Nullable final RecipientClickListener     recipientClickListener;
     @Nullable final AdminActionsListener       adminActionsListener;
@@ -188,8 +199,8 @@ final class GroupMemberListAdapter extends LifecycleRecyclerAdapter<GroupMemberL
     }
 
     void bindRecipient(@NonNull Recipient recipient) {
-      String displayName = recipient.isLocalNumber() ? context.getString(R.string.GroupMembersDialog_you)
-                                                     : recipient.getDisplayName(itemView.getContext());
+      String displayName = recipient.isSelf() ? context.getString(R.string.GroupMembersDialog_you)
+                                              : recipient.getDisplayName(itemView.getContext());
       bindImageAndText(recipient, displayName);
     }
 
@@ -210,7 +221,9 @@ final class GroupMemberListAdapter extends LifecycleRecyclerAdapter<GroupMemberL
           if (recipientClickListener != null) {
             recipientClickListener.onClick(recipient);
           }
-          selectionChangeListener.onSelectionChange(getAdapterPosition(), !selected.isChecked());
+          if (selected != null) {
+            selectionChangeListener.onSelectionChange(getAdapterPosition(), !selected.isChecked());
+          }
         }
       });
       this.itemView.setOnLongClickListener(v -> {
@@ -223,7 +236,9 @@ final class GroupMemberListAdapter extends LifecycleRecyclerAdapter<GroupMemberL
 
     void bind(@NonNull GroupMemberEntry memberEntry, boolean isSelected) {
       busyProgress.setVisibility(View.GONE);
-      admin.setVisibility(View.GONE);
+      if (admin != null) {
+        admin.setVisibility(View.GONE);
+      }
       hideMenu();
 
       itemView.setOnClickListener(null);
@@ -266,7 +281,9 @@ final class GroupMemberListAdapter extends LifecycleRecyclerAdapter<GroupMemberL
 
       bindRecipient(fullMember.getMember());
       bindRecipientClick(fullMember.getMember());
-      admin.setVisibility(fullMember.isAdmin() ? View.VISIBLE : View.INVISIBLE);
+      if (admin != null) {
+        admin.setVisibility(fullMember.isAdmin() ? View.VISIBLE : View.INVISIBLE);
+      }
     }
   }
   final static class NewGroupInviteeViewHolder extends ViewHolder {
@@ -316,14 +333,14 @@ final class GroupMemberListAdapter extends LifecycleRecyclerAdapter<GroupMemberL
 
       GroupMemberEntry.PendingMember pendingMember = (GroupMemberEntry.PendingMember) memberEntry;
 
-      bindRecipient(pendingMember.getInvitee());
+      bindImageAndText(pendingMember.getInvitee(), pendingMember.getInvitee().getDisplayNameOrUsername(context));
       bindRecipientClick(pendingMember.getInvitee());
 
       if (pendingMember.isCancellable() && adminActionsListener != null) {
         popupMenu.setMenu(R.menu.own_invite_pending_menu,
                           item -> {
-                            if (item == R.id.cancel_invite) {
-                              adminActionsListener.onCancelInvite(pendingMember);
+                            if (item == R.id.revoke_invite) {
+                              adminActionsListener.onRevokeInvite(pendingMember);
                               return true;
                             }
                             return false;
@@ -358,22 +375,62 @@ final class GroupMemberListAdapter extends LifecycleRecyclerAdapter<GroupMemberL
       if (pendingMembers.isCancellable() && adminActionsListener != null) {
         popupMenu.setMenu(R.menu.others_invite_pending_menu,
                           item -> {
-                            if (item.getItemId() == R.id.cancel_invites) {
-                              item.setTitle(context.getResources().getQuantityString(R.plurals.PendingMembersActivity_cancel_d_invites, pendingMembers.getInviteCount(),
+                            if (item.getItemId() == R.id.revoke_invites) {
+                              item.setTitle(context.getResources().getQuantityString(R.plurals.PendingMembersActivity_revoke_d_invites, pendingMembers.getInviteCount(),
                                                                                      pendingMembers.getInviteCount()));
                               return true;
                             }
                             return true;
                           },
                           item -> {
-                            if (item == R.id.cancel_invites) {
-                              adminActionsListener.onCancelAllInvites(pendingMembers);
+                            if (item == R.id.revoke_invites) {
+                              adminActionsListener.onRevokeAllInvites(pendingMembers);
                               return true;
                             }
                             return false;
                           });
         showMenu();
       }
+    }
+  }
+
+  final static class RequestingMemberViewHolder extends ViewHolder {
+
+    private final View approveRequest;
+    private final View denyRequest;
+
+    RequestingMemberViewHolder(@NonNull View itemView,
+                               @Nullable RecipientClickListener recipientClickListener,
+                               @Nullable RecipientLongClickListener recipientLongClickListener,
+                               @Nullable AdminActionsListener adminActionsListener,
+                               @NonNull SelectionChangeListener selectionChangeListener)
+    {
+      super(itemView, recipientClickListener, recipientLongClickListener, adminActionsListener, selectionChangeListener);
+
+      approveRequest = itemView.findViewById(R.id.request_approve);
+      denyRequest    = itemView.findViewById(R.id.request_deny);
+    }
+
+    @Override
+    void bind(@NonNull GroupMemberEntry memberEntry, boolean isSelected) {
+      super.bind(memberEntry, isSelected);
+
+      GroupMemberEntry.RequestingMember requestingMember = (GroupMemberEntry.RequestingMember) memberEntry;
+
+      if (adminActionsListener != null && requestingMember.isApprovableDeniable()) {
+        approveRequest.setVisibility(View.VISIBLE);
+        denyRequest   .setVisibility(View.VISIBLE);
+        approveRequest.setOnClickListener(v -> adminActionsListener.onApproveRequest(requestingMember));
+        denyRequest   .setOnClickListener(v -> adminActionsListener.onDenyRequest   (requestingMember));
+      } else {
+        approveRequest.setVisibility(View.GONE);
+        denyRequest   .setVisibility(View.GONE);
+        approveRequest.setOnClickListener(null);
+        denyRequest   .setOnClickListener(null);
+      }
+
+      bindRecipient(requestingMember.getRequester());
+      bindRecipientClick(requestingMember.getRequester());
     }
   }
 

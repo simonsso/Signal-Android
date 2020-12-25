@@ -3,8 +3,7 @@ package org.thoughtcrime.securesms.net;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import org.thoughtcrime.securesms.linkpreview.LinkPreviewUtil;
-import org.thoughtcrime.securesms.logging.Log;
+import org.signal.core.util.logging.Log;
 
 import java.io.IOException;
 
@@ -52,7 +51,13 @@ public class ContentProxySafetyInterceptor implements Interceptor {
     return isWhitelisted(url.toString());
   }
 
-  private static boolean isWhitelisted(@Nullable String url) {
-    return LinkPreviewUtil.isWhitelistedLinkUrl(url) || LinkPreviewUtil.isWhitelistedMediaUrl(url);
+  private static boolean isWhitelisted(@Nullable String rawUrl) {
+    if (rawUrl == null) return false;
+
+    HttpUrl url = HttpUrl.parse(rawUrl);
+
+    return url != null                      &&
+           "https".equals(url.scheme())     &&
+           ContentProxySelector.WHITELISTED_DOMAINS.contains(url.topPrivateDomain());
   }
 }

@@ -13,9 +13,8 @@ import androidx.appcompat.app.AlertDialog;
 
 import org.thoughtcrime.securesms.crypto.storage.TextSecureIdentityKeyStore;
 import org.thoughtcrime.securesms.database.DatabaseFactory;
-import org.thoughtcrime.securesms.database.MmsDatabase;
+import org.thoughtcrime.securesms.database.MessageDatabase;
 import org.thoughtcrime.securesms.database.PushDatabase;
-import org.thoughtcrime.securesms.database.SmsDatabase;
 import org.thoughtcrime.securesms.database.documents.IdentityKeyMismatch;
 import org.thoughtcrime.securesms.database.model.MessageRecord;
 import org.thoughtcrime.securesms.dependencies.ApplicationDependencies;
@@ -113,8 +112,8 @@ public class ConfirmIdentityDialog extends AlertDialog {
         }
 
         private void processOutgoingMessageRecord(MessageRecord messageRecord) {
-          SmsDatabase        smsDatabase        = DatabaseFactory.getSmsDatabase(getContext());
-          MmsDatabase        mmsDatabase        = DatabaseFactory.getMmsDatabase(getContext());
+          MessageDatabase smsDatabase = DatabaseFactory.getSmsDatabase(getContext());
+          MessageDatabase mmsDatabase = DatabaseFactory.getMmsDatabase(getContext());
 
           if (messageRecord.isMms()) {
             mmsDatabase.removeMismatchedIdentity(messageRecord.getId(),
@@ -137,8 +136,8 @@ public class ConfirmIdentityDialog extends AlertDialog {
 
         private void processIncomingMessageRecord(MessageRecord messageRecord) {
           try {
-            PushDatabase pushDatabase = DatabaseFactory.getPushDatabase(getContext());
-            SmsDatabase  smsDatabase  = DatabaseFactory.getSmsDatabase(getContext());
+            PushDatabase    pushDatabase = DatabaseFactory.getPushDatabase(getContext());
+            MessageDatabase smsDatabase  = DatabaseFactory.getSmsDatabase(getContext());
 
             smsDatabase.removeMismatchedIdentity(messageRecord.getId(),
                                                  mismatch.getRecipientId(getContext()),

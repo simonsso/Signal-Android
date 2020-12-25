@@ -76,7 +76,7 @@
   <!--AudioSlidePlayer-->
   <string name="AudioSlidePlayer_error_playing_audio">Nagka-error sa pagpapatugtog ng audio!</string>
   <!--BlockedContactsActivity-->
-  <string name="BlockedContactsActivity_blocked_contacts">Mga naka-block na kontak</string>
+  <!-- Removed by excludeNonTranslatables <string name="BlockedContactsActivity_blocked_contacts">Mga naka-block na kontak</string> -->
   <!--BlockUnblockDialog-->
   <string name="BlockUnblockDialog_block_and_leave_s">I-block at umalis sa %1$s?</string>
   <string name="BlockUnblockDialog_block_s">I-block ang %1$s?</string>
@@ -182,9 +182,9 @@
   <string name="ConversationActivity_added_to_home_screen">Naidagdag sa home screen</string>
   <string name="ConversationActivity_calls_not_supported">Hindi suportado ang mga tawag</string>
   <string name="ConversationActivity_this_device_does_not_appear_to_support_dial_actions">Mukhang hindi suportado ng device na ito ang mga pag-dial na aksyon.</string>
-  <string name="ConversationActivity_leave_group">Umalis sa grupo?</string>
-  <string name="ConversationActivity_are_you_sure_you_want_to_leave_this_group">Sigurado ka bang gusto mong umalis sa grupong ito?</string>
-  <string name="ConversationActivity_choose_new_admin">Pumili ng bagong admin</string>
+  <!-- Removed by excludeNonTranslatables <string name="ConversationActivity_leave_group">Umalis sa grupo?</string> -->
+  <!-- Removed by excludeNonTranslatables <string name="ConversationActivity_are_you_sure_you_want_to_leave_this_group">Sigurado ka bang gusto mong umalis sa grupong ito?</string> -->
+  <!-- Removed by excludeNonTranslatables <string name="ConversationActivity_choose_new_admin">Pumili ng bagong admin</string> -->
   <string name="ConversationActivity_transport_insecure_sms">Hindi secure na SMS</string>
   <string name="ConversationActivity_transport_insecure_mms">Hindi secure na MMS</string>
   <string name="ConversationActivity_transport_signal">Signal</string>
@@ -261,7 +261,7 @@
   <string name="ConversationFragment_sms">SMS</string>
   <string name="ConversationFragment_deleting">Binubura</string>
   <string name="ConversationFragment_deleting_messages">Binubura ang mga mensahe…</string>
-  <string name="ConversationFragment_this_message_will_be_permanently_deleted_for_everyone">Ang mensaheng ito ay permanenterng mabubura para sa lahat na kalahok ng pag-uusap. Makikita ng mga kasapi na binura mo ang mensahe.</string>
+  <!-- Removed by excludeNonTranslatables <string name="ConversationFragment_this_message_will_be_permanently_deleted_for_everyone">Ang mensaheng ito ay permanenterng mabubura para sa lahat na kalahok ng pag-uusap. Makikita ng mga kasapi na binura mo ang mensahe.</string> -->
   <string name="ConversationFragment_quoted_message_not_found">Ang orihinal na mensahe ay hindi mahanap</string>
   <string name="ConversationFragment_quoted_message_no_longer_available">Ang orihinal na mensahe ay wala na</string>
   <string name="ConversationFragment_failed_to_open_message">Nabigong buksan ang mensahe</string>
@@ -299,6 +299,7 @@
   <!--ConversationTitleView-->
   <string name="ConversationTitleView_verified">Beripikado</string>
   <string name="ConversationTitleView_you">Ikaw</string>
+  <!--CreateGroupActivity-->
   <!--CreateProfileActivity-->
   <string name="CreateProfileActivity__profile">Profile</string>
   <string name="CreateProfileActivity_error_setting_profile_photo">Nagka-error sa pagtatakda ng iyong profile photo</string>
@@ -369,6 +370,9 @@
   <!--GV2 access levels-->
   <!--GV2 invites sent-->
   <string name="GroupManagement_learn_more">Matuto pa</string>
+  <!--LinkPreviewsMegaphone-->
+  <string name="LinkPreviewsMegaphone_disable">Huwag Paganahin</string>
+  <!--LinkPreviewView-->
   <!--PendingMembersActivity-->
   <string name="PendingMembersActivity_people_you_invited">Mga taong iyong inimbitahan</string>
   <string name="PendingMembersActivity_invites_by_other_group_members">Mga imbitasyon ng iba pang mga kasapi ng grupo</string>
@@ -380,6 +384,7 @@
   <string name="AddGroupDetailsFragment__members">Mga Kasapi</string>
   <string name="AddGroupDetailsFragment__group_name_required">Pangalan ng Grupo (kailangan)</string>
   <string name="AddGroupDetailsFragment__remove">Tanggalin</string>
+  <!--NonGv2MemberDialog-->
   <!--ManageGroupActivity-->
   <string name="ManageGroupActivity_disappearing_messages">Mga naglalahong mensahe</string>
   <string name="ManageGroupActivity_add_members">Magdagdag ng mga kasapi</string>
@@ -390,6 +395,7 @@
   <string name="ManageGroupActivity_on">On</string>
   <string name="ManageGroupActivity_view_all_members">Tignan ang lahat ng mga kasapi</string>
   <string name="ManageGroupActivity_none">Wala</string>
+  <!--GroupMentionSettingDialog-->
   <!--ManageRecipientActivity-->
   <string name="ManageRecipientActivity_disappearing_messages">Mga naglalahong mensahe</string>
   <string name="ManageRecipientActivity_block">I-block</string>
@@ -410,7 +416,9 @@
   <string name="CustomNotificationsDialogFragment__enabled">Naka-enable</string>
   <string name="CustomNotificationsDialogFragment__disabled">Naka-disable</string>
   <string name="CustomNotificationsDialogFragment__default">Default</string>
-  <!--GV2 Invite cancellation confirmation-->
+  <!--GV2 Invite Revoke confirmation dialog-->
+  <!--GroupJoinBottomSheetDialogFragment-->
+  <!--GroupJoinUpdateRequiredBottomSheetDialogFragment-->
   <!--CropImageActivity-->
   <string name="CropImageActivity_group_avatar">Avatar ng grupo</string>
   <string name="CropImageActivity_profile_avatar">Avatar</string>
@@ -538,13 +546,13 @@
   <string name="MessageRecord_message_encrypted_with_a_legacy_protocol_version_that_is_no_longer_supported">Nakatanggap ng mensaheng na-encrypt gamit ang isang lumang bersyon ng Signal na hindi na suportado. Pakisabi sa nagpadala na mag-update sa pinakabagong bersyon at muling ipadala ang mensahe.</string>
   <string name="MessageRecord_left_group">Nakaalis ka na sa grupo.</string>
   <string name="MessageRecord_you_updated_group">In-update mo ang grupo.</string>
-  <string name="MessageRecord_you_called">Tumawag ka</string>
-  <string name="MessageRecord_called_you">Tumawag ang kontak</string>
-  <string name="MessageRecord_missed_call">Hindi nasagot na tawag</string>
+  <!-- Removed by excludeNonTranslatables <string name="MessageRecord_you_called">Tumawag ka</string> -->
+  <!-- Removed by excludeNonTranslatables <string name="MessageRecord_called_you">Tumawag ang kontak</string> -->
+  <!-- Removed by excludeNonTranslatables <string name="MessageRecord_missed_call">Hindi nasagot na tawag</string> -->
   <string name="MessageRecord_s_updated_group">In-update ni %s ang grupo.</string>
-  <string name="MessageRecord_s_called_you">Tinawagan ka ni %s</string>
+  <!-- Removed by excludeNonTranslatables <string name="MessageRecord_s_called_you">Tinawagan ka ni %s</string> -->
   <string name="MessageRecord_called_s">Tinawagan si %s</string>
-  <string name="MessageRecord_missed_call_from">Hindi ang tawag ni %s</string>
+  <!-- Removed by excludeNonTranslatables <string name="MessageRecord_missed_call_from">Hindi ang tawag ni %s</string> -->
   <string name="MessageRecord_s_joined_signal">Nasa Signal si %s!</string>
   <string name="MessageRecord_you_disabled_disappearing_messages">Dinisable mo ang mga naglalahong mensahe.</string>
   <string name="MessageRecord_s_disabled_disappearing_messages">Dinisable ni %1$s ang mga naglalahong mensahe.</string>
@@ -563,12 +571,17 @@
   <!--GV2 invitations-->
   <string name="MessageRecord_you_were_invited_to_the_group">Ikaw ay inimbitahan sa grupo.</string>
   <!--GV2 invitation revokes-->
-  <string name="MessageRecord_your_invitation_to_the_group_was_revoked">Ang iyong imbitasyon sa grupo ay binawi.</string>
   <!--GV2 invitation acceptance-->
   <!--GV2 title change-->
   <!--GV2 avatar change-->
   <!--GV2 attribute access level change-->
   <!--GV2 membership access level change-->
+  <!--GV2 group link invite access level change-->
+  <!--GV2 group link reset-->
+  <!--GV2 group link joins-->
+  <!--GV2 group link requests-->
+  <!--GV2 group link approvals-->
+  <!--GV2 group link deny-->
   <!--End of GV2 specific update messages-->
   <string name="MessageRecord_your_safety_number_with_s_has_changed">Nagbago ang iyong numerong pangkaligtasan kay %s.</string>
   <string name="MessageRecord_you_marked_your_safety_number_with_s_verified">Minarkahan mong beripikado ang iyong numerong pangkaligtasan kay %s</string>
@@ -590,10 +603,6 @@
   <plurals name="MessageRequestProfileView_members_and_invited">
     <item quantity="one">%1$d na kasapi (+%2$d na inimbitahan)</item>
     <item quantity="other">%1$d na mga kasapi (+%2$d na inimbitahan)</item>
-  </plurals>
-  <plurals name="MessageRequestProfileView_member_of_others">
-    <item quantity="one">%d iba pa</item>
-    <item quantity="other">%d pang iba</item>
   </plurals>
   <!--PassphraseChangeActivity-->
   <string name="PassphraseChangeActivity_passphrases_dont_match_exclamation">Hindi tugma ang mga passphrase!</string>
@@ -671,10 +680,7 @@
   <!--RecipientProvider-->
   <string name="RecipientProvider_unnamed_group">Grupong walang pangalan</string>
   <!--RedPhone-->
-  <string name="RedPhone_answering">Sinasagot</string>
-  <string name="RedPhone_ending_call">Tinatapos ang tawag</string>
-  <string name="RedPhone_dialing">Dina-dial</string>
-  <string name="RedPhone_ringing">Nagri-ring</string>
+  <string name="RedPhone_ringing">Nagri-ring…</string>
   <string name="RedPhone_busy">Busy</string>
   <string name="RedPhone_connected">Konektado</string>
   <string name="RedPhone_recipient_unavailable">Ang tatanggap ay hindi available</string>
@@ -813,7 +819,7 @@
   <string name="ThreadRecord_draft">Draft:</string>
   <string name="ThreadRecord_called">Tumawag ka</string>
   <string name="ThreadRecord_called_you">Tinawagan ka</string>
-  <string name="ThreadRecord_missed_call">Tawag na hindi nasagot</string>
+  <!-- Removed by excludeNonTranslatables <string name="ThreadRecord_missed_call">Tawag na hindi nasagot</string> -->
   <string name="ThreadRecord_media_message">Mensaheng media</string>
   <string name="ThreadRecord_sticker">Sticker</string>
   <string name="ThreadRecord_view_once_photo">View-once na larawan</string>
@@ -841,12 +847,12 @@
   <string name="UpdateApkReadyListener_Signal_update">Update sa Signal</string>
   <string name="UpdateApkReadyListener_a_new_version_of_signal_is_available_tap_to_update">May bagong bersyon ang Signal, pindutin upang i-update</string>
   <!--UnknownSenderView-->
-  <string name="UnknownSenderView_block_s">I-block si %s?</string>
-  <string name="UnknownSenderView_blocked_contacts_will_no_longer_be_able_to_send_you_messages_or_call_you">Ang mga naka-block na kontak ay hindi na makakapagpadala sa iyo ng mga mensahe o kaya\'y makakatawag sa iyo. </string>
-  <string name="UnknownSenderView_block">I-block</string>
-  <string name="UnknownSenderView_share_profile_with_s">Ibahagi ang profile kay %s?</string>
-  <string name="UnknownSenderView_the_easiest_way_to_share_your_profile_information_is_to_add_the_sender_to_your_contacts"> Ang pinakamadaling paraan upang maibahagi ang impormasyon ng iyong profile ay sa pamamagitan ng pagdaragdag ng nagpadala sa iyong mga kontak. Kung ayaw mo itong gawin, maaari mo pa ring ibahagi ang impormasyon ng iyong profile sa ganitong paraan.</string>
-  <string name="UnknownSenderView_share_profile">Ibahagi ang profile</string>
+  <!-- Removed by excludeNonTranslatables <string name="UnknownSenderView_block_s">I-block si %s?</string> -->
+  <!-- Removed by excludeNonTranslatables <string name="UnknownSenderView_blocked_contacts_will_no_longer_be_able_to_send_you_messages_or_call_you">Ang mga naka-block na kontak ay hindi na makakapagpadala sa iyo ng mga mensahe o kaya\'y makakatawag sa iyo. </string> -->
+  <!-- Removed by excludeNonTranslatables <string name="UnknownSenderView_block">I-block</string> -->
+  <!-- Removed by excludeNonTranslatables <string name="UnknownSenderView_share_profile_with_s">Ibahagi ang profile kay %s?</string> -->
+  <!-- Removed by excludeNonTranslatables <string name="UnknownSenderView_the_easiest_way_to_share_your_profile_information_is_to_add_the_sender_to_your_contacts"> Ang pinakamadaling paraan upang maibahagi ang impormasyon ng iyong profile ay sa pamamagitan ng pagdaragdag ng nagpadala sa iyong mga kontak. Kung ayaw mo itong gawin, maaari mo pa ring ibahagi ang impormasyon ng iyong profile sa ganitong paraan.</string> -->
+  <!-- Removed by excludeNonTranslatables <string name="UnknownSenderView_share_profile">Ibahagi ang profile</string> -->
   <!--UntrustedSendDialog-->
   <string name="UntrustedSendDialog_send_message">Ipadala ang mensahe?</string>
   <string name="UntrustedSendDialog_send">Ipadala</string>
@@ -855,7 +861,7 @@
   <string name="UnverifiedSendDialog_send">Ipadala</string>
   <!--UsernameEditFragment-->
   <string name="UsernameEditFragment_username">Username</string>
-  <string name="UsernameEditFragment_submit">Isumite</string>
+  <!-- Removed by excludeNonTranslatables <string name="UsernameEditFragment_submit">Isumite</string> -->
   <string name="UsernameEditFragment_delete">Burahin</string>
   <string name="UsernameEditFragment_successfully_set_username">Matagumpay na naitakda ang username.</string>
   <string name="UsernameEditFragment_successfully_removed_username">Matagumpay na natanggal ang username.</string>
@@ -865,7 +871,7 @@
   <string name="UsernameEditFragment_usernames_cannot_begin_with_a_number">Ang mga username ay hindi puwedeng magsimula sa numero.</string>
   <string name="UsernameEditFragment_username_is_invalid">Ang username ay hindi valid.</string>
   <string name="UsernameEditFragment_usernames_must_be_between_a_and_b_characters">Ang mga username ay kailangang nasa pagitan ng %1$d at %2$d ang bilang ng mga character.</string>
-  <string name="UsernameEditFragment_other_signal_users_can_send_message_requests_to_your_unique_username">Makakapagpadala ng kahilingang magmensahe ang ibang mga gumagamit ng Signal sa iyong natatanging username nang hindi nalalaman ang numero ng iyong telepono. Ang pagpili ng username ay opsyonal.</string>
+  <!-- Removed by excludeNonTranslatables <string name="UsernameEditFragment_other_signal_users_can_send_message_requests_to_your_unique_username">Makakapagpadala ng kahilingang magmensahe ang ibang mga gumagamit ng Signal sa iyong natatanging username nang hindi nalalaman ang numero ng iyong telepono. Ang pagpili ng username ay opsyonal.</string> -->
   <!--VerifyIdentityActivity-->
   <string name="VerifyIdentityActivity_your_contact_is_running_an_old_version_of_signal">Gumagamit ng lumang bersyon ng Signal ang iyong kontak. Pakisabi sa kaniyang mag-update bago iberipika ang iyong numerong pangkaligtasan.</string>
   <string name="VerifyIdentityActivity_your_contact_is_running_a_newer_version_of_Signal">Ang iyong kontak ay gumagamit ng mas bagong bersyon ng Signal na may hindi katugma na format ng QR code. Mag-update para tumugma.</string>
@@ -886,8 +892,6 @@
   <string name="MmsMessageRecord_mms_message_encrypted_for_non_existing_session">Ang MMS na mensahe ay naka-encrypt para sa hindi-umiiral na sesyon</string>
   <!--MuteDialog-->
   <string name="MuteDialog_mute_notifications">Patahimikin ang mga notipikasyon</string>
-  <!--OutdatedBuildReminder-->
-  <string name="OutdatedBuildReminder_no_web_browser_installed">Walang web browser na naka-install!</string>
   <!--ApplicationMigrationService-->
   <string name="ApplicationMigrationService_import_in_progress">Isinasagawa ang pag-i-import</string>
   <string name="ApplicationMigrationService_importing_text_messages">Ini-import ang mga text message</string>
@@ -933,8 +937,8 @@
   <string name="MessageNotifier_reacted_s_to_your_image">Nag-react ng %1$s sa iyong imahe.</string>
   <string name="MessageNotifier_reacted_s_to_your_file">Nag-react ng %1$s sa iyong file.</string>
   <string name="MessageNotifier_reacted_s_to_your_audio">Nag-react ng %1$s sa iyong audio.</string>
-  <string name="MessageNotifier_reacted_s_to_your_view_once_photo">Nag-react ng %1$s sa iyong view-once na larawan.</string>
-  <string name="MessageNotifier_reacted_s_to_your_view_once_video">Nag-react ng %1$s sa iyong view-once na video.</string>
+  <!-- Removed by excludeNonTranslatables <string name="MessageNotifier_reacted_s_to_your_view_once_photo">Nag-react ng %1$s sa iyong view-once na larawan.</string> -->
+  <!-- Removed by excludeNonTranslatables <string name="MessageNotifier_reacted_s_to_your_view_once_video">Nag-react ng %1$s sa iyong view-once na video.</string> -->
   <string name="MessageNotifier_reacted_s_to_your_sticker">Nag-react ng %1$s sa iyong sticker.</string>
   <string name="MessageNotifier_this_message_was_deleted">Ang mensaheng ito ay nabura na.</string>
   <!--Notification Channels-->
@@ -1040,7 +1044,7 @@
   <string name="ContactSelectionListFragment_error_retrieving_contacts_check_your_network_connection">Nagka-error sa pakuha ng mga kontak, suriin ang koneksyon ng iyong network.</string>
   <string name="ContactSelectionListFragment_username_not_found">Hindi nahanap ang username</string>
   <string name="ContactSelectionListFragment_s_is_not_a_signal_user">Hindi gumagamit ng Signal si \"%1$s\" . Pakisuri ang username at subukang muli.</string>
-  <string name="ContactSelectionListFragment_okay">Okay</string>
+  <!-- Removed by excludeNonTranslatables <string name="ContactSelectionListFragment_okay">Okay</string> -->
   <!--blocked_contacts_fragment-->
   <string name="blocked_contacts_fragment__no_blocked_contacts">Walang naka-block na kontak</string>
   <!--contact_selection_list_fragment-->
@@ -1192,7 +1196,7 @@
   </plurals>
   <string name="GroupUtil_group_name_is_now">\'%1$s\' na ang pangalan ng grupo.</string>
   <!--profile_group_share_view-->
-  <string name="profile_group_share_view__make_your_profile_name_and_photo_visible_to_this_group">Gawaing nakikita ang iyong profile name at photo sa grupong ito?</string>
+  <!-- Removed by excludeNonTranslatables <string name="profile_group_share_view__make_your_profile_name_and_photo_visible_to_this_group">Gawaing nakikita ang iyong profile name at photo sa grupong ito?</string> -->
   <!--prompt_passphrase_activity-->
   <string name="prompt_passphrase_activity__unlock">I-unlock</string>
   <!--prompt_mms_activity-->
@@ -1323,8 +1327,6 @@
   <string name="preferences__use_signal_for_viewing_and_storing_all_incoming_multimedia_messages">Gamitin ang Signal para sa lahat ng paparating na multimedia na mensahe</string>
   <string name="preferences__pref_enter_sends_title">Nagpapadala ang Enter key</string>
   <string name="preferences__pressing_the_enter_key_will_send_text_messages">Magpapadala ng mga text message kapag pinindot ang Enter key</string>
-  <string name="preferences__send_link_previews">Ipadala ang mga preview ng link</string>
-  <string name="preferences__previews_are_supported_for">Ang mga preview ay suportado para sa mga link ng Imgur, Instagram, Pinterest, Reddit, at YouTube</string>
   <string name="preferences__choose_identity">Pumili ng pagkakakilanlan</string>
   <string name="preferences__choose_your_contact_entry_from_the_contacts_list">Piliin ang entry ng iyong kontak mula sa listahan ng mga kontak.</string>
   <string name="preferences__change_passphrase">Baguhin ang passphrase</string>
@@ -1374,13 +1376,13 @@
   <string name="preferences__mmsc_password">MMSC Password</string>
   <string name="preferences__sms_delivery_reports">Mga ulat ng paghahatid ng SMS</string>
   <string name="preferences__request_a_delivery_report_for_each_sms_message_you_send">Humingi ng ulat ng paghahatid para sa bawat mensaheng SMS na iyong ipinapadala</string>
-  <string name="preferences__automatically_delete_older_messages_once_a_conversation_exceeds_a_specified_length">Awtomatikong burahin ang mga mas lumang mensahe kapag ang pag-uusap ay lumampas na sa nakatakdang haba</string>
-  <string name="preferences__delete_old_messages">Burahin ang mga lumang mensahe</string>
+  <!-- Removed by excludeNonTranslatables <string name="preferences__automatically_delete_older_messages_once_a_conversation_exceeds_a_specified_length">Awtomatikong burahin ang mga mas lumang mensahe kapag ang pag-uusap ay lumampas na sa nakatakdang haba</string> -->
+  <!-- Removed by excludeNonTranslatables <string name="preferences__delete_old_messages">Burahin ang mga lumang mensahe</string> -->
   <string name="preferences__chats">Mga chat at media</string>
   <string name="preferences__storage">Storage</string>
   <string name="preferences__conversation_length_limit">Limitasyon sa haba ng pag-uusap</string>
-  <string name="preferences__trim_all_conversations_now">Paikliin ang lahat ng pag-uusap ngayon</string>
-  <string name="preferences__scan_through_all_conversations_and_enforce_conversation_length_limits">I-scan ang lahat ng pag-uusap at ipatupad ang limitasyon sa haba ng pag-uusap</string>
+  <!-- Removed by excludeNonTranslatables <string name="preferences__trim_all_conversations_now">Paikliin ang lahat ng pag-uusap ngayon</string> -->
+  <!-- Removed by excludeNonTranslatables <string name="preferences__scan_through_all_conversations_and_enforce_conversation_length_limits">I-scan ang lahat ng pag-uusap at ipatupad ang limitasyon sa haba ng pag-uusap</string> -->
   <string name="preferences__linked_devices">Mga naka-link na device</string>
   <string name="preferences__light_theme">Maliwanag</string>
   <string name="preferences__dark_theme">Madilim</string>
@@ -1400,12 +1402,12 @@
   <string name="preferences__typing_indicators">Typing indicators</string>
   <string name="preferences__if_typing_indicators_are_disabled_you_wont_be_able_to_see_typing_indicators">Kung naka-disable ang typing indicators, hindi ka makakakita ng typing indicators mula sa iba.</string>
   <string name="preferences__request_keyboard_to_disable_personalized_learning">Hilingin sa keyboard na i-disable ang personalisadong pagkakatuto</string>
-  <string name="preferences_app_protection__blocked_contacts">Mga naka-block na kontak</string>
+  <!-- Removed by excludeNonTranslatables <string name="preferences_app_protection__blocked_contacts">Mga naka-block na kontak</string> -->
   <string name="preferences_chats__when_using_mobile_data">Kapag gumagamit ng mobile data</string>
   <string name="preferences_chats__when_using_wifi">Kapag gumagamit ng WI-FI</string>
   <string name="preferences_chats__when_roaming">Kapag roaming</string>
   <string name="preferences_chats__media_auto_download">Awtomatikong pag-download ng media</string>
-  <string name="preferences_chats__message_trimming">Pagpapaikli ng mensahe</string>
+  <!-- Removed by excludeNonTranslatables <string name="preferences_chats__message_trimming">Pagpapaikli ng mensahe</string> -->
   <string name="preferences_storage__storage_usage">Pagkakagamit ng storage</string>
   <string name="preferences_storage__photos">Mga larawan</string>
   <string name="preferences_storage__videos">Mga video</string>
@@ -1473,6 +1475,7 @@
   <!--conversation_list-->
   <string name="conversation_list_settings_shortcut">Shortcut ng settings</string>
   <string name="conversation_list_search_description">Maghanap</string>
+  <string name="conversation_list__chats">Mga chat</string>
   <!--conversation_list_item_view-->
   <string name="conversation_list_item_view__contact_photo_image">Larawang Imahe ng Kontak</string>
   <string name="conversation_list_item_view__archived">Nai-archive</string>
@@ -1515,14 +1518,14 @@
   <string name="verify_display_fragment_context_menu__copy_to_clipboard">Kopyahin sa clipboard</string>
   <string name="verify_display_fragment_context_menu__compare_with_clipboard">Ikumpara sa clipboard</string>
   <!--reminder_header-->
-  <string name="reminder_header_outdated_build">Luma na ang iyong bersyon ng Signal</string>
-  <plurals name="reminder_header_outdated_build_details">
+  <!-- Removed by excludeNonTranslatables <string name="reminder_header_outdated_build">Luma na ang iyong bersyon ng Signal</string> -->
+  <!-- Removed by excludeNonTranslatables <plurals name="reminder_header_outdated_build_details">
     <item quantity="one">Ang iyong bersyon ng Signal ay lilipas na sa loob ng %d araw. Tapikin upang mag-update sa pinakabagong bersyon.</item>
     <item quantity="other">Mag-e-expire na ang iyong bersyon ng Signal sa loob ng %d araw. Pindutin upang mag-update sa pinakabagong bersyon.</item>
-  </plurals>
-  <string name="reminder_header_outdated_build_details_today">Mag-e-expire na ngayong araw ang iyong bersyon ng Signal. Pindutin upang mag-update sa pinakabagong bersyon.</string>
-  <string name="reminder_header_expired_build">Nag-expire na ang iyong bersyon ng Signal!</string>
-  <string name="reminder_header_expired_build_details">Ang mga mensahe ay hindi na matagumpay na maipapadala. Pindutin upang mag-update sa pinakabagong bersyon.</string>
+  </plurals> -->
+  <!-- Removed by excludeNonTranslatables <string name="reminder_header_outdated_build_details_today">Mag-e-expire na ngayong araw ang iyong bersyon ng Signal. Pindutin upang mag-update sa pinakabagong bersyon.</string> -->
+  <!-- Removed by excludeNonTranslatables <string name="reminder_header_expired_build">Nag-expire na ang iyong bersyon ng Signal!</string> -->
+  <!-- Removed by excludeNonTranslatables <string name="reminder_header_expired_build_details">Ang mga mensahe ay hindi na matagumpay na maipapadala. Pindutin upang mag-update sa pinakabagong bersyon.</string> -->
   <string name="reminder_header_sms_default_title">Gamitin bilang default na app na pang-SMS</string>
   <string name="reminder_header_sms_default_text">Pindutin upang gawing Signal ang iyong default na app na pang-SMS</string>
   <string name="reminder_header_sms_import_title">I-import ang system SMS</string>
@@ -1658,6 +1661,7 @@
   <string name="KbsMegaphone__update_pin">I-update ang PIN</string>
   <string name="KbsMegaphone__well_remind_you_later_creating_a_pin">Paaalalahanan ka namin kinalaunan. Ang paglikha ng PIN ay magiging sapilitan sa loob ng %1$d araw.</string>
   <string name="KbsMegaphone__well_remind_you_later_confirming_your_pin">Paaalalahanan ka namin kinalaunan. Ang pagkumpirma ng iyong PIN ay magiging sapilitan sa loob ng %1$d araw.</string>
+  <!--Mention Megaphone-->
   <!--transport_selection_list_item-->
   <string name="transport_selection_list_item__transport_icon">Icon ng transportasyon</string>
   <string name="ConversationListFragment_loading">Naglo-load…</string>

@@ -7,15 +7,15 @@ import androidx.annotation.WorkerThread;
 
 import com.annimon.stream.Stream;
 
+import org.signal.core.util.logging.Log;
 import org.thoughtcrime.securesms.crypto.UnidentifiedAccessUtil;
 import org.thoughtcrime.securesms.database.DatabaseFactory;
-import org.thoughtcrime.securesms.database.MessagingDatabase;
+import org.thoughtcrime.securesms.database.MessageDatabase;
 import org.thoughtcrime.securesms.database.NoSuchMessageException;
 import org.thoughtcrime.securesms.database.model.MessageRecord;
 import org.thoughtcrime.securesms.dependencies.ApplicationDependencies;
 import org.thoughtcrime.securesms.jobmanager.Data;
 import org.thoughtcrime.securesms.jobmanager.Job;
-import org.thoughtcrime.securesms.logging.Log;
 import org.thoughtcrime.securesms.recipients.Recipient;
 import org.thoughtcrime.securesms.recipients.RecipientId;
 import org.thoughtcrime.securesms.recipients.RecipientUtil;
@@ -57,7 +57,7 @@ public class RemoteDeleteSendJob extends BaseJob {
       throws NoSuchMessageException
   {
     MessageRecord message = isMms ? DatabaseFactory.getMmsDatabase(context).getMessageRecord(messageId)
-                                  : DatabaseFactory.getSmsDatabase(context).getMessage(messageId);
+                                  : DatabaseFactory.getSmsDatabase(context).getSmsMessage(messageId);
 
     Recipient conversationRecipient = DatabaseFactory.getThreadDatabase(context).getRecipientForThreadId(message.getThreadId());
 
@@ -65,7 +65,7 @@ public class RemoteDeleteSendJob extends BaseJob {
       throw new AssertionError("We have a message, but couldn't find the thread!");
     }
 
-    List<RecipientId> recipients = conversationRecipient.isGroup() ? Stream.of(conversationRecipient.getParticipants()).map(Recipient::getId).toList()
+    List<RecipientId> recipients = conversationRecipient.isGroup() ? Stream.of(RecipientUtil.getEligibleForSending(conversationRecipient.getParticipants())).map(Recipient::getId).toList()
                                                                    : Stream.of(conversationRecipient.getId()).toList();
 
     recipients.remove(Recipient.self().getId());
@@ -111,7 +111,7 @@ public class RemoteDeleteSendJob extends BaseJob {
 
   @Override
   protected void onRun() throws Exception {
-    MessagingDatabase db;
+    MessageDatabase db;
     MessageRecord     message;
 
     if (isMms) {
@@ -119,7 +119,7 @@ public class RemoteDeleteSendJob extends BaseJob {
       message = DatabaseFactory.getMmsDatabase(context).getMessageRecord(messageId);
     } else {
       db      = DatabaseFactory.getSmsDatabase(context);
-      message = DatabaseFactory.getSmsDatabase(context).getMessage(messageId);
+      message = DatabaseFactory.getSmsDatabase(context).getSmsMessage(messageId);
     }
 
     long       targetSentTimestamp  = message.getDateSent();
@@ -165,8 +165,8 @@ public class RemoteDeleteSendJob extends BaseJob {
       throws IOException, UntrustedIdentityException
   {
     SignalServiceMessageSender             messageSender      = ApplicationDependencies.getSignalServiceMessageSender();
-    List<SignalServiceAddress>             addresses          = Stream.of(destinations).map(t -> RecipientUtil.toSignalServiceAddress(context, t)).toList();
-    List<Optional<UnidentifiedAccessPair>> unidentifiedAccess = Stream.of(destinations).map(recipient -> UnidentifiedAccessUtil.getAccessFor(context, recipient)).toList();
+    List<SignalServiceAddress>             addresses          = RecipientUtil.toSignalServiceAddressesFromResolved(context, destinations);
+    List<Optional<UnidentifiedAccessPair>> unidentifiedAccess = UnidentifiedAccessUtil.getAccessFor(context, destinations);
     SignalServiceDataMessage.Builder       dataMessage        = SignalServiceDataMessage.newBuilder()
                                                                                         .withTimestamp(System.currentTimeMillis())
                                                                                         .withRemoteDelete(new SignalServiceDataMessage.RemoteDelete(targetSentTimestamp));

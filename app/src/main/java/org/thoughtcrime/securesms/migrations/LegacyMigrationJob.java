@@ -6,6 +6,7 @@ import android.database.Cursor;
 import androidx.annotation.NonNull;
 import androidx.preference.PreferenceManager;
 
+import org.signal.core.util.logging.Log;
 import org.thoughtcrime.securesms.attachments.DatabaseAttachment;
 import org.thoughtcrime.securesms.color.MaterialColor;
 import org.thoughtcrime.securesms.contacts.avatars.ContactColorsLegacy;
@@ -13,6 +14,7 @@ import org.thoughtcrime.securesms.crypto.IdentityKeyUtil;
 import org.thoughtcrime.securesms.crypto.MasterSecret;
 import org.thoughtcrime.securesms.database.AttachmentDatabase;
 import org.thoughtcrime.securesms.database.DatabaseFactory;
+import org.thoughtcrime.securesms.database.MessageDatabase;
 import org.thoughtcrime.securesms.database.MmsDatabase;
 import org.thoughtcrime.securesms.database.MmsDatabase.Reader;
 import org.thoughtcrime.securesms.database.PushDatabase;
@@ -26,7 +28,6 @@ import org.thoughtcrime.securesms.jobs.CreateSignedPreKeyJob;
 import org.thoughtcrime.securesms.jobs.DirectoryRefreshJob;
 import org.thoughtcrime.securesms.jobs.PushDecryptMessageJob;
 import org.thoughtcrime.securesms.jobs.RefreshAttributesJob;
-import org.thoughtcrime.securesms.logging.Log;
 import org.thoughtcrime.securesms.mms.GlideApp;
 import org.thoughtcrime.securesms.service.KeyCachingService;
 import org.thoughtcrime.securesms.transport.RetryLaterException;
@@ -35,7 +36,6 @@ import org.thoughtcrime.securesms.util.TextSecurePreferences;
 import org.thoughtcrime.securesms.util.VersionTracker;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.List;
 
 /**
@@ -267,12 +267,12 @@ public class LegacyMigrationJob extends MigrationJob {
 
   private void schedulePendingIncomingParts(Context context) {
     final AttachmentDatabase       attachmentDb       = DatabaseFactory.getAttachmentDatabase(context);
-    final MmsDatabase              mmsDb              = DatabaseFactory.getMmsDatabase(context);
+    final MessageDatabase          mmsDb              = DatabaseFactory.getMmsDatabase(context);
     final List<DatabaseAttachment> pendingAttachments = DatabaseFactory.getAttachmentDatabase(context).getPendingAttachments();
 
     Log.i(TAG, pendingAttachments.size() + " pending parts.");
     for (DatabaseAttachment attachment : pendingAttachments) {
-      final Reader        reader = mmsDb.readerFor(mmsDb.getMessage(attachment.getMmsId()));
+      final Reader        reader = MmsDatabase.readerFor(mmsDb.getMessageCursor(attachment.getMmsId()));
       final MessageRecord record = reader.getNext();
 
       if (attachment.hasData()) {

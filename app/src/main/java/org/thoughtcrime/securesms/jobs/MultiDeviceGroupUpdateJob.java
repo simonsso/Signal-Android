@@ -4,8 +4,8 @@ import android.net.Uri;
 import android.os.ParcelFileDescriptor;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 
+import org.signal.core.util.logging.Log;
 import org.thoughtcrime.securesms.crypto.UnidentifiedAccessUtil;
 import org.thoughtcrime.securesms.database.DatabaseFactory;
 import org.thoughtcrime.securesms.database.GroupDatabase;
@@ -13,7 +13,6 @@ import org.thoughtcrime.securesms.dependencies.ApplicationDependencies;
 import org.thoughtcrime.securesms.jobmanager.Data;
 import org.thoughtcrime.securesms.jobmanager.Job;
 import org.thoughtcrime.securesms.jobmanager.impl.NetworkConstraint;
-import org.thoughtcrime.securesms.logging.Log;
 import org.thoughtcrime.securesms.profiles.AvatarHelper;
 import org.thoughtcrime.securesms.providers.BlobProvider;
 import org.thoughtcrime.securesms.recipients.Recipient;
@@ -31,10 +30,7 @@ import org.whispersystems.signalservice.api.messages.multidevice.SignalServiceSy
 import org.whispersystems.signalservice.api.push.SignalServiceAddress;
 import org.whispersystems.signalservice.api.push.exceptions.PushNetworkException;
 
-import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.LinkedList;
@@ -102,7 +98,7 @@ public class MultiDeviceGroupUpdateJob extends BaseJob {
             members.add(RecipientUtil.toSignalServiceAddress(context, Recipient.resolved(member)));
           }
 
-          RecipientId               recipientId     = DatabaseFactory.getRecipientDatabase(context).getOrInsertFromGroupId(record.getId());
+          RecipientId               recipientId     = DatabaseFactory.getRecipientDatabase(context).getOrInsertFromPossiblyMigratedGroupId(record.getId());
           Recipient                 recipient       = Recipient.resolved(recipientId);
           Optional<Integer>         expirationTimer = recipient.getExpireMessages() > 0 ? Optional.of(recipient.getExpireMessages()) : Optional.absent();
           Map<RecipientId, Integer> inboxPositions  = DatabaseFactory.getThreadDatabase(context).getInboxPositions();

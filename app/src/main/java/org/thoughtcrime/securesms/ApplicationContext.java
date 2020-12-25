@@ -22,6 +22,7 @@ import android.os.AsyncTask;
 import android.os.Build;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.lifecycle.DefaultLifecycleObserver;
 import androidx.lifecycle.LifecycleOwner;
@@ -32,9 +33,12 @@ import com.google.android.gms.security.ProviderInstaller;
 
 import org.conscrypt.Conscrypt;
 import org.signal.aesgcmprovider.AesGcmProvider;
+import org.signal.core.util.concurrent.SignalExecutors;
+import org.signal.core.util.logging.AndroidLogger;
+import org.signal.core.util.logging.Log;
+import org.signal.core.util.logging.PersistentLogger;
+import org.signal.glide.SignalGlideCodecs;
 import org.signal.ringrtc.CallManager;
-import org.thoughtcrime.securesms.components.TypingStatusRepository;
-import org.thoughtcrime.securesms.components.TypingStatusSender;
 import org.thoughtcrime.securesms.database.DatabaseFactory;
 import org.thoughtcrime.securesms.database.helpers.SQLCipherOpenHelper;
 import org.thoughtcrime.securesms.dependencies.ApplicationDependencies;
@@ -42,15 +46,14 @@ import org.thoughtcrime.securesms.dependencies.ApplicationDependencyProvider;
 import org.thoughtcrime.securesms.gcm.FcmJobService;
 import org.thoughtcrime.securesms.jobs.CreateSignedPreKeyJob;
 import org.thoughtcrime.securesms.jobs.FcmRefreshJob;
+import org.thoughtcrime.securesms.jobs.GroupV1MigrationJob;
 import org.thoughtcrime.securesms.jobs.MultiDeviceContactUpdateJob;
 import org.thoughtcrime.securesms.jobs.PushNotificationReceiveJob;
 import org.thoughtcrime.securesms.jobs.RefreshPreKeysJob;
 import org.thoughtcrime.securesms.jobs.RetrieveProfileJob;
-import org.thoughtcrime.securesms.logging.AndroidLogger;
+import org.thoughtcrime.securesms.keyvalue.SignalStore;
 import org.thoughtcrime.securesms.logging.CustomSignalProtocolLogger;
-import org.thoughtcrime.securesms.logging.Log;
-import org.thoughtcrime.securesms.logging.PersistentLogger;
-import org.thoughtcrime.securesms.logging.SignalUncaughtExceptionHandler;
+import org.thoughtcrime.securesms.logging.LogSecretProvider;
 import org.thoughtcrime.securesms.migrations.ApplicationMigrations;
 import org.thoughtcrime.securesms.notifications.NotificationChannels;
 import org.thoughtcrime.securesms.providers.BlobProvider;
@@ -66,9 +69,13 @@ import org.thoughtcrime.securesms.service.RotateSenderCertificateListener;
 import org.thoughtcrime.securesms.service.RotateSignedPreKeyListener;
 import org.thoughtcrime.securesms.service.UpdateApkRefreshListener;
 import org.thoughtcrime.securesms.storage.StorageSyncHelper;
+import org.thoughtcrime.securesms.tracing.Trace;
+import org.thoughtcrime.securesms.tracing.Tracer;
+import org.thoughtcrime.securesms.util.DynamicTheme;
 import org.thoughtcrime.securesms.util.FeatureFlags;
+import org.thoughtcrime.securesms.util.SignalUncaughtExceptionHandler;
 import org.thoughtcrime.securesms.util.TextSecurePreferences;
-import org.thoughtcrime.securesms.util.concurrent.SignalExecutors;
+import org.thoughtcrime.securesms.util.Util;
 import org.thoughtcrime.securesms.util.dynamiclanguage.DynamicLanguageContextWrapper;
 import org.webrtc.voiceengine.WebRtcAudioManager;
 import org.webrtc.voiceengine.WebRtcAudioUtils;
@@ -87,15 +94,14 @@ import java.util.concurrent.TimeUnit;
  *
  * @author Moxie Marlinspike
  */
+@Trace
 public class ApplicationContext extends MultiDexApplication implements DefaultLifecycleObserver {
 
   private static final String TAG = ApplicationContext.class.getSimpleName();
 
-  private ExpiringMessageManager   expiringMessageManager;
-  private ViewOnceMessageManager   viewOnceMessageManager;
-  private TypingStatusRepository   typingStatusRepository;
-  private TypingStatusSender       typingStatusSender;
-  private PersistentLogger         persistentLogger;
+  private ExpiringMessageManager expiringMessageManager;
+  private ViewOnceMessageManager viewOnceMessageManager;
+  private PersistentLogger       persistentLogger;
 
   private volatile boolean isAppVisible;
 
@@ -105,8 +111,11 @@ public class ApplicationContext extends MultiDexApplication implements DefaultLi
 
   @Override
   public void onCreate() {
+    Tracer.getInstance().start("Application#onCreate()");
     long startTime = System.currentTimeMillis();
+
     super.onCreate();
+
     initializeSecurityProvider();
     initializeLogging();
     Log.i(TAG, "onCreate()");
@@ -117,8 +126,6 @@ public class ApplicationContext extends MultiDexApplication implements DefaultLi
     initializeMessageRetrieval();
     initializeExpiringMessageManager();
     initializeRevealableMessageManager();
-    initializeTypingStatusRepository();
-    initializeTypingStatusSender();
     initializeGcmCheck();
     initializeSignedPreKeyCheck();
     initializePeriodicTasks();
@@ -127,12 +134,12 @@ public class ApplicationContext extends MultiDexApplication implements DefaultLi
     initializePendingMessages();
     initializeBlobProvider();
     initializeCleanup();
+    initializeGlideCodecs();
 
     FeatureFlags.init();
     NotificationChannels.create(this);
     RefreshPreKeysJob.scheduleIfNecessary();
     StorageSyncHelper.scheduleRoutineSync();
-    RetrieveProfileJob.enqueueRoutineFetchIfNeccessary(this);
     RegistrationUtil.maybeMarkRegistrationComplete(this);
     ProcessLifecycleOwner.get().getLifecycle().addObserver(this);
 
@@ -141,7 +148,11 @@ public class ApplicationContext extends MultiDexApplication implements DefaultLi
     }
 
     ApplicationDependencies.getJobManager().beginJobLoop();
+
+    DynamicTheme.setDefaultDayNightMode(this);
+
     Log.d(TAG, "onCreate() took " + (System.currentTimeMillis() - startTime) + " ms");
+    Tracer.getInstance().end("Application#onCreate()");
   }
 
   @Override
@@ -150,10 +161,13 @@ public class ApplicationContext extends MultiDexApplication implements DefaultLi
     Log.i(TAG, "App is now visible.");
     FeatureFlags.refreshIfNecessary();
     ApplicationDependencies.getRecipientCache().warmUp();
+    RetrieveProfileJob.enqueueRoutineFetchIfNecessary(this);
+    GroupV1MigrationJob.enqueueRoutineMigrationsIfNecessary(this);
     executePendingContactSync();
     KeyCachingService.onAppForegrounded(this);
     ApplicationDependencies.getFrameRateTracker().begin();
     ApplicationDependencies.getMegaphoneRepository().onAppForegrounded();
+    checkBuildExpiration();
   }
 
   @Override
@@ -173,20 +187,19 @@ public class ApplicationContext extends MultiDexApplication implements DefaultLi
     return viewOnceMessageManager;
   }
 
-  public TypingStatusRepository getTypingStatusRepository() {
-    return typingStatusRepository;
-  }
-
-  public TypingStatusSender getTypingStatusSender() {
-    return typingStatusSender;
-  }
-
   public boolean isAppVisible() {
     return isAppVisible;
   }
 
   public PersistentLogger getPersistentLogger() {
     return persistentLogger;
+  }
+
+  public void checkBuildExpiration() {
+    if (Util.getTimeUntilBuildExpiry() <= 0 && !SignalStore.misc().isClientDeprecated()) {
+      Log.w(TAG, "Build expired!");
+      SignalStore.misc().markClientDeprecated();
+    }
   }
 
   private void initializeSecurityProvider() {
@@ -214,8 +227,8 @@ public class ApplicationContext extends MultiDexApplication implements DefaultLi
   }
 
   private void initializeLogging() {
-    persistentLogger = new PersistentLogger(this);
-    org.thoughtcrime.securesms.logging.Log.initialize(new AndroidLogger(), persistentLogger);
+    persistentLogger = new PersistentLogger(this, LogSecretProvider.getOrCreateAttachmentSecret(this), BuildConfig.VERSION_NAME);
+    org.signal.core.util.logging.Log.initialize(new AndroidLogger(), persistentLogger);
 
     SignalProtocolLoggerProvider.setProvider(new CustomSignalProtocolLogger());
   }
@@ -271,14 +284,6 @@ public class ApplicationContext extends MultiDexApplication implements DefaultLi
 
   private void initializeRevealableMessageManager() {
     this.viewOnceMessageManager = new ViewOnceMessageManager(this);
-  }
-
-  private void initializeTypingStatusRepository() {
-    this.typingStatusRepository = new TypingStatusRepository();
-  }
-
-  private void initializeTypingStatusSender() {
-    this.typingStatusSender = new TypingStatusSender(this);
   }
 
   private void initializePeriodicTasks() {
@@ -378,9 +383,39 @@ public class ApplicationContext extends MultiDexApplication implements DefaultLi
     });
   }
 
+  private void initializeGlideCodecs() {
+    SignalGlideCodecs.setLogProvider(new org.signal.glide.Log.Provider() {
+      @Override
+      public void v(@NonNull String tag, @NonNull String message) {
+        Log.v(tag, message);
+      }
+
+      @Override
+      public void d(@NonNull String tag, @NonNull String message) {
+        Log.d(tag, message);
+      }
+
+      @Override
+      public void i(@NonNull String tag, @NonNull String message) {
+        Log.i(tag, message);
+      }
+
+      @Override
+      public void w(@NonNull String tag, @NonNull String message) {
+        Log.w(tag, message);
+      }
+
+      @Override
+      public void e(@NonNull String tag, @NonNull String message, @Nullable Throwable throwable) {
+        Log.e(tag, message, throwable);
+      }
+    });
+  }
+
   @Override
   protected void attachBaseContext(Context base) {
-    super.attachBaseContext(DynamicLanguageContextWrapper.updateContext(base, TextSecurePreferences.getLanguage(base)));
+    DynamicLanguageContextWrapper.updateContext(base);
+    super.attachBaseContext(base);
   }
 
   private static class ProviderInitializationException extends RuntimeException {

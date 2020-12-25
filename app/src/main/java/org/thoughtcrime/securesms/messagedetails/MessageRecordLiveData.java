@@ -8,12 +8,13 @@ import androidx.annotation.Nullable;
 import androidx.annotation.WorkerThread;
 import androidx.lifecycle.LiveData;
 
+import org.signal.core.util.concurrent.SignalExecutors;
 import org.thoughtcrime.securesms.database.DatabaseFactory;
+import org.thoughtcrime.securesms.database.MessageDatabase;
 import org.thoughtcrime.securesms.database.MmsDatabase;
 import org.thoughtcrime.securesms.database.MmsSmsDatabase;
 import org.thoughtcrime.securesms.database.SmsDatabase;
 import org.thoughtcrime.securesms.database.model.MessageRecord;
-import org.thoughtcrime.securesms.util.concurrent.SignalExecutors;
 
 final class MessageRecordLiveData extends LiveData<MessageRecord> {
 
@@ -85,9 +86,9 @@ final class MessageRecordLiveData extends LiveData<MessageRecord> {
 
   @WorkerThread
   private synchronized void handleSms() {
-    final SmsDatabase   db     = DatabaseFactory.getSmsDatabase(context);
-    final Cursor        cursor = db.getVerboseMessageCursor(messageId);
-    final MessageRecord record = db.readerFor(cursor).getNext();
+    final MessageDatabase db     = DatabaseFactory.getSmsDatabase(context);
+    final Cursor          cursor = db.getVerboseMessageCursor(messageId);
+    final MessageRecord   record = SmsDatabase.readerFor(cursor).getNext();
 
     postValue(record);
     cursor.registerContentObserver(obs);
@@ -96,9 +97,9 @@ final class MessageRecordLiveData extends LiveData<MessageRecord> {
 
   @WorkerThread
   private synchronized void handleMms() {
-    final MmsDatabase   db     = DatabaseFactory.getMmsDatabase(context);
-    final Cursor        cursor = db.getVerboseMessage(messageId);
-    final MessageRecord record = db.readerFor(cursor).getNext();
+    final MessageDatabase db     = DatabaseFactory.getMmsDatabase(context);
+    final Cursor          cursor = db.getVerboseMessageCursor(messageId);
+    final MessageRecord   record = MmsDatabase.readerFor(cursor).getNext();
 
     postValue(record);
     cursor.registerContentObserver(obs);

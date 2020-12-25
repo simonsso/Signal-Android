@@ -2,6 +2,7 @@ package org.thoughtcrime.securesms.jobs;
 
 import androidx.annotation.NonNull;
 
+import org.signal.core.util.logging.Log;
 import org.thoughtcrime.securesms.groups.GroupChangeBusyException;
 import org.thoughtcrime.securesms.groups.GroupChangeFailedException;
 import org.thoughtcrime.securesms.groups.GroupId;
@@ -11,7 +12,6 @@ import org.thoughtcrime.securesms.groups.GroupNotAMemberException;
 import org.thoughtcrime.securesms.jobmanager.Data;
 import org.thoughtcrime.securesms.jobmanager.Job;
 import org.thoughtcrime.securesms.jobmanager.impl.NetworkConstraint;
-import org.thoughtcrime.securesms.logging.Log;
 import org.whispersystems.signalservice.api.groupsv2.NoCredentialForRedemptionTimeException;
 import org.whispersystems.signalservice.api.push.exceptions.PushNetworkException;
 
@@ -36,7 +36,7 @@ public final class GroupV2UpdateSelfProfileKeyJob extends BaseJob {
 
   private final GroupId.V2 groupId;
 
-  GroupV2UpdateSelfProfileKeyJob(@NonNull GroupId.V2 groupId) {
+  public GroupV2UpdateSelfProfileKeyJob(@NonNull GroupId.V2 groupId) {
     this(new Parameters.Builder()
                        .addConstraint(NetworkConstraint.KEY)
                        .setLifespan(TimeUnit.DAYS.toMillis(1))

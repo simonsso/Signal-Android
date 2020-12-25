@@ -50,7 +50,7 @@
                     app:layout_constraintVertical_bias="0.0"
                     app:layout_constraintVertical_chainStyle="spread_inside" />
 
-                <ImageView
+                <androidx.appcompat.widget.AppCompatImageView
                     android:id="@+id/avatar_background"
                     android:layout_width="96dp"
                     android:layout_height="96dp"
@@ -62,7 +62,7 @@
                     app:layout_constraintTop_toBottomOf="@+id/title"
                     app:layout_goneMarginTop="?attr/actionBarSize" />
 
-                <ImageView
+                <androidx.appcompat.widget.AppCompatImageView
                     android:id="@+id/avatar_placeholder"
                     android:layout_width="0dp"
                     android:layout_height="0dp"
@@ -106,9 +106,10 @@
                     android:cropToPadding="false"
                     android:elevation="4dp"
                     android:padding="14dp"
+                    app:backgroundTint="@color/camera_icon_background_tint"
                     app:layout_constraintStart_toStartOf="@+id/avatar_background"
                     app:layout_constraintTop_toTopOf="@+id/avatar_background"
-                    app:srcCompat="?conversation_attach_camera" />
+                    app:srcCompat="@drawable/ic_camera_24" />
 
                 <LinearLayout
                     android:id="@+id/name_container"
@@ -135,6 +136,18 @@
                         android:hint="@string/CreateProfileActivity_first_name_required"
                         android:inputType="textPersonName"
                         android:singleLine="true" />
+
+                    <TextView
+                        android:id="@+id/mms_group_hint"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="20dp"
+                        android:layout_marginEnd="20dp"
+                        android:text="@string/CreateProfileActivity_custom_mms_group_names_and_photos_will_only_be_visible_to_you"
+                        android:textAppearance="@style/Signal.Text.Caption"
+                        android:textColor="@color/signal_text_secondary"
+                        android:visibility="gone"
+                        tools:visibility="visible" />
 
                     <org.thoughtcrime.securesms.components.emoji.EmojiEditText
                         android:id="@+id/family_name"
@@ -164,7 +177,8 @@
                     android:visibility="gone"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/name_container" />
+                    app:layout_constraintTop_toBottomOf="@id/name_container"
+                    tools:visibility="visible" />
 
                 <EditText
                     android:id="@+id/profile_overview_username"
@@ -181,9 +195,10 @@
                     android:visibility="gone"
                     app:layout_constraintEnd_toStartOf="@id/profile_overview_username_edit_button"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/profile_overview_username_label" />
+                    app:layout_constraintTop_toBottomOf="@id/profile_overview_username_label"
+                    tools:visibility="visible" />
 
-                <ImageView
+                <androidx.appcompat.widget.AppCompatImageView
                     android:id="@+id/profile_overview_username_edit_button"
                     android:layout_width="36dp"
                     android:layout_height="36dp"
@@ -195,7 +210,8 @@
                     app:layout_constraintBottom_toBottomOf="@id/profile_overview_username"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toTopOf="@id/profile_overview_username"
-                    app:srcCompat="@drawable/ic_compose_solid_24" />
+                    app:srcCompat="@drawable/ic_compose_solid_24"
+                    tools:visibility="visible" />
 
                 <org.thoughtcrime.securesms.util.views.LearnMoreTextView
                     android:id="@+id/description_text"
@@ -233,7 +249,7 @@
             app:cpb_colorIndicator="@color/white"
             app:cpb_colorProgress="@color/core_ultramarine"
             app:cpb_cornerRadius="4dp"
-            app:cpb_selectorIdle="@drawable/progress_button_state_light"
+            app:cpb_selectorIdle="@drawable/progress_button_state"
             app:cpb_textIdle="@string/CreateProfileActivity_next" />
 
     </LinearLayout>

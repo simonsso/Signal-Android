@@ -17,6 +17,7 @@
 package org.thoughtcrime.securesms.database;
 
 import android.content.Context;
+
 import androidx.annotation.NonNull;
 
 import net.sqlcipher.database.SQLiteDatabase;
@@ -63,6 +64,7 @@ public class DatabaseFactory {
   private final KeyValueDatabase        keyValueDatabase;
   private final MegaphoneDatabase       megaphoneDatabase;
   private final RemappedRecordsDatabase remappedRecordsDatabase;
+  private final MentionDatabase         mentionDatabase;
 
   public static DatabaseFactory getInstance(Context context) {
     synchronized (lock) {
@@ -81,11 +83,11 @@ public class DatabaseFactory {
     return getInstance(context).thread;
   }
 
-  public static SmsDatabase getSmsDatabase(Context context) {
+  public static MessageDatabase getSmsDatabase(Context context) {
     return getInstance(context).sms;
   }
 
-  public static MmsDatabase getMmsDatabase(Context context) {
+  public static MessageDatabase getMmsDatabase(Context context) {
     return getInstance(context).mms;
   }
 
@@ -165,8 +167,12 @@ public class DatabaseFactory {
     return getInstance(context).remappedRecordsDatabase;
   }
 
+  public static MentionDatabase getMentionDatabase(Context context) {
+    return getInstance(context).mentionDatabase;
+  }
+
   public static SQLiteDatabase getBackupDatabase(Context context) {
-    return getInstance(context).databaseHelper.getReadableDatabase();
+    return getInstance(context).databaseHelper.getReadableDatabase().getSqlCipherDatabase();
   }
 
   public static void upgradeRestored(Context context, SQLiteDatabase database){
@@ -214,6 +220,7 @@ public class DatabaseFactory {
     this.keyValueDatabase        = new KeyValueDatabase(context, databaseHelper);
     this.megaphoneDatabase       = new MegaphoneDatabase(context, databaseHelper);
     this.remappedRecordsDatabase = new RemappedRecordsDatabase(context, databaseHelper);
+    this.mentionDatabase         = new MentionDatabase(context, databaseHelper);
   }
 
   public void onApplicationLevelUpgrade(@NonNull Context context, @NonNull MasterSecret masterSecret,
@@ -235,7 +242,7 @@ public class DatabaseFactory {
 
       SQLCipherMigrationHelper.migrateCiphertext(context, masterSecret,
                                                  legacyOpenHelper.getWritableDatabase(),
-                                                 databaseHelper.getWritableDatabase(),
+                                                 databaseHelper.getWritableDatabase().getSqlCipherDatabase(),
                                                  listener);
     }
   }

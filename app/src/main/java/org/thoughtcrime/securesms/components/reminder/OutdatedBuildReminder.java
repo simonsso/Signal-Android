@@ -1,43 +1,34 @@
 package org.thoughtcrime.securesms.components.reminder;
 
-import android.content.ActivityNotFoundException;
 import android.content.Context;
-import android.content.Intent;
-import android.net.Uri;
-import org.thoughtcrime.securesms.logging.Log;
-
-import android.widget.Toast;
 
 import org.thoughtcrime.securesms.R;
+import org.thoughtcrime.securesms.util.PlayStoreUtil;
 import org.thoughtcrime.securesms.util.Util;
 
+import java.util.concurrent.TimeUnit;
+
+/**
+ * Reminder that is shown when a build is getting close to expiry (either because of the
+ * compile-time constant, or remote deprecation).
+ */
 public class OutdatedBuildReminder extends Reminder {
 
-  private static final String TAG = OutdatedBuildReminder.class.getSimpleName();
-
   public OutdatedBuildReminder(final Context context) {
-    super(context.getString(R.string.reminder_header_outdated_build),
-          getPluralsText(context));
-    setOkListener(v -> {
-      try {
-        context.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=" + context.getPackageName())));
-      } catch (ActivityNotFoundException anfe) {
-        try {
-          context.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://play.google.com/store/apps/details?id=" + context.getPackageName())));
-        } catch (ActivityNotFoundException anfe2) {
-          Log.w(TAG, anfe2);
-          Toast.makeText(context, R.string.OutdatedBuildReminder_no_web_browser_installed, Toast.LENGTH_LONG).show();
-        }
-      }
-    });
+    super(null, getPluralsText(context));
+
+    setOkListener(v -> PlayStoreUtil.openPlayStoreOrOurApkDownloadPage(context));
+    addAction(new Action(context.getString(R.string.OutdatedBuildReminder_update_now), R.id.reminder_action_update_now));
   }
 
   private static CharSequence getPluralsText(final Context context) {
-    int days = Util.getDaysTillBuildExpiry() - 1;
+    int days = getDaysUntilExpiry() - 1;
+
     if (days == 0) {
-      return context.getString(R.string.reminder_header_outdated_build_details_today);
+      return context.getString(R.string.OutdatedBuildReminder_your_version_of_signal_will_expire_today);
+    } else {
+      return context.getResources().getQuantityString(R.plurals.OutdatedBuildReminder_your_version_of_signal_will_expire_in_n_days, days, days);
     }
-    return context.getResources().getQuantityString(R.plurals.reminder_header_outdated_build_details, days, days);
   }
 
   @Override
@@ -46,7 +37,10 @@ public class OutdatedBuildReminder extends Reminder {
   }
 
   public static boolean isEligible() {
-    return Util.getDaysTillBuildExpiry() <= 10;
+    return getDaysUntilExpiry() <= 10;
   }
 
+  private static int getDaysUntilExpiry() {
+    return (int) TimeUnit.MILLISECONDS.toDays(Util.getTimeUntilBuildExpiry());
+  }
 }

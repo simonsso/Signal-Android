@@ -7,7 +7,7 @@ import com.bumptech.glide.load.Encoder;
 import com.bumptech.glide.load.Options;
 import com.bumptech.glide.load.engine.bitmap_recycle.ArrayPool;
 
-import org.thoughtcrime.securesms.logging.Log;
+import org.signal.core.util.logging.Log;
 
 import java.io.File;
 import java.io.IOException;
@@ -30,8 +30,6 @@ public class EncryptedCacheEncoder extends EncryptedCoder implements Encoder<Inp
   @SuppressWarnings("EmptyCatchBlock")
   @Override
   public boolean encode(@NonNull InputStream data, @NonNull File file, @NonNull Options options) {
-    Log.i(TAG, "Encrypted cache encoder running: " + file.toString());
-
     byte[] buffer = byteArrayPool.get(ArrayPool.STANDARD_BUFFER_SIZE_BYTES, byte[].class);
 
     try (OutputStream outputStream = createEncryptedOutputStream(secret, file)) {

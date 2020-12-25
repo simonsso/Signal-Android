@@ -1,11 +1,12 @@
 package org.thoughtcrime.securesms.components;
 
 import android.content.Context;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import android.util.AttributeSet;
 import android.view.View;
 import android.widget.FrameLayout;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import com.bumptech.glide.load.resource.bitmap.CenterCrop;
 import com.bumptech.glide.load.resource.bitmap.CenterInside;
@@ -54,7 +55,7 @@ public class BorderlessImageView extends FrameLayout {
   }
 
   public void setSlide(@NonNull GlideRequests glideRequests, @NonNull Slide slide) {
-    boolean showControls = slide.asAttachment().getDataUri() == null;
+    boolean showControls = slide.asAttachment().getUri() == null;
 
     if (slide.hasSticker()) {
       image.setFit(new CenterInside());

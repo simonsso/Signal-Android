@@ -2,19 +2,20 @@ package org.thoughtcrime.securesms.stickers;
 
 import android.content.Context;
 import android.database.Cursor;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.WorkerThread;
 
 import com.annimon.stream.Stream;
-import com.google.android.gms.common.util.Hex;
 
+import org.signal.core.util.concurrent.SignalExecutors;
+import org.signal.core.util.logging.Log;
 import org.thoughtcrime.securesms.database.DatabaseFactory;
 import org.thoughtcrime.securesms.database.StickerDatabase;
 import org.thoughtcrime.securesms.database.model.StickerPackRecord;
 import org.thoughtcrime.securesms.database.model.StickerRecord;
 import org.thoughtcrime.securesms.dependencies.ApplicationDependencies;
-import org.thoughtcrime.securesms.logging.Log;
-import org.thoughtcrime.securesms.util.concurrent.SignalExecutors;
+import org.thoughtcrime.securesms.util.Hex;
 import org.whispersystems.libsignal.InvalidMessageException;
 import org.whispersystems.libsignal.util.guava.Optional;
 import org.whispersystems.signalservice.api.SignalServiceMessageReceiver;
@@ -77,8 +78,8 @@ public final class StickerPackPreviewRepository {
   @WorkerThread
   private Optional<StickerManifestResult> getManifestRemote(@NonNull String packId, @NonNull String packKey) {
     try {
-      byte[]                       packIdBytes    = Hex.stringToBytes(packId);
-      byte[]                       packKeyBytes   = Hex.stringToBytes(packKey);
+      byte[]                       packIdBytes    = Hex.fromStringCondensed(packId);
+      byte[]                       packKeyBytes   = Hex.fromStringCondensed(packKey);
       SignalServiceStickerManifest remoteManifest = receiver.retrieveStickerManifest(packIdBytes, packKeyBytes);
       StickerManifest              localManifest  = new StickerManifest(packId,
                                                                         packKey,
@@ -126,11 +127,11 @@ public final class StickerPackPreviewRepository {
                                             @NonNull String packKey,
                                             @NonNull SignalServiceStickerManifest.StickerInfo remoteSticker)
   {
-    return new StickerManifest.Sticker(packId, packKey, remoteSticker.getId(), remoteSticker.getEmoji());
+    return new StickerManifest.Sticker(packId, packKey, remoteSticker.getId(), remoteSticker.getEmoji(), remoteSticker.getContentType());
   }
 
   private StickerManifest.Sticker toSticker(@NonNull StickerRecord record) {
-    return new StickerManifest.Sticker(record.getPackId(), record.getPackKey(), record.getStickerId(), record.getEmoji(), record.getUri());
+    return new StickerManifest.Sticker(record.getPackId(), record.getPackKey(), record.getStickerId(), record.getEmoji(), record.getContentType(), record.getUri());
   }
 
   static class StickerManifestResult {

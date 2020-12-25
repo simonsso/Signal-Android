@@ -3,11 +3,11 @@ package org.thoughtcrime.securesms.jobs;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import org.signal.core.util.logging.Log;
 import org.thoughtcrime.securesms.jobmanager.Data;
 import org.thoughtcrime.securesms.jobmanager.Job;
 import org.thoughtcrime.securesms.jobmanager.JobLogger;
 import org.thoughtcrime.securesms.jobmanager.JobManager.Chain;
-import org.thoughtcrime.securesms.logging.Log;
 
 public abstract class BaseJob extends Job {
 
@@ -54,8 +54,16 @@ public abstract class BaseJob extends Job {
     Log.i(tag, JobLogger.format(this, message));
   }
 
+  protected void log(@NonNull String tag, @NonNull String extra, @NonNull String message) {
+    Log.i(tag, JobLogger.format(this, extra, message));
+  }
+
   protected void warn(@NonNull String tag, @NonNull String message) {
-    warn(tag, message, null);
+    warn(tag, "", message, null);
+  }
+
+  protected void warn(@NonNull String tag, @NonNull String event, @NonNull String message) {
+    warn(tag, event, message, null);
   }
 
   protected void warn(@NonNull String tag, @Nullable Throwable t) {
@@ -63,6 +71,10 @@ public abstract class BaseJob extends Job {
   }
 
   protected void warn(@NonNull String tag, @NonNull String message, @Nullable Throwable t) {
-    Log.w(tag, JobLogger.format(this, message), t);
+    warn(tag, "", message, t);
+  }
+
+  protected void warn(@NonNull String tag, @NonNull String extra, @NonNull String message, @Nullable Throwable t) {
+    Log.w(tag, JobLogger.format(this, extra, message), t);
   }
 }

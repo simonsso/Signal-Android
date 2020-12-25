@@ -27,20 +27,21 @@ import android.os.AsyncTask;
 import android.os.Binder;
 import android.os.IBinder;
 import android.os.SystemClock;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
 
+import org.signal.core.util.logging.Log;
 import org.thoughtcrime.securesms.ApplicationContext;
-import org.thoughtcrime.securesms.MainActivity;
-import org.thoughtcrime.securesms.dependencies.ApplicationDependencies;
-import org.thoughtcrime.securesms.logging.Log;
-
+import org.thoughtcrime.securesms.BuildConfig;
 import org.thoughtcrime.securesms.DummyActivity;
+import org.thoughtcrime.securesms.MainActivity;
 import org.thoughtcrime.securesms.R;
 import org.thoughtcrime.securesms.crypto.InvalidPassphraseException;
 import org.thoughtcrime.securesms.crypto.MasterSecret;
 import org.thoughtcrime.securesms.crypto.MasterSecretUtil;
+import org.thoughtcrime.securesms.dependencies.ApplicationDependencies;
 import org.thoughtcrime.securesms.migrations.ApplicationMigrations;
 import org.thoughtcrime.securesms.notifications.NotificationChannels;
 import org.thoughtcrime.securesms.util.DynamicLanguage;
@@ -61,14 +62,14 @@ public class KeyCachingService extends Service {
 
   public static final int SERVICE_RUNNING_ID = 4141;
 
-  public  static final String KEY_PERMISSION           = "org.thoughtcrime.securesms.ACCESS_SECRETS";
-  public  static final String NEW_KEY_EVENT            = "org.thoughtcrime.securesms.service.action.NEW_KEY_EVENT";
-  public  static final String CLEAR_KEY_EVENT          = "org.thoughtcrime.securesms.service.action.CLEAR_KEY_EVENT";
-  public  static final String LOCK_TOGGLED_EVENT       = "org.thoughtcrime.securesms.service.action.LOCK_ENABLED_EVENT";
-  private static final String PASSPHRASE_EXPIRED_EVENT = "org.thoughtcrime.securesms.service.action.PASSPHRASE_EXPIRED_EVENT";
-  public  static final String CLEAR_KEY_ACTION         = "org.thoughtcrime.securesms.service.action.CLEAR_KEY";
-  public  static final String DISABLE_ACTION           = "org.thoughtcrime.securesms.service.action.DISABLE";
-  public  static final String LOCALE_CHANGE_EVENT      = "org.thoughtcrime.securesms.service.action.LOCALE_CHANGE_EVENT";
+  public  static final String KEY_PERMISSION           = BuildConfig.APPLICATION_ID + ".ACCESS_SECRETS";
+  public  static final String NEW_KEY_EVENT            = BuildConfig.APPLICATION_ID + ".service.action.NEW_KEY_EVENT";
+  public  static final String CLEAR_KEY_EVENT          = BuildConfig.APPLICATION_ID + ".service.action.CLEAR_KEY_EVENT";
+  public  static final String LOCK_TOGGLED_EVENT       = BuildConfig.APPLICATION_ID + ".service.action.LOCK_ENABLED_EVENT";
+  private static final String PASSPHRASE_EXPIRED_EVENT = BuildConfig.APPLICATION_ID + ".service.action.PASSPHRASE_EXPIRED_EVENT";
+  public  static final String CLEAR_KEY_ACTION         = BuildConfig.APPLICATION_ID + ".service.action.CLEAR_KEY";
+  public  static final String DISABLE_ACTION           = BuildConfig.APPLICATION_ID + ".service.action.DISABLE";
+  public  static final String LOCALE_CHANGE_EVENT      = BuildConfig.APPLICATION_ID + ".service.action.LOCALE_CHANGE_EVENT";
 
   private DynamicLanguage dynamicLanguage = new DynamicLanguage();
 

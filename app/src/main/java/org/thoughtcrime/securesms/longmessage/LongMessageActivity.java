@@ -1,13 +1,10 @@
 package org.thoughtcrime.securesms.longmessage;
 
-import androidx.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.ColorDrawable;
-import android.os.Build;
 import android.os.Bundle;
-import androidx.annotation.NonNull;
 import android.text.SpannableString;
 import android.text.method.LinkMovementMethod;
 import android.text.style.URLSpan;
@@ -16,8 +13,11 @@ import android.util.TypedValue;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
+import androidx.lifecycle.ViewModelProviders;
 
 import com.annimon.stream.Stream;
 
@@ -25,6 +25,7 @@ import org.thoughtcrime.securesms.PassphraseRequiredActivity;
 import org.thoughtcrime.securesms.R;
 import org.thoughtcrime.securesms.color.MaterialColor;
 import org.thoughtcrime.securesms.components.ConversationItemFooter;
+import org.thoughtcrime.securesms.components.emoji.EmojiTextView;
 import org.thoughtcrime.securesms.linkpreview.LinkPreviewUtil;
 import org.thoughtcrime.securesms.recipients.LiveRecipient;
 import org.thoughtcrime.securesms.recipients.Recipient;
@@ -33,8 +34,10 @@ import org.thoughtcrime.securesms.util.DynamicDarkActionBarTheme;
 import org.thoughtcrime.securesms.util.DynamicLanguage;
 import org.thoughtcrime.securesms.util.DynamicTheme;
 import org.thoughtcrime.securesms.util.TextSecurePreferences;
-import org.thoughtcrime.securesms.util.ThemeUtil;
+import org.thoughtcrime.securesms.util.WindowUtil;
 import org.thoughtcrime.securesms.util.views.Stub;
+
+import static org.thoughtcrime.securesms.util.ThemeUtil.isDarkTheme;
 
 public class LongMessageActivity extends PassphraseRequiredActivity {
 
@@ -106,10 +109,7 @@ public class LongMessageActivity extends PassphraseRequiredActivity {
 
   private void updateActionBarColor(@NonNull MaterialColor color) {
     getSupportActionBar().setBackgroundDrawable(new ColorDrawable(color.toActionBarColor(this)));
-
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-      getWindow().setStatusBarColor(color.toStatusBarColor(this));
-    }
+    WindowUtil.setStatusBarColor(getWindow(), color.toStatusBarColor(this));
   }
 
   private void initViewModel(long messageId, boolean isMms) {
@@ -138,29 +138,34 @@ public class LongMessageActivity extends PassphraseRequiredActivity {
 
       if (message.get().getMessageRecord().isOutgoing()) {
         bubble = sentBubble.get();
-        bubble.getBackground().setColorFilter(ThemeUtil.getThemedColor(this, R.attr.conversation_item_bubble_background), PorterDuff.Mode.MULTIPLY);
+        bubble.getBackground().setColorFilter(ContextCompat.getColor(this, R.color.signal_background_secondary), PorterDuff.Mode.MULTIPLY);
       } else {
         bubble = receivedBubble.get();
         bubble.getBackground().setColorFilter(message.get().getMessageRecord().getRecipient().getColor().toConversationColor(this), PorterDuff.Mode.MULTIPLY);
       }
 
-      TextView               text   = bubble.findViewById(R.id.longmessage_text);
+      EmojiTextView          text   = bubble.findViewById(R.id.longmessage_text);
       ConversationItemFooter footer = bubble.findViewById(R.id.longmessage_footer);
 
-      String          trimmedBody = getTrimmedBody(message.get().getFullBody());
+      CharSequence    trimmedBody = getTrimmedBody(message.get().getFullBody(this));
       SpannableString styledBody  = linkifyMessageBody(new SpannableString(trimmedBody));
 
       bubble.setVisibility(View.VISIBLE);
       text.setText(styledBody);
       text.setMovementMethod(LinkMovementMethod.getInstance());
       text.setTextSize(TypedValue.COMPLEX_UNIT_SP, TextSecurePreferences.getMessageBodyTextSize(this));
+      if (message.get().getMessageRecord().isOutgoing()) {
+        text.setMentionBackgroundTint(ContextCompat.getColor(this, isDarkTheme(this) ? R.color.core_grey_60 : R.color.core_grey_20));
+      } else {
+        text.setMentionBackgroundTint(ContextCompat.getColor(this, R.color.transparent_black_40));
+      }
       footer.setMessageRecord(message.get().getMessageRecord(), dynamicLanguage.getCurrentLocale());
     });
   }
 
-  private String getTrimmedBody(@NonNull String text) {
+  private CharSequence getTrimmedBody(@NonNull CharSequence text) {
     return text.length() <= MAX_DISPLAY_LENGTH ? text
-                                               : text.substring(0, MAX_DISPLAY_LENGTH);
+                                               : text.subSequence(0, MAX_DISPLAY_LENGTH);
   }
 
   private SpannableString linkifyMessageBody(SpannableString messageBody) {

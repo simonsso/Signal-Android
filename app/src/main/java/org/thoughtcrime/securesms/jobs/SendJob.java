@@ -2,16 +2,14 @@ package org.thoughtcrime.securesms.jobs;
 
 import androidx.annotation.NonNull;
 
+import org.signal.core.util.logging.Log;
 import org.thoughtcrime.securesms.BuildConfig;
 import org.thoughtcrime.securesms.TextSecureExpiredException;
 import org.thoughtcrime.securesms.attachments.Attachment;
 import org.thoughtcrime.securesms.database.AttachmentDatabase;
 import org.thoughtcrime.securesms.database.DatabaseFactory;
 import org.thoughtcrime.securesms.jobmanager.Job;
-import org.thoughtcrime.securesms.logging.Log;
-import org.thoughtcrime.securesms.mms.MediaConstraints;
-import org.thoughtcrime.securesms.transport.UndeliverableMessageException;
-import org.thoughtcrime.securesms.util.Util;
+import org.thoughtcrime.securesms.keyvalue.SignalStore;
 
 import java.util.List;
 
@@ -26,7 +24,7 @@ public abstract class SendJob extends BaseJob {
 
   @Override
   public final void onRun() throws Exception {
-    if (Util.getDaysTillBuildExpiry() <= 0) {
+    if (SignalStore.misc().isClientDeprecated()) {
       throw new TextSecureExpiredException(String.format("TextSecure expired (build %d, now %d)",
                                                          BuildConfig.BUILD_TIMESTAMP,
                                                          System.currentTimeMillis()));

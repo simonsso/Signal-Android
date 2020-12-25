@@ -1,18 +1,18 @@
 package org.thoughtcrime.securesms.jobs;
 
 import android.app.Activity;
-import androidx.annotation.NonNull;
 import android.telephony.SmsManager;
 
+import androidx.annotation.NonNull;
+
+import org.signal.core.util.logging.Log;
+import org.thoughtcrime.securesms.database.DatabaseFactory;
+import org.thoughtcrime.securesms.database.MessageDatabase;
+import org.thoughtcrime.securesms.database.NoSuchMessageException;
+import org.thoughtcrime.securesms.database.model.SmsMessageRecord;
 import org.thoughtcrime.securesms.dependencies.ApplicationDependencies;
 import org.thoughtcrime.securesms.jobmanager.Data;
 import org.thoughtcrime.securesms.jobmanager.Job;
-import org.thoughtcrime.securesms.logging.Log;
-
-import org.thoughtcrime.securesms.database.DatabaseFactory;
-import org.thoughtcrime.securesms.database.NoSuchMessageException;
-import org.thoughtcrime.securesms.database.SmsDatabase;
-import org.thoughtcrime.securesms.database.model.SmsMessageRecord;
 import org.thoughtcrime.securesms.service.SmsDeliveryListener;
 
 public class SmsSentJob extends BaseJob {
@@ -86,13 +86,13 @@ public class SmsSentJob extends BaseJob {
   }
 
   private void handleDeliveredResult(long messageId, int result) {
-    DatabaseFactory.getSmsDatabase(context).markStatus(messageId, result);
+    DatabaseFactory.getSmsDatabase(context).markSmsStatus(messageId, result);
   }
 
   private void handleSentResult(long messageId, int result) {
     try {
-      SmsDatabase      database = DatabaseFactory.getSmsDatabase(context);
-      SmsMessageRecord record   = database.getMessage(messageId);
+      MessageDatabase  database = DatabaseFactory.getSmsDatabase(context);
+      SmsMessageRecord record   = database.getSmsMessage(messageId);
 
       switch (result) {
         case Activity.RESULT_OK:

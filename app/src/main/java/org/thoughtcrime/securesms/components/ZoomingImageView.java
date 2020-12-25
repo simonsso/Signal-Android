@@ -4,13 +4,13 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.net.Uri;
 import android.os.AsyncTask;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import android.util.AttributeSet;
-import org.thoughtcrime.securesms.logging.Log;
 import android.util.Pair;
 import android.view.View;
 import android.widget.FrameLayout;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.target.Target;
@@ -19,6 +19,7 @@ import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView;
 import com.davemorrissey.labs.subscaleview.decoder.DecoderFactory;
 import com.github.chrisbanes.photoview.PhotoView;
 
+import org.signal.core.util.logging.Log;
 import org.thoughtcrime.securesms.R;
 import org.thoughtcrime.securesms.components.subsampling.AttachmentBitmapDecoder;
 import org.thoughtcrime.securesms.components.subsampling.AttachmentRegionDecoder;
@@ -36,6 +37,12 @@ import java.io.InputStream;
 public class ZoomingImageView extends FrameLayout {
 
   private static final String TAG = ZoomingImageView.class.getSimpleName();
+
+  private static final int ZOOM_TRANSITION_DURATION = 300;
+
+  private static final float ZOOM_LEVEL_MIN = 1.0f;
+  private static final float ZOOM_LEVEL_MID = 1.5f;
+  private static final float ZOOM_LEVEL_MAX = 2.0f;
 
   private final PhotoView                 photoView;
   private final SubsamplingScaleImageView subsamplingImageView;
@@ -57,6 +64,12 @@ public class ZoomingImageView extends FrameLayout {
     this.subsamplingImageView = findViewById(R.id.subsampling_image_view);
 
     this.subsamplingImageView.setOrientation(SubsamplingScaleImageView.ORIENTATION_USE_EXIF);
+
+    this.photoView.setZoomTransitionDuration(ZOOM_TRANSITION_DURATION);
+    this.photoView.setScaleLevels(ZOOM_LEVEL_MIN, ZOOM_LEVEL_MID, ZOOM_LEVEL_MAX);
+
+    this.subsamplingImageView.setDoubleTapZoomDuration(ZOOM_TRANSITION_DURATION);
+    this.subsamplingImageView.setDoubleTapZoomScale(ZOOM_LEVEL_MID);
 
     this.photoView.setOnClickListener(v -> ZoomingImageView.this.callOnClick());
     this.subsamplingImageView.setOnClickListener(v -> ZoomingImageView.this.callOnClick());

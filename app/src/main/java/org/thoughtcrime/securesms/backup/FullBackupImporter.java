@@ -6,12 +6,17 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.database.Cursor;
-import androidx.annotation.NonNull;
+import android.net.Uri;
 import android.util.Pair;
+
+import androidx.annotation.NonNull;
 
 import net.sqlcipher.database.SQLiteDatabase;
 
 import org.greenrobot.eventbus.EventBus;
+import org.signal.core.util.Conversions;
+import org.signal.core.util.StreamUtil;
+import org.signal.core.util.logging.Log;
 import org.thoughtcrime.securesms.backup.BackupProtos.Attachment;
 import org.thoughtcrime.securesms.backup.BackupProtos.BackupFrame;
 import org.thoughtcrime.securesms.backup.BackupProtos.DatabaseVersion;
@@ -23,20 +28,16 @@ import org.thoughtcrime.securesms.crypto.ModernEncryptingPartOutputStream;
 import org.thoughtcrime.securesms.database.AttachmentDatabase;
 import org.thoughtcrime.securesms.database.SearchDatabase;
 import org.thoughtcrime.securesms.database.StickerDatabase;
-import org.thoughtcrime.securesms.logging.Log;
 import org.thoughtcrime.securesms.profiles.AvatarHelper;
-import org.thoughtcrime.securesms.recipients.Recipient;
 import org.thoughtcrime.securesms.recipients.RecipientId;
-import org.thoughtcrime.securesms.util.Conversions;
+import org.thoughtcrime.securesms.util.BackupUtil;
 import org.thoughtcrime.securesms.util.SqlUtil;
-import org.thoughtcrime.securesms.util.Util;
 import org.whispersystems.libsignal.kdf.HKDFv3;
 import org.whispersystems.libsignal.util.ByteUtil;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -46,6 +47,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Objects;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
@@ -61,13 +63,14 @@ public class FullBackupImporter extends FullBackupBase {
   private static final String TAG = FullBackupImporter.class.getSimpleName();
 
   public static void importFile(@NonNull Context context, @NonNull AttachmentSecret attachmentSecret,
-                                @NonNull SQLiteDatabase db, @NonNull File file, @NonNull String passphrase)
+                                @NonNull SQLiteDatabase db, @NonNull Uri uri, @NonNull String passphrase)
       throws IOException
   {
-    BackupRecordInputStream inputStream = new BackupRecordInputStream(file, passphrase);
-    int                     count       = 0;
+    int count = 0;
 
-    try {
+    try (InputStream is = getInputStream(context, uri)) {
+      BackupRecordInputStream inputStream = new BackupRecordInputStream(is, passphrase);
+
       db.beginTransaction();
 
       dropAllTables(db);
@@ -91,6 +94,14 @@ public class FullBackupImporter extends FullBackupBase {
     }
 
     EventBus.getDefault().post(new BackupEvent(BackupEvent.Type.FINISHED, count));
+  }
+
+  private static @NonNull InputStream getInputStream(@NonNull Context context, @NonNull Uri uri) throws IOException{
+    if (BackupUtil.isUserSelectionRequired(context)) {
+      return Objects.requireNonNull(context.getContentResolver().openInputStream(uri));
+    } else {
+      return new FileInputStream(new File(Objects.requireNonNull(uri.getPath())));
+    }
   }
 
   private static void processVersion(@NonNull SQLiteDatabase db, DatabaseVersion version) throws IOException {
@@ -138,13 +149,11 @@ public class FullBackupImporter extends FullBackupBase {
       inputStream.readAttachmentTo(output.second, attachment.getLength());
 
       contentValues.put(AttachmentDatabase.DATA, dataFile.getAbsolutePath());
-      contentValues.put(AttachmentDatabase.THUMBNAIL, (String)null);
       contentValues.put(AttachmentDatabase.DATA_RANDOM, output.first);
     } catch (BadMacException e) {
       Log.w(TAG, "Bad MAC for attachment " + attachment.getAttachmentId() + "! Can't restore it.", e);
       dataFile.delete();
       contentValues.put(AttachmentDatabase.DATA, (String) null);
-      contentValues.put(AttachmentDatabase.THUMBNAIL, (String) null);
       contentValues.put(AttachmentDatabase.DATA_RANDOM, (String) null);
     }
 
@@ -156,7 +165,7 @@ public class FullBackupImporter extends FullBackupBase {
   private static void processSticker(@NonNull Context context, @NonNull AttachmentSecret attachmentSecret, @NonNull SQLiteDatabase db, @NonNull Sticker sticker, BackupRecordInputStream inputStream)
       throws IOException
   {
-    File stickerDirectory = context.getDir(AttachmentDatabase.DIRECTORY, Context.MODE_PRIVATE);
+    File stickerDirectory = context.getDir(StickerDatabase.DIRECTORY, Context.MODE_PRIVATE);
     File dataFile         = File.createTempFile("sticker", ".mms", stickerDirectory);
 
     Pair<byte[], OutputStream> output = ModernEncryptingPartOutputStream.createFor(attachmentSecret, dataFile, false);
@@ -223,16 +232,16 @@ public class FullBackupImporter extends FullBackupBase {
     private byte[] iv;
     private int    counter;
 
-    private BackupRecordInputStream(@NonNull File file, @NonNull String passphrase) throws IOException {
+    private BackupRecordInputStream(@NonNull InputStream in, @NonNull String passphrase) throws IOException {
       try {
-        this.in     = new FileInputStream(file);
+        this.in = in;
 
         byte[] headerLengthBytes = new byte[4];
-        Util.readFully(in, headerLengthBytes);
+        StreamUtil.readFully(in, headerLengthBytes);
 
         int headerLength = Conversions.byteArrayToInt(headerLengthBytes);
         byte[] headerFrame = new byte[headerLength];
-        Util.readFully(in, headerFrame);
+        StreamUtil.readFully(in, headerFrame);
 
         BackupFrame frame = BackupFrame.parseFrom(headerFrame);
 
@@ -304,7 +313,7 @@ public class FullBackupImporter extends FullBackupBase {
         byte[] theirMac = new byte[10];
 
         try {
-          Util.readFully(in, theirMac);
+          StreamUtil.readFully(in, theirMac);
         } catch (IOException e) {
           throw new IOException(e);
         }
@@ -320,10 +329,10 @@ public class FullBackupImporter extends FullBackupBase {
     private BackupFrame readFrame(InputStream in) throws IOException {
       try {
         byte[] length = new byte[4];
-        Util.readFully(in, length);
+        StreamUtil.readFully(in, length);
 
         byte[] frame = new byte[Conversions.byteArrayToInt(length)];
-        Util.readFully(in, frame);
+        StreamUtil.readFully(in, frame);
 
         byte[] theirMac = new byte[10];
         System.arraycopy(frame, frame.length - 10, theirMac, 0, theirMac.length);

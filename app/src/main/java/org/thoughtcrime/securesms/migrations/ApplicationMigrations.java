@@ -9,8 +9,9 @@ import androidx.lifecycle.MutableLiveData;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
+import org.signal.core.util.logging.Log;
 import org.thoughtcrime.securesms.jobmanager.JobManager;
-import org.thoughtcrime.securesms.logging.Log;
+import org.thoughtcrime.securesms.keyvalue.SignalStore;
 import org.thoughtcrime.securesms.stickers.BlessedPacks;
 import org.thoughtcrime.securesms.util.TextSecurePreferences;
 import org.thoughtcrime.securesms.util.Util;
@@ -39,26 +40,33 @@ public class ApplicationMigrations {
 
   private static final int LEGACY_CANONICAL_VERSION = 455;
 
-  public static final int CURRENT_VERSION = 17;
+  public static final int CURRENT_VERSION = 24;
 
   private static final class Version {
-    static final int LEGACY             = 1;
-    static final int RECIPIENT_ID       = 2;
-    static final int RECIPIENT_SEARCH   = 3;
-    static final int RECIPIENT_CLEANUP  = 4;
-    static final int AVATAR_MIGRATION   = 5;
-    static final int UUIDS              = 6;
-    static final int CACHED_ATTACHMENTS = 7;
-    static final int STICKERS_LAUNCH    = 8;
+    static final int LEGACY              = 1;
+    static final int RECIPIENT_ID        = 2;
+    static final int RECIPIENT_SEARCH    = 3;
+    static final int RECIPIENT_CLEANUP   = 4;
+    static final int AVATAR_MIGRATION    = 5;
+    static final int UUIDS               = 6;
+    static final int CACHED_ATTACHMENTS  = 7;
+    static final int STICKERS_LAUNCH     = 8;
     //static final int TEST_ARGON2        = 9;
-    static final int SWOON_STICKERS     = 10;
-    static final int STORAGE_SERVICE    = 11;
+    static final int SWOON_STICKERS      = 10;
+    static final int STORAGE_SERVICE     = 11;
     //static final int STORAGE_KEY_ROTATE = 12;
-    static final int REMOVE_AVATAR_ID   = 13;
-    static final int STORAGE_CAPABILITY = 14;
-    static final int PIN_REMINDER       = 15;
-    static final int VERSIONED_PROFILE  = 16;
-    static final int PIN_OPT_OUT        = 17;
+    static final int REMOVE_AVATAR_ID    = 13;
+    static final int STORAGE_CAPABILITY  = 14;
+    static final int PIN_REMINDER        = 15;
+    static final int VERSIONED_PROFILE   = 16;
+    static final int PIN_OPT_OUT         = 17;
+    static final int TRIM_SETTINGS       = 18;
+    static final int THUMBNAIL_CLEANUP   = 19;
+    static final int GV2                 = 20;
+    static final int GV2_2               = 21;
+    static final int CDS                 = 22;
+    static final int BACKUP_NOTIFICATION = 23;
+    static final int GV1_MIGRATION       = 24;
   }
 
   /**
@@ -74,7 +82,11 @@ public class ApplicationMigrations {
 
     if (!isUpdate(context)) {
       Log.d(TAG, "Not an update. Skipping.");
+      VersionTracker.updateLastSeenVersion(context);
       return;
+    } else {
+      Log.d(TAG, "About to update. Clearing deprecation flag.");
+      SignalStore.misc().clearClientDeprecated();
     }
 
     final int lastSeenVersion = TextSecurePreferences.getAppMigrationVersion(context);
@@ -239,6 +251,34 @@ public class ApplicationMigrations {
 
     if (lastSeenVersion < Version.PIN_OPT_OUT) {
       jobs.put(Version.PIN_OPT_OUT, new PinOptOutMigration());
+    }
+
+    if (lastSeenVersion < Version.TRIM_SETTINGS) {
+      jobs.put(Version.TRIM_SETTINGS, new TrimByLengthSettingsMigrationJob());
+    }
+
+    if (lastSeenVersion < Version.THUMBNAIL_CLEANUP) {
+      jobs.put(Version.THUMBNAIL_CLEANUP, new DatabaseMigrationJob());
+    }
+
+    if (lastSeenVersion < Version.GV2) {
+      jobs.put(Version.GV2, new AttributesMigrationJob());
+    }
+
+    if (lastSeenVersion < Version.GV2_2) {
+      jobs.put(Version.GV2_2, new AttributesMigrationJob());
+    }
+
+    if (lastSeenVersion < Version.CDS) {
+      jobs.put(Version.CDS, new DirectoryRefreshMigrationJob());
+    }
+
+    if (lastSeenVersion < Version.BACKUP_NOTIFICATION) {
+      jobs.put(Version.BACKUP_NOTIFICATION, new BackupNotificationMigrationJob());
+    }
+
+    if (lastSeenVersion < Version.GV1_MIGRATION) {
+      jobs.put(Version.GV1_MIGRATION, new AttributesMigrationJob());
     }
 
     return jobs;

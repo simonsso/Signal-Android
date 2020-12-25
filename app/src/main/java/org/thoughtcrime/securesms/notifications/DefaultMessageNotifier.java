@@ -29,36 +29,44 @@ import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Build;
+import android.os.TransactionTooLargeException;
 import android.service.notification.StatusBarNotification;
+import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 
+import com.annimon.stream.Stream;
+
+import org.signal.core.util.concurrent.SignalExecutors;
+import org.signal.core.util.logging.Log;
 import org.thoughtcrime.securesms.R;
 import org.thoughtcrime.securesms.contactshare.Contact;
 import org.thoughtcrime.securesms.contactshare.ContactUtil;
-import org.thoughtcrime.securesms.conversation.ConversationActivity;
+import org.thoughtcrime.securesms.conversation.ConversationIntents;
 import org.thoughtcrime.securesms.database.DatabaseFactory;
-import org.thoughtcrime.securesms.database.MessagingDatabase.MarkedMessageInfo;
+import org.thoughtcrime.securesms.database.MentionUtil;
 import org.thoughtcrime.securesms.database.MmsSmsColumns;
 import org.thoughtcrime.securesms.database.MmsSmsDatabase;
+import org.thoughtcrime.securesms.database.RecipientDatabase;
 import org.thoughtcrime.securesms.database.ThreadBodyUtil;
-import org.thoughtcrime.securesms.database.ThreadDatabase;
 import org.thoughtcrime.securesms.database.model.MessageRecord;
 import org.thoughtcrime.securesms.database.model.MmsMessageRecord;
 import org.thoughtcrime.securesms.database.model.ReactionRecord;
 import org.thoughtcrime.securesms.dependencies.ApplicationDependencies;
-import org.thoughtcrime.securesms.logging.Log;
 import org.thoughtcrime.securesms.messages.IncomingMessageObserver;
 import org.thoughtcrime.securesms.mms.Slide;
 import org.thoughtcrime.securesms.mms.SlideDeck;
+import org.thoughtcrime.securesms.preferences.widgets.NotificationPrivacyPreference;
 import org.thoughtcrime.securesms.recipients.Recipient;
 import org.thoughtcrime.securesms.recipients.RecipientUtil;
 import org.thoughtcrime.securesms.service.KeyCachingService;
+import org.thoughtcrime.securesms.util.BubbleUtil;
 import org.thoughtcrime.securesms.util.MediaUtil;
 import org.thoughtcrime.securesms.util.MessageRecordUtil;
 import org.thoughtcrime.securesms.util.ServiceUtil;
@@ -68,6 +76,7 @@ import org.thoughtcrime.securesms.webrtc.CallNotificationBuilder;
 import org.whispersystems.signalservice.internal.util.Util;
 
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Set;
@@ -90,9 +99,9 @@ public class DefaultMessageNotifier implements MessageNotifier {
   private static final String TAG = DefaultMessageNotifier.class.getSimpleName();
 
   public static final  String EXTRA_REMOTE_REPLY = "extra_remote_reply";
+  public static final  String NOTIFICATION_GROUP = "messages";
 
   private static final String EMOJI_REPLACEMENT_STRING  = "__EMOJI__";
-  private static final String NOTIFICATION_GROUP        = "messages";
   private static final long   MIN_AUDIBLE_PERIOD_MILLIS = TimeUnit.SECONDS.toMillis(2);
   private static final long   DESKTOP_ACTIVITY_PERIOD   = TimeUnit.MINUTES.toMillis(1);
 
@@ -104,6 +113,11 @@ public class DefaultMessageNotifier implements MessageNotifier {
   @Override
   public void setVisibleThread(long threadId) {
     visibleThread = threadId;
+  }
+
+  @Override
+  public long getVisibleThread() {
+    return visibleThread;
   }
 
   @Override
@@ -121,12 +135,11 @@ public class DefaultMessageNotifier implements MessageNotifier {
     if (visibleThread == threadId) {
       sendInThreadNotification(context, recipient);
     } else {
-      Intent intent = new Intent(context, ConversationActivity.class);
-      intent.putExtra(ConversationActivity.RECIPIENT_EXTRA, recipient.getId());
-      intent.putExtra(ConversationActivity.THREAD_ID_EXTRA, threadId);
-      intent.setData((Uri.parse("custom://" + System.currentTimeMillis())));
-
+      Intent                    intent  = ConversationIntents.createBuilder(context, recipient.getId(), threadId)
+                                                             .withDataUri(Uri.parse("custom://" + System.currentTimeMillis()))
+                                                             .build();
       FailedNotificationBuilder builder = new FailedNotificationBuilder(context, TextSecurePreferences.getNotificationPrivacy(context), intent);
+
       ((NotificationManager)context.getSystemService(Context.NOTIFICATION_SERVICE))
         .notify((int)threadId, builder.build());
     }
@@ -135,27 +148,6 @@ public class DefaultMessageNotifier implements MessageNotifier {
   @Override
   public void cancelDelayedNotifications() {
     executor.cancel();
-  }
-
-  private static void cancelActiveNotifications(@NonNull Context context) {
-    NotificationManager notifications = ServiceUtil.getNotificationManager(context);
-    notifications.cancel(NotificationIds.MESSAGE_SUMMARY);
-
-    if (Build.VERSION.SDK_INT >= 23) {
-      try {
-        StatusBarNotification[] activeNotifications = notifications.getActiveNotifications();
-
-        for (StatusBarNotification activeNotification : activeNotifications) {
-          if (!CallNotificationBuilder.isWebRtcNotification(activeNotification.getId())) {
-            notifications.cancel(activeNotification.getId());
-          }
-        }
-      } catch (Throwable e) {
-        // XXX Appears to be a ROM bug, see #6043
-        Log.w(TAG, e);
-        notifications.cancelAll();
-      }
-    }
   }
 
   private static boolean isDisplayingSummaryNotification(@NonNull Context context) {
@@ -205,7 +197,7 @@ public class DefaultMessageNotifier implements MessageNotifier {
             }
 
             if (!validNotification) {
-              notifications.cancel(notification.getId());
+              NotificationCancellationHelper.cancel(context, notification.getId());
             }
           }
         }
@@ -222,7 +214,7 @@ public class DefaultMessageNotifier implements MessageNotifier {
       return;
     }
 
-    updateNotification(context, -1, false, 0);
+    updateNotification(context, -1, false, 0, BubbleUtil.BubbleState.HIDDEN);
   }
 
   @Override
@@ -237,42 +229,51 @@ public class DefaultMessageNotifier implements MessageNotifier {
   }
 
   @Override
-  public void updateNotification(@NonNull Context context,
-                                 long threadId,
-                                 boolean signal)
-  {
-    boolean isVisible = visibleThread == threadId;
-
-    ThreadDatabase threads    = DatabaseFactory.getThreadDatabase(context);
-    Recipient      recipients = DatabaseFactory.getThreadDatabase(context)
-                                               .getRecipientForThreadId(threadId);
-
-    if (isVisible) {
-      List<MarkedMessageInfo> messageIds = threads.setRead(threadId, false);
-      MarkReadReceiver.process(context, messageIds);
-    }
-
-    if (!TextSecurePreferences.isNotificationsEnabled(context) ||
-        (recipients != null && recipients.isMuted()))
-    {
-      return;
-    }
-
-    if (isVisible) {
-      sendInThreadNotification(context, threads.getRecipientForThreadId(threadId));
-    } else {
-      updateNotification(context, threadId, signal, 0);
-    }
+  public void updateNotification(@NonNull Context context, long threadId, @NonNull BubbleUtil.BubbleState defaultBubbleState) {
+    updateNotification(context, threadId, false, 0, defaultBubbleState);
   }
 
   @Override
   public void updateNotification(@NonNull Context context,
-                                  long    targetThread,
-                                  boolean signal,
-                                  int     reminderCount)
+                                 long threadId,
+                                 boolean signal)
   {
-    Cursor telcoCursor = null;
-    Cursor pushCursor  = null;
+    boolean   isVisible = visibleThread == threadId;
+    Recipient recipient = DatabaseFactory.getThreadDatabase(context).getRecipientForThreadId(threadId);
+
+    if (shouldNotify(context, recipient, threadId)) {
+      if (isVisible) {
+        sendInThreadNotification(context, recipient);
+      } else {
+        updateNotification(context, threadId, signal, 0, BubbleUtil.BubbleState.HIDDEN);
+      }
+    }
+  }
+
+  private boolean shouldNotify(@NonNull Context context, @Nullable Recipient recipient, long threadId) {
+    if (!TextSecurePreferences.isNotificationsEnabled(context)) {
+      return false;
+    }
+
+    if (recipient == null || !recipient.isMuted()) {
+      return true;
+    }
+
+    return recipient.isPushV2Group()                                                       &&
+           recipient.getMentionSetting() == RecipientDatabase.MentionSetting.ALWAYS_NOTIFY &&
+           DatabaseFactory.getMmsDatabase(context).getUnreadMentionCount(threadId) > 0;
+  }
+
+  @Override
+  public void updateNotification(@NonNull Context context,
+                                 long     targetThread,
+                                 boolean  signal,
+                                 int      reminderCount,
+                                 @NonNull BubbleUtil.BubbleState defaultBubbleState)
+  {
+    boolean isReminder  = reminderCount > 0;
+    Cursor  telcoCursor = null;
+    Cursor  pushCursor  = null;
 
     try {
       telcoCursor = DatabaseFactory.getMmsSmsDatabase(context).getUnread();
@@ -281,7 +282,7 @@ public class DefaultMessageNotifier implements MessageNotifier {
       if ((telcoCursor == null || telcoCursor.isAfterLast()) &&
           (pushCursor == null || pushCursor.isAfterLast()))
       {
-        cancelActiveNotifications(context);
+        NotificationCancellationHelper.cancelAllMessageNotifications(context);
         updateBadge(context, 0);
         clearReminder(context);
         return;
@@ -295,6 +296,8 @@ public class DefaultMessageNotifier implements MessageNotifier {
         lastAudibleNotification = System.currentTimeMillis();
       }
 
+      boolean shouldScheduleReminder = signal;
+
       if (notificationState.hasMultipleThreads()) {
         if (Build.VERSION.SDK_INT >= 23) {
           for (long threadId : notificationState.getThreads()) {
@@ -302,14 +305,19 @@ public class DefaultMessageNotifier implements MessageNotifier {
               sendSingleThreadNotification(context,
                                            new NotificationState(notificationState.getNotificationsForThread(threadId)),
                                            signal && (threadId == targetThread),
-                                           true);
+                                           true,
+                                           isReminder,
+                                           (threadId == targetThread) ? defaultBubbleState : BubbleUtil.BubbleState.HIDDEN);
             }
           }
         }
 
         sendMultipleThreadNotification(context, notificationState, signal && (Build.VERSION.SDK_INT < 23));
       } else {
-        sendSingleThreadNotification(context, notificationState, signal, false);
+        long                   thread      = notificationState.getNotifications().isEmpty() ? -1 : notificationState.getNotifications().get(0).getThreadId();
+        BubbleUtil.BubbleState bubbleState = thread == targetThread ? defaultBubbleState : BubbleUtil.BubbleState.HIDDEN;
+
+        shouldScheduleReminder = sendSingleThreadNotification(context, notificationState, signal, false, isReminder, bubbleState);
 
         if (isDisplayingSummaryNotification(context)) {
           sendMultipleThreadNotification(context, notificationState, false);
@@ -319,7 +327,18 @@ public class DefaultMessageNotifier implements MessageNotifier {
       cancelOrphanedNotifications(context, notificationState);
       updateBadge(context, notificationState.getMessageCount());
 
-      if (signal) {
+      List<Long> smsIds = new LinkedList<>();
+      List<Long> mmsIds = new LinkedList<>();
+      for (NotificationItem item : notificationState.getNotifications()) {
+        if (item.isMms()) {
+          mmsIds.add(item.getId());
+        } else {
+          smsIds.add(item.getId());
+        }
+      }
+      DatabaseFactory.getMmsSmsDatabase(context).setNotifiedTimestamp(System.currentTimeMillis(), smsIds, mmsIds);
+
+      if (shouldScheduleReminder) {
         scheduleReminder(context, reminderCount);
       }
     } finally {
@@ -328,22 +347,26 @@ public class DefaultMessageNotifier implements MessageNotifier {
     }
   }
 
-  private static void sendSingleThreadNotification(@NonNull Context context,
-                                                   @NonNull NotificationState notificationState,
-                                                   boolean signal,
-                                                   boolean bundled)
+  private static boolean sendSingleThreadNotification(@NonNull Context context,
+                                                      @NonNull NotificationState notificationState,
+                                                      boolean signal,
+                                                      boolean bundled,
+                                                      boolean isReminder,
+                                                      @NonNull BubbleUtil.BubbleState defaultBubbleState)
   {
     Log.i(TAG, "sendSingleThreadNotification()  signal: " + signal + "  bundled: " + bundled);
 
     if (notificationState.getNotifications().isEmpty()) {
-      if (!bundled) cancelActiveNotifications(context);
+      if (!bundled) NotificationCancellationHelper.cancelAllMessageNotifications(context);
       Log.i(TAG, "[sendSingleThreadNotification] Empty notification state. Skipping.");
-      return;
+      return false;
     }
 
-    SingleRecipientNotificationBuilder builder        = new SingleRecipientNotificationBuilder(context, TextSecurePreferences.getNotificationPrivacy(context));
-    List<NotificationItem>             notifications  = notificationState.getNotifications();
-    Recipient                          recipient      = notifications.get(0).getRecipient();
+    NotificationPrivacyPreference      notificationPrivacy = TextSecurePreferences.getNotificationPrivacy(context);
+    SingleRecipientNotificationBuilder builder             = new SingleRecipientNotificationBuilder(context, notificationPrivacy);
+    List<NotificationItem>             notifications       = notificationState.getNotifications();
+    Recipient                          recipient           = notifications.get(0).getRecipient();
+    boolean                            shouldAlert         = signal && (isReminder || Stream.of(notifications).anyMatch(item -> item.getNotifiedTimestamp() == 0));
     int                                notificationId;
 
     if (Build.VERSION.SDK_INT >= 23) {
@@ -358,29 +381,40 @@ public class DefaultMessageNotifier implements MessageNotifier {
                                   notifications.get(0).getText(), notifications.get(0).getSlideDeck());
     builder.setContentIntent(notifications.get(0).getPendingIntent(context));
     builder.setDeleteIntent(notificationState.getDeleteIntent(context));
-    builder.setOnlyAlertOnce(!signal);
+    builder.setOnlyAlertOnce(!shouldAlert);
     builder.setSortKey(String.valueOf(Long.MAX_VALUE - notifications.get(0).getTimestamp()));
+    builder.setDefaultBubbleState(defaultBubbleState);
 
     long timestamp = notifications.get(0).getTimestamp();
     if (timestamp != 0) builder.setWhen(timestamp);
 
-    if (!KeyCachingService.isLocked(context) && RecipientUtil.isMessageRequestAccepted(context, recipient.resolve())) {
+    boolean isSingleNotificationContactJoined = notifications.size() == 1 && notifications.get(0).isJoin();
+
+    if (notificationPrivacy.isDisplayMessage() &&
+        !KeyCachingService.isLocked(context)   &&
+        RecipientUtil.isMessageRequestAccepted(context, recipient.resolve()))
+    {
       ReplyMethod replyMethod = ReplyMethod.forRecipient(context, recipient);
 
       builder.addActions(notificationState.getMarkAsReadIntent(context, notificationId),
                          notificationState.getQuickReplyIntent(context, notifications.get(0).getRecipient()),
                          notificationState.getRemoteReplyIntent(context, notifications.get(0).getRecipient(), replyMethod),
-                         replyMethod);
+                         replyMethod,
+                         !isSingleNotificationContactJoined && notificationState.canReply());
 
       builder.addAndroidAutoAction(notificationState.getAndroidAutoReplyIntent(context, notifications.get(0).getRecipient()),
                                    notificationState.getAndroidAutoHeardIntent(context, notificationId), notifications.get(0).getTimestamp());
+    }
+
+    if (!KeyCachingService.isLocked(context) && isSingleNotificationContactJoined) {
+      builder.addTurnOffTheseNotificationsAction(notificationState.getTurnOffTheseNotificationsIntent(context));
     }
 
     ListIterator<NotificationItem> iterator = notifications.listIterator(notifications.size());
 
     while(iterator.hasPrevious()) {
       NotificationItem item = iterator.previous();
-      builder.addMessageBody(item.getRecipient(), item.getIndividualRecipient(), item.getText(), item.getTimestamp());
+      builder.addMessageBody(item.getRecipient(), item.getIndividualRecipient(), item.getText(), item.getTimestamp(), item.getSlideDeck());
     }
 
     if (signal) {
@@ -395,8 +429,20 @@ public class DefaultMessageNotifier implements MessageNotifier {
     }
 
     Notification notification = builder.build();
-    NotificationManagerCompat.from(context).notify(notificationId, notification);
-    Log.i(TAG, "Posted notification. " + notification.toString());
+    try {
+      NotificationManagerCompat.from(context).notify(notificationId, notification);
+      Log.i(TAG, "Posted notification.");
+    } catch (SecurityException e) {
+      Uri defaultValue = TextSecurePreferences.getNotificationRingtone(context);
+      if (!defaultValue.equals(notificationState.getRingtone(context))) {
+        Log.e(TAG, "Security exception when posting notification with custom ringtone", e);
+        clearNotificationRingtone(context, notifications.get(0).getRecipient());
+      } else {
+        throw e;
+      }
+    }
+
+    return shouldAlert;
   }
 
   private static void sendMultipleThreadNotification(@NonNull Context context,
@@ -410,13 +456,15 @@ public class DefaultMessageNotifier implements MessageNotifier {
       return;
     }
 
-    MultipleRecipientNotificationBuilder builder       = new MultipleRecipientNotificationBuilder(context, TextSecurePreferences.getNotificationPrivacy(context));
-    List<NotificationItem>               notifications = notificationState.getNotifications();
+    NotificationPrivacyPreference        notificationPrivacy = TextSecurePreferences.getNotificationPrivacy(context);
+    MultipleRecipientNotificationBuilder builder             = new MultipleRecipientNotificationBuilder(context, notificationPrivacy);
+    List<NotificationItem>               notifications       = notificationState.getNotifications();
+    boolean                              shouldAlert         = signal && Stream.of(notifications).anyMatch(item -> item.getNotifiedTimestamp() == 0);
 
     builder.setMessageCount(notificationState.getMessageCount(), notificationState.getThreadCount());
     builder.setMostRecentSender(notifications.get(0).getIndividualRecipient());
     builder.setDeleteIntent(notificationState.getDeleteIntent(context));
-    builder.setOnlyAlertOnce(!signal);
+    builder.setOnlyAlertOnce(!shouldAlert);
 
     if (Build.VERSION.SDK_INT >= 23) {
       builder.setGroup(NOTIFICATION_GROUP);
@@ -426,7 +474,9 @@ public class DefaultMessageNotifier implements MessageNotifier {
     long timestamp = notifications.get(0).getTimestamp();
     if (timestamp != 0) builder.setWhen(timestamp);
 
-    builder.addActions(notificationState.getMarkAsReadIntent(context, NotificationIds.MESSAGE_SUMMARY));
+    if (notificationPrivacy.isDisplayMessage()) {
+      builder.addActions(notificationState.getMarkAsReadIntent(context, NotificationIds.MESSAGE_SUMMARY));
+    }
 
     ListIterator<NotificationItem> iterator = notifications.listIterator(notifications.size());
 
@@ -442,8 +492,26 @@ public class DefaultMessageNotifier implements MessageNotifier {
     }
 
     Notification notification = builder.build();
-    NotificationManagerCompat.from(context).notify(NotificationIds.MESSAGE_SUMMARY, builder.build());
-    Log.i(TAG, "Posted notification. " + notification.toString());
+
+    try {
+      NotificationManagerCompat.from(context).notify(NotificationIds.MESSAGE_SUMMARY, builder.build());
+      Log.i(TAG, "Posted notification. " + notification.toString());
+    } catch (SecurityException securityException) {
+      Uri defaultValue = TextSecurePreferences.getNotificationRingtone(context);
+      if (!defaultValue.equals(notificationState.getRingtone(context))) {
+        Log.e(TAG, "Security exception when posting notification with custom ringtone", securityException);
+        clearNotificationRingtone(context, notifications.get(0).getRecipient());
+      } else {
+        throw securityException;
+      }
+    } catch (RuntimeException runtimeException) {
+      Throwable cause = runtimeException.getCause();
+      if (cause instanceof TransactionTooLargeException) {
+        Log.e(TAG, "Transaction too large", runtimeException);
+      } else {
+        throw runtimeException;
+      }
+    }
   }
 
   private static void sendInThreadNotification(Context context, Recipient recipient) {
@@ -499,7 +567,7 @@ public class DefaultMessageNotifier implements MessageNotifier {
       Recipient    recipient             = record.getIndividualRecipient().resolve();
       Recipient    conversationRecipient = record.getRecipient().resolve();
       long         threadId              = record.getThreadId();
-      CharSequence body                  = record.getDisplayBody(context);
+      CharSequence body                  = MentionUtil.updateBodyWithDisplayNames(context, record);
       Recipient    threadRecipients      = null;
       SlideDeck    slideDeck             = null;
       long         timestamp             = record.getTimestamp();
@@ -507,12 +575,15 @@ public class DefaultMessageNotifier implements MessageNotifier {
       boolean      isUnreadMessage       = cursor.getInt(cursor.getColumnIndexOrThrow(MmsSmsColumns.READ)) == 0;
       boolean      hasUnreadReactions    = cursor.getInt(cursor.getColumnIndexOrThrow(MmsSmsColumns.REACTIONS_UNREAD)) == 1;
       long         lastReactionRead      = cursor.getLong(cursor.getColumnIndexOrThrow(MmsSmsColumns.REACTIONS_LAST_SEEN));
+      long         notifiedTimestamp     = record.getNotifiedTimestamp();
 
       if (threadId != -1) {
         threadRecipients = DatabaseFactory.getThreadDatabase(context).getRecipientForThreadId(threadId);
       }
 
       if (isUnreadMessage) {
+        boolean canReply = false;
+
         if (KeyCachingService.isLocked(context)) {
           body = SpanUtil.italic(context.getString(R.string.MessageNotifier_locked_message));
         } else if (record.isMms() && !((MmsMessageRecord) record).getSharedContacts().isEmpty()) {
@@ -525,14 +596,28 @@ public class DefaultMessageNotifier implements MessageNotifier {
         } else if (record.isMms() && !record.isMmsNotification() && !((MmsMessageRecord) record).getSlideDeck().getSlides().isEmpty()) {
           body      = ThreadBodyUtil.getFormattedBodyFor(context, record);
           slideDeck = ((MmsMessageRecord) record).getSlideDeck();
+          canReply  = true;
+        } else if (record.isGroupCall()) {
+          body     = new SpannableString(MessageRecord.getGroupCallUpdateDescription(context, record.getBody(), false).getString());
+          canReply = false;
+        } else {
+          canReply  = true;
         }
 
-        if (threadRecipients == null || !threadRecipients.isMuted()) {
-          notificationState.addNotification(new NotificationItem(id, mms, recipient, conversationRecipient, threadRecipients, threadId, body, timestamp, receivedTimestamp, slideDeck, false));
+        boolean includeMessage = true;
+        if (threadRecipients != null && threadRecipients.isMuted()) {
+          boolean mentionsOverrideMute = threadRecipients.getMentionSetting() == RecipientDatabase.MentionSetting.ALWAYS_NOTIFY;
+
+          includeMessage = mentionsOverrideMute && record.hasSelfMention();
+        }
+
+        if (threadRecipients == null || includeMessage) {
+          notificationState.addNotification(new NotificationItem(id, mms, recipient, conversationRecipient, threadRecipients, threadId, body, timestamp, receivedTimestamp, slideDeck, false, record.isJoined(), canReply, notifiedTimestamp));
         }
       }
 
       if (hasUnreadReactions) {
+        CharSequence originalBody = body;
         for (ReactionRecord reaction : record.getReactions()) {
           Recipient reactionSender = Recipient.resolved(reaction.getAuthor());
           if (reactionSender.equals(Recipient.self()) || !record.isOutgoing() || reaction.getDateReceived() <= lastReactionRead) {
@@ -542,7 +627,7 @@ public class DefaultMessageNotifier implements MessageNotifier {
           if (KeyCachingService.isLocked(context)) {
             body = SpanUtil.italic(context.getString(R.string.MessageNotifier_locked_message));
           } else {
-            String   text  = SpanUtil.italic(getReactionMessageBody(context, record)).toString();
+            String   text  = SpanUtil.italic(getReactionMessageBody(context, record, originalBody)).toString();
             String[] parts = text.split(EMOJI_REPLACEMENT_STRING);
 
             SpannableStringBuilder builder = new SpannableStringBuilder();
@@ -562,7 +647,7 @@ public class DefaultMessageNotifier implements MessageNotifier {
           }
 
           if (threadRecipients == null || !threadRecipients.isMuted()) {
-            notificationState.addNotification(new NotificationItem(id, mms, reactionSender, conversationRecipient, threadRecipients, threadId, body, reaction.getDateReceived(), receivedTimestamp, null, true));
+            notificationState.addNotification(new NotificationItem(id, mms, reactionSender, conversationRecipient, threadRecipients, threadId, body, reaction.getDateReceived(), receivedTimestamp, null, true, record.isJoined(), false, 0));
           }
         }
       }
@@ -572,9 +657,8 @@ public class DefaultMessageNotifier implements MessageNotifier {
     return notificationState;
   }
 
-  private static CharSequence getReactionMessageBody(@NonNull Context context, @NonNull MessageRecord record) {
-    CharSequence body        = record.getDisplayBody(context);
-    boolean      bodyIsEmpty = TextUtils.isEmpty(body);
+  private static CharSequence getReactionMessageBody(@NonNull Context context, @NonNull MessageRecord record, @NonNull CharSequence body) {
+    boolean bodyIsEmpty = TextUtils.isEmpty(body);
 
     if (MessageRecordUtil.hasSharedContact(record)) {
       Contact       contact = ((MmsMessageRecord) record).getSharedContacts().get(0);
@@ -583,10 +667,8 @@ public class DefaultMessageNotifier implements MessageNotifier {
       return context.getString(R.string.MessageNotifier_reacted_s_to_s, EMOJI_REPLACEMENT_STRING, summary);
     } else if (MessageRecordUtil.hasSticker(record)) {
       return context.getString(R.string.MessageNotifier_reacted_s_to_your_sticker, EMOJI_REPLACEMENT_STRING);
-    } else if (record.isMms() && record.isViewOnce() && MediaUtil.isVideoType(getMessageContentType((MmsMessageRecord) record))) {
-      return context.getString(R.string.MessageNotifier_reacted_s_to_your_view_once_video, EMOJI_REPLACEMENT_STRING);
     } else if (record.isMms() && record.isViewOnce()){
-      return context.getString(R.string.MessageNotifier_reacted_s_to_your_view_once_photo, EMOJI_REPLACEMENT_STRING);
+      return context.getString(R.string.MessageNotifier_reacted_s_to_your_view_once_media, EMOJI_REPLACEMENT_STRING);
     } else if (!bodyIsEmpty) {
       return context.getString(R.string.MessageNotifier_reacted_s_to_s, EMOJI_REPLACEMENT_STRING, body);
     } else if (MessageRecordUtil.isMediaMessage(record) && MediaUtil.isVideoType(getMessageContentType((MmsMessageRecord) record))) {
@@ -614,6 +696,10 @@ public class DefaultMessageNotifier implements MessageNotifier {
   private static String getMessageContentType(@NonNull MmsMessageRecord messageRecord) {
     Slide thumbnailSlide = messageRecord.getSlideDeck().getThumbnailSlide();
     if (thumbnailSlide == null) {
+      String slideContentType = messageRecord.getSlideDeck().getFirstSlideContentType();
+      if (slideContentType != null) {
+        return slideContentType;
+      }
       Log.w(TAG, "Could not distinguish view-once content type from message record, defaulting to JPEG");
       return MediaUtil.IMAGE_JPEG;
     }
@@ -644,6 +730,13 @@ public class DefaultMessageNotifier implements MessageNotifier {
     long          timeout       = TimeUnit.MINUTES.toMillis(2);
 
     alarmManager.set(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + timeout, pendingIntent);
+  }
+
+  private static void clearNotificationRingtone(@NonNull Context context, @NonNull Recipient recipient) {
+    SignalExecutors.BOUNDED.execute(() -> {
+      DatabaseFactory.getRecipientDatabase(context).setMessageRingtone(recipient.getId(), null);
+      NotificationChannels.updateMessageRingtone(context, recipient, null);
+    });
   }
 
   @Override

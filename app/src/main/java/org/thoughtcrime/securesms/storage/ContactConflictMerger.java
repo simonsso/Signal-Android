@@ -5,7 +5,7 @@ import androidx.annotation.Nullable;
 
 import com.annimon.stream.Stream;
 
-import org.thoughtcrime.securesms.logging.Log;
+import org.signal.core.util.logging.Log;
 import org.thoughtcrime.securesms.recipients.Recipient;
 import org.whispersystems.libsignal.util.guava.Optional;
 import org.whispersystems.signalservice.api.push.SignalServiceAddress;
@@ -75,6 +75,7 @@ class ContactConflictMerger implements StorageSyncHelper.ConflictMerger<SignalCo
       familyName = local.getFamilyName().or("");
     }
 
+    byte[]               unknownFields  = remote.serializeUnknownFields();
     UUID                 uuid           = remote.getAddress().getUuid().or(local.getAddress().getUuid()).orNull();
     String               e164           = remote.getAddress().getNumber().or(local.getAddress().getNumber()).orNull();
     SignalServiceAddress address        = new SignalServiceAddress(uuid, e164);
@@ -83,10 +84,11 @@ class ContactConflictMerger implements StorageSyncHelper.ConflictMerger<SignalCo
     IdentityState        identityState  = remote.getIdentityState();
     byte[]               identityKey    = remote.getIdentityKey().or(local.getIdentityKey()).orNull();
     boolean              blocked        = remote.isBlocked();
-    boolean              profileSharing = remote.isProfileSharingEnabled() || local.isProfileSharingEnabled();
+    boolean              profileSharing = remote.isProfileSharingEnabled();
     boolean              archived       = remote.isArchived();
-    boolean              matchesRemote  = doParamsMatch(remote, address, givenName, familyName, profileKey, username, identityState, identityKey, blocked, profileSharing, archived);
-    boolean              matchesLocal   = doParamsMatch(local, address, givenName, familyName, profileKey, username, identityState, identityKey, blocked, profileSharing, archived);
+    boolean              forcedUnread   = remote.isForcedUnread();
+    boolean              matchesRemote  = doParamsMatch(remote, unknownFields, address, givenName, familyName, profileKey, username, identityState, identityKey, blocked, profileSharing, archived, forcedUnread);
+    boolean              matchesLocal   = doParamsMatch(local, unknownFields, address, givenName, familyName, profileKey, username, identityState, identityKey, blocked, profileSharing, archived, forcedUnread);
 
     if (matchesRemote) {
       return remote;
@@ -94,6 +96,7 @@ class ContactConflictMerger implements StorageSyncHelper.ConflictMerger<SignalCo
       return local;
     } else {
       return new SignalContactRecord.Builder(keyGenerator.generate(), address)
+                                    .setUnknownFields(unknownFields)
                                     .setGivenName(givenName)
                                     .setFamilyName(familyName)
                                     .setProfileKey(profileKey)
@@ -102,11 +105,13 @@ class ContactConflictMerger implements StorageSyncHelper.ConflictMerger<SignalCo
                                     .setIdentityKey(identityKey)
                                     .setBlocked(blocked)
                                     .setProfileSharingEnabled(profileSharing)
+                                    .setForcedUnread(forcedUnread)
                                     .build();
     }
   }
 
   private static boolean doParamsMatch(@NonNull SignalContactRecord contact,
+                                       @Nullable byte[] unknownFields,
                                        @NonNull SignalServiceAddress address,
                                        @NonNull String givenName,
                                        @NonNull String familyName,
@@ -116,17 +121,20 @@ class ContactConflictMerger implements StorageSyncHelper.ConflictMerger<SignalCo
                                        @Nullable byte[] identityKey,
                                        boolean blocked,
                                        boolean profileSharing,
-                                       boolean archived)
+                                       boolean archived,
+                                       boolean forcedUnread)
   {
-    return Objects.equals(contact.getAddress(), address)                 &&
-           Objects.equals(contact.getGivenName().or(""), givenName)      &&
-           Objects.equals(contact.getFamilyName().or(""), familyName)    &&
-           Arrays.equals(contact.getProfileKey().orNull(), profileKey)   &&
-           Objects.equals(contact.getUsername().or(""), username)        &&
-           Objects.equals(contact.getIdentityState(), identityState)     &&
-           Arrays.equals(contact.getIdentityKey().orNull(), identityKey) &&
-           contact.isBlocked() == blocked                                &&
-           contact.isProfileSharingEnabled() == profileSharing           &&
-           contact.isArchived() == archived;
+    return Arrays.equals(contact.serializeUnknownFields(), unknownFields) &&
+           Objects.equals(contact.getAddress(), address)                  &&
+           Objects.equals(contact.getGivenName().or(""), givenName)       &&
+           Objects.equals(contact.getFamilyName().or(""), familyName)     &&
+           Arrays.equals(contact.getProfileKey().orNull(), profileKey)    &&
+           Objects.equals(contact.getUsername().or(""), username)         &&
+           Objects.equals(contact.getIdentityState(), identityState)      &&
+           Arrays.equals(contact.getIdentityKey().orNull(), identityKey)  &&
+           contact.isBlocked() == blocked                                 &&
+           contact.isProfileSharingEnabled() == profileSharing            &&
+           contact.isArchived() == archived                               &&
+           contact.isForcedUnread() == forcedUnread;
   }
 }

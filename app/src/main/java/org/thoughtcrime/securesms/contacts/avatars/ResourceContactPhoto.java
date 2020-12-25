@@ -8,19 +8,23 @@ import android.graphics.drawable.LayerDrawable;
 import android.widget.ImageView;
 
 import androidx.annotation.DrawableRes;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.content.res.AppCompatResources;
 
 import com.amulyakhare.textdrawable.TextDrawable;
 import com.makeramen.roundedimageview.RoundedDrawable;
 
 import org.thoughtcrime.securesms.R;
-import org.thoughtcrime.securesms.util.ThemeUtil;
+import org.thoughtcrime.securesms.util.ContextUtil;
 
 public class ResourceContactPhoto implements FallbackContactPhoto {
 
   private final int resourceId;
   private final int smallResourceId;
   private final int callCardResourceId;
+
+  private ImageView.ScaleType scaleType = ImageView.ScaleType.CENTER;
 
   public ResourceContactPhoto(@DrawableRes int resourceId) {
     this(resourceId, resourceId, resourceId);
@@ -36,44 +40,48 @@ public class ResourceContactPhoto implements FallbackContactPhoto {
     this.smallResourceId    = smallResourceId;
   }
 
+  public void setScaleType(@NonNull ImageView.ScaleType scaleType) {
+    this.scaleType = scaleType;
+  }
+
   @Override
-  public Drawable asDrawable(Context context, int color) {
+  public @NonNull Drawable asDrawable(@NonNull Context context, int color) {
     return asDrawable(context, color, false);
   }
 
   @Override
-  public Drawable asDrawable(Context context, int color, boolean inverted) {
+  public @NonNull Drawable asDrawable(@NonNull Context context, int color, boolean inverted) {
     return buildDrawable(context, resourceId, color, inverted);
   }
 
   @Override
-  public Drawable asSmallDrawable(Context context, int color, boolean inverted) {
+  public @NonNull Drawable asSmallDrawable(@NonNull Context context, int color, boolean inverted) {
     return buildDrawable(context, smallResourceId, color, inverted);
   }
 
-  private Drawable buildDrawable(Context context, int resourceId, int color, boolean inverted) {
+  private @NonNull Drawable buildDrawable(@NonNull Context context, int resourceId, int color, boolean inverted) {
     Drawable        background = TextDrawable.builder().buildRound(" ", inverted ? Color.WHITE : color);
     RoundedDrawable foreground = (RoundedDrawable) RoundedDrawable.fromDrawable(AppCompatResources.getDrawable(context, resourceId));
 
-    foreground.setScaleType(ImageView.ScaleType.CENTER);
+    //noinspection ConstantConditions
+    foreground.setScaleType(scaleType);
 
     if (inverted) {
       foreground.setColorFilter(color, PorterDuff.Mode.SRC_ATOP);
     }
 
-    Drawable gradient = context.getResources().getDrawable(ThemeUtil.isDarkTheme(context) ? R.drawable.avatar_gradient_dark
-                                                                                          : R.drawable.avatar_gradient_light);
+    Drawable gradient = ContextUtil.requireDrawable(context, R.drawable.avatar_gradient);
 
     return new ExpandingLayerDrawable(new Drawable[] {background, foreground, gradient});
   }
 
   @Override
-  public Drawable asCallCard(Context context) {
+  public @Nullable Drawable asCallCard(@NonNull Context context) {
     return AppCompatResources.getDrawable(context, callCardResourceId);
   }
 
   private static class ExpandingLayerDrawable extends LayerDrawable {
-    public ExpandingLayerDrawable(Drawable[] layers) {
+    public ExpandingLayerDrawable(@NonNull Drawable[] layers) {
       super(layers);
     }
 

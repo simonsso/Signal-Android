@@ -5,20 +5,18 @@ import android.content.Context;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import org.signal.core.util.logging.Log;
 import org.thoughtcrime.securesms.database.DatabaseFactory;
-import org.thoughtcrime.securesms.database.MessagingDatabase.SyncMessageId;
+import org.thoughtcrime.securesms.database.MessageDatabase.SyncMessageId;
 import org.thoughtcrime.securesms.database.MmsSmsDatabase;
 import org.thoughtcrime.securesms.database.PushDatabase;
 import org.thoughtcrime.securesms.dependencies.ApplicationDependencies;
 import org.thoughtcrime.securesms.jobmanager.JobManager;
 import org.thoughtcrime.securesms.jobs.PushDecryptMessageJob;
-import org.thoughtcrime.securesms.logging.Log;
 import org.thoughtcrime.securesms.recipients.Recipient;
-import org.whispersystems.libsignal.util.guava.Optional;
 import org.whispersystems.signalservice.api.messages.SignalServiceEnvelope;
 
 import java.io.Closeable;
-import java.util.Locale;
 import java.util.concurrent.locks.ReentrantLock;
 
 /**
@@ -43,17 +41,10 @@ public class IncomingMessageProcessor {
    */
   public Processor acquire() {
     lock.lock();
-
-    Thread current = Thread.currentThread();
-    Log.d(TAG, "Lock acquired by thread " + current.getId() + " (" + current.getName() + ")");
-
     return new Processor(context);
   }
 
   private void release() {
-    Thread current = Thread.currentThread();
-    Log.d(TAG, "Lock about to be released by thread " + current.getId() + " (" + current.getName() + ")");
-
     lock.unlock();
   }
 
@@ -92,7 +83,7 @@ public class IncomingMessageProcessor {
     }
 
     private @Nullable String processMessage(@NonNull SignalServiceEnvelope envelope) {
-      Log.i(TAG, "Received message. Inserting in PushDatabase.");
+      Log.i(TAG, "Received message " + envelope.getTimestamp() + ". Inserting in PushDatabase.");
 
       long id  = pushDatabase.insert(envelope);
 
@@ -109,7 +100,7 @@ public class IncomingMessageProcessor {
     }
 
     private void processReceipt(@NonNull SignalServiceEnvelope envelope) {
-      Log.i(TAG, String.format(Locale.ENGLISH, "Received receipt: (XXXXX, %d)", envelope.getTimestamp()));
+      Log.i(TAG, "Received server receipt for " + envelope.getTimestamp());
       mmsSmsDatabase.incrementDeliveryReceiptCount(new SyncMessageId(Recipient.externalHighTrustPush(context, envelope.getSourceAddress()).getId(), envelope.getTimestamp()),
                                                    System.currentTimeMillis());
     }

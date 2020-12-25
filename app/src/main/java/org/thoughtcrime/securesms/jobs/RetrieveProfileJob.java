@@ -1,6 +1,5 @@
 package org.thoughtcrime.securesms.jobs;
 
-
 import android.app.Application;
 import android.content.Context;
 import android.text.TextUtils;
@@ -9,8 +8,11 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.WorkerThread;
 
+import com.annimon.stream.Collectors;
 import com.annimon.stream.Stream;
 
+import org.signal.core.util.concurrent.SignalExecutors;
+import org.signal.core.util.logging.Log;
 import org.signal.zkgroup.profiles.ProfileKey;
 import org.signal.zkgroup.profiles.ProfileKeyCredential;
 import org.thoughtcrime.securesms.crypto.ProfileKeyUtil;
@@ -24,19 +26,19 @@ import org.thoughtcrime.securesms.jobmanager.Job;
 import org.thoughtcrime.securesms.jobmanager.JobManager;
 import org.thoughtcrime.securesms.jobmanager.impl.NetworkConstraint;
 import org.thoughtcrime.securesms.keyvalue.SignalStore;
-import org.thoughtcrime.securesms.logging.Log;
 import org.thoughtcrime.securesms.profiles.ProfileName;
 import org.thoughtcrime.securesms.recipients.Recipient;
 import org.thoughtcrime.securesms.recipients.RecipientId;
+import org.thoughtcrime.securesms.recipients.RecipientUtil;
+import org.thoughtcrime.securesms.tracing.Trace;
 import org.thoughtcrime.securesms.transport.RetryLaterException;
 import org.thoughtcrime.securesms.util.Base64;
-import org.thoughtcrime.securesms.util.FeatureFlags;
 import org.thoughtcrime.securesms.util.IdentityUtil;
 import org.thoughtcrime.securesms.util.ProfileUtil;
 import org.thoughtcrime.securesms.util.SetUtil;
 import org.thoughtcrime.securesms.util.Stopwatch;
+import org.thoughtcrime.securesms.util.TextSecurePreferences;
 import org.thoughtcrime.securesms.util.Util;
-import org.thoughtcrime.securesms.util.concurrent.SignalExecutors;
 import org.whispersystems.libsignal.IdentityKey;
 import org.whispersystems.libsignal.InvalidKeyException;
 import org.whispersystems.libsignal.util.Pair;
@@ -50,14 +52,14 @@ import org.whispersystems.signalservice.api.push.exceptions.PushNetworkException
 import org.whispersystems.signalservice.internal.util.concurrent.ListenableFuture;
 
 import java.io.IOException;
-import java.util.Collection;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
-import java.util.Objects;
+import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -65,6 +67,7 @@ import java.util.concurrent.TimeoutException;
 /**
  * Retrieves a users profile and sets the appropriate local fields.
  */
+@Trace
 public class RetrieveProfileJob extends BaseJob {
 
   public static final String KEY = "RetrieveProfileJob";
@@ -73,22 +76,20 @@ public class RetrieveProfileJob extends BaseJob {
 
   private static final String KEY_RECIPIENTS = "recipients";
 
-  private final List<RecipientId> recipientIds;
+  private final Set<RecipientId> recipientIds;
 
   /**
-   * Identical to {@link #enqueue(Collection)})}, but run on a background thread for convenience.
+   * Identical to {@link #enqueue(Set)})}, but run on a background thread for convenience.
    */
   public static void enqueueAsync(@NonNull RecipientId recipientId) {
-    SignalExecutors.BOUNDED.execute(() -> {
-      ApplicationDependencies.getJobManager().add(forRecipient(recipientId));
-    });
+    SignalExecutors.BOUNDED.execute(() -> ApplicationDependencies.getJobManager().add(forRecipient(recipientId)));
   }
 
   /**
    * Submits the necessary job to refresh the profile of the requested recipient. Works for any
    * RecipientId, including individuals, groups, or yourself.
    *
-   * Identical to {@link #enqueue(Collection)})}
+   * Identical to {@link #enqueue(Set)})}
    */
   @WorkerThread
   public static void enqueue(@NonNull RecipientId recipientId) {
@@ -100,7 +101,7 @@ public class RetrieveProfileJob extends BaseJob {
    * RecipientIds, including individuals, groups, or yourself.
    */
   @WorkerThread
-  public static void enqueue(@NonNull Collection<RecipientId> recipientIds) {
+  public static void enqueue(@NonNull Set<RecipientId> recipientIds) {
     JobManager jobManager = ApplicationDependencies.getJobManager();
 
     for (Job job : forRecipients(recipientIds)) {
@@ -115,32 +116,34 @@ public class RetrieveProfileJob extends BaseJob {
   public static @NonNull Job forRecipient(@NonNull RecipientId recipientId) {
     Recipient recipient = Recipient.resolved(recipientId);
 
-    if (recipient.isLocalNumber()) {
+    if (recipient.isSelf()) {
       return new RefreshOwnProfileJob();
     } else if (recipient.isGroup()) {
       Context         context    = ApplicationDependencies.getApplication();
       List<Recipient> recipients = DatabaseFactory.getGroupDatabase(context).getGroupMembers(recipient.requireGroupId(), GroupDatabase.MemberSet.FULL_MEMBERS_EXCLUDING_SELF);
 
-      return new RetrieveProfileJob(Stream.of(recipients).map(Recipient::getId).toList());
+      return new RetrieveProfileJob(Stream.of(recipients).map(Recipient::getId).collect(Collectors.toSet()));
     } else {
-      return new RetrieveProfileJob(Collections.singletonList(recipientId));
+      return new RetrieveProfileJob(Collections.singleton(recipientId));
     }
   }
 
   /**
    * Works for any RecipientId, whether it's an individual, group, or yourself.
+   *
+   * @return A list of length 2 or less. Two iff you are in the recipients.
    */
   @WorkerThread
-  public static @NonNull List<Job> forRecipients(@NonNull Collection<RecipientId> recipientIds) {
-    Context           context    = ApplicationDependencies.getApplication();
-    List<RecipientId> combined   = new LinkedList<>();
-    List<Job>         jobs       = new LinkedList<>();
+  public static @NonNull List<Job> forRecipients(@NonNull Set<RecipientId> recipientIds) {
+    Context          context     = ApplicationDependencies.getApplication();
+    Set<RecipientId> combined    = new HashSet<>(recipientIds.size());
+    boolean          includeSelf = false;
 
     for (RecipientId recipientId : recipientIds) {
       Recipient recipient = Recipient.resolved(recipientId);
 
-      if (recipient.isLocalNumber()) {
-        jobs.add(new RefreshOwnProfileJob());
+      if (recipient.isSelf()) {
+        includeSelf = true;
       } else if (recipient.isGroup()) {
         List<Recipient> recipients = DatabaseFactory.getGroupDatabase(context).getGroupMembers(recipient.requireGroupId(), GroupDatabase.MemberSet.FULL_MEMBERS_EXCLUDING_SELF);
         combined.addAll(Stream.of(recipients).map(Recipient::getId).toList());
@@ -149,7 +152,15 @@ public class RetrieveProfileJob extends BaseJob {
       }
     }
 
-    jobs.add(new RetrieveProfileJob(combined));
+    List<Job> jobs = new ArrayList<>(2);
+
+    if (includeSelf) {
+      jobs.add(new RefreshOwnProfileJob());
+    }
+
+    if (combined.size() > 0) {
+      jobs.add(new RetrieveProfileJob(combined));
+    }
 
     return jobs;
   }
@@ -158,7 +169,15 @@ public class RetrieveProfileJob extends BaseJob {
    * Will fetch some profiles to ensure we're decently up-to-date if we haven't done so within a
    * certain time period.
    */
-  public static void enqueueRoutineFetchIfNeccessary(Application application) {
+  public static void enqueueRoutineFetchIfNecessary(Application application) {
+    if (!SignalStore.registrationValues().isRegistrationComplete() ||
+        !TextSecurePreferences.isPushRegistered(application)       ||
+        TextSecurePreferences.getLocalUuid(application) == null)
+    {
+      Log.i(TAG, "Registration not complete. Skipping.");
+      return;
+    }
+
     long timeSinceRefresh = System.currentTimeMillis() - SignalStore.misc().getLastProfileRefreshTime();
     if (timeSinceRefresh < TimeUnit.HOURS.toMillis(12)) {
       Log.i(TAG, "Too soon to refresh. Did the last refresh " + timeSinceRefresh + " ms ago.");
@@ -173,9 +192,11 @@ public class RetrieveProfileJob extends BaseJob {
                                                                      current - TimeUnit.DAYS.toMillis(1),
                                                                      50);
 
+      ids.add(Recipient.self().getId());
+
       if (ids.size() > 0) {
         Log.i(TAG, "Optimistically refreshing " + ids.size() + " eligible recipient(s).");
-        enqueue(ids);
+        enqueue(new HashSet<>(ids));
       } else {
         Log.i(TAG, "No recipients to refresh.");
       }
@@ -184,7 +205,7 @@ public class RetrieveProfileJob extends BaseJob {
     });
   }
 
-  private RetrieveProfileJob(@NonNull List<RecipientId> recipientIds) {
+  private RetrieveProfileJob(@NonNull Set<RecipientId> recipientIds) {
     this(new Job.Parameters.Builder()
                            .addConstraint(NetworkConstraint.KEY)
                            .setMaxAttempts(3)
@@ -192,7 +213,7 @@ public class RetrieveProfileJob extends BaseJob {
          recipientIds);
   }
 
-  private RetrieveProfileJob(@NonNull Job.Parameters parameters, @NonNull List<RecipientId> recipientIds) {
+  private RetrieveProfileJob(@NonNull Job.Parameters parameters, @NonNull Set<RecipientId> recipientIds) {
     super(parameters);
     this.recipientIds = recipientIds;
   }
@@ -213,11 +234,17 @@ public class RetrieveProfileJob extends BaseJob {
 
   @Override
   public void onRun() throws IOException, RetryLaterException {
-    Stopwatch        stopwatch = new Stopwatch("RetrieveProfile");
-    Set<RecipientId> retries   = new HashSet<>();
+    Stopwatch         stopwatch         = new Stopwatch("RetrieveProfile");
+    RecipientDatabase recipientDatabase = DatabaseFactory.getRecipientDatabase(context);
+    Set<RecipientId>  retries           = new HashSet<>();
+    Set<RecipientId>  unregistered      = new HashSet<>();
 
-    List<Recipient> recipients = Stream.of(recipientIds).map(Recipient::resolved).toList();
-    stopwatch.split("resolve");
+    RecipientUtil.ensureUuidsAreAvailable(context, Stream.of(Recipient.resolvedList(recipientIds))
+                                                         .filter(r -> r.getRegistered() != RecipientDatabase.RegisteredState.NOT_REGISTERED)
+                                                         .toList());
+
+    List<Recipient> recipients = Recipient.resolvedList(recipientIds);
+    stopwatch.split("resolve-ensure");
 
     List<Pair<Recipient, ListenableFuture<ProfileAndCredential>>> futures = Stream.of(recipients)
                                                                                   .filter(Recipient::hasServiceIdentifier)
@@ -239,6 +266,9 @@ public class RetrieveProfileJob extends BaseJob {
                                                                        retries.add(recipient.getId());
                                                                      } else if (e.getCause() instanceof NotFoundException) {
                                                                        Log.w(TAG, "Failed to find a profile for " + recipient.getId());
+                                                                       if (recipient.isRegistered()) {
+                                                                         unregistered.add(recipient.getId());
+                                                                       }
                                                                      } else {
                                                                        Log.w(TAG, "Failed to retrieve profile for " + recipient.getId());
                                                                      }
@@ -254,7 +284,18 @@ public class RetrieveProfileJob extends BaseJob {
     }
 
     Set<RecipientId> success = SetUtil.difference(recipientIds, retries);
-    DatabaseFactory.getRecipientDatabase(context).markProfilesFetched(success, System.currentTimeMillis());
+    recipientDatabase.markProfilesFetched(success, System.currentTimeMillis());
+
+    Map<RecipientId, String> newlyRegistered = Stream.of(profiles)
+                                                     .map(Pair::first)
+                                                     .filterNot(Recipient::isRegistered)
+                                                     .collect(Collectors.toMap(Recipient::getId,
+                                                              r -> r.getUuid().transform(UUID::toString).orNull()));
+
+    if (unregistered.size() > 0 || newlyRegistered.size() > 0) {
+      Log.i(TAG, "Marking " + newlyRegistered.size() + " users as registered and " + unregistered.size() + " users as unregistered.");
+      recipientDatabase.bulkUpdatedRegisteredStatus(newlyRegistered, unregistered);
+    }
 
     stopwatch.split("process");
 
@@ -279,13 +320,13 @@ public class RetrieveProfileJob extends BaseJob {
   @Override
   public void onFailure() {}
 
-  private void process(Recipient recipient, ProfileAndCredential profileAndCredential) throws IOException {
+  private void process(Recipient recipient, ProfileAndCredential profileAndCredential) {
     SignalServiceProfile profile              = profileAndCredential.getProfile();
     ProfileKey           recipientProfileKey  = ProfileKeyUtil.profileKeyOrNull(recipient.getProfileKey());
 
     setProfileName(recipient, profile.getName());
     setProfileAvatar(recipient, profile.getAvatar());
-    if (FeatureFlags.usernames()) setUsername(recipient, profile.getUsername());
+    clearUsername(recipient);
     setProfileCapabilities(recipient, profile.getCapabilities());
     setIdentityKey(recipient, profile.getIdentityKey());
     setUnidentifiedAccessMode(recipient, profile.getUnidentifiedAccess(), profile.isUnrestrictedUnidentifiedAccess());
@@ -388,7 +429,7 @@ public class RetrieveProfileJob extends BaseJob {
 
         if (!recipient.isBlocked()      &&
             !recipient.isGroup()        &&
-            !recipient.isLocalNumber()  &&
+            !recipient.isSelf()         &&
             !localDisplayName.isEmpty() &&
             !remoteDisplayName.equals(localDisplayName))
         {
@@ -396,7 +437,7 @@ public class RetrieveProfileJob extends BaseJob {
           DatabaseFactory.getSmsDatabase(context).insertProfileNameChangeMessages(recipient, remoteDisplayName, localDisplayName);
         } else {
           Log.i(TAG, String.format(Locale.US, "Name changed, but wasn't relevant to write an event. blocked: %s, group: %s, self: %s, firstSet: %s, displayChange: %s",
-                                               recipient.isBlocked(), recipient.isGroup(), recipient.isLocalNumber(), localDisplayName.isEmpty(), !remoteDisplayName.equals(localDisplayName)));
+                                               recipient.isBlocked(), recipient.isGroup(), recipient.isSelf(), localDisplayName.isEmpty(), !remoteDisplayName.equals(localDisplayName)));
         }
       }
 
@@ -410,7 +451,7 @@ public class RetrieveProfileJob extends BaseJob {
     }
   }
 
-  private void setProfileAvatar(Recipient recipient, String profileAvatar) {
+  private static void setProfileAvatar(Recipient recipient, String profileAvatar) {
     if (recipient.getProfileKey() == null) return;
 
     if (!Util.equals(profileAvatar, recipient.getProfileAvatar())) {
@@ -418,8 +459,8 @@ public class RetrieveProfileJob extends BaseJob {
     }
   }
 
-  private void setUsername(Recipient recipient, @Nullable String username) {
-    DatabaseFactory.getRecipientDatabase(context).setUsername(recipient.getId(), username);
+  private void clearUsername(Recipient recipient) {
+    DatabaseFactory.getRecipientDatabase(context).setUsername(recipient.getId(), null);
   }
 
   private void setProfileCapabilities(@NonNull Recipient recipient, @Nullable SignalServiceProfile.Capabilities capabilities) {
@@ -434,8 +475,8 @@ public class RetrieveProfileJob extends BaseJob {
 
     @Override
     public @NonNull RetrieveProfileJob create(@NonNull Parameters parameters, @NonNull Data data) {
-      String[]          ids          = data.getStringArray(KEY_RECIPIENTS);
-      List<RecipientId> recipientIds = Stream.of(ids).map(RecipientId::from).toList();
+      String[]         ids          = data.getStringArray(KEY_RECIPIENTS);
+      Set<RecipientId> recipientIds = Stream.of(ids).map(RecipientId::from).collect(Collectors.toSet());
 
       return new RetrieveProfileJob(parameters, recipientIds);
     }

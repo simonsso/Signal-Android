@@ -8,12 +8,13 @@ import androidx.annotation.WorkerThread;
 import com.annimon.stream.Collectors;
 import com.annimon.stream.Stream;
 
+import org.signal.core.util.logging.Log;
 import org.thoughtcrime.securesms.BuildConfig;
 import org.thoughtcrime.securesms.contacts.sync.DirectoryHelper.DirectoryResult;
 import org.thoughtcrime.securesms.dependencies.ApplicationDependencies;
-import org.thoughtcrime.securesms.logging.Log;
 import org.thoughtcrime.securesms.push.IasTrustStore;
 import org.thoughtcrime.securesms.util.SetUtil;
+import org.whispersystems.libsignal.InvalidKeyException;
 import org.whispersystems.signalservice.api.SignalServiceAccountManager;
 import org.whispersystems.signalservice.api.push.TrustStore;
 import org.whispersystems.signalservice.internal.contacts.crypto.Quote;
@@ -26,14 +27,22 @@ import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SignatureException;
 import java.security.cert.CertificateException;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
+/**
+ * Uses CDS to map E164's to UUIDs.
+ */
 class ContactDiscoveryV2 {
 
   private static final String TAG = Log.tag(ContactDiscoveryV2.class);
+
+  private static final int MAX_NUMBERS = 20_500;
 
   @WorkerThread
   static DirectoryResult getDirectoryResult(@NonNull Context context,
@@ -44,7 +53,14 @@ class ContactDiscoveryV2 {
     Set<String>                        allNumbers        = SetUtil.union(databaseNumbers, systemNumbers);
     FuzzyPhoneNumberHelper.InputResult inputResult       = FuzzyPhoneNumberHelper.generateInput(allNumbers, databaseNumbers);
     Set<String>                        sanitizedNumbers  = sanitizeNumbers(inputResult.getNumbers());
+    Set<String>                        ignoredNumbers    = new HashSet<>();
 
+    if (sanitizedNumbers.size() > MAX_NUMBERS) {
+      Set<String> randomlySelected = randomlySelect(sanitizedNumbers, MAX_NUMBERS);
+
+      ignoredNumbers   = SetUtil.difference(sanitizedNumbers, randomlySelected);
+      sanitizedNumbers = randomlySelected;
+    }
 
     SignalServiceAccountManager accountManager = ApplicationDependencies.getSignalServiceAccountManager();
     KeyStore                    iasKeyStore    = getIasKeyStore(context);
@@ -53,8 +69,8 @@ class ContactDiscoveryV2 {
       Map<String, UUID>                     results      = accountManager.getRegisteredUsers(iasKeyStore, sanitizedNumbers, BuildConfig.CDS_MRENCLAVE);
       FuzzyPhoneNumberHelper.OutputResultV2 outputResult = FuzzyPhoneNumberHelper.generateOutputV2(results, inputResult);
 
-      return new DirectoryResult(outputResult.getNumbers(), outputResult.getRewrites());
-    } catch (SignatureException | UnauthenticatedQuoteException | UnauthenticatedResponseException | Quote.InvalidQuoteFormatException e) {
+      return new DirectoryResult(outputResult.getNumbers(), outputResult.getRewrites(), ignoredNumbers);
+    } catch (SignatureException | UnauthenticatedQuoteException | UnauthenticatedResponseException | Quote.InvalidQuoteFormatException |InvalidKeyException e) {
       Log.w(TAG, "Attestation error.", e);
       throw new IOException(e);
     }
@@ -72,6 +88,13 @@ class ContactDiscoveryV2 {
         return false;
       }
     }).collect(Collectors.toSet());
+  }
+
+  private static @NonNull Set<String> randomlySelect(@NonNull Set<String> numbers, int max) {
+    List<String> list = new ArrayList<>(numbers);
+    Collections.shuffle(list);
+
+    return new HashSet<>(list.subList(0, max));
   }
 
   private static KeyStore getIasKeyStore(@NonNull Context context) {

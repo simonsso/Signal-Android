@@ -2,11 +2,13 @@ package org.thoughtcrime.securesms.ringrtc;
 
 import android.os.Parcel;
 import android.os.Parcelable;
-import androidx.annotation.NonNull;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
+import org.signal.core.util.logging.Log;
 import org.signal.ringrtc.CallId;
 import org.signal.ringrtc.Remote;
-import org.thoughtcrime.securesms.logging.Log;
 import org.thoughtcrime.securesms.recipients.Recipient;
 import org.thoughtcrime.securesms.recipients.RecipientId;
 
@@ -23,21 +25,36 @@ public final class RemotePeer implements Remote, Parcelable
   @NonNull private final RecipientId recipientId;
   @NonNull private       CallState   callState;
   @NonNull private       CallId      callId;
+           private       long        callStartTimestamp;
 
   public RemotePeer(@NonNull RecipientId recipientId) {
-    this.recipientId = recipientId;
-    this.callState   = CallState.IDLE;
-    this.callId      = new CallId(-1L);
+    this.recipientId        = recipientId;
+    this.callState          = CallState.IDLE;
+    this.callId             = new CallId(-1L);
+    this.callStartTimestamp = 0;
   }
 
   private RemotePeer(@NonNull Parcel in) {
-    this.recipientId = RecipientId.CREATOR.createFromParcel(in);
-    this.callState   = CallState.values()[in.readInt()];
-    this.callId      = new CallId(in.readLong());
+    this.recipientId        = RecipientId.CREATOR.createFromParcel(in);
+    this.callState          = CallState.values()[in.readInt()];
+    this.callId             = new CallId(in.readLong());
+    this.callStartTimestamp = in.readLong();
   }
 
   public @NonNull CallId getCallId() {
     return callId;
+  }
+
+  public void setCallId(@NonNull CallId callId) {
+    this.callId = callId;
+  }
+
+  public void setCallStartTimestamp(long callStartTimestamp) {
+    this.callStartTimestamp = callStartTimestamp;
+  }
+
+  public long getCallStartTimestamp() {
+    return callStartTimestamp;
   }
 
   public @NonNull CallState getState() {
@@ -69,25 +86,23 @@ public final class RemotePeer implements Remote, Parcelable
     return false;
   }
 
-  public boolean callIdEquals(RemotePeer remotePeer) {
+  public boolean callIdEquals(@Nullable RemotePeer remotePeer) {
     return remotePeer != null && this.callId.equals(remotePeer.callId);
   }
 
-  public void dialing(@NonNull CallId callId) {
+  public void dialing() {
     if (callState != CallState.IDLE) {
       throw new IllegalStateException("Cannot transition to DIALING from state: " + callState);
     }
 
-    this.callId = callId;
     this.callState = CallState.DIALING;
   }
 
-  public void answering(@NonNull CallId callId) {
+  public void answering() {
     if (callState != CallState.IDLE) {
       throw new IllegalStateException("Cannot transition to ANSWERING from state: " + callState);
     }
 
-    this.callId = callId;
     this.callState = CallState.ANSWERING;
   }
 
@@ -97,14 +112,6 @@ public final class RemotePeer implements Remote, Parcelable
     }
 
     this.callState = CallState.REMOTE_RINGING;
-  }
-
-  public void receivedBusy() {
-    if (callState != CallState.DIALING) {
-      Log.w(TAG, "RECEIVED_BUSY from unexpected state: " + callState);
-    }
-
-    this.callState = CallState.RECEIVED_BUSY;
   }
 
   public void localRinging() {
@@ -123,6 +130,14 @@ public final class RemotePeer implements Remote, Parcelable
     this.callState = CallState.CONNECTED;
   }
 
+  public void receivedBusy() {
+    if (callState != CallState.DIALING) {
+      Log.w(TAG, "RECEIVED_BUSY from unexpected state: " + callState);
+    }
+
+    this.callState = CallState.RECEIVED_BUSY;
+  }
+
   @Override
   public int describeContents() {
     return 0;
@@ -133,6 +148,7 @@ public final class RemotePeer implements Remote, Parcelable
     recipientId.writeToParcel(dest, flags);
     dest.writeInt(callState.ordinal());
     dest.writeLong(callId.longValue());
+    dest.writeLong(callStartTimestamp);
   }
 
   public static final Creator<RemotePeer> CREATOR = new Creator<RemotePeer>() {

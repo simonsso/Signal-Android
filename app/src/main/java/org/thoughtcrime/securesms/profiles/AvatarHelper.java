@@ -6,16 +6,16 @@ import android.content.Context;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import org.signal.core.util.StreamUtil;
+import org.signal.core.util.logging.Log;
 import org.thoughtcrime.securesms.crypto.AttachmentSecret;
 import org.thoughtcrime.securesms.crypto.AttachmentSecretProvider;
 import org.thoughtcrime.securesms.crypto.ModernDecryptingPartInputStream;
 import org.thoughtcrime.securesms.crypto.ModernEncryptingPartOutputStream;
-import org.thoughtcrime.securesms.logging.Log;
 import org.thoughtcrime.securesms.recipients.Recipient;
 import org.thoughtcrime.securesms.recipients.RecipientId;
 import org.thoughtcrime.securesms.util.ByteUnit;
 import org.thoughtcrime.securesms.util.MediaUtil;
-import org.thoughtcrime.securesms.util.Util;
 import org.whispersystems.signalservice.api.util.StreamDetails;
 
 import java.io.File;
@@ -96,6 +96,11 @@ public class AvatarHelper {
     return ModernDecryptingPartInputStream.createFor(attachmentSecret, avatarFile, 0);
   }
 
+  public static byte[] getAvatarBytes(@NonNull Context context, @NonNull RecipientId recipientId) throws IOException {
+    return hasAvatar(context, recipientId) ? StreamUtil.readFully(getAvatar(context, recipientId))
+                                           : null;
+  }
+
   /**
    * Returns the size of the avatar on disk.
    */
@@ -118,9 +123,9 @@ public class AvatarHelper {
     OutputStream outputStream = null;
     try {
       outputStream = getOutputStream(context, recipientId);
-      Util.copy(inputStream, outputStream);
+      StreamUtil.copy(inputStream, outputStream);
     } finally {
-      Util.close(outputStream);
+      StreamUtil.close(outputStream);
     }
   }
 

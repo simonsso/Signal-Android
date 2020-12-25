@@ -14,8 +14,10 @@ import net.sqlcipher.DatabaseUtils;
 import net.sqlcipher.database.SQLiteDatabase;
 import net.sqlcipher.database.SQLiteStatement;
 
+import org.signal.core.util.logging.Log;
 import org.thoughtcrime.securesms.database.helpers.SQLCipherOpenHelper;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -29,13 +31,23 @@ import java.util.Map;
  */
 public class FlipperSqlCipherAdapter extends DatabaseDriver<FlipperSqlCipherAdapter.Descriptor> {
 
+  private static final String TAG = Log.tag(FlipperSqlCipherAdapter.class);
+
   public FlipperSqlCipherAdapter(Context context) {
     super(context);
   }
 
   @Override
   public List<Descriptor> getDatabases() {
-    return Collections.singletonList(new Descriptor(DatabaseFactory.getRawDatabase(getContext())));
+    try {
+      Field databaseHelperField = DatabaseFactory.class.getDeclaredField("databaseHelper");
+      databaseHelperField.setAccessible(true);
+      SQLCipherOpenHelper sqlCipherOpenHelper = (SQLCipherOpenHelper) databaseHelperField.get(DatabaseFactory.getInstance(getContext()));
+      return Collections.singletonList(new Descriptor(sqlCipherOpenHelper));
+    } catch (Exception e) {
+      Log.i(TAG, "Unable to use reflection to access raw database.", e);
+    }
+    return Collections.emptyList();
   }
 
   @Override
@@ -235,11 +247,11 @@ public class FlipperSqlCipherAdapter extends DatabaseDriver<FlipperSqlCipherAdap
     }
 
     public @NonNull SQLiteDatabase getReadable() {
-      return sqlCipherOpenHelper.getReadableDatabase();
+      return sqlCipherOpenHelper.getReadableDatabase().getSqlCipherDatabase();
     }
 
     public @NonNull SQLiteDatabase getWritable() {
-      return sqlCipherOpenHelper.getWritableDatabase();
+      return sqlCipherOpenHelper.getWritableDatabase().getSqlCipherDatabase();
     }
   }
 }

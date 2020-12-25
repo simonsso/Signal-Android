@@ -13,9 +13,9 @@ import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
 import androidx.core.content.ContextCompat;
 
+import org.signal.core.util.logging.Log;
 import org.thoughtcrime.securesms.MainActivity;
 import org.thoughtcrime.securesms.R;
-import org.thoughtcrime.securesms.logging.Log;
 import org.thoughtcrime.securesms.notifications.NotificationChannels;
 
 import java.util.Iterator;
@@ -46,7 +46,7 @@ public final class GenericForegroundService extends Service {
 
   private final LinkedHashMap<Integer, Entry> allActiveMessages = new LinkedHashMap<>();
 
-  private static final Entry DEFAULTS = new Entry("", NotificationChannels.OTHER, R.drawable.ic_signal_grey_24dp, -1, 0, 0, false);
+  private static final Entry DEFAULTS = new Entry("", NotificationChannels.OTHER, R.drawable.ic_notification, -1, 0, 0, false);
 
   private @Nullable Entry lastPosted;
 

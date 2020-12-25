@@ -9,7 +9,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.app.TaskStackBuilder;
 
-import org.thoughtcrime.securesms.conversation.ConversationActivity;
+import org.thoughtcrime.securesms.conversation.ConversationIntents;
 import org.thoughtcrime.securesms.database.DatabaseFactory;
 import org.thoughtcrime.securesms.mms.SlideDeck;
 import org.thoughtcrime.securesms.recipients.Recipient;
@@ -23,10 +23,13 @@ public class NotificationItem {
   @Nullable private final Recipient    threadRecipient;
             private final long         threadId;
   @Nullable private final CharSequence text;
-            private final long         notificationTimestamp;
+            private final long         timestamp;
             private final long         messageReceivedTimestamp;
   @Nullable private final SlideDeck    slideDeck;
             private final boolean      jumpToMessage;
+            private final boolean      isJoin;
+            private final boolean      canReply;
+            private final long         notifiedTimestamp;
 
   public NotificationItem(long id,
                           boolean mms,
@@ -35,10 +38,13 @@ public class NotificationItem {
                           @Nullable Recipient threadRecipient,
                           long threadId,
                           @Nullable CharSequence text,
-                          long notificationTimestamp,
+                          long timestamp,
                           long messageReceivedTimestamp,
                           @Nullable SlideDeck slideDeck,
-                          boolean jumpToMessage)
+                          boolean jumpToMessage,
+                          boolean isJoin,
+                          boolean canReply,
+                          long notifiedTimestamp)
   {
     this.id                       = id;
     this.mms                      = mms;
@@ -47,10 +53,13 @@ public class NotificationItem {
     this.threadRecipient          = threadRecipient;
     this.text                     = text;
     this.threadId                 = threadId;
-    this.notificationTimestamp    = notificationTimestamp;
+    this.timestamp                = timestamp;
     this.messageReceivedTimestamp = messageReceivedTimestamp;
     this.slideDeck                = slideDeck;
     this.jumpToMessage            = jumpToMessage;
+    this.isJoin                   = isJoin;
+    this.canReply                 = canReply;
+    this.notifiedTimestamp        = notifiedTimestamp;
   }
 
   public @NonNull  Recipient getRecipient() {
@@ -66,7 +75,7 @@ public class NotificationItem {
   }
 
   public long getTimestamp() {
-    return notificationTimestamp;
+    return timestamp;
   }
 
   public long getThreadId() {
@@ -81,7 +90,9 @@ public class NotificationItem {
     Recipient recipient        = threadRecipient != null ? threadRecipient : conversationRecipient;
     int       startingPosition = jumpToMessage ? getStartingPosition(context, threadId, messageReceivedTimestamp) : -1;
 
-    Intent intent = ConversationActivity.buildIntent(context, recipient.getId(), threadId, 0, startingPosition);
+    Intent intent = ConversationIntents.createBuilder(context, recipient.getId(), threadId)
+                                       .withStartingPosition(startingPosition)
+                                       .build();
 
     makeIntentUniqueToPreventMerging(intent);
 
@@ -98,11 +109,23 @@ public class NotificationItem {
     return mms;
   }
 
+  public boolean isJoin() {
+    return isJoin;
+  }
+
   private static int getStartingPosition(@NonNull Context context, long threadId, long receivedTimestampMs) {
     return DatabaseFactory.getMmsSmsDatabase(context).getMessagePositionInConversation(threadId, receivedTimestampMs);
   }
 
   private static void makeIntentUniqueToPreventMerging(@NonNull Intent intent) {
     intent.setData((Uri.parse("custom://"+System.currentTimeMillis())));
+  }
+
+  public boolean canReply() {
+    return canReply;
+  }
+
+  public long getNotifiedTimestamp() {
+    return notifiedTimestamp;
   }
 }

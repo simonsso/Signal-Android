@@ -42,9 +42,6 @@ public class SignalServiceProfile {
   private Capabilities capabilities;
 
   @JsonProperty
-  private String username;
-
-  @JsonProperty
   @JsonSerialize(using = JsonUtil.UuidSerializer.class)
   @JsonDeserialize(using = JsonUtil.UuidDeserializer.class)
   private UUID uuid;
@@ -81,10 +78,6 @@ public class SignalServiceProfile {
     return capabilities;
   }
 
-  public String getUsername() {
-    return username;
-  }
-
   public UUID getUuid() {
     return uuid;
   }
@@ -99,26 +92,16 @@ public class SignalServiceProfile {
 
   public static class Capabilities {
     @JsonProperty
-    private boolean uuid;
-
-    @JsonProperty
     private boolean gv2;
 
     @JsonProperty
     private boolean storage;
 
+    @JsonProperty("gv1-migration")
+    private boolean gv1Migration;
+
     @JsonCreator
     public Capabilities() {}
-
-    public Capabilities(boolean uuid, boolean gv2, boolean storage) {
-      this.uuid    = uuid;
-      this.gv2     = gv2;
-      this.storage = storage;
-    }
-
-    public boolean isUuid() {
-      return uuid;
-    }
 
     public boolean isGv2() {
       return gv2;
@@ -126,6 +109,10 @@ public class SignalServiceProfile {
 
     public boolean isStorage() {
       return storage;
+    }
+
+    public boolean isGv1Migration() {
+      return gv1Migration;
     }
   }
 

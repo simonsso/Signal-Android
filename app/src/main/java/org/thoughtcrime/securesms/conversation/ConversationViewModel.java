@@ -2,23 +2,24 @@ package org.thoughtcrime.securesms.conversation;
 
 import android.app.Application;
 
+import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Transformations;
 import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.paging.DataSource;
-import androidx.paging.LivePagedListBuilder;
-import androidx.paging.PagedList;
 
-import org.thoughtcrime.securesms.database.model.MessageRecord;
+import org.signal.core.util.logging.Log;
+import org.signal.paging.PagedData;
+import org.signal.paging.PagingConfig;
+import org.signal.paging.PagingController;
+import org.signal.paging.ProxyPagingController;
+import org.thoughtcrime.securesms.database.DatabaseObserver;
 import org.thoughtcrime.securesms.dependencies.ApplicationDependencies;
-import org.thoughtcrime.securesms.logging.Log;
 import org.thoughtcrime.securesms.mediasend.Media;
 import org.thoughtcrime.securesms.mediasend.MediaRepository;
 import org.thoughtcrime.securesms.util.livedata.LiveDataUtil;
-import org.thoughtcrime.securesms.util.paging.Invalidator;
 import org.whispersystems.libsignal.util.Pair;
 
 import java.util.List;
@@ -28,16 +29,21 @@ class ConversationViewModel extends ViewModel {
 
   private static final String TAG = Log.tag(ConversationViewModel.class);
 
-  private final Application                        context;
-  private final MediaRepository                    mediaRepository;
-  private final ConversationRepository             conversationRepository;
-  private final MutableLiveData<List<Media>>       recentMedia;
-  private final MutableLiveData<Long>              threadId;
-  private final LiveData<PagedList<MessageRecord>> messages;
-  private final LiveData<ConversationData>         conversationMetadata;
-  private final Invalidator                        invalidator;
+  private final Application                         context;
+  private final MediaRepository                     mediaRepository;
+  private final ConversationRepository              conversationRepository;
+  private final MutableLiveData<List<Media>>        recentMedia;
+  private final MutableLiveData<Long>               threadId;
+  private final LiveData<List<ConversationMessage>> messages;
+  private final LiveData<ConversationData>          conversationMetadata;
+  private final MutableLiveData<Boolean>            showScrollButtons;
+  private final MutableLiveData<Boolean>            hasUnreadMentions;
+  private final LiveData<Boolean>                   canShowAsBubble;
+  private final ProxyPagingController               pagingController;
+  private final DatabaseObserver.Observer           messageObserver;
 
-  private int jumpToPosition;
+  private ConversationIntents.Args args;
+  private int                      jumpToPosition;
 
   private ConversationViewModel() {
     this.context                = ApplicationDependencies.getApplication();
@@ -45,7 +51,10 @@ class ConversationViewModel extends ViewModel {
     this.conversationRepository = new ConversationRepository();
     this.recentMedia            = new MutableLiveData<>();
     this.threadId               = new MutableLiveData<>();
-    this.invalidator            = new Invalidator();
+    this.showScrollButtons      = new MutableLiveData<>(false);
+    this.hasUnreadMentions      = new MutableLiveData<>(false);
+    this.pagingController       = new ProxyPagingController();
+    this.messageObserver        = pagingController::onDataInvalidated;
 
     LiveData<ConversationData> metadata = Transformations.switchMap(threadId, thread -> {
       LiveData<ConversationData> conversationData = conversationRepository.getConversationData(thread, jumpToPosition);
@@ -55,13 +64,7 @@ class ConversationViewModel extends ViewModel {
       return conversationData;
     });
 
-    LiveData<Pair<Long, PagedList<MessageRecord>>> messagesForThreadId = Transformations.switchMap(metadata, data -> {
-      DataSource.Factory<Integer, MessageRecord> factory = new ConversationDataSource.Factory(context, data.getThreadId(), invalidator);
-      PagedList.Config                           config  = new PagedList.Config.Builder()
-                                                                               .setPageSize(25)
-                                                                               .setInitialLoadSizeHint(25)
-                                                                               .build();
-
+    LiveData<Pair<Long, PagedData<ConversationMessage>>> pagedDataForThreadId = Transformations.map(metadata, data -> {
       final int startPosition;
       if (data.shouldJumpToMessage()) {
         startPosition = data.getJumpToPosition();
@@ -73,32 +76,64 @@ class ConversationViewModel extends ViewModel {
         startPosition = data.getThreadSize();
       }
 
-      Log.d(TAG, "Starting at position startPosition: " + startPosition + " jumpToPosition: " + jumpToPosition + " lastSeenPosition: " + data.getLastSeenPosition() + " lastScrolledPosition: " + data.getLastScrolledPosition());
+      ApplicationDependencies.getDatabaseObserver().unregisterObserver(messageObserver);
+      ApplicationDependencies.getDatabaseObserver().registerConversationObserver(data.getThreadId(), messageObserver);
 
-      return Transformations.map(new LivePagedListBuilder<>(factory, config).setFetchExecutor(ConversationDataSource.EXECUTOR)
-                                                                            .setInitialLoadKey(Math.max(startPosition, 0))
-                                                                            .build(),
-                                 input -> new Pair<>(data.getThreadId(), input));
+      ConversationDataSource dataSource = new ConversationDataSource(context, data.getThreadId());
+      PagingConfig           config     = new PagingConfig.Builder()
+                                                          .setPageSize(25)
+                                                          .setBufferPages(3)
+                                                          .setStartIndex(Math.max(startPosition, 0))
+                                                          .build();
+
+      Log.d(TAG, "Starting at position: " + startPosition + " || jumpToPosition: " + data.getJumpToPosition() + ", lastSeenPosition: " + data.getLastSeenPosition() + ", lastScrolledPosition: " + data.getLastScrolledPosition());
+      return new Pair<>(data.getThreadId(), PagedData.create(dataSource, config));
     });
 
-    this.messages = Transformations.map(messagesForThreadId, Pair::second);
+    this.messages = Transformations.switchMap(pagedDataForThreadId, pair -> {
+      pagingController.set(pair.second().getController());
+      return pair.second().getData();
+    });
 
-    LiveData<DistinctConversationDataByThreadId> distinctData = LiveDataUtil.combineLatest(messagesForThreadId,
-                                                                                           metadata,
-                                                                                           (m, data) -> new DistinctConversationDataByThreadId(data));
-
-    conversationMetadata = Transformations.map(Transformations.distinctUntilChanged(distinctData), DistinctConversationDataByThreadId::getConversationData);
+    conversationMetadata = Transformations.switchMap(messages, m -> metadata);
+    canShowAsBubble      = LiveDataUtil.mapAsync(threadId, conversationRepository::canShowAsBubble);
   }
 
   void onAttachmentKeyboardOpen() {
     mediaRepository.getMediaInBucket(context, Media.ALL_MEDIA_BUCKET_ID, recentMedia::postValue);
   }
 
+  @MainThread
   void onConversationDataAvailable(long threadId, int startingPosition) {
     Log.d(TAG, "[onConversationDataAvailable] threadId: " + threadId + ", startingPosition: " + startingPosition);
     this.jumpToPosition = startingPosition;
 
     this.threadId.setValue(threadId);
+  }
+
+  void clearThreadId() {
+    this.jumpToPosition = -1;
+    this.threadId.postValue(-1L);
+  }
+
+  @NonNull LiveData<Boolean> canShowAsBubble() {
+    return canShowAsBubble;
+  }
+
+  @NonNull LiveData<Boolean> getShowScrollToBottom() {
+    return Transformations.distinctUntilChanged(showScrollButtons);
+  }
+
+  @NonNull LiveData<Boolean> getShowMentionsButton() {
+    return Transformations.distinctUntilChanged(LiveDataUtil.combineLatest(showScrollButtons, hasUnreadMentions, (a, b) -> a && b));
+  }
+
+  void setHasUnreadMentions(boolean hasUnreadMentions) {
+    this.hasUnreadMentions.setValue(hasUnreadMentions);
+  }
+
+  void setShowScrollButtons(boolean showScrollButtons) {
+    this.showScrollButtons.setValue(showScrollButtons);
   }
 
   @NonNull LiveData<List<Media>> getRecentMedia() {
@@ -109,8 +144,12 @@ class ConversationViewModel extends ViewModel {
     return conversationMetadata;
   }
 
-  @NonNull LiveData<PagedList<MessageRecord>> getMessages() {
+  @NonNull LiveData<List<ConversationMessage>> getMessages() {
     return messages;
+  }
+
+  @NonNull PagingController getPagingController() {
+    return pagingController;
   }
 
   long getLastSeen() {
@@ -121,10 +160,18 @@ class ConversationViewModel extends ViewModel {
     return conversationMetadata.getValue() != null ? conversationMetadata.getValue().getLastSeenPosition() : 0;
   }
 
+  void setArgs(@NonNull ConversationIntents.Args args) {
+    this.args = args;
+  }
+
+  @NonNull ConversationIntents.Args getArgs() {
+    return Objects.requireNonNull(args);
+  }
+
   @Override
   protected void onCleared() {
     super.onCleared();
-    invalidator.invalidate();
+    ApplicationDependencies.getDatabaseObserver().unregisterObserver(messageObserver);
   }
 
   static class Factory extends ViewModelProvider.NewInstanceFactory {
@@ -132,31 +179,6 @@ class ConversationViewModel extends ViewModel {
     public @NonNull<T extends ViewModel> T create(@NonNull Class<T> modelClass) {
       //noinspection ConstantConditions
       return modelClass.cast(new ConversationViewModel());
-    }
-  }
-
-  private static class DistinctConversationDataByThreadId {
-    private final ConversationData conversationData;
-
-    private DistinctConversationDataByThreadId(@NonNull ConversationData conversationData) {
-      this.conversationData = conversationData;
-    }
-
-    public @NonNull ConversationData getConversationData() {
-      return conversationData;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-      if (this == o) return true;
-      if (o == null || getClass() != o.getClass()) return false;
-      DistinctConversationDataByThreadId that = (DistinctConversationDataByThreadId) o;
-      return Objects.equals(conversationData.getThreadId(), that.conversationData.getThreadId());
-    }
-
-    @Override
-    public int hashCode() {
-      return Objects.hash(conversationData.getThreadId());
     }
   }
 }

@@ -9,13 +9,14 @@ import com.annimon.stream.Collectors;
 import com.annimon.stream.Stream;
 import com.google.protobuf.InvalidProtocolBufferException;
 
+import org.signal.core.util.logging.Log;
 import org.signal.storageservice.protos.groups.local.DecryptedGroup;
 import org.thoughtcrime.securesms.crypto.UnidentifiedAccessUtil;
+import org.thoughtcrime.securesms.database.RecipientDatabase;
 import org.thoughtcrime.securesms.dependencies.ApplicationDependencies;
 import org.thoughtcrime.securesms.groups.GroupId;
 import org.thoughtcrime.securesms.jobmanager.Data;
 import org.thoughtcrime.securesms.jobmanager.Job;
-import org.thoughtcrime.securesms.logging.Log;
 import org.thoughtcrime.securesms.mms.MessageGroupContext;
 import org.thoughtcrime.securesms.mms.OutgoingGroupUpdateMessage;
 import org.thoughtcrime.securesms.recipients.Recipient;
@@ -75,13 +76,15 @@ public final class PushGroupSilentUpdateSendJob extends BaseJob {
     Set<RecipientId> recipients = Stream.concat(Stream.of(memberUuids), Stream.of(pendingUuids))
                                         .filter(uuid -> !UuidUtil.UNKNOWN_UUID.equals(uuid))
                                         .filter(uuid -> !Recipient.self().getUuid().get().equals(uuid))
-                                        .map(uuid -> RecipientId.from(uuid, null))
+                                        .map(uuid -> Recipient.externalPush(context, uuid, null, false))
+                                        .filter(recipient -> recipient.getRegistered() != RecipientDatabase.RegisteredState.NOT_REGISTERED)
+                                        .map(Recipient::getId)
                                         .collect(Collectors.toSet());
 
     MessageGroupContext.GroupV2Properties properties   = groupMessage.requireGroupV2Properties();
     SignalServiceProtos.GroupContextV2    groupContext = properties.getGroupContext();
 
-    String queue = Recipient.externalGroup(context, groupId).getId().toQueueKey();
+    String queue = Recipient.externalGroupExact(context, groupId).getId().toQueueKey();
 
     return new PushGroupSilentUpdateSendJob(new ArrayList<>(recipients),
                                             recipients.size(),
@@ -154,8 +157,8 @@ public final class PushGroupSilentUpdateSendJob extends BaseJob {
       throws IOException, UntrustedIdentityException
   {
     SignalServiceMessageSender             messageSender      = ApplicationDependencies.getSignalServiceMessageSender();
-    List<SignalServiceAddress>             addresses          = Stream.of(destinations).map(t -> RecipientUtil.toSignalServiceAddress(context, t)).toList();
-    List<Optional<UnidentifiedAccessPair>> unidentifiedAccess = Stream.of(destinations).map(recipient -> UnidentifiedAccessUtil.getAccessFor(context, recipient)).toList();
+    List<SignalServiceAddress>             addresses          = RecipientUtil.toSignalServiceAddressesFromResolved(context, destinations);
+    List<Optional<UnidentifiedAccessPair>> unidentifiedAccess = UnidentifiedAccessUtil.getAccessFor(context, destinations);;
 
     SignalServiceGroupV2     group            = SignalServiceGroupV2.fromProtobuf(groupContextV2);
     SignalServiceDataMessage groupDataMessage = SignalServiceDataMessage.newBuilder()

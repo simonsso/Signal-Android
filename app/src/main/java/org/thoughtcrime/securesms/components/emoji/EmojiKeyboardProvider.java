@@ -2,19 +2,20 @@ package org.thoughtcrime.securesms.components.emoji;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.viewpager.widget.PagerAdapter;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.viewpager.widget.PagerAdapter;
+
 import org.thoughtcrime.securesms.R;
 import org.thoughtcrime.securesms.components.emoji.EmojiPageViewGridAdapter.VariationSelectorListener;
+import org.thoughtcrime.securesms.keyvalue.SignalStore;
 import org.thoughtcrime.securesms.mms.GlideRequests;
 import org.thoughtcrime.securesms.util.ResUtil;
-import org.thoughtcrime.securesms.util.ThemeUtil;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -48,6 +49,7 @@ public class EmojiKeyboardProvider implements MediaKeyboardProvider,
       @Override
       public void onEmojiSelected(String emoji) {
         recentModel.onCodePointSelected(emoji);
+        SignalStore.emojiValues().setPreferredVariation(emoji);
 
         if (emojiEventListener != null) {
           emojiEventListener.onEmojiSelected(emoji);
@@ -79,9 +81,9 @@ public class EmojiKeyboardProvider implements MediaKeyboardProvider,
   @Override
   public int getProviderIconView(boolean selected) {
     if (selected) {
-      return ThemeUtil.isDarkTheme(context) ? R.layout.emoji_keyboard_icon_dark_selected : R.layout.emoji_keyboard_icon_light_selected;
+      return R.layout.emoji_keyboard_icon_selected;
     } else {
-      return ThemeUtil.isDarkTheme(context) ? R.layout.emoji_keyboard_icon_dark : R.layout.emoji_keyboard_icon_light;
+      return R.layout.emoji_keyboard_icon;
     }
   }
 

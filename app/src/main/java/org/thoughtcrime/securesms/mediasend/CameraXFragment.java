@@ -26,25 +26,26 @@ import androidx.camera.core.CameraSelector;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.ImageCaptureException;
 import androidx.camera.core.ImageProxy;
+import androidx.camera.lifecycle.ProcessCameraProvider;
+import androidx.camera.view.PreviewView;
+import androidx.camera.view.SignalCameraView;
 import androidx.core.content.ContextCompat;
 import androidx.lifecycle.ViewModelProviders;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.util.Executors;
 
+import org.signal.core.util.logging.Log;
 import org.thoughtcrime.securesms.LoggingFragment;
 import org.thoughtcrime.securesms.R;
 import org.thoughtcrime.securesms.components.TooltipPopup;
-import org.thoughtcrime.securesms.logging.Log;
 import org.thoughtcrime.securesms.mediasend.camerax.CameraXFlashToggleView;
 import org.thoughtcrime.securesms.mediasend.camerax.CameraXUtil;
-import org.thoughtcrime.securesms.mediasend.camerax.CameraXView;
 import org.thoughtcrime.securesms.mms.DecryptableStreamUriLoader.DecryptableUri;
 import org.thoughtcrime.securesms.mms.MediaConstraints;
 import org.thoughtcrime.securesms.util.MemoryFileDescriptor;
 import org.thoughtcrime.securesms.util.Stopwatch;
 import org.thoughtcrime.securesms.util.TextSecurePreferences;
-import org.thoughtcrime.securesms.util.ThemeUtil;
 import org.thoughtcrime.securesms.util.concurrent.SimpleTask;
 import org.thoughtcrime.securesms.video.VideoUtil;
 import org.whispersystems.libsignal.util.guava.Optional;
@@ -62,7 +63,7 @@ public class CameraXFragment extends LoggingFragment implements CameraFragment {
   private static final String TAG              = Log.tag(CameraXFragment.class);
   private static final String IS_VIDEO_ENABLED = "is_video_enabled";
 
-  private CameraXView          camera;
+  private SignalCameraView     camera;
   private ViewGroup            controlsContainer;
   private Controller           controller;
   private MediaSendViewModel   viewModel;
@@ -205,37 +206,11 @@ public class CameraXFragment extends LoggingFragment implements CameraFragment {
       onCaptureClicked();
     });
 
-    camera.setScaleType(CameraXView.ScaleType.CENTER_INSIDE);
+    camera.setScaleType(PreviewView.ScaleType.FILL_CENTER);
 
-    if (camera.hasCameraWithLensFacing(CameraSelector.LENS_FACING_FRONT) && camera.hasCameraWithLensFacing(CameraSelector.LENS_FACING_BACK)) {
-      flipButton.setVisibility(View.VISIBLE);
-      flipButton.setOnClickListener(v ->  {
-        camera.toggleCamera();
-        TextSecurePreferences.setDirectCaptureCameraId(getContext(), CameraXUtil.toCameraDirectionInt(camera.getCameraLensFacing()));
-
-        Animation animation = new RotateAnimation(0, -180, RotateAnimation.RELATIVE_TO_SELF, 0.5f, RotateAnimation.RELATIVE_TO_SELF, 0.5f);
-        animation.setDuration(200);
-        animation.setInterpolator(new DecelerateInterpolator());
-        flipButton.startAnimation(animation);
-        flashButton.setAutoFlashEnabled(camera.hasFlash());
-        flashButton.setFlash(camera.getFlash());
-      });
-
-      GestureDetector gestureDetector = new GestureDetector(requireContext(), new GestureDetector.SimpleOnGestureListener() {
-        @Override
-        public boolean onDoubleTap(MotionEvent e) {
-          if (flipButton.isEnabled()) {
-            flipButton.performClick();
-          }
-          return true;
-        }
-      });
-
-      camera.setOnTouchListener((v, event) -> gestureDetector.onTouchEvent(event));
-
-    } else {
-      flipButton.setVisibility(View.GONE);
-    }
+    ProcessCameraProvider.getInstance(requireContext())
+                         .addListener(() -> initializeFlipButton(flipButton, flashButton),
+                                            Executors.mainThreadExecutor());
 
     flashButton.setAutoFlashEnabled(camera.hasFlash());
     flashButton.setFlash(camera.getFlash());
@@ -252,9 +227,9 @@ public class CameraXFragment extends LoggingFragment implements CameraFragment {
         Animation inAnimation  = AnimationUtils.loadAnimation(requireContext(), R.anim.fade_in);
         Animation outAnimation = AnimationUtils.loadAnimation(requireContext(), R.anim.fade_out);
 
-        camera.setCaptureMode(CameraXView.CaptureMode.MIXED);
+        camera.setCaptureMode(SignalCameraView.CaptureMode.MIXED);
 
-        int maxDuration = VideoUtil.getMaxVideoDurationInSeconds(requireContext(), viewModel.getMediaConstraints());
+        int maxDuration = VideoUtil.getMaxVideoRecordDurationInSeconds(requireContext(), viewModel.getMediaConstraints());
         Log.d(TAG, "Max duration: " + maxDuration + " sec");
 
         captureButton.setVideoCaptureListener(new CameraXVideoCaptureHelper(
@@ -291,7 +266,7 @@ public class CameraXFragment extends LoggingFragment implements CameraFragment {
                  "API: " + Build.VERSION.SDK_INT + ", " +
                  "MFD: " + MemoryFileDescriptor.supported() + ", " +
                  "Camera: " + CameraXUtil.getLowestSupportedHardwareLevel(requireContext()) + ", " +
-                 "MaxDuration: " + VideoUtil.getMaxVideoDurationInSeconds(requireContext(), viewModel.getMediaConstraints()) + " sec");
+                 "MaxDuration: " + VideoUtil.getMaxVideoRecordDurationInSeconds(requireContext(), viewModel.getMediaConstraints()) + " sec");
     }
 
     viewModel.onCameraControlsInitialized();
@@ -302,7 +277,7 @@ public class CameraXFragment extends LoggingFragment implements CameraFragment {
            requireArguments().getBoolean(IS_VIDEO_ENABLED, true) &&
            MediaConstraints.isVideoTranscodeAvailable()          &&
            CameraXUtil.isMixedModeSupported(context)             &&
-           VideoUtil.getMaxVideoDurationInSeconds(context, viewModel.getMediaConstraints()) > 0;
+           VideoUtil.getMaxVideoRecordDurationInSeconds(context, viewModel.getMediaConstraints()) > 0;
   }
 
   private void displayVideoRecordingTooltipIfNecessary(CameraButtonView captureButton) {
@@ -312,7 +287,7 @@ public class CameraXFragment extends LoggingFragment implements CameraFragment {
       TooltipPopup.forTarget(captureButton)
                   .setOnDismissListener(this::neverDisplayVideoRecordingTooltipAgain)
                   .setBackgroundTint(ContextCompat.getColor(requireContext(), R.color.core_ultramarine))
-                  .setTextColor(ThemeUtil.getThemedColor(requireContext(), R.attr.conversation_title_color))
+                  .setTextColor(ContextCompat.getColor(requireContext(), R.color.signal_text_toolbar_title))
                   .setText(R.string.CameraXFragment_tap_for_photo_hold_for_video)
                   .show(displayRotation == Surface.ROTATION_0 || displayRotation == Surface.ROTATION_180 ? TooltipPopup.POSITION_ABOVE : TooltipPopup.POSITION_START);
     }
@@ -408,6 +383,39 @@ public class CameraXFragment extends LoggingFragment implements CameraFragment {
       } catch (IOException e) {
         Log.w(TAG, "Failed to close video file descriptor", e);
       }
+    }
+  }
+
+  @SuppressLint({"MissingPermission"})
+  private void initializeFlipButton(@NonNull View flipButton, @NonNull CameraXFlashToggleView flashButton) {
+    if (camera.hasCameraWithLensFacing(CameraSelector.LENS_FACING_FRONT) && camera.hasCameraWithLensFacing(CameraSelector.LENS_FACING_BACK)) {
+      flipButton.setVisibility(View.VISIBLE);
+      flipButton.setOnClickListener(v ->  {
+        camera.toggleCamera();
+        TextSecurePreferences.setDirectCaptureCameraId(getContext(), CameraXUtil.toCameraDirectionInt(camera.getCameraLensFacing()));
+
+        Animation animation = new RotateAnimation(0, -180, RotateAnimation.RELATIVE_TO_SELF, 0.5f, RotateAnimation.RELATIVE_TO_SELF, 0.5f);
+        animation.setDuration(200);
+        animation.setInterpolator(new DecelerateInterpolator());
+        flipButton.startAnimation(animation);
+        flashButton.setAutoFlashEnabled(camera.hasFlash());
+        flashButton.setFlash(camera.getFlash());
+      });
+
+      GestureDetector gestureDetector = new GestureDetector(requireContext(), new GestureDetector.SimpleOnGestureListener() {
+        @Override
+        public boolean onDoubleTap(MotionEvent e) {
+          if (flipButton.isEnabled()) {
+            flipButton.performClick();
+          }
+          return true;
+        }
+      });
+
+      camera.setOnTouchListener((v, event) -> gestureDetector.onTouchEvent(event));
+
+    } else {
+      flipButton.setVisibility(View.GONE);
     }
   }
 }

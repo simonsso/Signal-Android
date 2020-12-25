@@ -120,7 +120,7 @@ public class ConfirmKbsPinFragment extends BaseKbsPinFragment<ConfirmKbsPinViewM
         });
         break;
       case FAILURE:
-        startEndAnimationOnNextProgressRepetition(R.raw.lottie_kbs_failure, new AnimationCompleteListener() {
+        startEndAnimationOnNextProgressRepetition(R.raw.lottie_kbs_fail, new AnimationCompleteListener() {
           @Override
           public void onAnimationEnd(Animator animation) {
             RegistrationUtil.maybeMarkRegistrationComplete(requireContext());

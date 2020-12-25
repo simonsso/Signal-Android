@@ -6,6 +6,7 @@ import android.media.MediaDataSource;
 import androidx.annotation.NonNull;
 
 import org.greenrobot.eventbus.EventBus;
+import org.signal.core.util.logging.Log;
 import org.thoughtcrime.securesms.R;
 import org.thoughtcrime.securesms.attachments.Attachment;
 import org.thoughtcrime.securesms.attachments.AttachmentId;
@@ -16,7 +17,6 @@ import org.thoughtcrime.securesms.events.PartProgressEvent;
 import org.thoughtcrime.securesms.jobmanager.Data;
 import org.thoughtcrime.securesms.jobmanager.Job;
 import org.thoughtcrime.securesms.jobmanager.impl.NetworkConstraint;
-import org.thoughtcrime.securesms.logging.Log;
 import org.thoughtcrime.securesms.mms.DecryptableStreamUriLoader;
 import org.thoughtcrime.securesms.mms.MediaConstraints;
 import org.thoughtcrime.securesms.mms.MediaStream;
@@ -153,8 +153,8 @@ public final class AttachmentCompressionJob extends BaseJob {
         if (MediaUtil.isJpeg(attachment)) {
           MediaStream stripped = getResizedMedia(context, attachment, constraints);
           attachmentDatabase.updateAttachmentData(attachment, stripped, false);
-          attachmentDatabase.markAttachmentAsTransformed(attachmentId);
         }
+        attachmentDatabase.markAttachmentAsTransformed(attachmentId);
       } else if (constraints.canResize(attachment)) {
         MediaStream resized = getResizedMedia(context, attachment, constraints);
         attachmentDatabase.updateAttachmentData(attachment, resized, false);
@@ -249,7 +249,7 @@ public final class AttachmentCompressionJob extends BaseJob {
 
     try {
       BitmapUtil.ScaleResult scaleResult = BitmapUtil.createScaledBytes(context,
-                                                                        new DecryptableStreamUriLoader.DecryptableUri(attachment.getDataUri()),
+                                                                        new DecryptableStreamUriLoader.DecryptableUri(attachment.getUri()),
                                                                         constraints);
 
       return new MediaStream(new ByteArrayInputStream(scaleResult.getBitmap()),

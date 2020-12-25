@@ -5,34 +5,44 @@ import android.app.ActivityManager;
 import android.app.AlarmManager;
 import android.app.NotificationManager;
 import android.app.job.JobScheduler;
-import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
+import android.content.pm.ShortcutManager;
+import android.hardware.SensorManager;
 import android.hardware.display.DisplayManager;
 import android.location.LocationManager;
 import android.media.AudioManager;
 import android.net.ConnectivityManager;
-import android.os.Build;
 import android.os.PowerManager;
 import android.os.Vibrator;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
-import androidx.core.content.ContextCompat;
-
+import android.os.storage.StorageManager;
 import android.telephony.SubscriptionManager;
 import android.telephony.TelephonyManager;
 import android.view.WindowManager;
 import android.view.accessibility.AccessibilityManager;
 import android.view.inputmethod.InputMethodManager;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
+import androidx.core.content.ContextCompat;
+
 public class ServiceUtil {
   public static InputMethodManager getInputMethodManager(Context context) {
     return (InputMethodManager)context.getSystemService(Context.INPUT_METHOD_SERVICE);
   }
 
+  @RequiresApi(25)
+  public static @Nullable ShortcutManager getShortcutManager(@NonNull Context context) {
+    return ContextCompat.getSystemService(context, ShortcutManager.class);
+  }
+
   public static WindowManager getWindowManager(Context context) {
     return (WindowManager) context.getSystemService(Activity.WINDOW_SERVICE);
+  }
+
+  public static StorageManager getStorageManager(Context context) {
+    return ContextCompat.getSystemService(context, StorageManager.class);
   }
 
   public static ConnectivityManager getConnectivityManager(Context context) {
@@ -49,6 +59,10 @@ public class ServiceUtil {
 
   public static AudioManager getAudioManager(Context context) {
     return (AudioManager)context.getSystemService(Context.AUDIO_SERVICE);
+  }
+
+  public static SensorManager getSensorManager(Context context) {
+    return (SensorManager) context.getSystemService(Context.SENSOR_SERVICE);
   }
 
   public static PowerManager getPowerManager(Context context) {
@@ -80,7 +94,7 @@ public class ServiceUtil {
     return (JobScheduler) context.getSystemService(JobScheduler.class);
   }
 
-  @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP_MR1)
+  @RequiresApi(22)
   public static @Nullable SubscriptionManager getSubscriptionManager(@NonNull Context context) {
     return (SubscriptionManager) context.getSystemService(Context.TELEPHONY_SUBSCRIPTION_SERVICE);
   }

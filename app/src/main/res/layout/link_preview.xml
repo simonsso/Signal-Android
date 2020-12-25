@@ -9,12 +9,13 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:padding="6dp"
-        android:background="?linkpreview_background_color">
+        android:background="@color/signal_background_primary">
 
         <org.thoughtcrime.securesms.components.OutlinedThumbnailView
             android:id="@+id/linkpreview_thumbnail"
             android:layout_width="72dp"
             android:layout_height="0dp"
+            android:maxHeight="72dp"
             android:scaleType="centerCrop"
             android:visibility="gone"
             app:layout_constraintBottom_toTopOf="@+id/linkpreview_divider"
@@ -26,20 +27,36 @@
 
         <org.thoughtcrime.securesms.components.emoji.EmojiTextView
             android:id="@+id/linkpreview_title"
-            style="@style/Signal.Text.Body"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
             android:layout_marginEnd="8dp"
+            style="@style/Signal.Text.Preview"
             android:ellipsize="end"
             android:fontFamily="sans-serif-medium"
             android:maxLines="2"
-            android:textColor="?linkpreview_primary_text_color"
+            android:textColor="@color/signal_inverse_primary"
             app:layout_constraintEnd_toStartOf="@+id/linkpreview_close"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toEndOf="@+id/linkpreview_thumbnail"
             app:layout_constraintTop_toTopOf="parent"
-            tools:text="Wall Crawler Strikes Again!" />
+            tools:text="J. Jonah Jameson on Twitter" />
+
+        <org.thoughtcrime.securesms.components.emoji.EmojiTextView
+            android:id="@+id/linkpreview_description"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="8dp"
+            style="@style/Signal.Text.Preview"
+            android:textSize="13sp"
+            android:ellipsize="end"
+            android:maxLines="15"
+            app:layout_constraintEnd_toStartOf="@+id/linkpreview_close"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toEndOf="@+id/linkpreview_thumbnail"
+            app:layout_constraintTop_toBottomOf="@id/linkpreview_title"
+            tools:text="Wall crawler strikes again!" />
 
         <org.thoughtcrime.securesms.components.emoji.EmojiTextView
             android:id="@+id/linkpreview_site"
@@ -48,9 +65,10 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
             android:layout_marginTop="2dp"
-            android:textColor="?linkpreview_secondary_text_color"
+            android:textColor="@color/signal_text_secondary"
+            android:maxLines="2"
             app:layout_constraintStart_toEndOf="@+id/linkpreview_thumbnail"
-            app:layout_constraintTop_toBottomOf="@+id/linkpreview_title"
+            app:layout_constraintTop_toBottomOf="@+id/linkpreview_description"
             tools:text="dailybugle.com" />
 
         <View
@@ -59,16 +77,15 @@
             android:layout_height="1dp"
             android:layout_marginStart="8dp"
             android:layout_marginTop="6dp"
-            android:background="?linkpreview_divider_color"
+            android:background="@color/signal_divider_major"
             android:visibility="gone"
-            app:layout_constraintBottom_toBottomOf="@+id/linkpreview_thumbnail"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@+id/linkpreview_thumbnail"
-            app:layout_constraintTop_toBottomOf="@+id/linkpreview_site"
+            app:layout_constraintTop_toBottomOf="@+id/linkpreview_content_barrier"
             app:layout_constraintVertical_bias="0.0"
             tools:visibility="visible" />
 
-        <ImageView
+        <androidx.appcompat.widget.AppCompatImageView
             android:id="@+id/linkpreview_close"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -84,18 +101,38 @@
         <com.pnikosis.materialishprogress.ProgressWheel
             android:id="@+id/linkpreview_progress_wheel"
             android:layout_width="match_parent"
-            android:layout_height="72dp"
+            android:layout_height="0dp"
             android:layout_gravity="center_horizontal"
             android:layout_marginBottom="8dp"
             android:indeterminate="true"
             android:padding="8dp"
             android:visibility="gone"
-            app:layout_constraintBottom_toTopOf="@+id/linkpreview_divider"
+            app:layout_constraintBottom_toBottomOf="@+id/linkpreview_no_preview"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintTop_toTopOf="@id/linkpreview_no_preview"
             app:matProg_barColor="@color/core_ultramarine"
-            app:matProg_progressIndeterminate="true" />
+            app:matProg_progressIndeterminate="true"
+            app:matProg_barWidth="3dp"/>
+
+        <TextView
+            android:id="@+id/linkpreview_no_preview"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:paddingTop="12dp"
+            android:paddingBottom="12dp"
+            android:visibility="gone"
+            app:layout_constraintBottom_toTopOf="@id/linkpreview_divider"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="@string/LinkPreviewView_no_link_preview_available" />
+
+        <androidx.constraintlayout.widget.Barrier
+            android:id="@+id/linkpreview_content_barrier"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:barrierDirection="bottom"
+            app:constraint_referenced_ids="linkpreview_thumbnail,linkpreview_close,linkpreview_title,linkpreview_description,linkpreview_site,linkpreview_progress_wheel,linkpreview_no_preview" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

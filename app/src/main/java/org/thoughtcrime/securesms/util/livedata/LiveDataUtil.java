@@ -1,5 +1,7 @@
 package org.thoughtcrime.securesms.util.livedata;
 
+import android.os.Handler;
+
 import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MediatorLiveData;
@@ -7,10 +9,13 @@ import androidx.lifecycle.MutableLiveData;
 
 import com.annimon.stream.function.Predicate;
 
+import org.signal.core.util.concurrent.SignalExecutors;
 import org.thoughtcrime.securesms.util.concurrent.SerialMonoLifoExecutor;
-import org.thoughtcrime.securesms.util.concurrent.SignalExecutors;
 import org.whispersystems.libsignal.util.guava.Function;
 
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.concurrent.Executor;
 
 public final class LiveDataUtil {
@@ -76,6 +81,87 @@ public final class LiveDataUtil {
                                                     @NonNull LiveData<B> b,
                                                     @NonNull Combine<A, B, R> combine) {
     return new CombineLiveData<>(a, b, combine);
+  }
+
+  /**
+   * Merges the supplied live data streams.
+   */
+  public static <T> LiveData<T> merge(@NonNull List<LiveData<T>> liveDataList) {
+    Set<LiveData<T>> set = new LinkedHashSet<>(liveDataList.size());
+
+    set.addAll(liveDataList);
+
+    if (set.size() == 1) {
+      return liveDataList.get(0);
+    }
+
+    MediatorLiveData<T> mergedLiveData = new MediatorLiveData<>();
+
+    for (LiveData<T> liveDataSource : set) {
+      mergedLiveData.addSource(liveDataSource, mergedLiveData::setValue);
+    }
+
+    return mergedLiveData;
+  }
+
+  /**
+   * @return Live data with just the initial value.
+   */
+  public static <T> LiveData<T> just(@NonNull T item) {
+    return new MutableLiveData<>(item);
+  }
+
+  /**
+   * Emits {@param whileWaiting} until {@param main} starts emitting.
+   */
+  public static @NonNull <T> LiveData<T> until(@NonNull LiveData<T> main,
+                                               @NonNull LiveData<T> whileWaiting)
+  {
+    MediatorLiveData<T> mediatorLiveData = new MediatorLiveData<>();
+
+    mediatorLiveData.addSource(whileWaiting, mediatorLiveData::setValue);
+
+    mediatorLiveData.addSource(main, value -> {
+      mediatorLiveData.removeSource(whileWaiting);
+      mediatorLiveData.setValue(value);
+    });
+
+    return mediatorLiveData;
+  }
+
+  /**
+   * Skip the first {@param skip} emissions before emitting everything else.
+   */
+  public static @NonNull <T> LiveData<T> skip(@NonNull LiveData<T> source, int skip) {
+    return new MediatorLiveData<T>() {
+      int skipsRemaining = skip;
+
+      {
+        addSource(source, value -> {
+          if (skipsRemaining <= 0) {
+            setValue(value);
+          } else {
+            skipsRemaining--;
+          }
+        });
+      }
+    };
+  }
+
+  /**
+   * After {@param delay} ms after observation, emits a single Object, {@param value}.
+   */
+  public static <T> LiveData<T> delay(long delay, T value) {
+    return new MutableLiveData<T>() {
+      boolean emittedValue;
+
+      @Override
+      protected void onActive() {
+        if (emittedValue) return;
+        new Handler().postDelayed(() -> setValue(value), delay);
+        emittedValue = true;
+      }
+    };
   }
 
   public interface Combine<A, B, R> {

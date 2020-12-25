@@ -1,17 +1,20 @@
 package org.thoughtcrime.securesms.mediasend;
 
+import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
-import androidx.annotation.AttrRes;
+import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
 import androidx.appcompat.widget.AppCompatTextView;
+import androidx.core.content.ContextCompat;
 import androidx.core.util.Consumer;
 import androidx.fragment.app.DialogFragment;
 import androidx.recyclerview.widget.RecyclerView;
@@ -19,8 +22,9 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.annimon.stream.Stream;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 
-import org.thoughtcrime.securesms.ClearProfileAvatarActivity;
+import org.thoughtcrime.securesms.ClearAvatarPromptActivity;
 import org.thoughtcrime.securesms.R;
+import org.thoughtcrime.securesms.permissions.Permissions;
 import org.thoughtcrime.securesms.util.ThemeUtil;
 
 import java.util.ArrayList;
@@ -68,7 +72,7 @@ public class AvatarSelectionBottomSheetDialogFragment extends BottomSheetDialogF
     super.onCreate(savedInstanceState);
 
     if (getOptionsCount() == 1) {
-      launchOptionAndDismiss(getOptionsFromArguments().get(0));
+      askForPermissionIfNeededAndLaunch(getOptionsFromArguments().get(0));
     }
   }
 
@@ -80,7 +84,12 @@ public class AvatarSelectionBottomSheetDialogFragment extends BottomSheetDialogF
   @Override
   public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
     RecyclerView recyclerView = view.findViewById(R.id.avatar_selection_bottom_sheet_dialog_fragment_recycler);
-    recyclerView.setAdapter(new SelectionOptionAdapter(getOptionsFromArguments(), this::launchOptionAndDismiss));
+    recyclerView.setAdapter(new SelectionOptionAdapter(getOptionsFromArguments(), this::askForPermissionIfNeededAndLaunch));
+  }
+
+  @Override
+  public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+    Permissions.onRequestPermissionsResult(this, requestCode, permissions, grantResults);
   }
 
   @SuppressWarnings("ConstantConditions")
@@ -93,6 +102,28 @@ public class AvatarSelectionBottomSheetDialogFragment extends BottomSheetDialogF
     String[] optionCodes = requireArguments().getStringArray(ARG_OPTIONS);
 
     return Stream.of(optionCodes).map(SelectionOption::fromCode).toList();
+  }
+
+  private void askForPermissionIfNeededAndLaunch(@NonNull SelectionOption option) {
+    if (option == SelectionOption.CAPTURE) {
+      Permissions.with(this)
+                 .request(Manifest.permission.CAMERA)
+                 .ifNecessary()
+                 .onAllGranted(() -> launchOptionAndDismiss(option))
+                 .onAnyDenied(() -> Toast.makeText(requireContext(), R.string.AvatarSelectionBottomSheetDialogFragment__taking_a_photo_requires_the_camera_permission, Toast.LENGTH_SHORT)
+                                         .show())
+                 .execute();
+    } else if (option == SelectionOption.GALLERY) {
+      Permissions.with(this)
+                 .request(Manifest.permission.READ_EXTERNAL_STORAGE)
+                 .ifNecessary()
+                 .onAllGranted(() -> launchOptionAndDismiss(option))
+                 .onAnyDenied(() -> Toast.makeText(requireContext(), R.string.AvatarSelectionBottomSheetDialogFragment__viewing_your_gallery_requires_the_storage_permission, Toast.LENGTH_SHORT)
+                                         .show())
+                 .execute();
+    } else {
+      launchOptionAndDismiss(option);
+    }
   }
 
   private void launchOptionAndDismiss(@NonNull SelectionOption option) {
@@ -115,23 +146,23 @@ public class AvatarSelectionBottomSheetDialogFragment extends BottomSheetDialogF
       case GALLERY:
         return AvatarSelectionActivity.getIntentForGallery(context);
       case DELETE:
-        return isGroup ? ClearProfileAvatarActivity.createForGroupProfilePhoto()
-                       : ClearProfileAvatarActivity.createForUserProfilePhoto();
+        return isGroup ? ClearAvatarPromptActivity.createForGroupProfilePhoto()
+                       : ClearAvatarPromptActivity.createForUserProfilePhoto();
       default:
         throw new IllegalStateException("Unknown option: " + selectionOption);
     }
   }
 
   private enum SelectionOption {
-    CAPTURE("capture", R.string.AvatarSelectionBottomSheetDialogFragment__take_photo, R.attr.avatar_selection_take_photo),
-    GALLERY("gallery", R.string.AvatarSelectionBottomSheetDialogFragment__choose_from_gallery, R.attr.avatar_selection_pick_photo),
-    DELETE("delete", R.string.AvatarSelectionBottomSheetDialogFragment__remove_photo, R.attr.avatar_selection_remove_photo);
+    CAPTURE("capture", R.string.AvatarSelectionBottomSheetDialogFragment__take_photo, R.drawable.ic_camera_24),
+    GALLERY("gallery", R.string.AvatarSelectionBottomSheetDialogFragment__choose_from_gallery, R.drawable.ic_photo_24),
+    DELETE("delete", R.string.AvatarSelectionBottomSheetDialogFragment__remove_photo, R.drawable.ic_trash_24);
 
-    private final            String code;
-    private final @StringRes int    label;
-    private final @AttrRes   int    icon;
+    private final              String code;
+    private final @StringRes   int    label;
+    private final @DrawableRes int    icon;
 
-    SelectionOption(@NonNull String code, @StringRes int label, @AttrRes int icon) {
+    SelectionOption(@NonNull String code, @StringRes int label, @DrawableRes int icon) {
       this.code  = code;
       this.label = label;
       this.icon  = icon;
@@ -168,7 +199,7 @@ public class AvatarSelectionBottomSheetDialogFragment extends BottomSheetDialogF
     }
 
     void bind(@NonNull SelectionOption selectionOption) {
-      optionView.setCompoundDrawablesWithIntrinsicBounds(ThemeUtil.getThemedDrawable(optionView.getContext(), selectionOption.icon), null, null, null);
+      optionView.setCompoundDrawablesWithIntrinsicBounds(ContextCompat.getDrawable(optionView.getContext(), selectionOption.icon), null, null, null);
       optionView.setText(selectionOption.label);
     }
   }

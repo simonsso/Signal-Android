@@ -3,6 +3,10 @@ package org.thoughtcrime.securesms.mms;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.annimon.stream.Stream;
+
+import org.signal.storageservice.protos.groups.local.DecryptedGroup;
+import org.signal.storageservice.protos.groups.local.DecryptedGroupChange;
 import org.signal.storageservice.protos.groups.local.DecryptedMember;
 import org.signal.zkgroup.InvalidInputException;
 import org.signal.zkgroup.groups.GroupMasterKey;
@@ -11,13 +15,13 @@ import org.thoughtcrime.securesms.recipients.Recipient;
 import org.thoughtcrime.securesms.recipients.RecipientId;
 import org.thoughtcrime.securesms.util.Base64;
 import org.whispersystems.signalservice.api.groupsv2.DecryptedGroupUtil;
+import org.whispersystems.signalservice.api.push.SignalServiceAddress;
 import org.whispersystems.signalservice.api.util.UuidUtil;
 import org.whispersystems.signalservice.internal.push.SignalServiceProtos.GroupContext;
 import org.whispersystems.signalservice.internal.push.SignalServiceProtos.GroupContextV2;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.UUID;
@@ -123,20 +127,15 @@ public final class MessageGroupContext {
 
     @Override
     public @NonNull List<RecipientId> getMembersListExcludingSelf() {
-      List<GroupContext.Member> membersList = groupContext.getMembersList();
-      if (membersList.isEmpty()) {
-        return Collections.emptyList();
-      } else {
-        LinkedList<RecipientId> members = new LinkedList<>();
+      RecipientId selfId = Recipient.self().getId();
 
-        for (GroupContext.Member member : membersList) {
-          RecipientId recipient = RecipientId.from(UuidUtil.parseOrNull(member.getUuid()), member.getE164());
-          if (!Recipient.self().getId().equals(recipient)) {
-            members.add(recipient);
-          }
-        }
-        return members;
-      }
+      return Stream.of(groupContext.getMembersList())
+                   .map(GroupContext.Member::getE164)
+                   .withoutNulls()
+                   .map(e164 -> new SignalServiceAddress(null, e164))
+                   .map(RecipientId::from)
+                   .filterNot(selfId::equals)
+                   .toList();
     }
   }
 
@@ -165,11 +164,16 @@ public final class MessageGroupContext {
     }
 
     public @NonNull List<UUID> getAllActivePendingAndRemovedMembers() {
-      LinkedList<UUID> memberUuids = new LinkedList<>();
+      LinkedList<UUID>     memberUuids = new LinkedList<>();
+      DecryptedGroup       groupState  = decryptedGroupV2Context.getGroupState();
+      DecryptedGroupChange groupChange = decryptedGroupV2Context.getChange();
 
-      memberUuids.addAll(DecryptedGroupUtil.membersToUuidList(decryptedGroupV2Context.getGroupState().getMembersList()));
-      memberUuids.addAll(DecryptedGroupUtil.pendingToUuidList(decryptedGroupV2Context.getGroupState().getPendingMembersList()));
-      memberUuids.addAll(DecryptedGroupUtil.removedMembersUuidList(decryptedGroupV2Context.getChange()));
+      memberUuids.addAll(DecryptedGroupUtil.membersToUuidList(groupState.getMembersList()));
+      memberUuids.addAll(DecryptedGroupUtil.pendingToUuidList(groupState.getPendingMembersList()));
+
+      memberUuids.addAll(DecryptedGroupUtil.removedMembersUuidList(groupChange));
+      memberUuids.addAll(DecryptedGroupUtil.removedPendingMembersUuidList(groupChange));
+      memberUuids.addAll(DecryptedGroupUtil.removedRequestingMembersUuidList(groupChange));
 
       return UuidUtil.filterKnown(memberUuids);
     }

@@ -30,14 +30,15 @@ import android.os.Build.VERSION_CODES;
 import android.os.Handler;
 import android.os.Looper;
 import android.provider.Telephony;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.annotation.RequiresPermission;
 import android.telephony.TelephonyManager;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.TextUtils;
 import android.text.style.StyleSpan;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.annotation.RequiresPermission;
 
 import com.annimon.stream.Stream;
 import com.google.android.mms.pdu_alt.CharacterSets;
@@ -46,21 +47,18 @@ import com.google.i18n.phonenumbers.NumberParseException;
 import com.google.i18n.phonenumbers.PhoneNumberUtil;
 import com.google.i18n.phonenumbers.Phonenumber;
 
+import org.signal.core.util.LinkedBlockingLifoQueue;
+import org.signal.core.util.logging.Log;
 import org.thoughtcrime.securesms.BuildConfig;
 import org.thoughtcrime.securesms.components.ComposeText;
-import org.thoughtcrime.securesms.logging.Log;
+import org.thoughtcrime.securesms.keyvalue.SignalStore;
 import org.thoughtcrime.securesms.mms.OutgoingLegacyMmsConnection;
 import org.whispersystems.libsignal.util.guava.Optional;
 
 import java.io.ByteArrayOutputStream;
-import java.io.Closeable;
-import java.io.EOFException;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.security.SecureRandom;
-import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -75,6 +73,8 @@ import java.util.concurrent.TimeUnit;
 
 public class Util {
   private static final String TAG = Util.class.getSimpleName();
+
+  private static final long BUILD_LIFESPAN = TimeUnit.DAYS.toMillis(90);
 
   private static volatile Handler handler;
 
@@ -110,6 +110,18 @@ public class Util {
     }
 
     return join(boxed, delimeter);
+  }
+
+  @SafeVarargs
+  public static @NonNull <E> List<E> join(@NonNull List<E>... lists) {
+    int     totalSize = Stream.of(lists).reduce(0, (sum, list) -> sum + list.size());
+    List<E> joined    = new ArrayList<>(totalSize);
+
+    for (List<E> list : lists) {
+      joined.addAll(list);
+    }
+
+    return joined;
   }
 
   public static String join(List<Long> list, String delimeter) {
@@ -155,8 +167,16 @@ public class Util {
     return value == null || value.getText() == null || TextUtils.isEmpty(value.getTextTrimmed());
   }
 
-  public static boolean isEmpty(Collection collection) {
+  public static boolean isEmpty(Collection<?> collection) {
     return collection == null || collection.isEmpty();
+  }
+
+  public static boolean isEmpty(@Nullable String value) {
+    return value == null || value.length() == 0;
+  }
+
+  public static boolean hasItems(@Nullable Collection<?> collection) {
+    return collection != null && !collection.isEmpty();
   }
 
   public static <K, V> V getOrDefault(@NonNull Map<K, V> map, K key, V defaultValue) {
@@ -165,7 +185,7 @@ public class Util {
 
   public static String getFirstNonEmpty(String... values) {
     for (String value : values) {
-      if (!TextUtils.isEmpty(value)) {
+      if (!Util.isEmpty(value)) {
         return value;
       }
     }
@@ -173,6 +193,10 @@ public class Util {
   }
 
   public static @NonNull String emptyIfNull(@Nullable String value) {
+    return value != null ? value : "";
+  }
+
+  public static @NonNull CharSequence emptyIfNull(@Nullable CharSequence value) {
     return value != null ? value : "";
   }
 
@@ -228,79 +252,6 @@ public class Util {
     }
   }
 
-  public static void close(@Nullable Closeable closeable) {
-    if (closeable == null) return;
-
-    try {
-      closeable.close();
-    } catch (IOException e) {
-      Log.w(TAG, e);
-    }
-  }
-
-  public static long getStreamLength(InputStream in) throws IOException {
-    byte[] buffer    = new byte[4096];
-    int    totalSize = 0;
-
-    int read;
-
-    while ((read = in.read(buffer)) != -1) {
-      totalSize += read;
-    }
-
-    return totalSize;
-  }
-
-  public static void readFully(InputStream in, byte[] buffer) throws IOException {
-    readFully(in, buffer, buffer.length);
-  }
-
-  public static void readFully(InputStream in, byte[] buffer, int len) throws IOException {
-    int offset = 0;
-
-    for (;;) {
-      int read = in.read(buffer, offset, len - offset);
-      if (read == -1) throw new EOFException("Stream ended early");
-
-      if (read + offset < len) offset += read;
-      else                		 return;
-    }
-  }
-
-  public static byte[] readFully(InputStream in) throws IOException {
-    ByteArrayOutputStream bout = new ByteArrayOutputStream();
-    byte[] buffer              = new byte[4096];
-    int read;
-
-    while ((read = in.read(buffer)) != -1) {
-      bout.write(buffer, 0, read);
-    }
-
-    in.close();
-
-    return bout.toByteArray();
-  }
-
-  public static String readFullyAsString(InputStream in) throws IOException {
-    return new String(readFully(in));
-  }
-
-  public static long copy(InputStream in, OutputStream out) throws IOException {
-    byte[] buffer = new byte[8192];
-    int read;
-    long total = 0;
-
-    while ((read = in.read(buffer)) != -1) {
-      out.write(buffer, 0, read);
-      total += read;
-    }
-
-    in.close();
-    out.close();
-
-    return total;
-  }
-
   @RequiresPermission(anyOf = {
       android.Manifest.permission.READ_PHONE_STATE,
       android.Manifest.permission.READ_SMS,
@@ -325,6 +276,10 @@ public class Util {
   public static Optional<String> getSimCountryIso(Context context) {
     String simCountryIso = ((TelephonyManager)context.getSystemService(Context.TELEPHONY_SERVICE)).getSimCountryIso();
     return Optional.fromNullable(simCountryIso != null ? simCountryIso.toUpperCase() : null);
+  }
+
+  public static @NonNull <T> T firstNonNull(@Nullable T optional, @NonNull T fallback) {
+    return optional != null ? optional : fallback;
   }
 
   @SafeVarargs
@@ -441,9 +396,25 @@ public class Util {
     return secret;
   }
 
-  public static int getDaysTillBuildExpiry() {
-    int age = (int) TimeUnit.MILLISECONDS.toDays(System.currentTimeMillis() - BuildConfig.BUILD_TIMESTAMP);
-    return 90 - age;
+  /**
+   * @return The amount of time (in ms) until this build of Signal will be considered 'expired'.
+   *         Takes into account both the build age as well as any remote deprecation values.
+   */
+  public static long getTimeUntilBuildExpiry() {
+    if (SignalStore.misc().isClientDeprecated()) {
+      return 0;
+    }
+
+    long buildAge                   = System.currentTimeMillis() - BuildConfig.BUILD_TIMESTAMP;
+    long timeUntilBuildDeprecation  = BUILD_LIFESPAN - buildAge;
+    long timeUntilRemoteDeprecation = RemoteDeprecation.getTimeUntilDeprecation();
+
+    if (timeUntilRemoteDeprecation != -1) {
+      long timeUntilDeprecation = Math.min(timeUntilBuildDeprecation, timeUntilRemoteDeprecation);
+      return Math.max(timeUntilDeprecation, 0);
+    } else {
+      return Math.max(timeUntilBuildDeprecation, 0);
+    }
   }
 
   @TargetApi(VERSION_CODES.LOLLIPOP)
@@ -577,12 +548,7 @@ public class Util {
   }
 
   public static String getPrettyFileSize(long sizeBytes) {
-    if (sizeBytes <= 0) return "0";
-
-    String[] units       = new String[]{"B", "kB", "MB", "GB", "TB"};
-    int      digitGroups = (int) (Math.log10(sizeBytes) / 3);
-
-    return new DecimalFormat("#,##0.#").format(sizeBytes/Math.pow(1000, digitGroups)) + " " + units[digitGroups];
+    return MemoryUnitFormat.formatBytes(sizeBytes);
   }
 
   public static void sleep(long millis) {
@@ -625,6 +591,14 @@ public class Util {
       return true;
     } catch (NumberFormatException e) {
       return false;
+    }
+  }
+
+  public static int parseInt(String integer, int defaultValue) {
+    try {
+      return Integer.parseInt(integer);
+    } catch (NumberFormatException e) {
+      return defaultValue;
     }
   }
 

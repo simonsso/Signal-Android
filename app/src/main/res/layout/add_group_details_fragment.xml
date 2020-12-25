@@ -20,7 +20,7 @@
         android:layout_height="64dp"
         android:layout_marginStart="16dp"
         android:layout_marginTop="16dp"
-        android:background="?attr/tinted_circle_background"
+        android:background="@drawable/tinted_circle"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/toolbar" />
 
@@ -40,22 +40,58 @@
         app:layout_constraintStart_toEndOf="@id/group_avatar"
         app:layout_constraintTop_toTopOf="@id/group_avatar" />
 
-    <TextView
+    <LinearLayout
         android:id="@+id/mms_warning"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
-        android:background="?colorAccent"
+        android:orientation="vertical"
+        android:visibility="gone"
+        app:layout_constraintBottom_toTopOf="@id/gv2_warning"
+        app:layout_constraintTop_toBottomOf="@id/group_avatar"
+        tools:visibility="visible">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="?colorAccent"
+            android:paddingStart="16dp"
+            android:paddingTop="8dp"
+            android:paddingEnd="16dp"
+            android:text="@string/AddGroupDetailsFragment_custom_mms_group_names_and_photos_will_only_be_visible_to_you"
+            android:textAppearance="@style/TextAppearance.Signal.Body2"
+            android:textColor="@color/white" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="?colorAccent"
+            android:paddingStart="16dp"
+            android:paddingTop="8dp"
+            android:paddingEnd="16dp"
+            android:paddingBottom="8dp"
+            android:text="@string/AddGroupDetailsFragment__youve_selected_a_contact_that_doesnt"
+            android:textAppearance="@style/TextAppearance.Signal.Body2"
+            android:textColor="@color/white" />
+
+    </LinearLayout>
+
+    <org.thoughtcrime.securesms.util.views.LearnMoreTextView
+        android:id="@+id/gv2_warning"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:background="@color/signal_background_tertiary"
         android:paddingStart="16dp"
         android:paddingTop="8dp"
         android:paddingEnd="16dp"
         android:paddingBottom="8dp"
-        android:text="@string/AddGroupDetailsFragment__youve_selected_a_contact_that_doesnt"
         android:textAppearance="@style/TextAppearance.Signal.Body2"
-        android:textColor="@color/white"
+        android:textColor="@color/signal_text_secondary"
         android:visibility="gone"
         app:layout_constraintBottom_toTopOf="@id/member_list_header"
-        app:layout_constraintTop_toBottomOf="@id/group_avatar"
+        app:layout_constraintTop_toBottomOf="@id/mms_warning"
+        tools:text="8 members do not support New Groups, so this group will be a Legacy Group. Learn more"
         tools:visibility="visible" />
 
     <TextView
@@ -67,8 +103,8 @@
         android:text="@string/AddGroupDetailsFragment__members"
         android:textAlignment="viewStart"
         android:textAppearance="@style/TextAppearance.Signal.Subtitle2"
-        android:textColor="?attr/title_text_color_secondary"
-        app:layout_constraintTop_toBottomOf="@id/mms_warning"
+        android:textColor="@color/signal_text_secondary"
+        app:layout_constraintTop_toBottomOf="@id/gv2_warning"
         app:layout_goneMarginTop="30dp" />
 
     <org.thoughtcrime.securesms.groups.ui.GroupMemberListView
@@ -88,7 +124,7 @@
         app:cpb_colorIndicator="@color/white"
         app:cpb_colorProgress="?colorAccent"
         app:cpb_cornerRadius="28dp"
-        app:cpb_selectorIdle="?attr/circular_progress_button_state"
+        app:cpb_selectorIdle="@drawable/progress_button_state"
         app:cpb_textIdle="@string/AddGroupDetailsFragment__create"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />

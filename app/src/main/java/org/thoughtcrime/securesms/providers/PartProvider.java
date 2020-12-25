@@ -16,19 +16,20 @@
  */
 package org.thoughtcrime.securesms.providers;
 
-import android.content.ContentProvider;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.UriMatcher;
 import android.database.Cursor;
-import android.database.MatrixCursor;
 import android.net.Uri;
 import android.os.MemoryFile;
 import android.os.ParcelFileDescriptor;
-import android.provider.OpenableColumns;
-import androidx.annotation.NonNull;
-import org.thoughtcrime.securesms.logging.Log;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
+import org.signal.core.util.StreamUtil;
+import org.signal.core.util.logging.Log;
+import org.thoughtcrime.securesms.BuildConfig;
 import org.thoughtcrime.securesms.attachments.AttachmentId;
 import org.thoughtcrime.securesms.attachments.DatabaseAttachment;
 import org.thoughtcrime.securesms.database.DatabaseFactory;
@@ -42,11 +43,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-public class PartProvider extends ContentProvider {
+public final class PartProvider extends BaseContentProvider {
 
-  private static final String TAG = PartProvider.class.getSimpleName();
+  private static final String TAG = Log.tag(PartProvider.class);
 
-  private static final String CONTENT_URI_STRING = "content://org.thoughtcrime.provider.securesms/part";
+  private static final String CONTENT_AUTHORITY  = BuildConfig.APPLICATION_ID + ".part";
+  private static final String CONTENT_URI_STRING = "content://" + CONTENT_AUTHORITY + "/part";
   private static final Uri    CONTENT_URI        = Uri.parse(CONTENT_URI_STRING);
   private static final int    SINGLE_ROW         = 1;
 
@@ -54,7 +56,7 @@ public class PartProvider extends ContentProvider {
 
   static {
     uriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
-    uriMatcher.addURI("org.thoughtcrime.provider.securesms", "part/*/#", SINGLE_ROW);
+    uriMatcher.addURI(CONTENT_AUTHORITY, "part/*/#", SINGLE_ROW);
   }
 
   @Override
@@ -77,8 +79,7 @@ public class PartProvider extends ContentProvider {
       return null;
     }
 
-    switch (uriMatcher.match(uri)) {
-    case SINGLE_ROW:
+    if (uriMatcher.match(uri) == SINGLE_ROW) {
       Log.i(TAG, "Parting out a single row...");
       try {
         final PartUriParser partUri = new PartUriParser(uri);
@@ -102,15 +103,14 @@ public class PartProvider extends ContentProvider {
   public String getType(@NonNull Uri uri) {
     Log.i(TAG, "getType() called: " + uri);
 
-    switch (uriMatcher.match(uri)) {
-      case SINGLE_ROW:
-        PartUriParser      partUriParser = new PartUriParser(uri);
-        DatabaseAttachment attachment    = DatabaseFactory.getAttachmentDatabase(getContext())
-                                                          .getAttachment(partUriParser.getPartId());
+    if (uriMatcher.match(uri) == SINGLE_ROW) {
+      PartUriParser      partUriParser = new PartUriParser(uri);
+      DatabaseAttachment attachment    = DatabaseFactory.getAttachmentDatabase(getContext()).getAttachment(partUriParser.getPartId());
 
-        if (attachment != null) {
-          return attachment.getContentType();
-        }
+      if (attachment != null) {
+        Log.i(TAG, "getType() called: " + uri + " It's " + attachment.getContentType());
+        return attachment.getContentType();
+      }
     }
 
     return null;
@@ -123,32 +123,29 @@ public class PartProvider extends ContentProvider {
   }
 
   @Override
-  public Cursor query(@NonNull Uri url, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
+  public Cursor query(@NonNull Uri url, @Nullable String[] projection, String selection, String[] selectionArgs, String sortOrder) {
     Log.i(TAG, "query() called: " + url);
 
-    if (projection == null || projection.length <= 0) return null;
+    if (uriMatcher.match(url) == SINGLE_ROW) {
+      PartUriParser      partUri    = new PartUriParser(url);
+      DatabaseAttachment attachment = DatabaseFactory.getAttachmentDatabase(getContext()).getAttachment(partUri.getPartId());
 
-    switch (uriMatcher.match(url)) {
-      case SINGLE_ROW:
-        PartUriParser      partUri      = new PartUriParser(url);
-        DatabaseAttachment attachment   = DatabaseFactory.getAttachmentDatabase(getContext()).getAttachment(partUri.getPartId());
+      if (attachment == null) return null;
 
-        if (attachment == null) return null;
+      long fileSize = attachment.getSize();
 
-        MatrixCursor       matrixCursor = new MatrixCursor(projection, 1);
-        Object[]           resultRow    = new Object[projection.length];
+      if (fileSize <= 0) {
+        Log.w(TAG, "Empty file " + fileSize);
+        return null;
+      }
 
-        for (int i=0;i<projection.length;i++) {
-          if (OpenableColumns.DISPLAY_NAME.equals(projection[i])) {
-            resultRow[i] = attachment.getFileName();
-          }
-        }
+      String fileName = attachment.getFileName() != null ? attachment.getFileName()
+                                                         : createFileNameForMimeType(attachment.getContentType());
 
-        matrixCursor.addRow(resultRow);
-        return matrixCursor;
+      return createCursor(projection, fileName, fileSize);
+    } else {
+      return null;
     }
-
-    return null;
   }
 
   @Override
@@ -158,15 +155,15 @@ public class PartProvider extends ContentProvider {
   }
 
   private ParcelFileDescriptor getParcelStreamForAttachment(AttachmentId attachmentId) throws IOException {
-    long       plaintextLength = Util.getStreamLength(DatabaseFactory.getAttachmentDatabase(getContext()).getAttachmentStream(attachmentId, 0));
+    long       plaintextLength = StreamUtil.getStreamLength(DatabaseFactory.getAttachmentDatabase(getContext()).getAttachmentStream(attachmentId, 0));
     MemoryFile memoryFile      = new MemoryFile(attachmentId.toString(), Util.toIntExact(plaintextLength));
 
     InputStream  in  = DatabaseFactory.getAttachmentDatabase(getContext()).getAttachmentStream(attachmentId, 0);
     OutputStream out = memoryFile.getOutputStream();
 
-    Util.copy(in, out);
-    Util.close(out);
-    Util.close(in);
+    StreamUtil.copy(in, out);
+    StreamUtil.close(out);
+    StreamUtil.close(in);
 
     return MemoryFileUtil.getParcelFileDescriptor(memoryFile);
   }

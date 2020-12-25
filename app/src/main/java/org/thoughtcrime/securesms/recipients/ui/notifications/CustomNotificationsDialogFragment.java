@@ -29,7 +29,6 @@ import org.thoughtcrime.securesms.database.RecipientDatabase;
 import org.thoughtcrime.securesms.notifications.NotificationChannels;
 import org.thoughtcrime.securesms.recipients.RecipientId;
 import org.thoughtcrime.securesms.util.TextSecurePreferences;
-import org.thoughtcrime.securesms.util.ThemeUtil;
 
 import java.util.Objects;
 
@@ -70,11 +69,7 @@ public class CustomNotificationsDialogFragment extends DialogFragment {
   @Override
   public void onCreate(@Nullable Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    if (ThemeUtil.isDarkTheme(requireActivity())) {
-      setStyle(STYLE_NO_FRAME, R.style.TextSecure_DarkTheme);
-    } else {
-      setStyle(STYLE_NO_FRAME, R.style.TextSecure_LightTheme);
-    }
+    setStyle(STYLE_NO_FRAME, R.style.Signal_DayNight_Dialog_Animated);
   }
 
   @Override
