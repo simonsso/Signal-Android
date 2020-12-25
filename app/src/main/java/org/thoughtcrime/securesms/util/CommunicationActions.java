@@ -55,6 +55,8 @@ public class CommunicationActions {
     WebRtcCallService.isCallActive(activity, new ResultReceiver(new Handler(Looper.getMainLooper())) {
       @Override
       protected void onReceiveResult(int resultCode, Bundle resultData) {
+
+        // ignore resultCode and always start call
         startCallInternal(activity, recipient, false);
       }
     });

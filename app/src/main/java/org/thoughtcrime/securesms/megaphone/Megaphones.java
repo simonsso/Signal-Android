@@ -85,8 +85,8 @@ public final class Megaphones {
   private static Map<Event, MegaphoneSchedule> buildDisplayOrder(@NonNull Context context) {
     return new LinkedHashMap<Event, MegaphoneSchedule>() {{
       put(Event.REACTIONS, ALWAYS);
-      put(Event.PINS_FOR_ALL, new PinsForAllSchedule());
-      put(Event.PIN_REMINDER, new SignalPinReminderSchedule());
+   //   put(Event.PINS_FOR_ALL, new PinsForAllSchedule());
+   //   put(Event.PIN_REMINDER, new SignalPinReminderSchedule());
       put(Event.MESSAGE_REQUESTS, shouldShowMessageRequestsMegaphone() ? ALWAYS : NEVER);
       put(Event.LINK_PREVIEWS, shouldShowLinkPreviewsMegaphone(context) ? ALWAYS : NEVER);
       put(Event.CLIENT_DEPRECATED, SignalStore.misc().isClientDeprecated() ? ALWAYS : NEVER);
