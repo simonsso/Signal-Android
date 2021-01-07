@@ -14,6 +14,7 @@ import com.annimon.stream.Stream;
 
 import org.signal.core.util.concurrent.SignalExecutors;
 import org.signal.core.util.logging.Log;
+import org.signal.zkgroup.profiles.ProfileKeyCredential;
 import org.thoughtcrime.securesms.R;
 import org.thoughtcrime.securesms.color.MaterialColor;
 import org.thoughtcrime.securesms.contacts.avatars.ContactColors;
@@ -84,7 +85,7 @@ public class Recipient {
   private final int                    expireMessages;
   private final RegisteredState        registered;
   private final byte[]                 profileKey;
-  private final byte[]                 profileKeyCredential;
+  private final ProfileKeyCredential   profileKeyCredential;
   private final String                 name;
   private final Uri                    systemContactPhoto;
   private final String                 customLabel;
@@ -441,7 +442,7 @@ public class Recipient {
     String name = getName(context);
 
     if (Util.isEmpty(name)) {
-      name = getProfileName().toString();
+      name = StringUtil.isolateBidi(getProfileName().toString());
     }
 
     if (Util.isEmpty(name) && !Util.isEmpty(e164)) {
@@ -449,25 +450,27 @@ public class Recipient {
     }
 
     if (Util.isEmpty(name)) {
-      name = email;
+      name = StringUtil.isolateBidi(email);
     }
 
     if (Util.isEmpty(name)) {
-      name = username;
+      name = StringUtil.isolateBidi(username);
     }
 
     if (Util.isEmpty(name)) {
-      name = context.getString(R.string.Recipient_unknown);
+      name = StringUtil.isolateBidi(context.getString(R.string.Recipient_unknown));
     }
 
-    return StringUtil.isolateBidi(name);
+    return name;
   }
 
   public @NonNull String getMentionDisplayName(@NonNull Context context) {
     String name = isSelf ? getProfileName().toString() : getName(context);
+    name = StringUtil.isolateBidi(name);
 
     if (Util.isEmpty(name)) {
       name = isSelf ? getName(context) : getProfileName().toString();
+      name = StringUtil.isolateBidi(name);
     }
 
     if (Util.isEmpty(name) && !Util.isEmpty(e164)) {
@@ -475,14 +478,14 @@ public class Recipient {
     }
 
     if (Util.isEmpty(name)) {
-      name = email;
+      name = StringUtil.isolateBidi(email);
     }
 
     if (Util.isEmpty(name)) {
-      name = context.getString(R.string.Recipient_unknown);
+      name = StringUtil.isolateBidi(context.getString(R.string.Recipient_unknown));
     }
 
-    return StringUtil.isolateBidi(name);
+    return name;
   }
 
   public @NonNull String getShortDisplayName(@NonNull Context context) {
@@ -811,7 +814,7 @@ public class Recipient {
     return profileKey;
   }
 
-  public @Nullable byte[] getProfileKeyCredential() {
+  public @Nullable ProfileKeyCredential getProfileKeyCredential() {
     return profileKeyCredential;
   }
 

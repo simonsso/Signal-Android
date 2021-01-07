@@ -37,19 +37,19 @@ import com.google.android.material.snackbar.Snackbar;
 import org.thoughtcrime.securesms.R;
 import org.thoughtcrime.securesms.components.registration.PulsingFloatingActionButton;
 import org.thoughtcrime.securesms.database.DatabaseFactory;
-import org.thoughtcrime.securesms.tracing.Trace;
 import org.thoughtcrime.securesms.util.task.SnackbarAsyncTask;
+import org.thoughtcrime.securesms.util.views.Stub;
 
 import java.util.Set;
 
 
-@Trace
 public class ConversationListArchiveFragment extends ConversationListFragment implements ActionMode.Callback
 {
   private RecyclerView                list;
-  private View                        emptyState;
+  private Stub<View>                  emptyState;
   private PulsingFloatingActionButton fab;
   private PulsingFloatingActionButton cameraFab;
+  private Stub<Toolbar>               toolbar;
 
   public static ConversationListArchiveFragment newInstance() {
     return new ConversationListArchiveFragment();
@@ -63,17 +63,18 @@ public class ConversationListArchiveFragment extends ConversationListFragment im
 
   @Override
   public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+    toolbar = new Stub<>(view.findViewById(R.id.toolbar_basic));
+
     super.onViewCreated(view, savedInstanceState);
 
     list       = view.findViewById(R.id.list);
     fab        = view.findViewById(R.id.fab);
     cameraFab  = view.findViewById(R.id.camera_fab);
-    emptyState = view.findViewById(R.id.empty_state);
+    emptyState = new Stub<>(view.findViewById(R.id.empty_state));
 
     ((AppCompatActivity) requireActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-    Toolbar toolbar = view.findViewById(R.id.toolbar_basic);
-    toolbar.setNavigationOnClickListener(v -> requireActivity().onBackPressed());
-    toolbar.setTitle(R.string.AndroidManifest_archived_conversations);
+    toolbar.get().setNavigationOnClickListener(v -> requireActivity().onBackPressed());
+    toolbar.get().setTitle(R.string.AndroidManifest_archived_conversations);
 
     fab.hide();
     cameraFab.hide();
@@ -82,7 +83,10 @@ public class ConversationListArchiveFragment extends ConversationListFragment im
   @Override
   protected void onPostSubmitList() {
     list.setVisibility(View.VISIBLE);
-    emptyState.setVisibility(View.GONE);
+
+    if (emptyState.resolved()) {
+      emptyState.get().setVisibility(View.GONE);
+    }
   }
 
   @Override
@@ -91,8 +95,8 @@ public class ConversationListArchiveFragment extends ConversationListFragment im
   }
 
   @Override
-  protected int getToolbarRes() {
-    return R.id.toolbar_basic;
+  protected @NonNull Toolbar getToolbar(@NonNull View rootView) {
+    return toolbar.get();
   }
 
   @Override

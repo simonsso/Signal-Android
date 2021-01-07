@@ -1,6 +1,7 @@
 package org.thoughtcrime.securesms.util.livedata;
 
 import android.os.Handler;
+import android.os.Looper;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
@@ -65,7 +66,11 @@ public final class LiveDataUtil {
     MediatorLiveData<B> outputLiveData   = new MediatorLiveData<>();
     Executor            liveDataExecutor = new SerialMonoLifoExecutor(executor);
 
-    outputLiveData.addSource(source, currentValue -> liveDataExecutor.execute(() -> outputLiveData.postValue(backgroundFunction.apply(currentValue))));
+    outputLiveData.addSource(source, currentValue -> {
+      liveDataExecutor.execute(() -> {
+        outputLiveData.postValue(backgroundFunction.apply(currentValue));
+      });
+    });
 
     return outputLiveData;
   }
@@ -158,7 +163,7 @@ public final class LiveDataUtil {
       @Override
       protected void onActive() {
         if (emittedValue) return;
-        new Handler().postDelayed(() -> setValue(value), delay);
+        new Handler(Looper.getMainLooper()).postDelayed(() -> setValue(value), delay);
         emittedValue = true;
       }
     };

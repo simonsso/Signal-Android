@@ -50,7 +50,6 @@ import org.thoughtcrime.securesms.recipients.RecipientDetails;
 import org.thoughtcrime.securesms.recipients.RecipientId;
 import org.thoughtcrime.securesms.recipients.RecipientUtil;
 import org.thoughtcrime.securesms.storage.StorageSyncHelper;
-import org.thoughtcrime.securesms.tracing.Trace;
 import org.thoughtcrime.securesms.util.ConversationUtil;
 import org.thoughtcrime.securesms.util.CursorUtil;
 import org.thoughtcrime.securesms.util.JsonUtils;
@@ -76,7 +75,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
-@Trace
 public class ThreadDatabase extends Database {
 
   private static final String TAG = ThreadDatabase.class.getSimpleName();
@@ -564,6 +562,8 @@ public class ThreadDatabase extends Database {
       query += " AND " + RecipientDatabase.TABLE_NAME + "." + RecipientDatabase.GROUP_TYPE + " != " + RecipientDatabase.GroupType.SIGNAL_V1.getId();
     }
 
+    query += " AND " + ARCHIVED + " = 0";
+
     return db.rawQuery(createQuery(query, 0, limit, true), null);
   }
 
@@ -604,10 +604,6 @@ public class ThreadDatabase extends Database {
       }
     }
     return threadRecords;
-  }
-
-  public Cursor getConversationList() {
-    return getConversationList("0");
   }
 
   public Cursor getArchivedConversationList() {
@@ -1422,7 +1418,7 @@ public class ThreadDatabase extends Database {
 
     public ThreadRecord getCurrent() {
       RecipientId       recipientId       = RecipientId.from(CursorUtil.requireLong(cursor, ThreadDatabase.RECIPIENT_ID));
-      RecipientSettings recipientSettings = RecipientDatabase.getRecipientSettings(context, cursor);
+      RecipientSettings recipientSettings = RecipientDatabase.getRecipientSettings(context, cursor, ThreadDatabase.RECIPIENT_ID);
 
       Recipient recipient;
 
@@ -1442,7 +1438,7 @@ public class ThreadDatabase extends Database {
         }
       } else {
         RecipientDetails details = RecipientDetails.forIndividual(context, recipientSettings);
-        recipient = new Recipient(recipientId, details, false);
+        recipient = new Recipient(recipientId, details, true);
       }
 
       int readReceiptCount = TextSecurePreferences.isReadReceiptsEnabled(context) ? cursor.getInt(cursor.getColumnIndexOrThrow(ThreadDatabase.READ_RECEIPT_COUNT))
