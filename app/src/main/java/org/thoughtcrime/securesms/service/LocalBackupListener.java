@@ -13,8 +13,8 @@ import java.util.concurrent.TimeUnit;
 
 public class LocalBackupListener extends PersistentAlarmManagerListener {
 
-  private static final long INTERVAL = TimeUnit.DAYS.toMillis(1);
-
+  // Customization Change every day to backup once a week
+  private static final long INTERVAL = TimeUnit.DAYS.toMillis(7);
   @Override
   protected long getNextScheduledExecutionTime(Context context) {
     return TextSecurePreferences.getNextBackupTime(context);
