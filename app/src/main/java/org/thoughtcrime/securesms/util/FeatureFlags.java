@@ -67,8 +67,10 @@ public final class FeatureFlags {
   private static final String SEND_VIEWED_RECEIPTS         = "android.sendViewedReceipts";
   private static final String CUSTOM_VIDEO_MUXER           = "android.customVideoMuxer";
   private static final String CDS_REFRESH_INTERVAL         = "cds.syncInterval.seconds";
-  private static final String AUTOMATIC_SESSION_RESET      = "android.automaticSessionReset";
+  private static final String AUTOMATIC_SESSION_RESET      = "android.automaticSessionReset.2";
+  private static final String AUTOMATIC_SESSION_INTERVAL   = "android.automaticSessionResetInterval";
   private static final String DEFAULT_MAX_BACKOFF          = "android.defaultMaxBackoff";
+  private static final String OKHTTP_AUTOMATIC_RETRY       = "android.okhttpAutomaticRetry";
 
   /**
    * We will only store remote values for flags in this set. If you want a flag to be controllable
@@ -94,7 +96,9 @@ public final class FeatureFlags {
       CDS_REFRESH_INTERVAL,
       GROUP_NAME_MAX_LENGTH,
       AUTOMATIC_SESSION_RESET,
-      DEFAULT_MAX_BACKOFF
+      AUTOMATIC_SESSION_INTERVAL,
+      DEFAULT_MAX_BACKOFF,
+      OKHTTP_AUTOMATIC_RETRY
   );
 
   @VisibleForTesting
@@ -130,7 +134,9 @@ public final class FeatureFlags {
       CDS_REFRESH_INTERVAL,
       GROUP_NAME_MAX_LENGTH,
       AUTOMATIC_SESSION_RESET,
-      DEFAULT_MAX_BACKOFF
+      AUTOMATIC_SESSION_INTERVAL,
+      DEFAULT_MAX_BACKOFF,
+      OKHTTP_AUTOMATIC_RETRY
   );
 
   /**
@@ -296,8 +302,18 @@ public final class FeatureFlags {
     return getBoolean(AUTOMATIC_SESSION_RESET, true);
   }
 
+  /** How often we allow an automatic session reset. */
+  public static int automaticSessionResetIntervalSeconds() {
+    return getInteger(AUTOMATIC_SESSION_RESET, (int) TimeUnit.HOURS.toSeconds(1));
+  }
+
   public static int getDefaultMaxBackoffSeconds() {
     return getInteger(DEFAULT_MAX_BACKOFF, 60);
+  }
+
+  /** Whether or not to allow automatic retries from OkHttp */
+  public static boolean okHttpAutomaticRetry() {
+    return getBoolean(OKHTTP_AUTOMATIC_RETRY, false);
   }
 
   /** Only for rendering debug info. */
