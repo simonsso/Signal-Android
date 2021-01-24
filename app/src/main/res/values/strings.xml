@@ -2003,6 +2003,13 @@
     <string name="EditAboutFragment_about">About</string>
     <string name="EditAboutFragment_write_a_few_words_about_yourself">Write a few words about yourself…</string>
     <string name="EditAboutFragment_count">%d/%d</string>
+    <string name="EditAboutFragment_speak_freely">Speak freely</string>
+    <string name="EditAboutFragment_encrypted">Encrypted</string>
+    <string name="EditAboutFragment_be_kind">Be kind</string>
+    <string name="EditAboutFragment_coffee_lover">Coffee lover</string>
+    <string name="EditAboutFragment_free_to_chat">Free to chat</string>
+    <string name="EditAboutFragment_taking_a_break">Taking a break</string>
+    <string name="EditAboutFragment_working_on_something_new">Working on something new</string>
 
     <!-- EditProfileFragment -->
     <string name="EditProfileFragment__edit_group_name_and_photo">Edit group name and photo</string>
@@ -2014,6 +2021,7 @@
     <string name="EditProfileNameFragment_first_name">First name</string>
     <string name="EditProfileNameFragment_last_name_optional">Last name (optional)</string>
     <string name="EditProfileNameFragment_save">Save</string>
+    <string name="EditProfileNameFragment_failed_to_save_due_to_network_issues_try_again_later">Failed to save due to network issues. Try again later.</string>
 
     <!-- recipient_preferences_activity -->
     <string name="recipient_preference_activity__shared_media">Shared media</string>
@@ -2819,6 +2827,7 @@
     <string name="ShareActivity__share">Share</string>
     <string name="ShareActivity__send">Send</string>
     <string name="ShareActivity__s_comma">%1$s,</string>
+    <string name="ShareActivity__sharing_to_multiple_chats_is">Sharing to multiple chats is only supported for Signal messages</string>
 
     <!-- MultiShareDialogs -->
     <string name="MultiShareDialogs__failed_to_send_to_some_users">Failed to send to some users</string>
@@ -2834,9 +2843,10 @@
     <string name="ChatWallpaperFragment__set_wallpaper">Set wallpaper</string>
     <string name="ChatWallpaperFragment__dark_theme_dims_wallpaper">Dark theme dims wallpaper</string>
     <string name="ChatWallpaperFragment__clear_wallpaper">Clear wallpaper</string>
-    <string name="ChatWallpaperFragment__clear_wallpaper_question_mark">Clear wallpaper?</string>
+    <string name="ChatWallpaperFragment__clear_wallpaper_for_this_chat">Clear wallpaper for this chat?</string>
+    <string name="ChatWallpaperFragment__clear_wallpaper_this_will_not">Clear wallpaper? This will not clear custom wallpapers you’ve set for your chats.</string>
     <string name="ChatWallpaperFragment__reset_all_wallpapers">Reset all wallpapers</string>
-    <string name="ChatWallpaperFragment__reset_all_wallpapers_question_mark">Reset all wallpapers?</string>
+    <string name="ChatWallpaperFragment__reset_all_wallpapers_including_custom">Reset all wallpapers, including custom wallpapers you’ve set for your chats?</string>
     <string name="ChatWallpaperFragment__contact_name">Contact name</string>
     <string name="ChatWallpaperFragment__reset">Reset</string>
     <string name="ChatWallpaperFragment__clear">Clear</string>
@@ -2862,7 +2872,7 @@
     <string name="WallpaperCropActivity__set_wallpaper_for_all_chats">Set wallpaper for all chats.</string>
     <string name="WallpaperCropActivity__set_wallpaper_for_s">Set wallpaper for %s.</string>
     <string name="WallpaperCropActivity__error_setting_wallpaper">Error setting wallpaper.</string>
-    <string name="WallpaperCropActivity__blur">Blur</string>
+    <string name="WallpaperCropActivity__blur_photo">Blur photo</string>
 
     <!-- EOF -->
 

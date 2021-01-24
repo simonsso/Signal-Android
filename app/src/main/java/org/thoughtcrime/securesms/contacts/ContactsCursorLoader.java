@@ -63,6 +63,7 @@ public class ContactsCursorLoader extends CursorLoader {
     public static final int FLAG_SELF            = 1 << 4;
     public static final int FLAG_BLOCK           = 1 << 5;
     public static final int FLAG_HIDE_GROUPS_V1  = 1 << 5;
+    public static final int FLAG_HIDE_NEW        = 1 << 6;
     public static final int FLAG_ALL             = FLAG_PUSH |  FLAG_SMS | FLAG_ACTIVE_GROUPS | FLAG_INACTIVE_GROUPS | FLAG_SELF;
   }
 
@@ -135,8 +136,11 @@ public class ContactsCursorLoader extends CursorLoader {
 
     addContactsSection(cursorList);
     addGroupsSection(cursorList);
-    addNewNumberSection(cursorList);
-    addUsernameSearchSection(cursorList);
+
+    if (!hideNewNumberOrUsername(mode)) {
+      addNewNumberSection(cursorList);
+      addUsernameSearchSection(cursorList);
+    }
 
     return cursorList;
   }
@@ -275,7 +279,7 @@ public class ContactsCursorLoader extends CursorLoader {
     ThreadDatabase threadDatabase = DatabaseFactory.getThreadDatabase(getContext());
 
     MatrixCursor recentConversations = new MatrixCursor(CONTACT_PROJECTION, RECENT_CONVERSATION_MAX);
-    try (Cursor rawConversations = threadDatabase.getRecentConversationList(RECENT_CONVERSATION_MAX, flagSet(mode, DisplayMode.FLAG_INACTIVE_GROUPS), groupsOnly, hideGroupsV1(mode))) {
+    try (Cursor rawConversations = threadDatabase.getRecentConversationList(RECENT_CONVERSATION_MAX, flagSet(mode, DisplayMode.FLAG_INACTIVE_GROUPS), groupsOnly, hideGroupsV1(mode), !smsEnabled(mode))) {
       ThreadDatabase.Reader reader = threadDatabase.readerFor(rawConversations);
       ThreadRecord threadRecord;
       while ((threadRecord = reader.getNext()) != null) {
@@ -287,7 +291,7 @@ public class ContactsCursorLoader extends CursorLoader {
                                                   stringId,
                                                   ContactsContract.CommonDataKinds.Phone.TYPE_MOBILE,
                                                   "",
-                                                  ContactRepository.RECENT_TYPE,
+                                                  ContactRepository.RECENT_TYPE | (recipient.isRegistered() && !recipient.isForceSmsSelection() ? ContactRepository.PUSH_TYPE : 0),
                                                   recipient.getCombinedAboutAndEmoji() });
       }
     }
@@ -427,6 +431,10 @@ public class ContactsCursorLoader extends CursorLoader {
 
   private static boolean hideGroupsV1(int mode) {
     return flagSet(mode, DisplayMode.FLAG_HIDE_GROUPS_V1);
+  }
+
+  private static boolean hideNewNumberOrUsername(int mode) {
+    return flagSet(mode, DisplayMode.FLAG_HIDE_NEW);
   }
 
   private static boolean flagSet(int mode, int flag) {

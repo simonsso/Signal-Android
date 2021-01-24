@@ -1119,7 +1119,7 @@
     <item quantity="one">Du har %1$d forsøk igjen. Hvis du går tom for forsøk, kan du opprette en ny PIN. Du kan registrere og bruke kontoen din, men du vil miste noen lagrede innstillinger som profilinformasjonen din.</item>
     <item quantity="other">Du har %1$d forsøk igjen. Hvis du går tom for forsøk, kan du opprette en ny PIN. Du kan registrere og bruke kontoen din, men du vil miste noen lagrede innstillinger som profilinformasjonen din.</item>
   </plurals>
-  <string name="PinRestoreEntryFragment_signal_registration_need_help_with_pin">Signal Registrering - Hjelp ønskes til verifikasjonskode for Android</string>
+  <string name="PinRestoreEntryFragment_signal_registration_need_help_with_pin">Signal Registrering - Hjelp ønskes til PIN for Android</string>
   <string name="PinRestoreEntryFragment_enter_alphanumeric_pin">Skriv inn alfanumerisk PIN</string>
   <string name="PinRestoreEntryFragment_enter_numeric_pin">Skriv inn numerisk PIN</string>
   <!--PinRestoreLockedFragment-->
@@ -1689,6 +1689,11 @@ Mottok nøkkelutvekslingsmelding for ugyldig protokollversion.</string>
   <!--EditAboutFragment-->
   <string name="EditAboutFragment_about">Om</string>
   <string name="EditAboutFragment_write_a_few_words_about_yourself">Skriv noen ord om deg selv…</string>
+  <string name="EditAboutFragment_be_kind">Vær grei</string>
+  <string name="EditAboutFragment_coffee_lover">Kaffielsker</string>
+  <string name="EditAboutFragment_free_to_chat">Ledig til samtale</string>
+  <string name="EditAboutFragment_taking_a_break">Tar en pause</string>
+  <string name="EditAboutFragment_working_on_something_new">Jobber med noe nytt</string>
   <!--EditProfileFragment-->
   <string name="EditProfileFragment__edit_group_name_and_photo">Rediger gruppenavn og bilde</string>
   <string name="EditProfileFragment__group_name">Gruppenavn</string>
