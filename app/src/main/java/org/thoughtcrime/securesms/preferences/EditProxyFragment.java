@@ -20,9 +20,14 @@ import androidx.lifecycle.ViewModelProviders;
 import com.dd.CircularProgressButton;
 
 import org.thoughtcrime.securesms.R;
+import org.thoughtcrime.securesms.contactshare.SimpleTextWatcher;
 import org.thoughtcrime.securesms.keyvalue.SignalStore;
 import org.thoughtcrime.securesms.net.PipeConnectivityListener;
+import org.thoughtcrime.securesms.util.CommunicationActions;
 import org.thoughtcrime.securesms.util.SignalProxyUtil;
+import org.thoughtcrime.securesms.util.Util;
+import org.thoughtcrime.securesms.util.ViewUtil;
+import org.thoughtcrime.securesms.util.views.LearnMoreTextView;
 import org.whispersystems.libsignal.util.guava.Optional;
 import org.whispersystems.signalservice.internal.configuration.SignalProxy;
 
@@ -54,6 +59,13 @@ public class EditProxyFragment extends Fragment {
     this.saveButton  = view.findViewById(R.id.edit_proxy_save);
     this.shareButton = view.findViewById(R.id.edit_proxy_share);
 
+    proxyText.addTextChangedListener(new SimpleTextWatcher() {
+      @Override
+      public void onTextChanged(String text) {
+        onProxyTextChanged(text);
+      }
+    });
+
     this.proxyText.setText(Optional.fromNullable(SignalStore.proxy().getProxy()).transform(SignalProxy::getHost).or(""));
     this.proxySwitch.setChecked(SignalStore.proxy().isProxyEnabled());
 
@@ -62,6 +74,10 @@ public class EditProxyFragment extends Fragment {
     saveButton.setOnClickListener(v -> onSaveClicked());
     shareButton.setOnClickListener(v -> onShareClicked());
     proxySwitch.setOnCheckedChangeListener((buttonView, isChecked) -> viewModel.onToggleProxy(isChecked));
+
+    LearnMoreTextView description = view.findViewById(R.id.edit_proxy_switch_title_description);
+    description.setLearnMoreVisible(true);
+    description.setOnLinkClickListener(v -> CommunicationActions.openBrowserLink(requireContext(), "https://support.signal.org/hc/articles/360056052052"));
 
     requireActivity().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
   }
@@ -87,12 +103,8 @@ public class EditProxyFragment extends Fragment {
       case ALL_ENABLED:
         proxyText.setEnabled(true);
         proxyText.setAlpha(1);
-        saveButton.setEnabled(true);
-        saveButton.setAlpha(1);
-        shareButton.setEnabled(true);
-        shareButton.setAlpha(1);
         proxyTitle.setAlpha(1);
-        proxyStatus.setVisibility(View.VISIBLE);
+        onProxyTextChanged(proxyText.getText().toString());
         break;
       case ALL_DISABLED:
         proxyText.setEnabled(false);
@@ -137,12 +149,17 @@ public class EditProxyFragment extends Fragment {
         new AlertDialog.Builder(requireContext())
                        .setTitle(R.string.preferences_success)
                        .setMessage(R.string.preferences_you_are_connected_to_the_proxy)
-                       .setPositiveButton(android.R.string.ok, (d, i) -> d.dismiss())
+                       .setPositiveButton(android.R.string.ok, (d, i) -> {
+                         d.dismiss();
+                         requireActivity().onBackPressed();
+                       })
                        .show();
+        requireActivity().onBackPressed();
         break;
       case PROXY_FAILURE:
         proxyStatus.setVisibility(View.INVISIBLE);
         proxyText.setText(Optional.fromNullable(SignalStore.proxy().getProxy()).transform(SignalProxy::getHost).or(""));
+        ViewUtil.focusAndMoveCursorToEndAndOpenKeyboard(proxyText);
         new AlertDialog.Builder(requireContext())
                        .setTitle(R.string.preferences_failed_to_connect)
                        .setMessage(R.string.preferences_couldnt_connect_to_the_proxy)
@@ -172,10 +189,32 @@ public class EditProxyFragment extends Fragment {
   }
 
   private void onShareClicked() {
-    String host = proxyText.getText().toString();
+    String link = SignalProxyUtil.generateProxyUrl(proxyText.getText().toString());
     ShareCompat.IntentBuilder.from(requireActivity())
-                             .setText(host)
+                             .setText(link)
                              .setType("text/plain")
                              .startChooser();
+  }
+
+  private void onProxyTextChanged(@NonNull String text) {
+    if (Util.isEmpty(text)) {
+      saveButton.setEnabled(false);
+      saveButton.setAlpha(0.5f);
+      shareButton.setEnabled(false);
+      shareButton.setAlpha(0.5f);
+      proxyStatus.setVisibility(View.INVISIBLE);
+    } else {
+      saveButton.setEnabled(true);
+      saveButton.setAlpha(1);
+      shareButton.setEnabled(true);
+      shareButton.setAlpha(1);
+
+      String trueHost = SignalProxyUtil.convertUserEnteredAddressToHost(proxyText.getText().toString());
+      if (SignalStore.proxy().isProxyEnabled() && trueHost.equals(SignalStore.proxy().getProxyHost())) {
+        proxyStatus.setVisibility(View.VISIBLE);
+      } else {
+        proxyStatus.setVisibility(View.INVISIBLE);
+      }
+    }
   }
 }
