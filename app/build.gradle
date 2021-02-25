@@ -61,8 +61,8 @@ protobuf {
     }
 }
 
-def canonicalVersionCode = 793
-def canonicalVersionName = "5.4.7"
+def canonicalVersionCode = 794
+def canonicalVersionName = "5.4.8"
 
 def postFixSize = 100
 def abiPostFix = ['universal'   : 0,
@@ -312,6 +312,7 @@ dependencies {
     implementation "androidx.camera:camera-view:1.0.0-alpha18"
     implementation "androidx.concurrent:concurrent-futures:1.0.0"
     implementation "androidx.autofill:autofill:1.0.0"
+    implementation "androidx.biometric:biometric:1.1.0"
 
     implementation ('com.google.firebase:firebase-messaging:20.2.0') {
         exclude group: 'com.google.firebase', module: 'firebase-core'
@@ -335,7 +336,7 @@ dependencies {
     implementation project(':video')
 
     implementation 'org.signal:zkgroup-android:0.7.0'
-    implementation 'org.whispersystems:signal-client-android:0.1.5'
+    implementation 'org.whispersystems:signal-client-android:0.1.7'
     implementation 'com.google.protobuf:protobuf-javalite:3.10.0'
     implementation 'org.signal:argon2:13.1@aar'
 

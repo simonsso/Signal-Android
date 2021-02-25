@@ -26,6 +26,12 @@ jobs:
 
     - name: Build with Gradle
       run: ./gradlew qa
+    - name: Archive reports for failed build
+      if: ${{ failure() }}
+      uses: actions/upload-artifact@v2
+      with:
+        name: reports
+        path: '*/build/reports'
   apk:
     name: Generate APK
     runs-on: ubuntu-18.04
