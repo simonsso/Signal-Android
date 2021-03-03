@@ -234,6 +234,7 @@
   <string name="ConversationActivity__more_options_now_in_group_settings">Pli da elektoj nun en „Grup-agordoj“</string>
   <string name="ConversationActivity_join">Aniĝi</string>
   <string name="ConversationActivity_full">Plena</string>
+  <string name="ConversationActivity_error_sending_media">Eraro dum sendado de aŭdvidaĵo</string>
   <!--ConversationAdapter-->
   <plurals name="ConversationAdapter_n_unread_messages">
     <item quantity="one">%d nelegita mesaĝo</item>
@@ -836,6 +837,11 @@
   <string name="NotificationBarManager__answer_call">Respondi alvokon</string>
   <string name="NotificationBarManager__end_call">Fini alvokon</string>
   <string name="NotificationBarManager__cancel_call">Nuligi alvokon</string>
+  <!--NotificationsMegaphone-->
+  <string name="NotificationsMegaphone_turn_on_notifications">Ĉu ŝalti sciigojn?</string>
+  <string name="NotificationsMegaphone_never_miss_a_message">Neniam preterlasu mesaĝon el viaj kontaktoj kaj grupoj.</string>
+  <string name="NotificationsMegaphone_turn_on">Aktivigi</string>
+  <string name="NotificationsMegaphone_not_now">Ne nun</string>
   <!--NotificationMmsMessageRecord-->
   <string name="NotificationMmsMessageRecord_multimedia_message">Aŭdvida mesaĝo</string>
   <string name="NotificationMmsMessageRecord_downloading_mms_message">Elŝutado de MMS-mesaĝo</string>
@@ -1245,6 +1251,7 @@
   <string name="RegistrationActivity_continue">Daŭrigi</string>
   <string name="RegistrationActivity_take_privacy_with_you_be_yourself_in_every_message">Kunprenu privatecon.\nEstu vi mem en ĉiu mesaĝo.</string>
   <string name="RegistrationActivity_enter_your_phone_number_to_get_started">Entajpu vian telefonnumeron unue</string>
+  <string name="RegistrationActivity_enter_your_phone_number">Entajpu vian telefonnumeron</string>
   <string name="RegistrationActivity_you_will_receive_a_verification_code">Vi ricevos konfirman kodon per SMS. Eble via sendrata provizanto pagigos al vi la SMS-on.</string>
   <string name="RegistrationActivity_enter_the_code_we_sent_to_s">Bv. entajpi la kontrolkodon senditan al %s.</string>
   <string name="RegistrationActivity_make_sure_your_phone_has_a_cellular_signal">Kontrolu, ĉu via telefono havas ĉelan signalon por ricevi SMS-on aŭ alvokon</string>
@@ -2338,6 +2345,8 @@ Ricevis mesaĝon pri interŝanĝo de ŝlosiloj por nevalida protokola versio.
   <string name="GroupsLearnMore_paragraph_2">Malnovtipaj grupoj ankoraŭ ne konverteblas al novtipaj grupoj, sed vi povas krei novtipan grupon kun la samaj anoj, se ili havas la lastan version de Signal.</string>
   <string name="GroupsLearnMore_paragraph_3">Signal permesos novtipigi malnovtipajn grupojn estonte.</string>
   <!--GroupLinkBottomSheetDialogFragment-->
+  <string name="GroupLinkBottomSheet_share_hint_requiring_approval">Per tiu ligilo, ĉiu ajn povas vidi la nomon kaj la foton de la grupo, kaj peti aniĝon. Kunhavigu la ligilon kun homoj, kiujn vi fidas.</string>
+  <string name="GroupLinkBottomSheet_share_hint_not_requiring_approval">Per tiu ligilo, ĉiu ajn povas vidi la nomon kaj la foton de la grupo, kaj  povas aniĝi. Kunhavigu la ligilon kun homoj, kiujn vi fidas.</string>
   <string name="GroupLinkBottomSheet_share_via_signal">Kunhavi per Signal</string>
   <string name="GroupLinkBottomSheet_copy">Kopii</string>
   <string name="GroupLinkBottomSheet_qr_code">QR-kodo</string>

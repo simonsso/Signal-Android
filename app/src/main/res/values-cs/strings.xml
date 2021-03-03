@@ -236,6 +236,7 @@
   <string name="ConversationActivity__more_options_now_in_group_settings">Více možností nyní v \"Nastavení skupiny\"</string>
   <string name="ConversationActivity_join">Připojit</string>
   <string name="ConversationActivity_full">Plno</string>
+  <string name="ConversationActivity_error_sending_media">Chyba při odesílání médií</string>
   <!--ConversationAdapter-->
   <plurals name="ConversationAdapter_n_unread_messages">
     <item quantity="one">%d nepřečtená zpráva</item>
@@ -922,6 +923,11 @@
   <string name="NotificationBarManager__answer_call">Přijmout hovor</string>
   <string name="NotificationBarManager__end_call">Ukončit hovor</string>
   <string name="NotificationBarManager__cancel_call">Zrušit hovor</string>
+  <!--NotificationsMegaphone-->
+  <string name="NotificationsMegaphone_turn_on_notifications">Zapnout Notifikace?</string>
+  <string name="NotificationsMegaphone_never_miss_a_message">Nezmeškejte žádnou zprávu od svých kontaktů a skupin.</string>
+  <string name="NotificationsMegaphone_turn_on">Zapnout</string>
+  <string name="NotificationsMegaphone_not_now">Teď ne</string>
   <!--NotificationMmsMessageRecord-->
   <string name="NotificationMmsMessageRecord_multimedia_message">Multimediální zpráva</string>
   <string name="NotificationMmsMessageRecord_downloading_mms_message">Stahuji MMS zprávu</string>
@@ -1366,6 +1372,7 @@ telefonní číslo
   <string name="RegistrationActivity_continue">Pokračovat</string>
   <string name="RegistrationActivity_take_privacy_with_you_be_yourself_in_every_message">Noste soukromí s sebou.\nBuďte sami sebou v každé zprávě.</string>
   <string name="RegistrationActivity_enter_your_phone_number_to_get_started">Začněte zadáním telefonního čísla</string>
+  <string name="RegistrationActivity_enter_your_phone_number">Zadejte vaše tel. číslo</string>
   <string name="RegistrationActivity_you_will_receive_a_verification_code">Bude vám zaslán ověřovací kód. Zaslání může být zpoplatněno.</string>
   <string name="RegistrationActivity_enter_the_code_we_sent_to_s">Zadejte kód, který jsme vám zaslali %s</string>
   <string name="RegistrationActivity_make_sure_your_phone_has_a_cellular_signal">Pro příjem SMS a hovorů se ujistěte, že váš telefon má mobilní signál </string>
@@ -2498,6 +2505,8 @@ Obdržen požadavek na výměnu klíčů pro neplatnou verzi protokolu.
   <string name="GroupsLearnMore_paragraph_2">Starší skupiny zatím nelze aktualizovat na nové skupiny, ale můžete vytvořit novou skupinu se stejnými členy, pokud používají poslední verzi Signal.</string>
   <string name="GroupsLearnMore_paragraph_3">Signal nabídne možnost aktualizovat starší skupiny v budoucnosti.</string>
   <!--GroupLinkBottomSheetDialogFragment-->
+  <string name="GroupLinkBottomSheet_share_hint_requiring_approval">Kdokoli, kdo má tento odkaz, může vidět jméno skupiny a fotografii a může požádat o připojení ke skupině. Sdílejte pouze s lidmi, kterým důvěřujete.</string>
+  <string name="GroupLinkBottomSheet_share_hint_not_requiring_approval">Kdokoli, kdo má tento odkaz, může vidět jméno skupiny a fotografii a může se připojit ke skupině. Sdílejte pouze s lidmi, kterým důvěřujete.</string>
   <string name="GroupLinkBottomSheet_share_via_signal">Sdílet přes Signal</string>
   <string name="GroupLinkBottomSheet_copy">Kopírovat</string>
   <string name="GroupLinkBottomSheet_qr_code">QR kód</string>

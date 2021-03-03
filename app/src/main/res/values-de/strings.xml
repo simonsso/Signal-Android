@@ -234,6 +234,7 @@
   <string name="ConversationActivity__more_options_now_in_group_settings">Jetzt mehr Optionen in »Gruppeneinstellungen«</string>
   <string name="ConversationActivity_join">Beitreten</string>
   <string name="ConversationActivity_full">Voll</string>
+  <string name="ConversationActivity_error_sending_media">Fehler beim Senden der Medieninhalte</string>
   <!--ConversationAdapter-->
   <plurals name="ConversationAdapter_n_unread_messages">
     <item quantity="one">%d ungelesene Nachricht</item>
@@ -836,6 +837,11 @@
   <string name="NotificationBarManager__answer_call">Anruf annehmen</string>
   <string name="NotificationBarManager__end_call">Anruf beenden</string>
   <string name="NotificationBarManager__cancel_call">Anruf abbrechen</string>
+  <!--NotificationsMegaphone-->
+  <string name="NotificationsMegaphone_turn_on_notifications">Benachrichtigungen einschalten?</string>
+  <string name="NotificationsMegaphone_never_miss_a_message">Versäume nie eine Nachricht deiner Kontakte und Gruppen.</string>
+  <string name="NotificationsMegaphone_turn_on">Einschalten</string>
+  <string name="NotificationsMegaphone_not_now">Jetzt nicht</string>
   <!--NotificationMmsMessageRecord-->
   <string name="NotificationMmsMessageRecord_multimedia_message">MMS</string>
   <string name="NotificationMmsMessageRecord_downloading_mms_message">MMS wird heruntergeladen …</string>
@@ -1237,6 +1243,7 @@
   <string name="RegistrationActivity_continue">Weiter</string>
   <string name="RegistrationActivity_take_privacy_with_you_be_yourself_in_every_message">Nimm Privatsphäre mit dir.\nSei du selbst in jeder Nachricht.</string>
   <string name="RegistrationActivity_enter_your_phone_number_to_get_started">Gib deine Rufnummer ein, um zu beginnen</string>
+  <string name="RegistrationActivity_enter_your_phone_number">Gib deine Rufnummer ein</string>
   <string name="RegistrationActivity_you_will_receive_a_verification_code">Du wirst einen Verifikationscode erhalten. Dabei können Mobilfunkgebühren anfallen.</string>
   <string name="RegistrationActivity_enter_the_code_we_sent_to_s">Gib den Code ein, den wir an %s gesendet haben</string>
   <string name="RegistrationActivity_make_sure_your_phone_has_a_cellular_signal">Sorge für den Empfang deiner SMS oder deines Anrufs dafür, dass dein Telefon Mobilfunkempfang hat.</string>
@@ -2328,6 +2335,8 @@ Schlüsselaustausch-Nachricht für eine ungültige Protokollversion empfangen</s
   <string name="GroupsLearnMore_paragraph_2">Gruppen alten Typs können derzeit nicht in Gruppen neuen Typs umgewandelt werden, aber du kannst eine Gruppe neuen Typs mit denselben Mitgliedern erstellen, falls diese die neueste Signal-Version verwenden.</string>
   <string name="GroupsLearnMore_paragraph_3">Signal wird zukünftig eine Möglichkeit anbieten, Gruppen alten Typs umzuwandeln.</string>
   <!--GroupLinkBottomSheetDialogFragment-->
+  <string name="GroupLinkBottomSheet_share_hint_requiring_approval">Jeder mit diesem Link kann Name und Foto der Gruppe sehen und auch Beitrittsanfragen stellen. Teile ihn mit Personen, denen du vertraust.</string>
+  <string name="GroupLinkBottomSheet_share_hint_not_requiring_approval">Jeder mit diesem Link kann Name und Foto der Gruppe sehen und ihr auch beitreten. Teile ihn mit Personen, denen du vertraust.</string>
   <string name="GroupLinkBottomSheet_share_via_signal">Über Signal teilen</string>
   <string name="GroupLinkBottomSheet_copy">Kopieren</string>
   <string name="GroupLinkBottomSheet_qr_code">QR-Code</string>
