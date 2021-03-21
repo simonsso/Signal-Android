@@ -32,6 +32,7 @@ final class NetworkServerThread extends Thread {
   public static final int NETWORK_CLIENT_SSL_ESTABLISHED = 1005;
 
   private volatile ServerSocket serverSocket;
+  private volatile Socket       clientSocket;
   private volatile boolean      isRunning;
   private volatile Boolean      isVerified;
 
@@ -64,7 +65,13 @@ final class NetworkServerThread extends Thread {
       handler.sendMessage(handler.obtainMessage(NETWORK_SERVER_STARTED, serverSocket.getLocalPort(), 0));
       while (shouldKeepRunning() && !serverSocket.isClosed()) {
         Log.i(TAG, "Waiting for client socket accept...");
-        try (Socket clientSocket = serverSocket.accept()) {
+        try {
+          clientSocket = serverSocket.accept();
+
+          if (!isRunning) {
+            break;
+          }
+
           InputStream  inputStream        = clientSocket.getInputStream();
           OutputStream outputStream       = clientSocket.getOutputStream();
           int          authenticationCode = DeviceTransferAuthentication.generateServerAuthenticationCode(keys.getX509Encoded(), inputStream, outputStream);
@@ -73,10 +80,21 @@ final class NetworkServerThread extends Thread {
 
           Log.i(TAG, "Waiting for user to verify sas");
           awaitAuthenticationCodeVerification();
-
-          handler.sendEmptyMessage(NETWORK_CLIENT_CONNECTED);
+          Log.d(TAG, "Waiting for client to tell us they also verified");
           outputStream.write(0x43);
           outputStream.flush();
+          try {
+            int result = inputStream.read();
+            if (result == -1) {
+              Log.w(TAG, "Something happened waiting for client to verify");
+              throw new DeviceTransferAuthentication.DeviceTransferAuthenticationException("client disconnected while we waited");
+            }
+          } catch (IOException e) {
+            Log.w(TAG, "Something happened waiting for client to verify", e);
+            throw new DeviceTransferAuthentication.DeviceTransferAuthenticationException(e);
+          }
+
+          handler.sendEmptyMessage(NETWORK_CLIENT_CONNECTED);
           serverTask.run(context, inputStream);
 
           outputStream.write(0x53);
@@ -88,6 +106,7 @@ final class NetworkServerThread extends Thread {
             Log.i(TAG, "Server shutting down...");
           }
         } finally {
+          StreamUtil.close(clientSocket);
           handler.sendEmptyMessage(NETWORK_CLIENT_DISCONNECTED);
         }
       }
@@ -141,6 +160,7 @@ final class NetworkServerThread extends Thread {
   @AnyThread
   public void shutdown() {
     isRunning = false;
+    StreamUtil.close(clientSocket);
     StreamUtil.close(serverSocket);
     interrupt();
   }

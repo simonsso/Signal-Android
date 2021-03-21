@@ -1150,7 +1150,6 @@
   <string name="RatingManager_rate_now">Arvostele nyt!</string>
   <string name="RatingManager_no_thanks">Ei kiitos</string>
   <string name="RatingManager_later">Myöhemmin</string>
-  <string name="RatingManager_whoops_the_play_store_app_does_not_appear_to_be_installed">Hups, Play Kauppa -sovellusta ei ole asennettu laitteeseen.</string>
   <!--ReactionsBottomSheetDialogFragment-->
   <string name="ReactionsBottomSheetDialogFragment_all">Kaikki · %1$d</string>
   <!--ReactionsConversationView-->
@@ -2331,6 +2330,8 @@ Vastaanotetiin avaintenvaihtoviesti, joka kuuluu väärälle protokollaversiolle
   <string name="OldDeviceTransferComplete__close">Sulje</string>
   <!--NewDeviceTransferComplete-->
   <!--DeviceToDeviceTransferService-->
+  <!--OldDeviceTransferLockedDialog-->
+  <string name="OldDeviceTransferLockedDialog__done">Valmis</string>
   <!--RecipientBottomSheet-->
   <string name="RecipientBottomSheet_block">Estä</string>
   <string name="RecipientBottomSheet_unblock">Poista esto</string>

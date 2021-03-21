@@ -1093,7 +1093,6 @@
   <string name="RatingManager_rate_now">Đánh giá!</string>
   <string name="RatingManager_no_thanks">Xin miễn</string>
   <string name="RatingManager_later">Lúc khác</string>
-  <string name="RatingManager_whoops_the_play_store_app_does_not_appear_to_be_installed">Whoops, có vẻ như CH Play không được cài trên thiết bị này.</string>
   <!--ReactionsBottomSheetDialogFragment-->
   <string name="ReactionsBottomSheetDialogFragment_all">Tất cả · %1$d</string>
   <!--ReactionsConversationView-->
@@ -2238,10 +2237,7 @@ Nhận thông tin trao đổi mã khóa về phiên bản giao thức không h�
   <string name="TransferOrRestoreFragment__transfer_or_restore_account">Chuyển hoặc khôi phục tài khoản</string>
   <string name="TransferOrRestoreFragment__if_you_have_previously_registered_a_signal_account">Nếu trước đây bạn đã đăng kí tài khoản Signal, bạn có thể chuyển hoặc khôi phục tài khoản và các tin nhắn của bạn</string>
   <string name="TransferOrRestoreFragment__transfer_from_android_device">Chuyển từ thiết bị Android</string>
-  <string name="TransferOrRestoreFragment__transfer_your_account_and_message_history_from_your_old_android_device">Chuyển tài khoản và lịch sử tin nhắn từ thiết bị Android cũ của bạn. Bạn sẽ cần sở hữu thiết bị cũ.</string>
-  <string name="TransferOrRestoreFragment__you_must_have_access_to_your_old_device">Bạn cần sở hữu thiết bị cũ.</string>
   <string name="TransferOrRestoreFragment__restore_from_backup">Khôi phục từ bản sao lưu</string>
-  <string name="TransferOrRestoreFragment__restore_your_messages_and_media_from_a_local_backup">Khôi phục tin nhắn và đa phương tiện của bạn từ một bản sao lưu cục bộ. Bạn chỉ có thể khôi phục vào lúc này.</string>
   <!--NewDeviceTransferInstructionsFragment-->
   <string name="NewDeviceTransferInstructions__open_signal_on_your_old_android_phone">Mở Signal trên thiết bị Android cũ của bạn</string>
   <string name="NewDeviceTransferInstructions__continue">Tiếp tục</string>
@@ -2272,6 +2268,8 @@ Nhận thông tin trao đổi mã khóa về phiên bản giao thức không h�
   <string name="OldDeviceTransferComplete__close">Đóng</string>
   <!--NewDeviceTransferComplete-->
   <!--DeviceToDeviceTransferService-->
+  <!--OldDeviceTransferLockedDialog-->
+  <string name="OldDeviceTransferLockedDialog__done">Xong</string>
   <!--RecipientBottomSheet-->
   <string name="RecipientBottomSheet_block">Chặn</string>
   <string name="RecipientBottomSheet_unblock">Bỏ chặn</string>
