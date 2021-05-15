@@ -2,6 +2,8 @@
 
 # [Signal](https://signal.org/) with private patches
 
+*Project is currently abandoned*
+
 ## Background
 In signal for Android 4.51 changes to how UI works initiates calls were made. Since I am not a fan of unmotivated confirm requesters I
 decided to use the source and remove this feature. When I had opened the box of Pandora and begun maintaining my own fork other improvements could also be done.
